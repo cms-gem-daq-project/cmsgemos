@@ -86,22 +86,19 @@ def _makeXml(config):
     })
 
     # Include common definitions
-    ET.SubElement(schema, 'xs:include', {'schemaLocation': 'common.xsd'})
+    redef = ET.SubElement(schema, 'xs:redefine', {'schemaLocation': 'common.xsd'})
 
     # Redefine the ExtensionTableName type to restrict its contents to extTableName
-    redef = ET.SubElement(schema, 'xs:redefine', {'schemaLocation': 'common.xsd'})
     simpleT = ET.SubElement(redef, 'xs:simpleType', {'name': 'ExtensionTableName'})
     restrict = ET.SubElement(simpleT, 'xs:restriction', {'base': 'ExtensionTableName'})
     ET.SubElement(restrict, 'xs:enumeration', {'value': extTableName})
 
     # Redefine the KindOfPart type to restrict its contents to kindOfPart
-    redef = ET.SubElement(schema, 'xs:redefine', {'schemaLocation': 'common.xsd'})
     simpleT = ET.SubElement(redef, 'xs:simpleType', {'name': 'KindOfPart'})
     restrict = ET.SubElement(simpleT, 'xs:restriction', {'base': 'KindOfPart'})
     ET.SubElement(restrict, 'xs:enumeration', {'value': kindOfPart})
 
     # Extend the Data type with elements for all fields
-    redef = ET.SubElement(schema, 'xs:redefine', {'schemaLocation': 'common.xsd'})
     cplxType = ET.SubElement(redef, 'xs:complexType', {'name': 'Data'})
     cplxContent = ET.SubElement(cplxType, 'xs:complexContent')
     extension = ET.SubElement(cplxContent, 'xs:extension', {'base': 'Data'})
