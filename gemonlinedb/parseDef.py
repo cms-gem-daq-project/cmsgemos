@@ -102,7 +102,7 @@ def _makeXml(config):
     cplxType = ET.SubElement(redef, 'xs:complexType', {'name': 'Data'})
     cplxContent = ET.SubElement(cplxType, 'xs:complexContent')
     extension = ET.SubElement(cplxContent, 'xs:extension', {'base': 'Data'})
-    sequence = ET.SubElement(extension, 'xs:sequence')
+    sequence = ET.SubElement(extension, 'xs:all')
     for f in fields:
         f.subElement(sequence)
 
