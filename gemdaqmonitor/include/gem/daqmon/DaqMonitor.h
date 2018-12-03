@@ -12,7 +12,7 @@
 #include <fstream>
 #include <time.h>
 
-#include <boost/iostreams/filtering_stream.hpp>    
+#include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
@@ -29,7 +29,7 @@ namespace gem {
     class DaqMonitor : public gem::base::GEMMonitor, public xhal::XHALInterface
     {
     public:
-    
+
       /**
        * Constructor from GEMMonitor derived class
        * @param board_domain_name The domain name of the AMC card
@@ -37,7 +37,7 @@ namespace gem {
        * @param gemApp Calling GEMApplication instance
        * @param index Index
        */
-     
+
       struct LabelData
       {
         std::string labelId;
@@ -46,11 +46,11 @@ namespace gem {
       };
 
       DaqMonitor(const std::string& board_domain_name,log4cplus::Logger& logger, base::GEMApplication* gemApp, int const& index);
-    
+
       virtual ~DaqMonitor();
 
       virtual void reconnect();
-    
+
       virtual void updateMonitorables();
       void updateDAQmain();
       void updateDAQOHmain();
@@ -72,7 +72,7 @@ namespace gem {
       virtual void reset();
       void setupDaqMonitoring();
       void addDaqMonitorable(const std::string& m_name, const std::string& m_monset, const std::string& m_spacename);
-    
+
       /**
        * @brief display the monitor items
        */
@@ -81,7 +81,7 @@ namespace gem {
       void buildTable(const std::string& table_name, xgi::Output* out);
 
       typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
-    
+
       void updateDAQmainTableContent();
 
       void updateTTCmainTableContent();
@@ -89,7 +89,7 @@ namespace gem {
       void updateOHmainTableContent();
 
       void jsonContentUpdate(xgi::Output* out);
-     
+
       bool is_connected(){return isConnected;}
 
       std::string boardName(){return m_board_domain_name;}
@@ -108,8 +108,8 @@ namespace gem {
       std::vector<std::string> v_oh_main;
       std::vector<std::string> v_oh_sca;
       std::vector<std::string> v_oh_sysmon;
-    
-      int logCnt; 
+
+      int logCnt;
 
     };  // class DaqMonitor
 

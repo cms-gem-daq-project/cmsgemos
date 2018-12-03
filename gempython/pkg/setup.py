@@ -47,7 +47,7 @@ def getVersion():
     __builddate__='___builddate___'
     with open("gempython/core/_version.py","w") as verfile:
         verfile.write("""
-## This file is generated automatically from cmsgemos_gempython setup.py
+## This file is generated automatically from cmsgemos_gempython setup.py and should not be modified
 __version__='{0:s}'
 __release__='{1:s}'
 __buildtag__='{2:s}'
@@ -69,7 +69,7 @@ setup(name             = '__packagename__',
       # author_email     = __author_email__,
       author_email     = 'cms-gem-online-sw@cern.ch',
       # url              = __url__,
-      url              = 'https://cms-gem-daq-project.github.io/gem-plotting-tools',
+      url              = 'https://cms-gem-daq-project.github.io/cmsgemos',
       # namespace_package = "gempython",
       # packages         = __pythonmodules__, # for PEP420 native namespace util
       packages           = find_packages(), # for pkgutil namespace method
