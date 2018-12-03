@@ -14,13 +14,14 @@ include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
 Sources =utils/GEMCrateUtils.cc
 Sources+=GEMHwDevice.cc HwGenericAMC.cc
-Sources+=vfat/HwVFAT2.cc
+#Sources+=vfat/HwVFAT2.cc
 Sources+=glib/HwGLIB.cc
 # Sources+=ctp7/HwCTP7.cc
 Sources+=optohybrid/HwOptoHybrid.cc
 
 DynamicLibrary=gemhardware_devices
 
+IncludeDirs =$(XDAQ_ROOT)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(uHALROOT)/include
@@ -44,7 +45,6 @@ CCFlags+=-O0 -g3 -fno-inline
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
-
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

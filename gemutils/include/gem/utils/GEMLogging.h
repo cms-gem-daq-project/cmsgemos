@@ -3,11 +3,10 @@
 #ifndef GEM_UTILS_GEMLOGGING_H
 #define GEM_UTILS_GEMLOGGING_H
 
-#include "log4cplus/logger.h"
-#include "log4cplus/loglevel.h"
-#include "log4cplus/loggingmacros.h"
+#include <log4cplus/logger.h>
+#include <log4cplus/loglevel.h>
+#include <log4cplus/loggingmacros.h>
 
-namespace gem {
 #define CMSGEMOS_TRACE(MSG) LOG4CPLUS_TRACE(m_gemLogger, MSG)
 #define CMSGEMOS_DEBUG(MSG) LOG4CPLUS_DEBUG(m_gemLogger, MSG)
 #define CMSGEMOS_INFO( MSG) LOG4CPLUS_INFO( m_gemLogger, MSG)
@@ -22,6 +21,7 @@ namespace gem {
 #define ERROR_LOGGER(LOGGER, MSG) LOG4CPLUS_ERROR(LOGGER, MSG)
 #define FATAL_LOGGER(LOGGER, MSG) LOG4CPLUS_FATAL(LOGGER, MSG)
 
+namespace gem {
   //generic function to trace hierarchy in the Logger objects from non-xdaq applications
   //copied from HCAL hcalHTR.cc
   //  void setLogger(const log4cplus::Logger& parentLogger) {

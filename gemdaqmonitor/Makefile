@@ -17,7 +17,8 @@ GEMDAQMONITOR_VER_PATCH=0
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
-Sources =DaqMonitor.cc ShelfMonitor.cc ShelfMonitorWeb.cc version.cc
+Sources =version.cc
+Sources+=DaqMonitor.cc ShelfMonitor.cc ShelfMonitorWeb.cc
 
 DynamicLibrary=gemdaqmonitor
 
@@ -27,12 +28,20 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
 IncludeDirs+=$(XHALROOT)/include
 
+DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(XHALROOT)/lib
-DependentLibraries+=xhal
+
+DependentLibraries =gembase
+DependentLibraries+=gemhardware_devices xhal
 DependentLibraries+=boost_iostreams
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
+
+# DependentLibraryList+=$(MySQLLIBS)
+# DependentLibraryList+=$(PYTHONLIBS)
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
