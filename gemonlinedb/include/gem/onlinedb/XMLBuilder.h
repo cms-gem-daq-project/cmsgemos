@@ -9,6 +9,7 @@
 #include <xercesc/dom/DOMElement.hpp>
 
 #include "gem/onlinedb/ConfigurationTraits.h"
+#include "gem/onlinedb/DataSet.h"
 #include "gem/onlinedb/PartReference.h"
 #include "gem/onlinedb/Run.h"
 #include "gem/onlinedb/detail/RegisterData.h"
@@ -34,50 +35,9 @@ namespace gem {
              */
             using ConfigurationType = ConfigurationTypeT;
 
-            /**
-             * @brief Represents a dataset to be stored in the XML file (a
-             *        @c <DATA_SET> tag).
-             */
-            class DataSet
-            {
-                friend class XMLBuilder<ConfigurationType>;
-
-                std::string comment, version;
-                typename ConfigurationTraits<ConfigurationType>::PartType part;
-                std::vector<detail::RegisterData> data;
-
-            public:
-                /**
-                 * @brief Sets the human-readable comment for this dataset.
-                 */
-                void setComment(const std::string &comment) { this->comment = comment; }
-
-                /**
-                 * @brief Sets the version of the dataset.
-                 */
-                void setVersion(const std::string &version) { this->version = version; }
-
-                /**
-                 * @brief Sets the part configured by this dataset.
-                 */
-                void setPart(
-                    const typename ConfigurationTraits<ConfigurationType>::PartType &part)
-                {
-                    this->part = part;
-                }
-
-                /**
-                 * @brief Adds configuration data.
-                 */
-                void addData(const ConfigurationType &configuration)
-                {
-                    data.push_back(configuration.getRegisterData());
-                }
-            };
-
         private:
             Run run;
-            std::vector<DataSet> dataSets;
+            std::vector<DataSet<ConfigurationType>> dataSets;
 
         public:
             /**
@@ -88,7 +48,7 @@ namespace gem {
             /**
              * @brief Adds a dataset to be serialized
              */
-            void addDataSet(const DataSet &dataSet)
+            void addDataSet(const DataSet<ConfigurationType> &dataSet)
             {
                 dataSets.push_back(dataSet);
             }
@@ -166,7 +126,8 @@ namespace gem {
                 detail::createPartElement(dataSetNode, Info::kindOfPart(), dataSet.part);
                 // Add DATA elements
                 for (const auto &entry : dataSet.data) {
-                    detail::createDataElement(dataSetNode, entry);
+                    detail::createDataElement(dataSetNode,
+                                              entry.getRegisterData());
                 }
             }
             return dom;
