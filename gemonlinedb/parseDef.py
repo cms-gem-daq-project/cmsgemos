@@ -136,6 +136,7 @@ namespace gem {{
 
             public:
                 RegisterData getRegisterData() const;
+                void readRegisterData(const RegisterData &data);
 {publicMembers}
             }};
         }} /* namespace detail */
@@ -200,6 +201,11 @@ namespace gem {{
 
                 return data;
             }}
+
+            void {baseName}Gen::readRegisterData(const RegisterData &data)
+            {{
+{readRegisterData}
+            }}
         }} /* namespace detail */
     }} /* namespace onlinedb */
 }} /* namespace gem */
@@ -211,8 +217,14 @@ namespace gem {{
         getRegisterData += '''
                 data["{0}"] = get{1}();'''.format(f.name, f.cppName(True))
 
+    readRegisterData = ''
+    for f in fields:
+        readRegisterData += '''
+                set{1}(data.at("{0}"));'''.format(f.name, f.cppName(True))
+
     return template.format(baseName = className,
-                           getRegisterData = getRegisterData)
+                           getRegisterData = getRegisterData,
+                           readRegisterData = readRegisterData)
 
 if __name__ == '__main__':
     import argparse
