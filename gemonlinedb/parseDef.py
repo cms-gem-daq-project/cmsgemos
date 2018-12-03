@@ -118,7 +118,14 @@ def _makeHeader(config, className):
  * Changes will be overwritten. Modify parseDef.py instead.
  */
 
+#ifndef _{baseName}Gen_h_
+#define _{baseName}Gen_h_
+
 #include <cstdint>
+
+#include "gem/onlinedb/ConfigurationTraits.h"
+#include "gem/onlinedb/PartReference.h"
+#include "gem/onlinedb/detail/RegisterData.h"
 
 namespace gem {{
     namespace onlinedb {{
@@ -127,15 +134,28 @@ namespace gem {{
             {{
             private:{privateMembers}
 
+            protected:
+                explicit {baseName}Gen() {{ }}
+
             public:
-                virtual ~{baseName}Gen() = 0;
+                RegisterData getRegisterData() const;
 {publicMembers}
             }};
-
-            {baseName}Gen::~{baseName}Gen() {{ }}
         }} /* namespace detail */
+
+        template<>
+        class ConfigurationTraits<detail::{baseName}Gen>
+        {{
+        public:
+            static const char *extTableName() {{ return "{extTableName}"; }}
+            static const char *typeName() {{ return "{typeName}"; }}
+            static const char *kindOfPart() {{ return "{kindOfPart}"; }}
+            using PartType = {partReference};
+        }};
     }} /* namespace onlinedb */
 }} /* namespace gem */
+
+#endif // _{baseName}Gen_h_
 '''
     fields = [ Field(f) for f in _checkedJsonGet(config, 'fields', list) ]
 
@@ -147,13 +167,55 @@ namespace gem {{
     publicMembers = ''
     for f in fields:
         publicMembers += '''
-                std::int32_t get{1}() {{ return {0}; }}
+                std::int32_t get{1}() const {{ return {0}; }}
                 void set{1}(std::int32_t value) {{ {0} = value; }}
                 '''.format(f.cppName(False), f.cppName(True))
 
+    extTableName = _checkedJsonGet(config, 'extension table name', unicode)
+    typeName = _checkedJsonGet(config, 'type name', unicode)
+    kindOfPart = _checkedJsonGet(config, 'kind of part', unicode)
+    partReference = _checkedJsonGet(config, 'part reference', unicode)
+
     return template.format(baseName = className,
                            privateMembers = privateMembers,
-                           publicMembers = publicMembers)
+                           publicMembers = publicMembers,
+                           extTableName = extTableName,
+                           typeName = typeName,
+                           kindOfPart = kindOfPart,
+                           partReference = partReference)
+
+def _makeCpp(config, className):
+    template = '''/*
+ * THIS FILE WAS GENERATED
+ *
+ * Changes will be overwritten. Modify parseDef.py instead.
+ */
+
+#include "gem/onlinedb/detail/{baseName}Gen.h"
+
+namespace gem {{
+    namespace onlinedb {{
+        namespace detail {{
+            RegisterData {baseName}Gen::getRegisterData() const
+            {{
+                RegisterData data;
+{getRegisterData}
+
+                return data;
+            }}
+        }} /* namespace detail */
+    }} /* namespace onlinedb */
+}} /* namespace gem */
+'''
+    fields = [ Field(f) for f in _checkedJsonGet(config, 'fields', list) ]
+
+    getRegisterData = ''
+    for f in fields:
+        getRegisterData += '''
+                data["{0}"] = get{1}();'''.format(f.name, f.cppName(True))
+
+    return template.format(baseName = className,
+                           getRegisterData = getRegisterData)
 
 if __name__ == '__main__':
     import argparse
@@ -176,5 +238,10 @@ if __name__ == '__main__':
 
     headerFileName = 'include/gem/onlinedb/detail/{}Gen.h'.format(baseFileName)
     with open(headerFileName, 'w') as f:
-        f.write(_makeHeader(config, baseFileName))
         print('-- Generating: {}'.format(f.name))
+        f.write(_makeHeader(config, baseFileName))
+
+    headerFileName = 'src/common/{}Gen.cc'.format(baseFileName)
+    with open(headerFileName, 'w') as f:
+        print('-- Generating: {}'.format(f.name))
+        f.write(_makeCpp(config, baseFileName))

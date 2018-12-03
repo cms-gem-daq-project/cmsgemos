@@ -5,4 +5,5 @@
 !schema/common.xsd
 
 # Do ignore auto-generated files
-**/*Gen.[h,cpp]
+**/*Gen.h
+**/*Gen.cc

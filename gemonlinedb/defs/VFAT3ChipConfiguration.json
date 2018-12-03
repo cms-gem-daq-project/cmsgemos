@@ -1,6 +1,8 @@
 {
 "extension table name": "GEM_VFAT3_CHIP_CONF",
+"type name": "GEM VFAT3 Chip Conf Lookup Table",
 "kind of part": "GEM VFAT3",
+"part reference": "PartReferenceBarcode",
 "fields": [
     {
         "name": "GLB_LOGIC_CTRL"
