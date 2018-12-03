@@ -80,30 +80,30 @@ namespace gem {
          */
         virtual bool isHwConnected() override;
 
-        /**************************/
+        /****************************/
         /** GEM system information **/
-        /**************************/
+        /****************************/
         /**
          * Read the board ID registers
-         * @returns the GLIB board ID
+         * @returns the AMC board ID
          */
         virtual std::string getBoardID();
 
         /**
          * Read the board ID registers
-         * @returns the GLIB board ID as 32 bit unsigned
+         * @returns the AMC board ID as 32 bit unsigned
          */
         virtual uint32_t getBoardIDRaw();
 
         /**
-         * Check how many OptoHybrids the AMC can support
+         * Check how many OptoHybrids the AMC FW can support
          * @returns the number of supported OptoHybrid boards
          */
         uint32_t getSupportedOptoHybrids() {
           return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.NUM_OF_OH"); }
-        //return N_GTX; }
 
         /**
+         * FIXME: OBSOLETE
          * Check if the firmware supports GBT communication
          * @returns whether or not the firmware supports GBT communication
          */

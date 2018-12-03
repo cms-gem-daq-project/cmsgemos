@@ -1,3 +1,5 @@
+## TODO: REWORK based on cmsgemos_gempython boosted
+# only a few helpers should remain, the rest are imported from the c++ library
 import sys, time, signal
 sys.path.append('${GEM_PYTHON_PATH}')
 

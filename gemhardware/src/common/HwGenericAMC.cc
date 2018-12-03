@@ -90,6 +90,8 @@ gem::hw::HwGenericAMC::~HwGenericAMC()
 void gem::hw::HwGenericAMC::connectRPC(bool reconnect)
 {
   if (isConnected) {
+    // TODO: find better way than hardcoded versions
+    this->loadModule("amc", "amc v1.0.1");
     this->loadModule("amc", "amc v1.0.1");
     CMSGEMOS_DEBUG("HwGenericAMC::connectRPC modules loaded");
   } else {
