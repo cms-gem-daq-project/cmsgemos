@@ -64,12 +64,12 @@ dbgprofile: $(SUBPACKAGES)
 
 doc:  $(SUBPACKAGES)
 	@echo "Generating doxygen"
-	@rm -fr ./doc/html 2> /dev/null
-	@doxygen -s ./doc/cmsgemos.cfg  > /dev/null 2>&1
+	@rm -fr ./docs/html 2> /dev/null
+	@doxygen -s ./docs/cmsgemos.cfg
 	#@git checkout gh-pages  > /dev/null 2>&1
-	#@git add -f ./doc/html  > /dev/null 2>&1
-	#@git commit -m "generating doxygen" ./doc/html  > /dev/null 2>&1
-	#@git tag ./doc/html  > /dev/null 2>&1
+	#@git add -f ./docs/html  > /dev/null 2>&1
+	#@git commit -m "generating doxygen" ./docs/html  > /dev/null 2>&1
+	#@git tag ./docs/html  > /dev/null 2>&1
 
 install: $(LIBDIR) $(SUBPACKAGES) $(SUBPACKAGES.INSTALL)
 
