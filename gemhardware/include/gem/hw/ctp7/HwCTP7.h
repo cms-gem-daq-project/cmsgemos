@@ -71,6 +71,12 @@ namespace gem {
           virtual ~HwCTP7();
 
           /**
+           * Connect to te RPC manager and load necessary modules
+           * @param reconnect determine if the conection should be reestablished and the modules reloaded
+           void connectRPC(bool reconnect=false) override;
+           */
+
+          /**
            * Check if one can read/write to the registers on the CTP7
            * @returns true if the CTP7 is accessible
            */
@@ -615,8 +621,8 @@ namespace gem {
           //which of these will be better and do what we want
           uint32_t getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks=1);
           //which of these will be better and do what we want
-          uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
-                                   size_t const& nBlocks=1);
+          /* uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data, */
+          /*                          size_t const& nBlocks=1); */
 
           /**
            * Empty the tracking data FIFO
@@ -723,20 +729,20 @@ namespace gem {
            * @param gtx is the input link status to query
            * @returns Returns the the 32-bit word corresponding DAQ status for the specified link
            */
-          uint32_t getDAQLinkStatus(   uint8_t const& gtx);
+          uint32_t getLinkDAQStatus(   uint8_t const& gtx);
 
           /**
            * @param gtx is the input link counter to query
            * @param mode specifies whether to query the corrupt VFAT count (0x0) or the event number
            * @returns Returns the link counter for the specified mode
            */
-          uint32_t getDAQLinkCounters( uint8_t const& gtx, uint8_t const& mode);
+          uint32_t getLinkDAQCounters( uint8_t const& gtx, uint8_t const& mode);
 
           /**
            * @param gtx is the input link status to query
            * @returns Returns a block of the last 7 words received from the OH on the link specified
            */
-          uint32_t getDAQLinkLastBlock(uint8_t const& gtx);
+          uint32_t getLinkLastDAQBlock(uint8_t const& gtx);
 
           /**
            * @returns Returns the timeout before the event builder firmware will close the event and send the data

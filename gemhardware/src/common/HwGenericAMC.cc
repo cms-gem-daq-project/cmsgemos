@@ -2,17 +2,22 @@
 
 #include <iomanip>
 
+// // define the consts
+// const unsigned gem::hw::HwGenericAMC::N_GTX;
+
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     std::string const& connectionFile) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice, connectionFile),
   m_links(0),
-  m_maxLinks(N_GTX),
+  m_maxLinks(gem::hw::utils::N_GTX),
   m_crate(-1),
   m_slot(-1)
 {
   CMSGEMOS_INFO("HwGenericAMC ctor");
+  this->setup(amcDevice);
+  this->setDeviceBaseNode("GEM_AMC");
 
-  for (unsigned li = 0; li < N_GTX; ++li) {
+  for (unsigned li = 0; li < gem::hw::utils::N_GTX; ++li) {
     b_links[li] = false;
     AMCIPBusCounters tmpGTXCounter;
     m_ipBusCounters.push_back(tmpGTXCounter);
@@ -26,13 +31,14 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     std::string const& addressTable) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice, connectionURI, addressTable),
   m_links(0),
-  m_maxLinks(N_GTX),
+  m_maxLinks(gem::hw::utils::N_GTX),
   m_crate(-1),
   m_slot(-1)
 {
   CMSGEMOS_INFO("trying to create HwGenericAMC(" << amcDevice << "," << connectionURI << "," <<addressTable);
-  setDeviceBaseNode(amcDevice);
-  for (unsigned li = 0; li < N_GTX; ++li) {
+  this->setup(amcDevice);
+  this->setDeviceBaseNode("GEM_AMC");
+  for (unsigned li = 0; li < gem::hw::utils::N_GTX; ++li) {
     b_links[li] = false;
     AMCIPBusCounters tmpGTXCounter;
     m_ipBusCounters.push_back(tmpGTXCounter);
@@ -45,10 +51,12 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     uhal::HwInterface& uhalDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice,uhalDevice),
   m_links(0),
-  m_maxLinks(N_GTX),
+  m_maxLinks(gem::hw::utils::N_GTX),
   m_crate(-1),
   m_slot(-1)
 {
+  this->setup(amcDevice);
+  this->setDeviceBaseNode("GEM_AMC"); // needed?
   if (isConnected) {
     this->loadModule("amc", "amc v1.0.1");
     CMSGEMOS_DEBUG("HwGenericAMC::HwGenericAMC amc module loaded");
@@ -56,7 +64,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
     CMSGEMOS_WARN("HwGenericAMC::HwGenericAMC RPC interface failed to connect");
   }
 
-  for (unsigned li = 0; li < N_GTX; ++li) {
+  for (unsigned li = 0; li < gem::hw::utils::N_GTX; ++li) {
     b_links[li] = false;
     AMCIPBusCounters tmpGTXCounter;
     m_ipBusCounters.push_back(tmpGTXCounter);
@@ -65,8 +73,28 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
   CMSGEMOS_INFO("HwGenericAMC::HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
+// gem::hw::HwGenericAMC::HwGenericAMC(int const& shelf,
+//                                     int const& slot,
+//                                     bool       uhalNative) :
+//   gem::hw::HwGenericAMC::HwGenericAMC(toolbox::toString("gem-shelf%02d-amc%02d",shelf,slot),
+//                                       connectionURI,
+//                                       addressTable
+//                                     )
+// {
+// }
+
 gem::hw::HwGenericAMC::~HwGenericAMC()
 {
+}
+
+void gem::hw::HwGenericAMC::connectRPC(bool reconnect)
+{
+  if (isConnected) {
+    this->loadModule("amc", "amc v1.0.1");
+    CMSGEMOS_DEBUG("HwGenericAMC::connectRPC modules loaded");
+  } else {
+    CMSGEMOS_WARN("HwGenericAMC::connectRPC RPC interface failed to connect");
+  }
 }
 
 bool gem::hw::HwGenericAMC::isHwConnected()
@@ -77,7 +105,7 @@ bool gem::hw::HwGenericAMC::isHwConnected()
     return true;
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     CMSGEMOS_INFO("basic check: HwGenericAMC pointer valid");
-    std::vector<linkStatus> tmp_activeLinks;
+    std::vector<linkStatus> tmp_activeLinks; // FIXME SHOULD BE READ FROM FW, WHAT IS THIS USED FOR?
     m_maxLinks = this->getSupportedOptoHybrids();
     tmp_activeLinks.reserve(m_maxLinks);
     if ((this->getBoardID()).rfind("GLIB") != std::string::npos ) {
@@ -327,6 +355,20 @@ void gem::hw::HwGenericAMC::enableDAQLink(uint32_t const& enableMask)
   // move enabling of input mask to OH manager
   // writeReg(getDeviceBaseNode(), "DAQ.CONTROL.INPUT_ENABLE_MASK", enableMask);
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAQ_ENABLE", 0x1);
+
+  // or, in the needlessly more complicated way of the RPC message (really not necessary at the AMC level):
+  req = wisc::RPCMsg("amc.enableDAQLink");
+  req.set_word("enableMask",enableMask);
+  try {
+    rsp = rpc.call_method(req);
+    try {
+      if (rsp.get_key_exists("error")) {
+        CMSGEMOS_ERROR("HwGenericAMC::enableDAQLink: " << rsp.get_string("error").c_str());
+        //throw xhal::utils::XHALException("DAQ_OH_MAIN update failed");
+      }
+    } STANDARD_CATCH;
+  } STANDARD_CATCH;
+
 }
 
 void gem::hw::HwGenericAMC::disableDAQLink()
@@ -347,13 +389,28 @@ void gem::hw::HwGenericAMC::disableZeroSuppression()
 
 void gem::hw::HwGenericAMC::resetDAQLink(uint32_t const& davTO, uint32_t const& ttsOverride)
 {
-  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.RESET", 0x1);
-  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.RESET", 0x0);
-  // disableDAQLink();
-  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAV_TIMEOUT", davTO);
-  setDAQLinkInputTimeout();  // default value is 0x100
-  // setDAQLinkInputTimeout(davTO);
-  // writeReg(getDeviceBaseNode(), "DAQ.CONTROL.TTS_OVERRIDE", ttsOverride);/*HACK to be fixed?*/
+  // 7 individual calls, probably makes sense to use the wrapped RPC
+  req = wisc::RPCMsg("amc.resetDAQLink");
+  req.set_word("davTO",       davTO);
+  req.set_word("ttsOverride", ttsOverride);
+  try {
+    rsp = rpc.call_method(req);
+    try {  // what is excepting here?
+      if (rsp.get_key_exists("error")) {
+        CMSGEMOS_ERROR("HwGenericAMC::resetDAQLink error: "
+                       << rsp.get_string("error").c_str());
+        // throw xhal::utils::XHALException("HwGenericAMC::resetDAQLink error: " <<rsp.get_string("error").c_str());
+      }
+    } STANDARD_CATCH;
+  } STANDARD_CATCH;
+
+  // writeReg(getDeviceBaseNode(), "DAQ.CONTROL.RESET", 0x1);
+  // writeReg(getDeviceBaseNode(), "DAQ.CONTROL.RESET", 0x0);
+  // // disableDAQLink();
+  // writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAV_TIMEOUT", davTO);
+  // setDAQLinkInputTimeout();  // default value is 0x100
+  // // setDAQLinkInputTimeout(davTO);
+  // // writeReg(getDeviceBaseNode(), "DAQ.CONTROL.TTS_OVERRIDE", ttsOverride);/*HACK to be fixed?*/
 }
 
 uint32_t gem::hw::HwGenericAMC::getDAQLinkControl()
@@ -450,7 +507,8 @@ uint32_t gem::hw::HwGenericAMC::getDAQLinkDAVTimer(bool const& max)
 }
 
 /** GTX specific DAQ link information **/
-uint32_t gem::hw::HwGenericAMC::getDAQLinkStatus(uint8_t const& gtx)
+// TODO: should rename, "DAQ link" is a back end FW term, not corresponding to a front end link...
+uint32_t gem::hw::HwGenericAMC::getLinkDAQStatus(uint8_t const& gtx)
 {
   // do link protections here...
   std::stringstream regBase;
@@ -458,7 +516,7 @@ uint32_t gem::hw::HwGenericAMC::getDAQLinkStatus(uint8_t const& gtx)
   return readReg(getDeviceBaseNode(),regBase.str()+".STATUS");
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkCounters(uint8_t const& gtx, uint8_t const& mode)
+uint32_t gem::hw::HwGenericAMC::getLinkDAQCounters(uint8_t const& gtx, uint8_t const& mode)
 {
   std::stringstream regBase;
   regBase << "DAQ.OH" << (int)gtx << ".COUNTERS";
@@ -468,7 +526,7 @@ uint32_t gem::hw::HwGenericAMC::getDAQLinkCounters(uint8_t const& gtx, uint8_t c
     return readReg(getDeviceBaseNode(),regBase.str()+".EVN");
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkLastBlock(uint8_t const& gtx)
+uint32_t gem::hw::HwGenericAMC::getLinkLastDAQBlock(uint8_t const& gtx)
 {
   std::stringstream regBase;
   regBase << "DAQ.OH" << (int)gtx;
@@ -549,6 +607,21 @@ void gem::hw::HwGenericAMC::ttcMMCMReset()
 void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool useBC0Locked, bool doScan)
 {
   // FIXME CANDIDATE for CTP7 module
+  req = wisc::RPCMsg("amc.ttcMMCMPhaseShift");
+  req.set_word("shiftOutOfLockFirst", shiftOutOfLockFirst);
+  req.set_word("useBC0Locked",        useBC0Locked);
+  req.set_word("doScan",              doScan);
+  try {
+    rsp = rpc.call_method(req);
+    try {  // what is excepting here?
+      if (rsp.get_key_exists("error")) {
+        CMSGEMOS_ERROR("HwGenericAMC::ttcMMCMPhaseShift error: "
+                       << rsp.get_string("error").c_str());
+        // throw xhal::utils::XHALException("HwGenericAMC::resetDAQLink error: " <<rsp.get_string("error").c_str());
+      }
+    } STANDARD_CATCH;
+  } STANDARD_CATCH;
+
   /** Description of phase alignment algorithm
       shiftOutOfLockFirst controls whether the procedure will force a relock
       useBC0Locked controls whether the procedure will use the BC0_LOCKED or the PLL_LOCKED register
@@ -573,469 +646,469 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
       * * if a bad lock is encountered, reset and try again
       * * else take the phase at the back half point
    */
-  const int PHASE_CHECK_AVERAGE_CNT = 100;
-  const int PLL_LOCK_READ_ATTEMPTS  = 10;
-  const double PLL_LOCK_WAIT_TIME   = 0.00001; // wait 100us to allow the PLL to lock
+//   const int PHASE_CHECK_AVERAGE_CNT = 100;
+//   const int PLL_LOCK_READ_ATTEMPTS  = 10;
+//   const double PLL_LOCK_WAIT_TIME   = 0.00001; // wait 100us to allow the PLL to lock
 
-  CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift: starting phase shifting procedure");
-  // writeReg(getDeviceBaseNode(), "TTC.CTRL.MMCM_PHASE_SHIFT", 0x1);
+//   CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift: starting phase shifting procedure");
+//   // writeReg(getDeviceBaseNode(), "TTC.CTRL.MMCM_PHASE_SHIFT", 0x1);
 
-  /*
-  // FIXME block these into one transaction, handicapped by CTP7
-  register_pair_list regList = {
-    {"GEM_AMC.TTC.CTRL.DISABLE_PHASE_ALIGNMENT",       0x1},
-    {"GEM_AMC.TTC.CTRL.PA_DISABLE_GTH_PHASE_TRACKING", 0x1},
-    {"GEM_AMC.TTC.CTRL.PA_MANUAL_OVERRIDE",            0x1},
-    {"GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR",           0x1},
-    {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_OVERRIDE",        0x1},
-    {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR",       0x0},
-    {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_STEP",      0x1},
-    {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SEL_OVERRIDE",    0x1},
-    {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_COMBINED",        0x1},
-    {"GEM_AMC.TTC.CTRL.GTH_TXDLYBYPASS",               0x1},
-    {"GEM_AMC.TTC.CTRL.PA_MANUAL_PLL_RESET",           0x1},
-    {"GEM_AMC.TTC.CTRL.CNT_RESET",                     0x1}
-  };
-  writeRegs(regList);
-  */
-  // FIXME clean up with multiple dispatch
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.DISABLE_PHASE_ALIGNMENT",       0x1);
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_DISABLE_GTH_PHASE_TRACKING", 0x1);
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_OVERRIDE",            0x1);
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_SHIFT_DIR",           0x1);
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_OVERRIDE",        0x1);
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR",       0x0);
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SHIFT_STEP",      0x1);
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SEL_OVERRIDE",    0x1);
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_COMBINED",        0x1);
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.GTH_TXDLYBYPASS",               0x1);
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_PLL_RESET",           0x1);
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.CNT_RESET",                     0x1);
+//   /*
+//   // FIXME block these into one transaction, handicapped by CTP7
+//   register_pair_list regList = {
+//   {"GEM_AMC.TTC.CTRL.DISABLE_PHASE_ALIGNMENT",       0x1},
+//   {"GEM_AMC.TTC.CTRL.PA_DISABLE_GTH_PHASE_TRACKING", 0x1},
+//   {"GEM_AMC.TTC.CTRL.PA_MANUAL_OVERRIDE",            0x1},
+//   {"GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR",           0x1},
+//   {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_OVERRIDE",        0x1},
+//   {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR",       0x0},
+//   {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_STEP",      0x1},
+//   {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SEL_OVERRIDE",    0x1},
+//   {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_COMBINED",        0x1},
+//   {"GEM_AMC.TTC.CTRL.GTH_TXDLYBYPASS",               0x1},
+//   {"GEM_AMC.TTC.CTRL.PA_MANUAL_PLL_RESET",           0x1},
+//   {"GEM_AMC.TTC.CTRL.CNT_RESET",                     0x1}
+//   };
+//   writeRegs(regList);
+//   */
+//   // FIXME clean up with multiple dispatch
+//   writeReg(getDeviceBaseNode(), "TTC.CTRL.DISABLE_PHASE_ALIGNMENT",       0x1);
+//   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_DISABLE_GTH_PHASE_TRACKING", 0x1);
+//   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_OVERRIDE",            0x1);
+//   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_SHIFT_DIR",           0x1);
+//   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_OVERRIDE",        0x1);
+//   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR",       0x0);
+//   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SHIFT_STEP",      0x1);
+//   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SEL_OVERRIDE",    0x1);
+//   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_COMBINED",        0x1);
+//   writeReg(getDeviceBaseNode(), "TTC.CTRL.GTH_TXDLYBYPASS",               0x1);
+//   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_PLL_RESET",           0x1);
+//   writeReg(getDeviceBaseNode(), "TTC.CTRL.CNT_RESET",                     0x1);
 
-  // add readback of aforementioned registers
+//   // add readback of aforementioned registers
 
-  if (readReg(getDeviceBaseNode(),"TTC.CTRL.DISABLE_PHASE_ALIGNMENT") == 0x0) {
-    CMSGEMOS_WARN("HwGeneircAMC::ttcMMCMPhaseShift automatic phase alignment is turned off!!");
-    // EXCEPT_RAISE
-    return;
-  }
+//   if (readReg(getDeviceBaseNode(),"TTC.CTRL.DISABLE_PHASE_ALIGNMENT") == 0x0) {
+//     CMSGEMOS_WARN("HwGeneircAMC::ttcMMCMPhaseShift automatic phase alignment is turned off!!");
+//     // EXCEPT_RAISE
+//     return;
+//   }
 
-  int readAttempts = 1;
-  int maxShift     = 7680+(7680/2);
+//   int readAttempts = 1;
+//   int maxShift     = 7680+(7680/2);
 
-  if (!useBC0Locked) {
-    readAttempts = PLL_LOCK_READ_ATTEMPTS;
-  }
-  if (doScan) {
-    readAttempts = PLL_LOCK_READ_ATTEMPTS;
-    maxShift     = 23040;
-  }
+//   if (!useBC0Locked) {
+//     readAttempts = PLL_LOCK_READ_ATTEMPTS;
+//   }
+//   if (doScan) {
+//     readAttempts = PLL_LOCK_READ_ATTEMPTS;
+//     maxShift     = 23040;
+//   }
 
-  uint32_t mmcmShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT");
-  uint32_t gthShiftCnt  = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT");
-  int  pllLockCnt       = checkPllLock(readAttempts);
-  bool firstUnlockFound = false;
-  bool nextLockFound    = false;
-  bool bestLockFound    = false;
-  bool reversingForLock = false;
-  uint32_t phase = 0;
-  double phaseNs = 0.0;
+//   uint32_t mmcmShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT");
+//   uint32_t gthShiftCnt  = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT");
+//   int  pllLockCnt       = checkPllLock(readAttempts);
+//   bool firstUnlockFound = false;
+//   bool nextLockFound    = false;
+//   bool bestLockFound    = false;
+//   bool reversingForLock = false;
+//   uint32_t phase = 0;
+//   double phaseNs = 0.0;
 
-  bool mmcmShiftTable[] = {false, false, false, true, false, false, false,
-                           false, false, true, false, false, false, false,
-                           false, true, false, false, false, false, true,
-                           false, false, false, false, false, true, false,
-                           false, false, false, false, true, false, false,
-                           false, false, false, true, false, false};
+//   bool mmcmShiftTable[] = {false, false, false, true, false, false, false,
+//                            false, false, true, false, false, false, false,
+//                            false, true, false, false, false, false, true,
+//                            false, false, false, false, false, true, false,
+//                            false, false, false, false, true, false, false,
+//                            false, false, false, true, false, false};
 
-  int nGoodLocks       = 0;
-  int nShiftsSinceLock = 0;
-  int nBadLocks        = 0;
-  int totalShiftCount  = 0;
+//   int nGoodLocks       = 0;
+//   int nShiftsSinceLock = 0;
+//   int nBadLocks        = 0;
+//   int totalShiftCount  = 0;
 
-  for (int i = 0; i < maxShift; ++i) {
-    // FIXME clean up with multiple dispatch
-    this->getNode( "GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN").write(0x1);
-    uhal::ValWord<uint32_t> tmpGthShiftCnt  = this->getNode("GEM_AMC.TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT").read();
-    uhal::ValWord<uint32_t> tmpMmcmShiftCnt = this->getNode("GEM_AMC.TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT").read();
-    this->dispatch();
+//   for (int i = 0; i < maxShift; ++i) {
+//     // FIXME clean up with multiple dispatch
+//     this->getNode( "GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN").write(0x1);
+//     uhal::ValWord<uint32_t> tmpGthShiftCnt  = this->getNode("GEM_AMC.TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT").read();
+//     uhal::ValWord<uint32_t> tmpMmcmShiftCnt = this->getNode("GEM_AMC.TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT").read();
+//     this->dispatch();
 
-    // added based on current eagle61 script 08.11.2018
-    bool mmcmShiftRequired = false;
-    if (reversingForLock) {
-      mmcmShiftRequired = mmcmShiftTable[gthShiftCnt];
-    } else {
-      mmcmShiftRequired = mmcmShiftTable[gthShiftCnt+1];
-    }
-    
-    CMSGEMOS_DEBUG("HwGeneircAMC::ttcMMCMPhaseShift BEFORE: "
-                   << "mmcmShift: "  << mmcmShiftCnt << "(" << tmpMmcmShiftCnt << ")"
-                   << ", gthShift: " << gthShiftCnt  << "(" << tmpGthShiftCnt  << ")"
-                   << ", mmcmShiftRequired: "               << mmcmShiftRequired);
+//     // added based on current eagle61 script 08.11.2018
+//     bool mmcmShiftRequired = false;
+//     if (reversingForLock) {
+//       mmcmShiftRequired = mmcmShiftTable[gthShiftCnt];
+//     } else {
+//       mmcmShiftRequired = mmcmShiftTable[gthShiftCnt+1];
+//     }
 
-    if (!reversingForLock && (gthShiftCnt == 39)) {
-      CMSGEMOS_DEBUG("HwGeneircAMC::ttcMMCMPhaseShift: normal GTH shift rollover 39->0");
-      gthShiftCnt = 0;
-    } else if (reversingForLock && (gthShiftCnt == 0)){
-      CMSGEMOS_DEBUG("HwGeneircAMC::ttcMMCMPhaseShift: rerversed GTH shift rollover 0->39");
-      gthShiftCnt = 39;
-    } else {
-      if (reversingForLock) {
-        gthShiftCnt -= 1;
-      } else {
-        gthShiftCnt += 1;
-      }
-    }
+//     CMSGEMOS_DEBUG("HwGeneircAMC::ttcMMCMPhaseShift BEFORE: "
+//                    << "mmcmShift: "  << mmcmShiftCnt << "(" << tmpMmcmShiftCnt << ")"
+//                    << ", gthShift: " << gthShiftCnt  << "(" << tmpGthShiftCnt  << ")"
+//                    << ", mmcmShiftRequired: "               << mmcmShiftRequired);
 
-    while (gthShiftCnt != tmpGthShiftCnt) {
-      CMSGEMOS_INFO("HwGeneircAMC::ttcMMCMPhaseShift Repeating a GTH PI shift because the shift count doesn't"
-                    << " match the expected value."
-                    << " Expected shift cnt = " << gthShiftCnt
-                    << ", ctp7 returned "       << tmpGthShiftCnt);
-      this->getNode( "GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN").write(0x1);
-      tmpGthShiftCnt = this->getNode("GEM_AMC.TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT").read();
-      this->dispatch();
-    }
+//     if (!reversingForLock && (gthShiftCnt == 39)) {
+//       CMSGEMOS_DEBUG("HwGeneircAMC::ttcMMCMPhaseShift: normal GTH shift rollover 39->0");
+//       gthShiftCnt = 0;
+//     } else if (reversingForLock && (gthShiftCnt == 0)){
+//       CMSGEMOS_DEBUG("HwGeneircAMC::ttcMMCMPhaseShift: rerversed GTH shift rollover 0->39");
+//       gthShiftCnt = 39;
+//     } else {
+//       if (reversingForLock) {
+//         gthShiftCnt -= 1;
+//       } else {
+//         gthShiftCnt += 1;
+//       }
+//     }
 
-    if (mmcmShiftRequired) {
-      if (!reversingForLock && (mmcmShiftCnt == 0xffff)) {
-        mmcmShiftCnt = 0;
-      } else if (reversingForLock && (mmcmShiftCnt == 0x0)) {
-        mmcmShiftCnt = 0xffff;
-      } else {
-        if (reversingForLock) {
-          mmcmShiftCnt -= 1;
-        } else {
-          mmcmShiftCnt += 1;
-        }
-      }
-    }
+//     while (gthShiftCnt != tmpGthShiftCnt) {
+//       CMSGEMOS_INFO("HwGeneircAMC::ttcMMCMPhaseShift Repeating a GTH PI shift because the shift count doesn't"
+//                     << " match the expected value."
+//                     << " Expected shift cnt = " << gthShiftCnt
+//                     << ", ctp7 returned "       << tmpGthShiftCnt);
+//       this->getNode( "GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN").write(0x1);
+//       tmpGthShiftCnt = this->getNode("GEM_AMC.TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT").read();
+//       this->dispatch();
+//     }
 
-    CMSGEMOS_DEBUG("HwGeneircAMC::ttcMMCMPhaseShift AFTER: "
-                   << "mmcmShift: "  << mmcmShiftCnt << "(" << tmpMmcmShiftCnt << ")"
-                   << ", gthShift: " << gthShiftCnt  << "(" << tmpGthShiftCnt  << ")"
-                   << ", mmcmShiftRequired: "               << mmcmShiftRequired);
+//     if (mmcmShiftRequired) {
+//       if (!reversingForLock && (mmcmShiftCnt == 0xffff)) {
+//         mmcmShiftCnt = 0;
+//       } else if (reversingForLock && (mmcmShiftCnt == 0x0)) {
+//         mmcmShiftCnt = 0xffff;
+//       } else {
+//         if (reversingForLock) {
+//           mmcmShiftCnt -= 1;
+//         } else {
+//           mmcmShiftCnt += 1;
+//         }
+//       }
+//     }
 
-    tmpMmcmShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT");
-    if (mmcmShiftCnt != tmpMmcmShiftCnt)
-      CMSGEMOS_WARN("HwGeneircAMC::ttcMMCMPhaseShift Reported MMCM shift count doesn't match the expected MMCM shift count."
-                    << " Expected shift cnt = " << mmcmShiftCnt
-                    << " , ctp7 returned "      << tmpMmcmShiftCnt);
+//     CMSGEMOS_DEBUG("HwGeneircAMC::ttcMMCMPhaseShift AFTER: "
+//                    << "mmcmShift: "  << mmcmShiftCnt << "(" << tmpMmcmShiftCnt << ")"
+//                    << ", gthShift: " << gthShiftCnt  << "(" << tmpGthShiftCnt  << ")"
+//                    << ", mmcmShiftRequired: "               << mmcmShiftRequired);
 
-    // FIXME clean up with multiple dispatch
-    pllLockCnt = checkPllLock(readAttempts);
-    phase      = getMMCMPhaseMean();
-    phaseNs    = phase * 0.01860119;
-    uint32_t gthPhase = getGTHPhaseMean();
-    double gthPhaseNs = gthPhase * 0.01860119;
+//     tmpMmcmShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT");
+//     if (mmcmShiftCnt != tmpMmcmShiftCnt)
+//       CMSGEMOS_WARN("HwGeneircAMC::ttcMMCMPhaseShift Reported MMCM shift count doesn't match the expected MMCM shift count."
+//                     << " Expected shift cnt = " << mmcmShiftCnt
+//                     << " , ctp7 returned "      << tmpMmcmShiftCnt);
 
-    uhal::ValWord<uint32_t> bc0Locked  = this->getNode("GEM_AMC.TTC.STATUS.BC0.LOCKED").read();
-    uhal::ValWord<uint32_t> bc0UnlkCnt = this->getNode("GEM_AMC.TTC.STATUS.BC0.UNLOCK_CNT").read();
-    uhal::ValWord<uint32_t> sglErrCnt  = this->getNode("GEM_AMC.TTC.STATUS.TTC_SINGLE_ERROR_CNT").read();
-    uhal::ValWord<uint32_t> dblErrCnt  = this->getNode("GEM_AMC.TTC.STATUS.TTC_DOUBLE_ERROR_CNT").read();
-    this->dispatch();
+//     // FIXME clean up with multiple dispatch
+//     pllLockCnt = checkPllLock(readAttempts);
+//     phase      = getMMCMPhaseMean();
+//     phaseNs    = phase * 0.01860119;
+//     uint32_t gthPhase = getGTHPhaseMean();
+//     double gthPhaseNs = gthPhase * 0.01860119;
 
-    CMSGEMOS_DEBUG("HwGeneircAMC::ttcMMCMPhaseShift GTH shift #" << i
-                   << ": mmcm shift cnt = "     << mmcmShiftCnt
-                   << ", mmcm phase counts = "  << phase
-                   << ", mmcm phase = "         << phaseNs
-                   << "ns, gth phase counts = " << gthPhase
-                   << ", gth phase = "          << gthPhaseNs
-                   << ", PLL lock count = "     << pllLockCnt);
+//     uhal::ValWord<uint32_t> bc0Locked  = this->getNode("GEM_AMC.TTC.STATUS.BC0.LOCKED").read();
+//     uhal::ValWord<uint32_t> bc0UnlkCnt = this->getNode("GEM_AMC.TTC.STATUS.BC0.UNLOCK_CNT").read();
+//     uhal::ValWord<uint32_t> sglErrCnt  = this->getNode("GEM_AMC.TTC.STATUS.TTC_SINGLE_ERROR_CNT").read();
+//     uhal::ValWord<uint32_t> dblErrCnt  = this->getNode("GEM_AMC.TTC.STATUS.TTC_DOUBLE_ERROR_CNT").read();
+//     this->dispatch();
 
-    if (useBC0Locked) {
-      if (!firstUnlockFound) {
-        bestLockFound = false;
-        if (bc0Locked == 0) {
-          nBadLocks += 1;
-          nGoodLocks = 0;
-        } else {
-          nBadLocks   = 0;
-          nGoodLocks += 1;
-        }
+//     CMSGEMOS_DEBUG("HwGeneircAMC::ttcMMCMPhaseShift GTH shift #" << i
+//                    << ": mmcm shift cnt = "     << mmcmShiftCnt
+//                    << ", mmcm phase counts = "  << phase
+//                    << ", mmcm phase = "         << phaseNs
+//                    << "ns, gth phase counts = " << gthPhase
+//                    << ", gth phase = "          << gthPhaseNs
+//                    << ", PLL lock count = "     << pllLockCnt);
 
-        if (shiftOutOfLockFirst) {
-          if (nBadLocks > 100) {
-            firstUnlockFound = true;
-            CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift 100 unlocks found after " << (i+1) << " shifts:"
-                           << " bad locks "           << nBadLocks
-                           << ", good locks "         << nGoodLocks
-                           << ", mmcm phase count = " << phase
-                           << ", mmcm phase ns = "    << phaseNs << "ns");
-          }
-        } else {
-          if (reversingForLock && (nBadLocks > 0)) {
-            CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift Bad BC0 lock found:"
-                           << " phase count = " << phase
-                           << ", phase ns = "   << phaseNs << "ns"
-                           << ", returning to normal search");
-            this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
-            this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
-            this->dispatch();
-            bestLockFound    = false;
-            reversingForLock = false;
-            nGoodLocks       = 0;
-          } else if (nGoodLocks == 200) {
-            reversingForLock = true;
-            CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift 200 consecutive good BC0 locks found:"
-                          << " phase count = " << phase
-                          << ", phase ns = "   << phaseNs << "ns"
-                          << ", reversing scan direction");
-            this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(0);
-            this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(1);
-            this->dispatch();
-          }
-          if (reversingForLock && (nGoodLocks == 300)) {
-            CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
-                          << " phase count = " << phase
-                          << ", phase ns = "   << phaseNs << "ns");
-            bestLockFound    = true;
-            if (doScan) {
-              this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
-              this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
-              this->dispatch();
-              bestLockFound    = false;
-              reversingForLock = false;
-              nGoodLocks       = 0;
-            } else {
-              break;
-            }
-          }
-        }
-      } else { // shift to first good BC0 locked
-        if (bc0Locked == 0) {
-          if (nextLockFound) {
-            CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift Unexpected unlock after " << (i+1) << " shifts:"
-                           << " bad locks "           << nBadLocks
-                           << ", good locks "         << nGoodLocks
-                           << ", mmcm phase count = " << phase
-                           << ", mmcm phase ns = "    << phaseNs << "ns");
-          }
-          nBadLocks += 1;
-          // nGoodLocks = 0;
-        } else {
-          if (!nextLockFound) {
-            CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Found next lock after "  << (i+1) << " shifts:"
-                          << " bad locks "           << nBadLocks
-                          << ", good locks "         << nGoodLocks
-                          << ", mmcm phase count = " << phase
-                          << ", mmcm phase ns = "    << phaseNs << "ns");
-            nextLockFound = true;
-            nBadLocks   = 0;
-          }
-          nGoodLocks += 1;
-        }
-        if (nGoodLocks == 1920) {
-          CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Finished 1920 shifts after first good lock: "
-                        << "bad locks "   << nBadLocks
-                        << " good locks " <<  nGoodLocks);
-          bestLockFound = true;
-          if (doScan) {
-            nextLockFound    = false;
-            firstUnlockFound = false;
-            nGoodLocks       = 0;
-            nBadLocks        = 0;
-            nShiftsSinceLock = 0;
-          } else {
-            break;
-          }
-        }
-      }
-    } else if (true) { // using the PLL lock counter, but the method as for the BC0 lock
-      if (!firstUnlockFound) {
-        bestLockFound = false;
-        if (pllLockCnt < PLL_LOCK_READ_ATTEMPTS) {
-          nBadLocks += 1;
-          nGoodLocks = 0;
-        } else {
-          nBadLocks   = 0;
-          nGoodLocks += 1;
-        }
-        if (shiftOutOfLockFirst) {
-          if (nBadLocks > 500) {
-            firstUnlockFound = true;
-            CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift 500 unlocks found after " << i+1 << " shifts:"
-                           << " bad locks "           << nBadLocks
-                           << ", good locks "         << nGoodLocks
-                           << ", mmcm phase count = " << phase
-                           << ", mmcm phase ns = "    << phaseNs << "ns");
-          } else {
-            if (reversingForLock && (nBadLocks > 0)) {
-              CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift Bad BC0 lock found:"
-                             << " phase count = " << phase
-                             << ", phase ns = "   << phaseNs << "ns"
-                             << ", returning to normal search");
-              this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
-              this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
-              this->dispatch();
-              bestLockFound    = false;
-              reversingForLock = false;
-              nGoodLocks       = 0;
-            } else if (nGoodLocks == 50) {
-              reversingForLock = true;
-              CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift 50 consecutive good PLL locks found:"
-                            << " phase count = " << phase
-                            << ", phase ns = "   << phaseNs << "ns"
-                            << ", reversing scan direction");
-              this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(0);
-              this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(1);
-              this->dispatch();
-            }
-            if (reversingForLock &&(nGoodLocks == 75)) {
-              CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
-                            << " phase count = " << phase
-                            << ", phase ns = "   << phaseNs << "ns.");
-              bestLockFound = true;
-              if (doScan) {
-                this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
-                this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
-                this->dispatch();
-                bestLockFound    = false;
-                reversingForLock = false;
-                nGoodLocks       = 0;
-              } else {
-                break;
-              }
-            }
-          }
-        }
-      } else { // shift to first good PLL locked
-        if (pllLockCnt < PLL_LOCK_READ_ATTEMPTS) {
-          if (nextLockFound) {
-            CMSGEMOS_WARN("HwGenericAMC::ttcMMCMPhaseShift Unexpected unlock after " << i+1 << " shifts:"
-                          << " bad locks "           << nBadLocks
-                          << ", good locks "         << nGoodLocks
-                          << ", mmcm phase count = " << phase
-                          << ", mmcm phase ns = "    << phaseNs << "ns");
-            nBadLocks += 1;
-            // nGoodLocks = 0;
-          } else {
-            if (!nextLockFound) {
-              CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Found next lock after " << i+1 << " shifts:"
-                            << " bad locks "           << nBadLocks
-                            << ", good locks "         << nGoodLocks
-                            << ", mmcm phase count = " << phase
-                            << ", mmcm phase ns = "    << phaseNs << "ns");
-              nextLockFound = true;
-              nBadLocks     = 0;
-            }
-            nGoodLocks += 1;
-          }
-          if (nShiftsSinceLock == 1000) {
-            CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Finished 1000 shifts after first good lock:"
-                          << " bad locks "   << nBadLocks
-                          << ", good locks " << nGoodLocks);
-            bestLockFound = true;
-            if (doScan) {
-              nextLockFound    = false;
-              firstUnlockFound = false;
-              nGoodLocks       = 0;
-              nBadLocks        = 0;
-              nShiftsSinceLock = 0;
-            } else {
-              break;
-            }
-          }
-        }
-      }
-    } else {
-      if (shiftOutOfLockFirst && (pllLockCnt < PLL_LOCK_READ_ATTEMPTS) && !firstUnlockFound) {
-        firstUnlockFound = true;
-        CMSGEMOS_WARN("HwGenericAMC::ttcMMCMPhaseShift Unlocked after " << i+1 << "shifts:"
-                      << " mmcm phase count = "     << phase
-                      << ", mmcm phase ns = "       << phaseNs << "ns"
-                      << ", pllLockCnt = "          << pllLockCnt
-                      << ", firstUnlockFound = "    << firstUnlockFound
-                      << ", shiftOutOfLockFirst = " << shiftOutOfLockFirst);
-      }
+//     if (useBC0Locked) {
+//       if (!firstUnlockFound) {
+//         bestLockFound = false;
+//         if (bc0Locked == 0) {
+//           nBadLocks += 1;
+//           nGoodLocks = 0;
+//         } else {
+//           nBadLocks   = 0;
+//           nGoodLocks += 1;
+//         }
 
-      if (pllLockCnt == PLL_LOCK_READ_ATTEMPTS) {
-        if (!shiftOutOfLockFirst) {
-          if (nGoodLocks == 50) {
-            reversingForLock = true;
-            CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift 200 consecutive good PLL locks found:"
-                          << " phase count = " << phase
-                          << ", phase ns = "   << phaseNs << "ns"
-                          << ", reversing scan direction");
-            this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(0);
-            this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(1);
-            this->dispatch();
-          }
-          if (reversingForLock && (nGoodLocks == 75)) {
-            CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
-                          << " phase count = " << phase
-                          << ", phase ns = "   << phaseNs << "ns.");
-            bestLockFound    = true;
-            if (doScan) {
-              this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
-              this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
-              this->dispatch();
-              bestLockFound    = false;
-              reversingForLock = false;
-              nGoodLocks       = 0;
-              nShiftsSinceLock = 0;
-            } else {
-              break;
-            }
-          }
-        } else if (firstUnlockFound || !shiftOutOfLockFirst) {
-          if (!nextLockFound) {
-            CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift Found next lock after " << i+1 << " shifts:"
-                           << " bad locks "           << nBadLocks
-                           << ", good locks "         << nGoodLocks
-                           << ", mmcm phase count = " << phase
-                           << ", mmcm phase ns = "    << phaseNs << "ns");
-            nextLockFound = true;
-          }
-          if (nShiftsSinceLock > 500) {
-            bestLockFound = true;
-            if (!doScan)
-              break;
-            nextLockFound    = false;
-            firstUnlockFound = false;
-            bestLockFound    = false;
-            nGoodLocks       = 0;
-            nShiftsSinceLock = 0;
-          }
-        } else {
-          nGoodLocks += 1;
-        }
-      } else if (nextLockFound) {
-        if (nShiftsSinceLock > 500) {
-          bestLockFound = true;
-          if (!doScan)
-            break;
-          nextLockFound    = false;
-          firstUnlockFound = false;
-          bestLockFound    = false;
-          nGoodLocks       = 0;
-          nShiftsSinceLock = 0;
-        }
-      } else {
-        bestLockFound = false;
-        nBadLocks += 1;
-        // nGoodLocks = 0;
-      }
-    }
-    if (nextLockFound)
-      nShiftsSinceLock += 1;
-    if (reversingForLock)
-      totalShiftCount -= 1;
-    else
-      totalShiftCount += 1;
-  }
+//         if (shiftOutOfLockFirst) {
+//           if (nBadLocks > 100) {
+//             firstUnlockFound = true;
+//             CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift 100 unlocks found after " << (i+1) << " shifts:"
+//                            << " bad locks "           << nBadLocks
+//                            << ", good locks "         << nGoodLocks
+//                            << ", mmcm phase count = " << phase
+//                            << ", mmcm phase ns = "    << phaseNs << "ns");
+//           }
+//         } else {
+//           if (reversingForLock && (nBadLocks > 0)) {
+//             CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift Bad BC0 lock found:"
+//                            << " phase count = " << phase
+//                            << ", phase ns = "   << phaseNs << "ns"
+//                            << ", returning to normal search");
+//             this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
+//             this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
+//             this->dispatch();
+//             bestLockFound    = false;
+//             reversingForLock = false;
+//             nGoodLocks       = 0;
+//           } else if (nGoodLocks == 200) {
+//             reversingForLock = true;
+//             CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift 200 consecutive good BC0 locks found:"
+//                           << " phase count = " << phase
+//                           << ", phase ns = "   << phaseNs << "ns"
+//                           << ", reversing scan direction");
+//             this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(0);
+//             this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(1);
+//             this->dispatch();
+//           }
+//           if (reversingForLock && (nGoodLocks == 300)) {
+//             CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
+//                           << " phase count = " << phase
+//                           << ", phase ns = "   << phaseNs << "ns");
+//             bestLockFound    = true;
+//             if (doScan) {
+//               this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
+//               this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
+//               this->dispatch();
+//               bestLockFound    = false;
+//               reversingForLock = false;
+//               nGoodLocks       = 0;
+//             } else {
+//               break;
+//             }
+//           }
+//         }
+//       } else { // shift to first good BC0 locked
+//         if (bc0Locked == 0) {
+//           if (nextLockFound) {
+//             CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift Unexpected unlock after " << (i+1) << " shifts:"
+//                            << " bad locks "           << nBadLocks
+//                            << ", good locks "         << nGoodLocks
+//                            << ", mmcm phase count = " << phase
+//                            << ", mmcm phase ns = "    << phaseNs << "ns");
+//           }
+//           nBadLocks += 1;
+//           // nGoodLocks = 0;
+//         } else {
+//           if (!nextLockFound) {
+//             CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Found next lock after "  << (i+1) << " shifts:"
+//                           << " bad locks "           << nBadLocks
+//                           << ", good locks "         << nGoodLocks
+//                           << ", mmcm phase count = " << phase
+//                           << ", mmcm phase ns = "    << phaseNs << "ns");
+//             nextLockFound = true;
+//             nBadLocks   = 0;
+//           }
+//           nGoodLocks += 1;
+//         }
+//         if (nGoodLocks == 1920) {
+//           CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Finished 1920 shifts after first good lock: "
+//                         << "bad locks "   << nBadLocks
+//                         << " good locks " <<  nGoodLocks);
+//           bestLockFound = true;
+//           if (doScan) {
+//             nextLockFound    = false;
+//             firstUnlockFound = false;
+//             nGoodLocks       = 0;
+//             nBadLocks        = 0;
+//             nShiftsSinceLock = 0;
+//           } else {
+//             break;
+//           }
+//         }
+//       }
+//     } else if (true) { // using the PLL lock counter, but the method as for the BC0 lock
+//       if (!firstUnlockFound) {
+//         bestLockFound = false;
+//         if (pllLockCnt < PLL_LOCK_READ_ATTEMPTS) {
+//           nBadLocks += 1;
+//           nGoodLocks = 0;
+//         } else {
+//           nBadLocks   = 0;
+//           nGoodLocks += 1;
+//         }
+//         if (shiftOutOfLockFirst) {
+//           if (nBadLocks > 500) {
+//             firstUnlockFound = true;
+//             CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift 500 unlocks found after " << i+1 << " shifts:"
+//                            << " bad locks "           << nBadLocks
+//                            << ", good locks "         << nGoodLocks
+//                            << ", mmcm phase count = " << phase
+//                            << ", mmcm phase ns = "    << phaseNs << "ns");
+//           }
+//         } else {
+//           if (reversingForLock && (nBadLocks > 0)) {
+//             CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift Bad BC0 lock found:"
+//                            << " phase count = " << phase
+//                            << ", phase ns = "   << phaseNs << "ns"
+//                            << ", returning to normal search");
+//             this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
+//             this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
+//             this->dispatch();
+//             bestLockFound    = false;
+//             reversingForLock = false;
+//             nGoodLocks       = 0;
+//           } else if (nGoodLocks == 50) {
+//             reversingForLock = true;
+//             CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift 50 consecutive good PLL locks found:"
+//                           << " phase count = " << phase
+//                           << ", phase ns = "   << phaseNs << "ns"
+//                           << ", reversing scan direction");
+//             this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(0);
+//             this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(1);
+//             this->dispatch();
+//           }
+//           if (reversingForLock &&(nGoodLocks == 75)) {
+//             CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
+//                           << " phase count = " << phase
+//                           << ", phase ns = "   << phaseNs << "ns.");
+//             bestLockFound = true;
+//             if (doScan) {
+//               this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
+//               this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
+//               this->dispatch();
+//               bestLockFound    = false;
+//               reversingForLock = false;
+//               nGoodLocks       = 0;
+//             } else {
+//               break;
+//             }
+//           }
+//         }
+//       } else { // shift to first good PLL locked
+//         if (pllLockCnt < PLL_LOCK_READ_ATTEMPTS) {
+//           if (nextLockFound) {
+//             CMSGEMOS_WARN("HwGenericAMC::ttcMMCMPhaseShift Unexpected unlock after " << i+1 << " shifts:"
+//                           << " bad locks "           << nBadLocks
+//                           << ", good locks "         << nGoodLocks
+//                           << ", mmcm phase count = " << phase
+//                           << ", mmcm phase ns = "    << phaseNs << "ns");
+//             nBadLocks += 1;
+//             // nGoodLocks = 0;
+//           } else {
+//             if (!nextLockFound) {
+//               CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Found next lock after " << i+1 << " shifts:"
+//                             << " bad locks "           << nBadLocks
+//                             << ", good locks "         << nGoodLocks
+//                             << ", mmcm phase count = " << phase
+//                             << ", mmcm phase ns = "    << phaseNs << "ns");
+//               nextLockFound = true;
+//               nBadLocks     = 0;
+//             }
+//             nGoodLocks += 1;
+//           }
+//           if (nShiftsSinceLock == 1000) {
+//             CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Finished 1000 shifts after first good lock:"
+//                           << " bad locks "   << nBadLocks
+//                           << ", good locks " << nGoodLocks);
+//             bestLockFound = true;
+//             if (doScan) {
+//               nextLockFound    = false;
+//               firstUnlockFound = false;
+//               nGoodLocks       = 0;
+//               nBadLocks        = 0;
+//               nShiftsSinceLock = 0;
+//             } else {
+//               break;
+//             }
+//           }
+//         }
+//       }
+//     } else {
+//       if (shiftOutOfLockFirst && (pllLockCnt < PLL_LOCK_READ_ATTEMPTS) && !firstUnlockFound) {
+//         firstUnlockFound = true;
+//         CMSGEMOS_WARN("HwGenericAMC::ttcMMCMPhaseShift Unlocked after " << i+1 << "shifts:"
+//                       << " mmcm phase count = "     << phase
+//                       << ", mmcm phase ns = "       << phaseNs << "ns"
+//                       << ", pllLockCnt = "          << pllLockCnt
+//                       << ", firstUnlockFound = "    << firstUnlockFound
+//                       << ", shiftOutOfLockFirst = " << shiftOutOfLockFirst);
+//       }
 
-  if (bestLockFound) {
-    ttcMMCMReset();
-    CMSGEMOS_INFO("HwGeneircAMC::ttcMMCMPhaseShift Lock was found:"
-                  << " phase count " << phase
-                  << ", phase "      << phaseNs << "ns");
-  } else {
-    std::stringstream msg;
-    msg << "HwGeneircAMC::ttcMMCMPhaseShift Unable to find lock";
-    CMSGEMOS_ERROR(msg);
-    // XCEPT_RAISE(gem::hw::exception::MMCMLockFailed,msg);
-  }
+//       if (pllLockCnt == PLL_LOCK_READ_ATTEMPTS) {
+//         if (!shiftOutOfLockFirst) {
+//           if (nGoodLocks == 50) {
+//             reversingForLock = true;
+//             CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift 200 consecutive good PLL locks found:"
+//                           << " phase count = " << phase
+//                           << ", phase ns = "   << phaseNs << "ns"
+//                           << ", reversing scan direction");
+//             this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(0);
+//             this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(1);
+//             this->dispatch();
+//           }
+//           if (reversingForLock && (nGoodLocks == 75)) {
+//             CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
+//                           << " phase count = " << phase
+//                           << ", phase ns = "   << phaseNs << "ns.");
+//             bestLockFound    = true;
+//             if (doScan) {
+//               this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
+//               this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
+//               this->dispatch();
+//               bestLockFound    = false;
+//               reversingForLock = false;
+//               nGoodLocks       = 0;
+//               nShiftsSinceLock = 0;
+//             } else {
+//               break;
+//             }
+//           }
+//         } else if (firstUnlockFound || !shiftOutOfLockFirst) {
+//           if (!nextLockFound) {
+//             CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift Found next lock after " << i+1 << " shifts:"
+//                            << " bad locks "           << nBadLocks
+//                            << ", good locks "         << nGoodLocks
+//                            << ", mmcm phase count = " << phase
+//                            << ", mmcm phase ns = "    << phaseNs << "ns");
+//             nextLockFound = true;
+//           }
+//           if (nShiftsSinceLock > 500) {
+//             bestLockFound = true;
+//             if (!doScan)
+//               break;
+//             nextLockFound    = false;
+//             firstUnlockFound = false;
+//             bestLockFound    = false;
+//             nGoodLocks       = 0;
+//             nShiftsSinceLock = 0;
+//           }
+//         } else {
+//           nGoodLocks += 1;
+//         }
+//       } else if (nextLockFound) {
+//         if (nShiftsSinceLock > 500) {
+//           bestLockFound = true;
+//           if (!doScan)
+//             break;
+//           nextLockFound    = false;
+//           firstUnlockFound = false;
+//           bestLockFound    = false;
+//           nGoodLocks       = 0;
+//           nShiftsSinceLock = 0;
+//         }
+//       } else {
+//         bestLockFound = false;
+//         nBadLocks += 1;
+//         // nGoodLocks = 0;
+//       }
+//     }
+//     if (nextLockFound)
+//       nShiftsSinceLock += 1;
+//     if (reversingForLock)
+//       totalShiftCount -= 1;
+//     else
+//       totalShiftCount += 1;
+//   }
+
+//   if (bestLockFound) {
+//     ttcReset();
+//     CMSGEMOS_INFO("HwGeneircAMC::ttcMMCMPhaseShift Lock was found:"
+//                   << " phase count " << phase
+//                   << ", phase "      << phaseNs << "ns");
+//   } else {
+//     std::stringstream msg;
+//     msg << "HwGeneircAMC::ttcMMCMPhaseShift Unable to find lock";
+//     CMSGEMOS_ERROR(msg);
+//     // XCEPT_RAISE(gem::hw::exception::MMCMLockFailed,msg);
+//   }
 }
 
 int gem::hw::HwGenericAMC::checkPllLock(int readAttempts)
@@ -1089,13 +1162,13 @@ void gem::hw::HwGenericAMC::setL1AEnable(bool enable)
   writeReg(getDeviceBaseNode(), "TTC.CTRL.L1A_ENABLE", uint32_t(enable));
 }
 
-uint32_t gem::hw::HwGenericAMC::getTTCConfig(AMCTTCCommand const& cmd)
+uint32_t gem::hw::HwGenericAMC::getTTCConfig(AMCTTCCommandT const& cmd)
 {
   CMSGEMOS_WARN("HwGenericAMC::getTTCConfig: not implemented");
   return 0x0;
 }
 
-void gem::hw::HwGenericAMC::setTTCConfig(AMCTTCCommand const& cmd, uint8_t const& value)
+void gem::hw::HwGenericAMC::setTTCConfig(AMCTTCCommandT const& cmd, uint8_t const& value)
 {
   CMSGEMOS_WARN("HwGenericAMC::setTTCConfig: not implemented");
   return;
@@ -1115,7 +1188,7 @@ uint32_t gem::hw::HwGenericAMC::getTTCErrorCount(bool const& single)
     return readReg(getDeviceBaseNode(), "TTC.STATUS.TTC_DOUBLE_ERROR_CNT");
 }
 
-uint32_t gem::hw::HwGenericAMC::getTTCCounter(AMCTTCCommand const& cmd)
+uint32_t gem::hw::HwGenericAMC::getTTCCounter(AMCTTCCommandT const& cmd)
 {
   switch(cmd) {
   case(AMCTTCCommand::TTC_L1A) :
@@ -1148,8 +1221,14 @@ uint32_t gem::hw::HwGenericAMC::getL1AID()
   return readReg(getDeviceBaseNode(), "TTC.L1A_ID");
 }
 
+uint32_t gem::hw::HwGenericAMC::getL1ARate()
+{
+  return readReg(getDeviceBaseNode(), "TTC.L1A_RATE");
+}
+
 uint32_t gem::hw::HwGenericAMC::getTTCSpyBuffer()
 {
+  // FIXME: OBSOLETE in V3?
   CMSGEMOS_WARN("HwGenericAMC::getTTCSpyBuffer: TTC.TTC_SPY_BUFFER is obsolete and will be removed in a future release");
   return 0x0;
   // return readReg(getDeviceBaseNode(), "TTC.TTC_SPY_BUFFER");
@@ -1226,7 +1305,7 @@ uint32_t gem::hw::HwGenericAMC::getOptoHybridDebugLastCluster(uint8_t const& oh,
   return readReg(getDeviceBaseNode(), toolbox::toString("TRIGGER.OH%d.DEBUG_LAST_CLUSTER_%d",(int)oh,(int)cs));
 }
 
-uint32_t gem::hw::HwGenericAMC::getOptoHybridTriggerLinkCount(uint8_t const& oh, uint8_t const& link, AMCOHLinkCount const& count)
+uint32_t gem::hw::HwGenericAMC::getOptoHybridTriggerLinkCount(uint8_t const& oh, uint8_t const& link, AMCOHLinkCountT const& count)
 {
   switch(count) {
   case(AMCOHLinkCount::LINK_NOT_VALID) :
@@ -1248,6 +1327,7 @@ uint32_t gem::hw::HwGenericAMC::getOptoHybridTriggerLinkCount(uint8_t const& oh,
 // general resets
 void gem::hw::HwGenericAMC::generalReset()
 {
+  // TODO: CTP7 module candidate
   // reset all counters
   counterReset();
 
@@ -1261,6 +1341,7 @@ void gem::hw::HwGenericAMC::generalReset()
 
 void gem::hw::HwGenericAMC::counterReset()
 {
+  // TODO: CTP7 module candidate
   // reset all counters
   resetT1Counters();
 
@@ -1274,6 +1355,8 @@ void gem::hw::HwGenericAMC::counterReset()
 
 void gem::hw::HwGenericAMC::resetT1Counters()
 {
+  // TODO: CTP7 module candidate
+  // FIXME: OBSOLETE in V3
   CMSGEMOS_WARN("HwGenericAMC::resetT1Counters is obsolete and will be removed in a future release");
   writeReg(getDeviceBaseNode(), "T1.L1A.RESET",      0x1);
   writeReg(getDeviceBaseNode(), "T1.CalPulse.RESET", 0x1);
@@ -1284,12 +1367,16 @@ void gem::hw::HwGenericAMC::resetT1Counters()
 
 void gem::hw::HwGenericAMC::linkCounterReset()
 {
+  // TODO: CTP7 module candidate
+  // FIXME: OBSOLETE in V3?
   CMSGEMOS_WARN("HwGenericAMC::linkCounterReset: not yet implemented");
   return;
 }
 
 void gem::hw::HwGenericAMC::linkReset(uint8_t const& gtx)
 {
+  // TODO: CTP7 module candidate
+  // FIXME: OBSOLETE in V3?
   CMSGEMOS_WARN("HwGenericAMC::linkReset: not yet implemented");
   linkCounterReset();
   return;

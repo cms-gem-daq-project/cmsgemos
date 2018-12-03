@@ -8,8 +8,8 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
 {
   CMSGEMOS_INFO("HwGLIB::HwGLIB trying to create HwGLIB(" << glibDevice << "," << connectionFile);
 
-  setDeviceBaseNode("GEM_AMC");
-  setExpectedBoardID("GLIB");
+  // this->setDeviceBaseNode("GEM_AMC");
+  this->setExpectedBoardID("GLIB");
 
   CMSGEMOS_INFO("HwGLIB::HwGLIB ctor done " << isHwConnected());
 }
@@ -22,8 +22,8 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
 {
   CMSGEMOS_INFO("HwGLIB::HwGLIB trying to create HwGLIB(" << glibDevice << "," << connectionURI << "," <<addressTable);
 
-  setDeviceBaseNode("GEM_AMC");
-  setExpectedBoardID("GLIB");
+  // this->setDeviceBaseNode("GEM_AMC");
+  this->setExpectedBoardID("GLIB");
 
   CMSGEMOS_INFO("HwGLIB::HwGLIB ctor done " << isHwConnected());
 }
@@ -34,8 +34,8 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
 {
   CMSGEMOS_INFO("HwGLIB::HwGLIB ctor");
 
-  setDeviceBaseNode("GEM_AMC");
-  setExpectedBoardID("GLIB");
+  // this->setDeviceBaseNode("GEM_AMC");
+  this->setExpectedBoardID("GLIB");
 
   CMSGEMOS_INFO("HwGLIB::HwGLIB ctor done " << isHwConnected());
 }
@@ -310,12 +310,12 @@ uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, uint32_t* da
   return 0x0;
 }
 
-uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
-                                                size_t const& nBlocks)
-{
-  // FIXME OBSOLETE!!!
-  return 0x0;
-}
+// uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
+//                                                 size_t const& nBlocks)
+// {
+//   // FIXME OBSOLETE!!!
+//   return 0x0;
+// }
 
 void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
 {

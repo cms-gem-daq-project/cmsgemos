@@ -20,6 +20,12 @@ namespace gem {
 
       static log4cplus::Logger m_gemLogger;
 
+      // FIXME, THIS SHOULD NOT BE HARDCODED, move out of class?
+      static constexpr uint8_t  N_GTX                = 12;          ///< maximum number of GTX links on the GenericAMC
+      static constexpr uint8_t  MAX_VFATS            = 24;          ///< maximum number of VFATs that can be connected
+      static constexpr uint32_t ALL_VFATS_BCAST_MASK = 0xff000000;  ///< send broadcast I2C requests to all chips
+      static constexpr uint32_t ALL_VFATS_DATA_MASK  = 0xffffffff;  ///< mask tracking data packets from all VFATs
+
       enum HWType {
         uTCA       = 0x0,
         GEB        = 0x1,

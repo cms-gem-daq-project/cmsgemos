@@ -1,75 +1,37 @@
 /**
  *   General structure taken blatantly from tcds::utils::HwDeviceTCA as we're using the same card
+ *   11.2018: structure modified to inherit from both uhal::HwInterface and xhal::XHALInterface
  */
 
 #include "gem/hw/GEMHwDevice.h"
-
-// #include "toolbox/net/URN.h"
-// #include "gem/base/utils/GEMInfoSpaceToolBox.h"
 
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
                                   std::string const& connectionFile) :
   xhal::XHALInterface(deviceName),
   uhal::HwInterface(std::shared_ptr<uhal::ConnectionManager>(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/"+connectionFile))->getDevice(deviceName)),
-  b_is_connected(false),
+  // b_is_connected(false),
   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
   m_hwLock(toolbox::BSem::FULL, true)
 {
-  CMSGEMOS_DEBUG("GEMHwDevice(std::string, std::string) ctor");
-  setLogLevelTo(uhal::Error());
-  // p_gemConnectionManager = std::shared_ptr<uhal::ConnectionManager>(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/"+connectionFile));
-  // try {
-  //   // p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(p_gemConnectionManager->getDevice(deviceName)));
-  // } catch (uhal::exception::FileNotFound const& err) {
-  //   std::string msg = toolbox::toString("Could not find uhal connection file '%s' ",
-  //                                       connectionFile.c_str());
-  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // } catch (uhal::exception::exception const& err) {
-  //   std::string msgBase = "Could not obtain the uhal device from the connection manager";
-  //   std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // } catch (std::exception const& err) {
-  //   CMSGEMOS_ERROR("GEMHwDevice::Unknown std::exception caught from uhal");
-  //   std::string msgBase = "Could not connect to the hardware";
-  //   std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // }
-  // should have pointer to device by here
-  setup(deviceName);
+  // CMSGEMOS_DEBUG("GEMHwDevice(std::string, std::string) ctor");
+
+  // FIXME: REMOVE or REDESIGN, virtual function in constructor
+  // setup(deviceName);
   CMSGEMOS_DEBUG("GEMHwDevice::ctor done");
 }
+
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
                                   std::string const& connectionURI,
                                   std::string const& addressTable) :
   xhal::XHALInterface(deviceName),
   uhal::HwInterface(uhal::ConnectionManager::getDevice(deviceName, connectionURI, addressTable)),
-  b_is_connected(false),
+  // b_is_connected(false),
   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
   m_hwLock(toolbox::BSem::FULL, true)
 {
-  CMSGEMOS_DEBUG("GEMHwDevice(std::string, std::string, std::string) ctor");
-  setLogLevelTo(uhal::Error());
-  // try {
-  //   p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhal::ConnectionManager::getDevice(deviceName,
-  //                                                                                                         connectionURI,
-  //                                                                                                         addressTable)));
-  // } catch (uhal::exception::FileNotFound const& err) {
-  //   std::string msg = toolbox::toString("Could not find uhal address table file '%s' "
-  //                                       "(or one of its included address table modules).",
-  //                                       addressTable.c_str());
-  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // } catch (uhal::exception::exception const& err) {
-  //   std::string msgBase = "Could not obtain the uhal device from the connection manager";
-  //   std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // } catch (std::exception const& err) {
-  //   CMSGEMOS_ERROR("GEMHwDevice::Unknown std::exception caught from uhal");
-  //   std::string msgBase = "Could not connect to th e hardware";
-  //   std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // }
-  // should have pointer to device by here
-  setup(deviceName);
+  // CMSGEMOS_DEBUG("GEMHwDevice(std::string, std::string, std::string) ctor");
+  // FIXME: REMOVE or REDESIGN, virtual function in constructor
+  // setup(deviceName);
   CMSGEMOS_DEBUG("GEMHwDevice::ctor done");
 }
 
@@ -77,28 +39,13 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
                                   uhal::HwInterface const& uhalDevice) :
   xhal::XHALInterface(deviceName),
   uhal::HwInterface(uhalDevice),
-  b_is_connected(false),
+  // b_is_connected(false),
   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
   m_hwLock(toolbox::BSem::FULL, true)
 {
   CMSGEMOS_DEBUG("GEMHwDevice(std::string, uhal::HwInterface) ctor");
-  setLogLevelTo(uhal::Error());
-  // try {
-  //   p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhalDevice));
-  //   // maybe get specific node, or pass this in as an argument?
-  //   // p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhalDevice->getNode("someNode")));
-  // } catch (uhal::exception::exception const& err) {
-  //   std::string msgBase = "Could not obtain the uhal device from the passed device";
-  //   std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // } catch (std::exception const& err) {
-  //   CMSGEMOS_ERROR("GEMHwDevice::Unknown std::exception caught from uhal");
-  //   std::string msgBase = "Could not connect to th e hardware";
-  //   std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // }
-  // should have pointer to device by here
-  setup(deviceName);
+  // FIXME: REMOVE or REDESIGN, virtual function in constructor
+  // setup(deviceName);
   CMSGEMOS_DEBUG("GEMHwDevice::ctor done");
 }
 
@@ -124,6 +71,18 @@ std::string gem::hw::GEMHwDevice::printErrorCounts() const {
 
 void gem::hw::GEMHwDevice::setup(std::string const& deviceName)
 {
+  b_is_connected = false;
+  // if the root logger doesn't exist, need to create it, othewise, just get the instance
+  // set up the logging (do we have a parent logger or not?)
+  // log4cplus::SharedAppenderPtr appender(new log4cplus::NullAppender());
+  // default to console?
+  //  log to console? file? xml? port?
+  // log4cplus::SharedAppenderPtr appender(new log4cplus::ConsoleAppender(true, true));
+  // appender->setName(deviceName);
+  // log4cplus::Logger::getRoot().addAppender(appender);
+
+  // m_gemLogger = log4cplus::Logger::getInstance(deviceName);
+
   setDeviceBaseNode("");
   setDeviceID(deviceName);
 
@@ -132,7 +91,12 @@ void gem::hw::GEMHwDevice::setup(std::string const& deviceName)
   m_ipBusErrs.Timeout       = 0;
   m_ipBusErrs.ControlHubErr = 0;
 
+  // uhal setup
   setLogLevelTo(uhal::Error());
+
+  // xhal setup
+  connectRPC();
+  setLogLevel(1/*FIXME add enums to xhal, e.g., xhal::WARN*/);
 }
 
 // uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
@@ -147,6 +111,10 @@ void gem::hw::GEMHwDevice::setup(std::string const& deviceName)
 //   }
 //   //have to fix the return value for failed access, better to return a pointer?
 // }
+
+///////////////////////////////////////////////////////////////////////////////////////
+//****************Methods implemented for convenience on uhal devices****************//
+///////////////////////////////////////////////////////////////////////////////////////
 
 uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 {
@@ -760,12 +728,12 @@ uint32_t gem::hw::GEMHwDevice::readBlock(std::string const& name, uint32_t* buff
   return 0;
 }
 
-uint32_t gem::hw::GEMHwDevice::readBlock(std::string const& name, std::vector<toolbox::mem::Reference*>& buffer,
-                                         size_t const& numWords)
-{
-  // not yet implemented
-  return 0;
-}
+// uint32_t gem::hw::GEMHwDevice::readBlock(std::string const& name, std::vector<toolbox::mem::Reference*>& buffer,
+//                                          size_t const& numWords)
+// {
+//   // not yet implemented
+//   return 0;
+// }
 
 void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint32_t> const values)
 {

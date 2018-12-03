@@ -6,9 +6,11 @@
 namespace gem {
   namespace hw {
     namespace amc13 {
+
+      // TODO: FIXME: replace these constructs with enum class/struct objects (only possible with c++11 or greater)
       class AMC13Settings {
       public:
-        struct BGOCmd { //defines the BGO commands
+        struct AMC13BGOCmd { //defines the BGO commands
           enum EBGOCmd { //defines the BGO commands
             BC0 = 0x1, //Bunch count reset
             EC0 = 0x2, //Event count reset
@@ -17,9 +19,10 @@ namespace gem {
             Resync    = 0x15, //Resync
             HardReset = 0x16, //HardReset
           } BGOCmd;
+        };
 
         struct CSCGEMBGOCmd { //defines the CSCGEM format BGO commands
-          enum CSCGEMEBGOCmd { //defines the CSCGEM format BGO commands
+          enum EBGOCmd { //defines the CSCGEM format BGO commands
             BC0 = 0x1, //Bunch count reset
             EC0 = 0x2, //Event count reset
             OC0 = 0x1, //Orbit count reset
@@ -32,9 +35,15 @@ namespace gem {
     }  // namespace gem::hw::amc13
   }  // namespace gem::hw
 
-  //typedef the enum for casting and access
-  typedef gem::hw::amc13::AMC13Settings::BGOCmd::EBGOCmd             AMC13BGOCmd;
-  typedef gem::hw::amc13::AMC13Settings::CSCGEMBGOCmd::CSCGEMEBGOCmd GEMBGOCmd;
+  // <name>  is the enum scoped namespace for scope::VALUE access
+  // <name>T is the enum type
+  // typedef the struct for access to the members via struct::VALUE
+  typedef gem::hw::amc13::AMC13Settings::AMC13BGOCmd  AMC13BGOCmd;
+  typedef gem::hw::amc13::AMC13Settings::CSCGEMBGOCmd GEMBGOCmd;
+
+  // typedef the enum for casting and access
+  typedef gem::hw::amc13::AMC13Settings::AMC13BGOCmd::EBGOCmd  AMC13BGOCmdT;
+  typedef gem::hw::amc13::AMC13Settings::CSCGEMBGOCmd::EBGOCmd GEMBGOCmdT;
 }  // namespace gem
 
 #endif  // GEM_HW_AMC13_AMC13SETTINGSENUMS_H

@@ -33,6 +33,12 @@ namespace gem {
           virtual ~HwGLIB();
 
           /**
+           * Connect to te RPC manager and load necessary modules
+           * @param reconnect determine if the conection should be reestablished and the modules reloaded
+           void connectRPC(bool reconnect=false) override;
+           */
+
+          /**
            * Check if one can read/write to the registers on the GLIB
            * @returns true if the GLIB is accessible
           bool isHwConnected();
@@ -373,8 +379,8 @@ namespace gem {
           //which of these will be better and do what we want
           uint32_t getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks=1);
           //which of these will be better and do what we want
-          uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
-                                   size_t const& nBlocks=1);
+          /* uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data, */
+          /*                          size_t const& nBlocks=1); */
 
           /**
            * Empty the tracking data FIFO

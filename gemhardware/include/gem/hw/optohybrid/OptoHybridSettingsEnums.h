@@ -6,6 +6,8 @@
 namespace gem {
   namespace hw {
     namespace optohybrid {
+
+      // TODO: FIXME: replace these constructs with enum class/struct objects (only possible with c++11 or greater)
       class OptoHybridLinkSettings
       {
       public:
@@ -60,13 +62,21 @@ namespace gem {
     }  // namespace gem::hw::optohybrid
   }  // namespace gem::hw
 
+  // <name>  is the enum scoped namespace for scope::VALUE access
+  // <name>T is the enum type
   // typedef the struct for access to the members via struct::VALUE
-  typedef gem::hw::optohybrid::OptoHybridLinkSettings::LinkBitMasks   OptoHybridLinkBitMasks;
-  typedef gem::hw::optohybrid::OptoHybridLinkSettings::LinkBitShifts  OptoHybridLinkBitShifts;
+  typedef gem::hw::optohybrid::OptoHybridLinkSettings::LinkBitMasks  OptoHybridLinkBitMasks;
+  typedef gem::hw::optohybrid::OptoHybridLinkSettings::LinkBitShifts OptoHybridLinkBitShifts;
+
+  typedef gem::hw::optohybrid::OptoHybridSettings::TTCMode       OptoHybridTTCMode;
+  typedef gem::hw::optohybrid::OptoHybridSettings::TriggerSource OptoHybridTrigSrc;
 
   // typedef the enum for casting and access
-  typedef gem::hw::optohybrid::OptoHybridSettings::TTCMode::ETTCMode             OptoHybridTTCMode;
-  typedef gem::hw::optohybrid::OptoHybridSettings::TriggerSource::ETriggerSource OptoHybridTrigSrc;
+  typedef gem::hw::optohybrid::OptoHybridLinkSettings::LinkBitMasks::ELinkBitMasks   OptoHybridLinkBitMasksT;
+  typedef gem::hw::optohybrid::OptoHybridLinkSettings::LinkBitShifts::ELinkBitShifts OptoHybridLinkBitShiftsT;
+
+  typedef gem::hw::optohybrid::OptoHybridSettings::TTCMode::ETTCMode             OptoHybridTTCModeT;
+  typedef gem::hw::optohybrid::OptoHybridSettings::TriggerSource::ETriggerSource OptoHybridTrigSrcT;
 
 }  // namespace gem
 

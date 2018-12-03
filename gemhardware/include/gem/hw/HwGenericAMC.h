@@ -15,8 +15,8 @@ namespace gem {
       {
       public:
 
-        // FIXME, THIS SHOULD NOT BE HARDCODED
-        static const unsigned N_GTX = 12; ///< maximum number of GTX links on the GenericAMC
+        /* // FIXME, THIS SHOULD NOT BE HARDCODED, move out of class? */
+        /* static constexpr uint8_t N_GTX = 12; ///< maximum number of GTX links on the GenericAMC */
 
         /**
          * @struct AMCIPBusCounters
@@ -61,7 +61,7 @@ namespace gem {
          */
         /* HwGenericAMC(); */
         /* HwGenericAMC(std::string const& amcDevice); */
-        /* HwGenericAMC(std::string const& amcDevice, int const& crate, int const& slot); */
+        /* HwGenericAMC(int const& crate, int const& slot, bool uhalNative=false); */
         HwGenericAMC(std::string const& amcDevice,
                      std::string const& connectionFile);
 
@@ -78,7 +78,7 @@ namespace gem {
          * Check if one can read/write to the registers on the GenericAMC
          * @returns true if the GenericAMC is accessible
          */
-        virtual bool isHwConnected();
+        virtual bool isHwConnected() override;
 
         /**************************/
         /** GEM system information **/
@@ -160,6 +160,12 @@ namespace gem {
         virtual std::string getUserFirmwareDate();
 
       private:
+        /**
+         * Connect to te RPC manager and load necessary modules
+         * @param reconnect determine if the conection should be reestablished and the modules reloaded
+         */
+        void connectRPC(bool reconnect=false) override;
+
         /**
          * Check if the gtx requested is known to be operational
          * @param uint8_t gtx GTX gtx to be queried
@@ -470,6 +476,11 @@ namespace gem {
          */
         virtual uint32_t getDAQLinkL1AID();
 
+        /* /\** */
+        /*  * @returns Returns the curent L1A rate (in Hz) */
+        /*  *\/ */
+        /* virtual uint32_t getDAQLinkL1ARate(); */
+
         /**
          * @returns Returns
          */
@@ -486,13 +497,13 @@ namespace gem {
         virtual uint32_t getDAQLinkInputMask();
 
         /**
-         * @returns Returns the timeout before the event builder firmware will close the event and send the data
+         * @returns Returns the timeout used in the event builder before closing the event and sending the (potentially incomplete) data
          */
         virtual uint32_t getDAQLinkDAVTimeout();
 
         /**
          * @param max is a bool specifying whether to query the max timer or the last timer
-         * @returns Returns the timeout before the event builder firmware will close the event and send the data
+         * @returns Returns the spent building an event
          */
         virtual uint32_t getDAQLinkDAVTimer(bool const& max);
 
@@ -503,20 +514,23 @@ namespace gem {
          * @param gtx is the input link status to query
          * @returns Returns the the 32-bit word corresponding DAQ status for the specified link
          */
-        virtual uint32_t getDAQLinkStatus(   uint8_t const& gtx);
+        // FIXME: renamed from DAQLink to LinkDAQ
+        virtual uint32_t getLinkDAQStatus(   uint8_t const& gtx);
 
         /**
          * @param gtx is the input link counter to query
          * @param mode specifies whether to query the corrupt VFAT count (0x0) or the event number
          * @returns Returns the link counter for the specified mode
          */
-        virtual uint32_t getDAQLinkCounters( uint8_t const& gtx, uint8_t const& mode);
+        // FIXME: renamed from DAQLink to LinkDAQ
+        virtual uint32_t getLinkDAQCounters( uint8_t const& gtx, uint8_t const& mode);
 
         /**
          * @param gtx is the input link status to query
          * @returns Returns a block of the last 7 words received from the OH on the link specified
          */
-        virtual uint32_t getDAQLinkLastBlock(uint8_t const& gtx);
+        // FIXME: renamed from DAQLink to LinkDAQ
+        virtual uint32_t getLinkLastDAQBlock(uint8_t const& gtx);
 
         /**
          * @returns Returns the timeout before the event builder firmware will close the event and send the data
@@ -626,15 +640,15 @@ namespace gem {
 
         /*** CONFIG submodule ***/
         /**
-         * @param AMCTTCCommand to retrieve the current configuration of
+         * @param cmd AMCTTCCommandT enum type to retrieve the current configuration of
          * @returns TTC configuration register values
          */
-        virtual uint32_t getTTCConfig(AMCTTCCommand const& cmd);
+        virtual uint32_t getTTCConfig(AMCTTCCommandT const& cmd);
 
         /**
-         * @param AMCTTCCommand to set the current configuration of
+         * @param cmd AMCTTCCommandT to set the current configuration of
          */
-        virtual void setTTCConfig(AMCTTCCommand const& cmd, uint8_t const& value);
+        virtual void setTTCConfig(AMCTTCCommandT const& cmd, uint8_t const& value);
 
         /*** STATUS submodule ***/
         /**
@@ -650,14 +664,20 @@ namespace gem {
 
         /*** CMD_COUNTERS submodule ***/
         /**
+         * @param cmd AMCTTCCommandT to get the current configuration of
          * @returns Returns the counter for the specified TTC command
          */
-        virtual uint32_t getTTCCounter(AMCTTCCommand const& cmd);
+        virtual uint32_t getTTCCounter(AMCTTCCommandT const& cmd);
 
         /**
          * @returns Returns the L1A ID received by the TTC module
          */
         virtual uint32_t getL1AID();
+
+        /**
+         * @returns Returns the curent L1A rate (in Hz)
+         */
+        virtual uint32_t getL1ARate();
 
         /**
          * @returns 32-bit word corresponding to the 8 most recent TTC commands received
@@ -760,7 +780,7 @@ namespace gem {
          * @param Which counter to query
          * @returns Count of the sbits for a specified cluster size
          */
-        virtual uint32_t getOptoHybridTriggerLinkCount(uint8_t const& oh, uint8_t const& link, AMCOHLinkCount const& count);
+        virtual uint32_t getOptoHybridTriggerLinkCount(uint8_t const& oh, uint8_t const& link, AMCOHLinkCountT const& count);
 
         /****************************/
         /** DAQ moudle information **/
@@ -796,7 +816,7 @@ namespace gem {
       protected:
         //GenericAMCMonitor *monGenericAMC_;
 
-        bool b_links[N_GTX]; // have to figure out how to make this dynamic, or if we can just drop it... FIXME
+        bool b_links[gem::hw::utils::N_GTX]; // have to figure out how to make this dynamic, or if we can just drop it... FIXME
         uint32_t m_links;    ///< Connected links mask
         uint32_t m_maxLinks; ///< Maximum supported OptoHybrids as reported by the firmware
 

@@ -183,6 +183,16 @@ void gem::hw::vfat::HwVFAT2::printDefaults(std::ofstream& SetupFile)
 //   //determine the manner in which to configure the device (XML or DB parameters)
 // }
 
+void gem::hw::vfat::HwVFAT2::connectRPC(bool reconnect)
+{
+  if (isConnected) {
+    this->loadModule("vfat3", "vfat3 v1.0.1");
+    CMSGEMOS_DEBUG("HwVFAT2::connectRPC modules loaded");
+  } else {
+    CMSGEMOS_WARN("HwVFAT2::connectRPC RPC interface failed to connect");
+  }
+}
+
 bool gem::hw::vfat::HwVFAT2::isHwConnected()
 {
   if ( b_is_connected )

@@ -879,9 +879,9 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   for (uint8_t oh = 0; oh < glib->getSupportedOptoHybrids(); ++oh) {
     std::stringstream ohname;
     ohname << "OH" << (int)oh;
-    is_glib->createUInt32(ohname.str()+"_STATUS",               glib->getDAQLinkStatus(oh),      NULL, GEMUpdateType::HW32);
-    is_glib->createUInt32(ohname.str()+"_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(oh, 0), NULL, GEMUpdateType::HW32);
-    is_glib->createUInt32(ohname.str()+"_EVN",                  glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
+    is_glib->createUInt32(ohname.str()+"_STATUS",               glib->getLinkDAQStatus(oh),      NULL, GEMUpdateType::HW32);
+    is_glib->createUInt32(ohname.str()+"_CORRUPT_VFAT_BLK_CNT", glib->getLinkDAQCounters(oh, 0), NULL, GEMUpdateType::HW32);
+    is_glib->createUInt32(ohname.str()+"_EVN",                  glib->getLinkDAQCounters(oh, 1), NULL, GEMUpdateType::HW32);
     is_glib->createUInt32(ohname.str()+"_EOE_TIMEOUT",          glib->getDAQLinkDAVTimer(oh),    NULL, GEMUpdateType::HW32);
     is_glib->createUInt32(ohname.str()+"_MAX_EOE_TIMER",        glib->getDAQLinkDAVTimer(0),     NULL, GEMUpdateType::HW32);
     is_glib->createUInt32(ohname.str()+"_LAST_EOE_TIMER",       glib->getDAQLinkDAVTimer(1),     NULL, GEMUpdateType::HW32);
@@ -893,14 +893,14 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
       std::stringstream cluname;
       cluname << "CLUSTER_SIZE_" << cluster;
       is_glib->createUInt32(ohname.str()+"_"+cluname.str()+"_RATE",
-                            glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
+                            glib->getLinkDAQCounters(oh, 1), NULL, GEMUpdateType::HW32);
       is_glib->createUInt32(ohname.str()+"_"+cluname.str()+"_CNT",
-                            glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
+                            glib->getLinkDAQCounters(oh, 1), NULL, GEMUpdateType::HW32);
       cluname.str("");
       cluname.clear();
       cluname << "DEBUG_LAST_CLUSTER_" << cluster;
       is_glib->createUInt32(ohname.str()+"_"+cluname.str(),
-                            glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
+                            glib->getLinkDAQCounters(oh, 1), NULL, GEMUpdateType::HW32);
     }
   }
 }

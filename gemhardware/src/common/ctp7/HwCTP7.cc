@@ -592,20 +592,20 @@ uint32_t gem::hw::ctp7::HwCTP7::getTrackingData(uint8_t const& gtx, uint32_t* da
   return nBlocks;
 }
 
-uint32_t gem::hw::ctp7::HwCTP7::getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
-                                                size_t const& nBlocks)
-{
-  if (!linkCheck(gtx, "Tracking data")) {
-    return 0;
-  }
+// uint32_t gem::hw::ctp7::HwCTP7::getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
+//                                                 size_t const& nBlocks)
+// {
+//   if (!linkCheck(gtx, "Tracking data")) {
+//     return 0;
+//   }
 
-  std::stringstream regName;
-  regName << getDeviceBaseNode() << ".TRK_DATA.OptoHybrid_" << (int)gtx << ".FIFO";
-  // best way to read a real block? make getTrackingData ask for N blocks?
-  // can we return the memory another way, rather than a vector?
-  // readBlock(regName.str(),7*nBlocks);
-  return nBlocks;
-}
+//   std::stringstream regName;
+//   regName << getDeviceBaseNode() << ".TRK_DATA.OptoHybrid_" << (int)gtx << ".FIFO";
+//   // best way to read a real block? make getTrackingData ask for N blocks?
+//   // can we return the memory another way, rather than a vector?
+//   // readBlock(regName.str(),7*nBlocks);
+//   return nBlocks;
+// }
 
 void gem::hw::ctp7::HwCTP7::flushFIFO(uint8_t const& gtx)
 {
@@ -726,7 +726,7 @@ uint32_t gem::hw::ctp7::HwCTP7::getDAQLinkDAVTimer(bool const& max)
 }
 
 /** GTX specific DAQ link information **/
-uint32_t gem::hw::ctp7::HwCTP7::getDAQLinkStatus(uint8_t const& gtx)
+uint32_t gem::hw::ctp7::HwCTP7::getLinkDAQStatus(uint8_t const& gtx)
 {
   // do link protections here...
   std::stringstream regBase;
@@ -734,7 +734,7 @@ uint32_t gem::hw::ctp7::HwCTP7::getDAQLinkStatus(uint8_t const& gtx)
   return readReg(getDeviceBaseNode(),regBase.str()+".STATUS");
 }
 
-uint32_t gem::hw::ctp7::HwCTP7::getDAQLinkCounters(uint8_t const& gtx, uint8_t const& mode)
+uint32_t gem::hw::ctp7::HwCTP7::getLinkDAQCounters(uint8_t const& gtx, uint8_t const& mode)
 {
   std::stringstream regBase;
   regBase << "DAQ.GTX" << (int)gtx << ".COUNTERS";
@@ -744,7 +744,7 @@ uint32_t gem::hw::ctp7::HwCTP7::getDAQLinkCounters(uint8_t const& gtx, uint8_t c
     return readReg(getDeviceBaseNode(),regBase.str()+".EVN");
 }
 
-uint32_t gem::hw::ctp7::HwCTP7::getDAQLinkLastBlock(uint8_t const& gtx)
+uint32_t gem::hw::ctp7::HwCTP7::getLinkLastDAQBlock(uint8_t const& gtx)
 {
   std::stringstream regBase;
   regBase << "DAQ.GTX" << (int)gtx;
