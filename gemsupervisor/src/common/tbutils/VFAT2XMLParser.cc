@@ -170,10 +170,10 @@ void gem::supervisor::tbutils::VFAT2XMLParser::parseVFAT(xercesc::DOMNode * pNod
             //LOG4CPLUS_INFO(this->getApplicationLogger(), "CR1 ReHitCT: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
             vfatDevice_->setHitCountCycleTime((gem::hw::vfat::StringToReHitCT.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
           }
-        if (strcmp("LVDSPowerSave",xercesc::XMLString::transcode(n->getNodeName()))==0)
+        if (strcmp("LVDSMode",xercesc::XMLString::transcode(n->getNodeName()))==0)
           {
-            //LOG4CPLUS_INFO(this->getApplicationLogger(), "CR1 LVDSPowerSave: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-            vfatDevice_->setLVDSMode((gem::hw::vfat::StringToLVDSPowerSave.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+            //LOG4CPLUS_INFO(this->getApplicationLogger(), "CR1 LVDSMode: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
+            vfatDevice_->setLVDSMode((gem::hw::vfat::StringToLVDSMode.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
           }
         if (strcmp("ProbeMode",xercesc::XMLString::transcode(n->getNodeName()))==0)
           {

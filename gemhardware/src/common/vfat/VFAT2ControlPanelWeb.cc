@@ -289,12 +289,12 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
   *out << "            	     <div class=\"controlRegisterDropdownEntry\">"      << std::endl
        << cgicc::label("LVDSPowerSave &lt;5&gt;").set("for","LVDSPowerSave")    << std::endl
        << cgicc::select().set("id","LVDSPowerSave").set("name","LVDSPowerSave") << std::endl
-    //<< ((gem::hw::vfat::LVDSPowerSaveToString.at(params.lvdsMode).compare("ENABLEALL")) == 0 ?
-       << ((gem::hw::vfat::LVDSPowerSaveToString.at(params.lvdsMode).compare("OFF")) == 0 ?
+    //<< ((gem::hw::vfat::LVDSModeToString.at(params.lvdsMode).compare("ENABLEALL")) == 0 ?
+       << ((gem::hw::vfat::LVDSModeToString.at(params.lvdsMode).compare("OFF")) == 0 ?
            (cgicc::option("Off").set("value","Off").set("selected")) :
            (cgicc::option("Off").set("value","Off"))) << std::endl
-    //<< ((gem::hw::vfat::LVDSPowerSaveToString.at(params.lvdsMode).compare("POWERSAVE")) == 0 ?
-       << ((gem::hw::vfat::LVDSPowerSaveToString.at(params.lvdsMode).compare("ON")) == 0 ?
+    //<< ((gem::hw::vfat::LVDSModeToString.at(params.lvdsMode).compare("POWERSAVE")) == 0 ?
+       << ((gem::hw::vfat::LVDSModeToString.at(params.lvdsMode).compare("ON")) == 0 ?
            (cgicc::option("Enabled").set("value","On").set("selected")) :
            (cgicc::option("Enabled").set("value","On"))) << std::endl
        << cgicc::select()                                                       << std::endl

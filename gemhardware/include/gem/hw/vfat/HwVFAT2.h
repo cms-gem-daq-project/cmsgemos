@@ -80,11 +80,17 @@ namespace gem {
 	  void printDefaults(std::ofstream& SetupFile);
 
           /**
+           * Connect to te RPC manager and load necessary modules
+           * @param reconnect determine if the conection should be reestablished and the modules reloaded
+           */
+          void connectRPC(bool reconnect=false) override;
+
+          /**
            * @brief  bool isHwConnected()
            * Checks to see if the VFAT device is connected
            * @returns true if the hardware pointer is valid and a successful read has occurred
            */
-          virtual bool isHwConnected();
+          virtual bool isHwConnected() override;
 
           /**
            * @brief  uint8_t  readVFATReg( std::string const& regName, bool debug)
@@ -199,230 +205,230 @@ namespace gem {
           /// might be good to overload them to act on local variables
           /// and do a single IPBus transaction...
 
-          void setRunMode(VFAT2RunMode mode) {
+          void setRunMode(VFAT2RunModeT mode) {
             uint8_t settings = readVFATReg("ContReg0");
             writeVFATReg("ContReg0",
                          (settings&~VFAT2ContRegBitMasks::RUNMODE)|
                          (mode<<VFAT2ContRegBitShifts::RUNMODE)); }
 
-          void setRunMode(VFAT2RunMode mode, uint8_t& settings) {
+          void setRunMode(VFAT2RunModeT mode, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::RUNMODE)|
               (mode<<VFAT2ContRegBitShifts::RUNMODE); }
 
           void setRunMode(uint8_t mode) {
-            setRunMode(static_cast<VFAT2RunMode>(mode)); }
+            setRunMode(static_cast<VFAT2RunModeT>(mode)); }
           void setRunMode(uint8_t mode, uint8_t&  settings) {
-            setRunMode(static_cast<VFAT2RunMode>(mode), settings); }
+            setRunMode(static_cast<VFAT2RunModeT>(mode), settings); }
 
-          void setTriggerMode(VFAT2TrigMode mode) {
+          void setTriggerMode(VFAT2TrigModeT mode) {
             uint8_t settings = readVFATReg("ContReg0");
             writeVFATReg("ContReg0",
                          (settings&~VFAT2ContRegBitMasks::TRIGMODE)|
                          (mode<<VFAT2ContRegBitShifts::TRIGMODE)); }
 
-          void setTriggerMode(VFAT2TrigMode mode, uint8_t& settings) {
+          void setTriggerMode(VFAT2TrigModeT mode, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::TRIGMODE)|
               (mode<<VFAT2ContRegBitShifts::TRIGMODE); }
 
           void setTriggerMode(uint8_t mode) {
-            setTriggerMode(static_cast<VFAT2TrigMode>(mode)); }
+            setTriggerMode(static_cast<VFAT2TrigModeT>(mode)); }
           void setTriggerMode(uint8_t mode, uint8_t& settings) {
-            setTriggerMode(static_cast<VFAT2TrigMode>(mode), settings); }
+            setTriggerMode(static_cast<VFAT2TrigModeT>(mode), settings); }
 
-          void setCalibrationMode(VFAT2CalibMode mode) {
+          void setCalibrationMode(VFAT2CalModeT mode) {
             uint8_t settings = readVFATReg("ContReg0");
             writeVFATReg("ContReg0",
                          (settings&~VFAT2ContRegBitMasks::CALMODE)|
                          (mode<<VFAT2ContRegBitShifts::CALMODE)); }
 
-          void setCalibrationMode(VFAT2CalibMode mode, uint8_t& settings) {
+          void setCalibrationMode(VFAT2CalModeT mode, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::CALMODE)|
               (mode<<VFAT2ContRegBitShifts::CALMODE); }
 
           void setCalibrationMode(uint8_t mode) {
-            setCalibrationMode(static_cast<VFAT2CalibMode>(mode)); }
+            setCalibrationMode(static_cast<VFAT2CalModeT>(mode)); }
           void setCalibrationMode(uint8_t mode, uint8_t& settings) {
-            setCalibrationMode(static_cast<VFAT2CalibMode>(mode), settings); }
+            setCalibrationMode(static_cast<VFAT2CalModeT>(mode), settings); }
 
-          void setMSPolarity(VFAT2MSPol polarity) {
+          void setMSPolarity(VFAT2MSPolT polarity) {
             uint8_t settings = readVFATReg("ContReg0");
             writeVFATReg("ContReg0",
                          (settings&~VFAT2ContRegBitMasks::MSPOL)|
                          (polarity<<VFAT2ContRegBitShifts::MSPOL)); }
 
-          void setMSPolarity(VFAT2MSPol polarity, uint8_t& settings) {
+          void setMSPolarity(VFAT2MSPolT polarity, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::MSPOL)|
               (polarity<<VFAT2ContRegBitShifts::MSPOL); }
 
           void setMSPolarity(uint8_t mode) {
-            setMSPolarity(static_cast<VFAT2MSPol>(mode)); }
+            setMSPolarity(static_cast<VFAT2MSPolT>(mode)); }
           void setMSPolarity(uint8_t mode, uint8_t& settings) {
-            setMSPolarity(static_cast<VFAT2MSPol>(mode), settings); }
+            setMSPolarity(static_cast<VFAT2MSPolT>(mode), settings); }
 
-          void setCalPolarity(VFAT2CalPol polarity) {
+          void setCalPolarity(VFAT2CalPolT polarity) {
             uint8_t settings = readVFATReg("ContReg0");
             writeVFATReg("ContReg0",
                          (settings&~VFAT2ContRegBitMasks::CALPOL)|
                          (polarity<<VFAT2ContRegBitShifts::CALPOL)); }
 
-          void setCalPolarity(VFAT2CalPol polarity, uint8_t& settings) {
+          void setCalPolarity(VFAT2CalPolT polarity, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::CALPOL)|
               (polarity<<VFAT2ContRegBitShifts::CALPOL); }
 
           void setCalPolarity(uint8_t mode) {
-            setCalPolarity(static_cast<VFAT2CalPol>(mode)); }
+            setCalPolarity(static_cast<VFAT2CalPolT>(mode)); }
           void setCalPolarity(uint8_t mode, uint8_t& settings) {
-            setCalPolarity(static_cast<VFAT2CalPol>(mode), settings); }
+            setCalPolarity(static_cast<VFAT2CalPolT>(mode), settings); }
 
-          void setProbeMode(VFAT2ProbeMode mode) {
+          void setProbeMode(VFAT2ProbeModeT mode) {
             uint8_t settings = readVFATReg("ContReg1");
             writeVFATReg("ContReg1",
                          (settings&~VFAT2ContRegBitMasks::PROBEMODE)|
                          (mode<<VFAT2ContRegBitShifts::PROBEMODE)); }
 
-          void setProbeMode(VFAT2ProbeMode mode, uint8_t& settings) {
+          void setProbeMode(VFAT2ProbeModeT mode, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::PROBEMODE)|
               (mode<<VFAT2ContRegBitShifts::PROBEMODE); }
 
           void setProbeMode(uint8_t mode) {
-            setProbeMode(static_cast<VFAT2ProbeMode>(mode)); }
+            setProbeMode(static_cast<VFAT2ProbeModeT>(mode)); }
           void setProbeMode(uint8_t mode, uint8_t& settings) {
-            setProbeMode(static_cast<VFAT2ProbeMode>(mode), settings); }
+            setProbeMode(static_cast<VFAT2ProbeModeT>(mode), settings); }
 
-          void setLVDSMode(VFAT2LVDSMode mode) {
+          void setLVDSMode(VFAT2LVDSModeT mode) {
             uint8_t settings = readVFATReg("ContReg1");
             writeVFATReg("ContReg1",
                          (settings&~VFAT2ContRegBitMasks::LVDSMODE)|
                          (mode<<VFAT2ContRegBitShifts::LVDSMODE)); }
 
-          void setLVDSMode(VFAT2LVDSMode mode, uint8_t& settings) {
+          void setLVDSMode(VFAT2LVDSModeT mode, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::LVDSMODE)|
               (mode<<VFAT2ContRegBitShifts::LVDSMODE); }
 
           void setLVDSMode(uint8_t mode) {
-            setLVDSMode(static_cast<VFAT2LVDSMode>(mode)); }
+            setLVDSMode(static_cast<VFAT2LVDSModeT>(mode)); }
           void setLVDSMode(uint8_t mode, uint8_t& settings) {
-            setLVDSMode(static_cast<VFAT2LVDSMode>(mode), settings); }
+            setLVDSMode(static_cast<VFAT2LVDSModeT>(mode), settings); }
 
-          void setDACMode(VFAT2DACMode mode) {
+          void setDACMode(VFAT2DACModeT mode) {
             uint8_t settings = readVFATReg("ContReg1");
             writeVFATReg("ContReg1",
                          (settings&~VFAT2ContRegBitMasks::DACMODE)|
                          (mode<<VFAT2ContRegBitShifts::DACMODE)); }
 
-          void setDACMode(VFAT2DACMode mode, uint8_t& settings) {
+          void setDACMode(VFAT2DACModeT mode, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::DACMODE)|
               (mode<<VFAT2ContRegBitShifts::DACMODE); }
 
           void setDACMode(uint8_t mode) {
-            setDACMode(static_cast<VFAT2DACMode>(mode)); }
+            setDACMode(static_cast<VFAT2DACModeT>(mode)); }
           void setDACMode(uint8_t mode, uint8_t& settings) {
-            setDACMode(static_cast<VFAT2DACMode>(mode), settings); }
+            setDACMode(static_cast<VFAT2DACModeT>(mode), settings); }
 
-          void setHitCountCycleTime(VFAT2ReHitCT cycleTime) {
+          void setHitCountCycleTime(VFAT2ReHitCTT cycleTime) {
             uint8_t settings = readVFATReg("ContReg1");
             writeVFATReg("ContReg1",
                          (settings&~VFAT2ContRegBitMasks::REHITCT)|
                          (cycleTime<<VFAT2ContRegBitShifts::REHITCT)); }
 
-          void setHitCountCycleTime(VFAT2ReHitCT cycleTime, uint8_t& settings) {
+          void setHitCountCycleTime(VFAT2ReHitCTT cycleTime, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::REHITCT)|
               (cycleTime<<VFAT2ContRegBitShifts::REHITCT); }
 
           void setHitCountCycleTime(uint8_t mode) {
-            setHitCountCycleTime(static_cast<VFAT2ReHitCT>(mode)); }
+            setHitCountCycleTime(static_cast<VFAT2ReHitCTT>(mode)); }
           void setHitCountCycleTime(uint8_t mode, uint8_t& settings) {
-            setHitCountCycleTime(static_cast<VFAT2ReHitCT>(mode), settings); }
+            setHitCountCycleTime(static_cast<VFAT2ReHitCTT>(mode), settings); }
 
-          void setHitCountMode(VFAT2HitCountMode mode) {
+          void setHitCountMode(VFAT2HitCountModeT mode) {
             uint8_t settings = readVFATReg("ContReg2");
             writeVFATReg("ContReg2",
                          (settings&~VFAT2ContRegBitMasks::HITCOUNTMODE)|
                          (mode<<VFAT2ContRegBitShifts::HITCOUNTMODE)); }
 
-          void setHitCountMode(VFAT2HitCountMode mode, uint8_t& settings) {
+          void setHitCountMode(VFAT2HitCountModeT mode, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::HITCOUNTMODE)|
               (mode<<VFAT2ContRegBitShifts::HITCOUNTMODE); }
 
           void setHitCountMode(uint8_t mode) {
-            setHitCountMode(static_cast<VFAT2HitCountMode>(mode)); }
+            setHitCountMode(static_cast<VFAT2HitCountModeT>(mode)); }
           void setHitCountMode(uint8_t mode, uint8_t& settings) {
-            setHitCountMode(static_cast<VFAT2HitCountMode>(mode), settings); }
+            setHitCountMode(static_cast<VFAT2HitCountModeT>(mode), settings); }
 
-          void setMSPulseLength(VFAT2MSPulseLength length) {
+          void setMSPulseLength(VFAT2MSPulseLengthT length) {
             uint8_t settings = readVFATReg("ContReg2");
             writeVFATReg("ContReg2",
                          (settings&~VFAT2ContRegBitMasks::MSPULSELENGTH)|
                          (length<<VFAT2ContRegBitShifts::MSPULSELENGTH)); }
 
-          void setMSPulseLength(VFAT2MSPulseLength length, uint8_t& settings) {
+          void setMSPulseLength(VFAT2MSPulseLengthT length, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::MSPULSELENGTH)|
               (length<<VFAT2ContRegBitShifts::MSPULSELENGTH); }
 
           void setMSPulseLength(uint8_t mode) {
-            setMSPulseLength(static_cast<VFAT2MSPulseLength>(mode)); }
+            setMSPulseLength(static_cast<VFAT2MSPulseLengthT>(mode)); }
           void setMSPulseLength(uint8_t mode, uint8_t& settings) {
-            setMSPulseLength(static_cast<VFAT2MSPulseLength>(mode), settings); }
+            setMSPulseLength(static_cast<VFAT2MSPulseLengthT>(mode), settings); }
 
-          void setInputPadMode(VFAT2DigInSel mode) {
+          void setInputPadMode(VFAT2DigInSelT mode) {
             uint8_t settings = readVFATReg("ContReg2");
             writeVFATReg("ContReg2",
                          (settings&~VFAT2ContRegBitMasks::DIGINSEL)|
                          (mode<<VFAT2ContRegBitShifts::DIGINSEL)); }
 
-          void setInputPadMode(VFAT2DigInSel mode, uint8_t& settings) {
+          void setInputPadMode(VFAT2DigInSelT mode, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::DIGINSEL)|
               (mode<<VFAT2ContRegBitShifts::DIGINSEL); }
 
           void setInputPadMode(uint8_t mode) {
-            setInputPadMode(static_cast<VFAT2DigInSel>(mode)); }
+            setInputPadMode(static_cast<VFAT2DigInSelT>(mode)); }
           void setInputPadMode(uint8_t mode, uint8_t& settings) {
-            setInputPadMode(static_cast<VFAT2DigInSel>(mode), settings); }
+            setInputPadMode(static_cast<VFAT2DigInSelT>(mode), settings); }
 
-          void setTrimDACRange(VFAT2TrimDACRange range) {
+          void setTrimDACRange(VFAT2TrimDACRangeT range) {
             uint8_t settings = readVFATReg("ContReg3");
             writeVFATReg("ContReg3",
                          (settings&~VFAT2ContRegBitMasks::TRIMDACRANGE)|
                          (range<<VFAT2ContRegBitShifts::TRIMDACRANGE)); }
 
-          void setTrimDACRange(VFAT2TrimDACRange range, uint8_t& settings) {
+          void setTrimDACRange(VFAT2TrimDACRangeT range, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::TRIMDACRANGE)|
               (range<<VFAT2ContRegBitShifts::TRIMDACRANGE); }
 
           void setTrimDACRange(uint8_t mode) {
-            setTrimDACRange(static_cast<VFAT2TrimDACRange>(mode)); }
+            setTrimDACRange(static_cast<VFAT2TrimDACRangeT>(mode)); }
           void setTrimDACRange(uint8_t mode, uint8_t& settings) {
-            setTrimDACRange(static_cast<VFAT2TrimDACRange>(mode), settings); }
+            setTrimDACRange(static_cast<VFAT2TrimDACRangeT>(mode), settings); }
 
-          void setBandgapPad(VFAT2PadBandgap mode) {
+          void setBandgapPad(VFAT2PbBGT mode) {
             uint8_t settings = readVFATReg("ContReg3");
             writeVFATReg("ContReg3",
                          (settings&~VFAT2ContRegBitMasks::PADBANDGAP)|
                          (mode<<VFAT2ContRegBitShifts::PADBANDGAP)); }
 
-          void setBandgapPad(VFAT2PadBandgap mode, uint8_t& settings) {
+          void setBandgapPad(VFAT2PbBGT mode, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::PADBANDGAP)|
               (mode<<VFAT2ContRegBitShifts::PADBANDGAP); }
 
           void setBandgapPad(uint8_t mode) {
-            setBandgapPad(static_cast<VFAT2PadBandgap>(mode)); }
+            setBandgapPad(static_cast<VFAT2PbBGT>(mode)); }
           void setBandgapPad(uint8_t mode, uint8_t& settings) {
-            setBandgapPad(static_cast<VFAT2PadBandgap>(mode), settings); }
+            setBandgapPad(static_cast<VFAT2PbBGT>(mode), settings); }
 
-          void sendTestPattern(VFAT2DFTestPattern send) {
+          void sendTestPattern(VFAT2DFTestPatternT send) {
             uint8_t settings = readVFATReg("ContReg3");
             writeVFATReg("ContReg3",
                          (settings&~VFAT2ContRegBitMasks::DFTESTMODE)|
                          (send<<VFAT2ContRegBitShifts::DFTESTMODE)); }
 
-          void sendTestPattern(VFAT2DFTestPattern send, uint8_t& settings) {
+          void sendTestPattern(VFAT2DFTestPatternT send, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::DFTESTMODE)|
               (send<<VFAT2ContRegBitShifts::DFTESTMODE); }
 
           void sendTestPattern(uint8_t mode) {
-            sendTestPattern(static_cast<VFAT2DFTestPattern>(mode)); }
+            sendTestPattern(static_cast<VFAT2DFTestPatternT>(mode)); }
           void sendTestPattern(uint8_t mode, uint8_t& settings) {
-            sendTestPattern(static_cast<VFAT2DFTestPattern>(mode), settings); }
+            sendTestPattern(static_cast<VFAT2DFTestPatternT>(mode), settings); }
 
           //////////////////////////////
           void setLatency(uint8_t latency) {writeVFATReg("Latency",latency); }
