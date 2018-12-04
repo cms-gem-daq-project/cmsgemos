@@ -1,5 +1,5 @@
-#ifndef _XMLWriter_h_
-#define _XMLWriter_h_
+#ifndef _XMLSerializationData_h_
+#define _XMLSerializationData_h_
 
 #include <cstdint>
 #include <memory>
@@ -23,11 +23,17 @@ namespace gem {
         using DOMDocumentPtr = std::unique_ptr<xercesc::DOMDocument>;
 
         /**
-         * @brief Class used to create XML files.
-         * @tparam ConfigurationTypeT The configuration class that will be serialized.
+         * @brief Represents the contents of XML files.
+         *
+         * This class is used to represent the contents of XML files as C++
+         * objects before they are serialized and after they are read. It is
+         * used as an indermediate step when (un)serializing configuration data.
+         *
+         * @tparam ConfigurationTypeT The configuration class serialized in the
+         *                            XML file.
          */
         template<class ConfigurationTypeT>
-        class XMLBuilder
+        class XMLSerializationData
         {
         public:
             /**
@@ -41,9 +47,22 @@ namespace gem {
 
         public:
             /**
+             * @brief Returns the run information from the file.
+             */
+            Run getRun() const { return run; }
+
+            /**
              * @brief Sets the run for which to generate XML data.
              */
             void setRun(const Run &run) { this->run = run; }
+
+            /**
+             * @brief Gets the list of parsed datasets.
+             */
+            std::vector<DataSet<ConfigurationType>> getDataSets() const
+            {
+                return dataSets;
+            }
 
             /**
              * @brief Adds a dataset to be serialized
@@ -110,7 +129,7 @@ namespace gem {
         } /* namespace detail */
 
         template<class ConfigurationType>
-        DOMDocumentPtr XMLBuilder<ConfigurationType>::makeDOM() const
+        DOMDocumentPtr XMLSerializationData<ConfigurationType>::makeDOM() const
         {
             using Info = ConfigurationTraits<ConfigurationType>;
 
@@ -136,4 +155,4 @@ namespace gem {
     } /* namespace onlinedb */
 } /* namespace gem */
 
-#endif // _XMLWriter_h_
+#endif // _XMLSerializationData_h_
