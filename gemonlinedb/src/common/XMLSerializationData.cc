@@ -29,16 +29,22 @@ namespace gem {
                  * @brief Executes an XSD query on the given document and
                  *        retrieves the corresponding DOMNode.
                  */
-                DOMNode *xsdGet(const DOMDocumentPtr &document, const char *query)
+                DOMNode *xsdGet(const DOMDocumentPtr &document,
+                                const char *query,
+                                const DOMNode *root = nullptr)
                 {
+                    if (root == nullptr) {
+                        root = document->getDocumentElement();
+                    }
+
                     // Transcode query
                     auto transcoded = XMLString::transcode(query);
 
                     // Evaluate query
-                    // Node: only result types 6 to 9 are supported by Xerces
+                    // Note: only result types 6 to 9 are supported by Xerces
                     auto result = document->evaluate(
                         transcoded,
-                        document->getDocumentElement(),
+                        root,
                         nullptr,
                         DOMXPathResult::FIRST_ORDERED_NODE_TYPE,
                         nullptr);
@@ -48,6 +54,7 @@ namespace gem {
 
                     // Cleanup
                     XMLString::release(&transcoded);
+                    delete result;
 
                     return node;
                 }
@@ -58,10 +65,11 @@ namespace gem {
                  *        DOMNode.
                  */
                 std::string xsdGetTextContent(const DOMDocumentPtr &document,
-                                               const char *query)
+                                              const char *query,
+                                              const DOMNode *root = nullptr)
                 {
                     // Get node
-                    auto node = xsdGet(document, query);
+                    auto node = xsdGet(document, query, root);
 
                     // Get its text content
                     auto utf16 = node->getTextContent();
@@ -155,6 +163,59 @@ namespace gem {
                 r.initiatingUser =
                     xsdGetTextContent(dom, "//ROOT/HEADER/RUN/INITIATED_BY_USER");
                 return r;
+            }
+
+            DOMXPathResult *queryDataSets(const DOMDocumentPtr &dom)
+            {
+                // Evaluate query
+                // Note: only result types 6 to 9 are supported by Xerces
+                return dom->evaluate(
+                    "//ROOT/DATA_SET"_xml,
+                    dom->getDocumentElement(),
+                    nullptr,
+                    DOMXPathResult::ORDERED_NODE_SNAPSHOT_TYPE,
+                    nullptr);
+            }
+
+            std::string readDataSetComment(const DOMDocumentPtr &document,
+                                           const DOMXPathResult *result)
+            {
+                return xsdGetTextContent(document,
+                                         "//DATA_SET/COMMENT_DESCRIPTION",
+                                         result->getNodeValue());
+            }
+
+            std::string readDataSetVersion(const DOMDocumentPtr &document,
+                                           const DOMXPathResult *result)
+            {
+                return xsdGetTextContent(document,
+                                         "//DATA_SET/VERSION",
+                                         result->getNodeValue());
+            }
+
+            template<>
+            PartReferenceBarcode readPartReference<PartReferenceBarcode>(
+                const DOMDocumentPtr &document,
+                const DOMXPathResult *result)
+            {
+                PartReferenceBarcode ref;
+                ref.barcode = xsdGetTextContent(document,
+                                                "//DATA_SET/PART/BARCODE",
+                                                result->getNodeValue());
+                return ref;
+            }
+
+            template<>
+            PartReferenceSN readPartReference<PartReferenceSN>(
+                const DOMDocumentPtr &document,
+                const DOMXPathResult *result)
+            {
+                PartReferenceSN ref;
+                ref.serialNumber = xsdGetTextContent(
+                    document,
+                    "//DATA_SET/PART/SERIAL_NUMBER",
+                    result->getNodeValue());
+                return ref;
             }
 
             DOMDocumentPtr makeDOM(const std::string &extTableName,

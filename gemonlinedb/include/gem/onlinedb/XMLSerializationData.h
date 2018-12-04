@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <xercesc/dom/DOMElement.hpp>
+#include <xercesc/dom/DOMXPathResult.hpp>
 
 #include "gem/onlinedb/ConfigurationTraits.h"
 #include "gem/onlinedb/DataSet.h"
@@ -96,6 +97,34 @@ namespace gem {
              */
             Run getRun(const DOMDocumentPtr &dom);
 
+            /**
+             * @brief Queries the list of data sets present in @c dom
+             */
+            xercesc::DOMXPathResult *queryDataSets(const DOMDocumentPtr &dom);
+
+            /**
+             * @brief Reads the comment for the data set currently represented
+             *        by @c result.
+             */
+            std::string readDataSetComment(const DOMDocumentPtr &document,
+                                           const xercesc::DOMXPathResult *result);
+
+            /**
+             * @brief Reads the version for the data set currently represented
+             *        by @c result.
+             */
+            std::string readDataSetVersion(const DOMDocumentPtr &document,
+                                           const xercesc::DOMXPathResult *result);
+
+            /**
+             * @brief Reads the part reference for the data set currently
+             *        represented by @c result.
+             */
+            template<class PartReferenceType>
+            PartReferenceType readPartReference(
+                const DOMDocumentPtr &document,
+                const xercesc::DOMXPathResult *result);
+
         } /* namespace detail */
 
         template<class ConfigurationType>
@@ -103,9 +132,26 @@ namespace gem {
             const DOMDocumentPtr &dom)
         {
             using Traits = ConfigurationTraits<ConfigurationType>;
+            using PartType = typename Traits::PartType;
 
             // Get run info
             run = detail::getRun(dom);
+
+            // Iterate over DATA_SETs
+            auto dataSetsResult = detail::queryDataSets(dom);
+            auto count = dataSetsResult->getSnapshotLength();
+            for (XMLSize_t i = 0; i < count; ++i) {
+                dataSetsResult->snapshotItem(i);
+
+                dataSets.emplace_back();
+                auto &dataSet = dataSets.back();
+
+                dataSet.setComment(detail::readDataSetComment(dom, dataSetsResult));
+                dataSet.setVersion(detail::readDataSetVersion(dom, dataSetsResult));
+                dataSet.setPart(
+                    detail::readPartReference<PartType>(dom, dataSetsResult));
+            }
+            delete dataSetsResult;
         }
 
         // Utility functions for makeDOM
