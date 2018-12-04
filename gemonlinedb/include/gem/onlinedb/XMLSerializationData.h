@@ -125,6 +125,14 @@ namespace gem {
                 const DOMDocumentPtr &document,
                 const xercesc::DOMXPathResult *result);
 
+            /**
+             * @brief Reads DATA elements for the data set currently
+             *        represented by @c result.
+             */
+            std::vector<detail::RegisterData> readRegisterData(
+                const DOMDocumentPtr &document,
+                const xercesc::DOMXPathResult *result);
+
         } /* namespace detail */
 
         template<class ConfigurationType>
@@ -150,6 +158,13 @@ namespace gem {
                 dataSet.setVersion(detail::readDataSetVersion(dom, dataSetsResult));
                 dataSet.setPart(
                     detail::readPartReference<PartType>(dom, dataSetsResult));
+
+                auto allData = detail::readRegisterData(dom, dataSetsResult);
+                for (const detail::RegisterData &data : allData) {
+                    auto config = ConfigurationType();
+                    config.readRegisterData(data);
+                    dataSet.addData(config);
+                }
             }
             delete dataSetsResult;
         }
