@@ -25,6 +25,8 @@ config::PackageInfo xdaq::getPackageInfo()
 using namespace gem::onlinedb;
 using namespace gem::onlinedb::detail::literals;
 
+BOOST_FIXTURE_TEST_SUITE(XMLSerialization, detail::XercesGuard)
+
 XMLSerializationData<VFAT3ChipConfiguration> createTestXMLSerializationData()
 {
     XMLSerializationData<VFAT3ChipConfiguration> builder;
@@ -45,7 +47,7 @@ XMLSerializationData<VFAT3ChipConfiguration> createTestXMLSerializationData()
     return builder;
 }
 
-BOOST_AUTO_TEST_CASE(XMLSerializationMakeDOM)
+BOOST_AUTO_TEST_CASE(MakeDOM)
 {
     XERCES_CPP_NAMESPACE_USE
 
@@ -74,7 +76,7 @@ public:
     virtual void resetErrors() {}
 };
 
-BOOST_AUTO_TEST_CASE(XMLSerializationMakeDOMXsdValidation)
+BOOST_AUTO_TEST_CASE(MakeDOMXsdValidation)
 {
     XERCES_CPP_NAMESPACE_USE
 
@@ -114,8 +116,10 @@ BOOST_AUTO_TEST_CASE(XMLSerializationMakeDOMXsdValidation)
             true); // The buffer will be freed automatically
         source.setEncoding("UTF-16"_xml);
 
+        auto errorHandler = std::make_shared<AlwaysThrowErrorHandler>();
+
         XercesDOMParser parser;
-        parser.setErrorHandler(new AlwaysThrowErrorHandler()); // Throws exceptions
+        parser.setErrorHandler(errorHandler.get());
         parser.setExternalNoNamespaceSchemaLocation("schema/VFAT3ChipConfiguration.xsd");
         parser.setValidationScheme(XercesDOMParser::Val_Always);
         parser.setDoNamespaces(true);
@@ -144,7 +148,7 @@ BOOST_AUTO_TEST_CASE(XMLSerializationMakeDOMXsdValidation)
     }
 }
 
-BOOST_AUTO_TEST_CASE(XMLSerializationMakeDOMReadDOM)
+BOOST_AUTO_TEST_CASE(MakeDOMReadDOM)
 {
     XERCES_CPP_NAMESPACE_USE
 
@@ -174,3 +178,5 @@ BOOST_AUTO_TEST_CASE(XMLSerializationMakeDOMReadDOM)
         throw std::runtime_error(detail::transcode(e.getMessage()));
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

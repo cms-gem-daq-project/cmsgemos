@@ -1,13 +1,6 @@
 #include "gem/onlinedb/XMLSerializationData.h"
 
 #include <xercesc/dom/DOM.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
-#include <xercesc/util/XMLString.hpp>
-
-#include <stdexcept>
-
-#include <iomanip>
-#include <iostream>
 
 #include "gem/onlinedb/exception/Exception.h"
 #include "gem/onlinedb/detail/XMLUtils.h"
@@ -236,6 +229,8 @@ namespace gem {
                     vec.push_back(data);
                 }
 
+                delete queryResult;
+
                 return vec;
             }
 
@@ -243,15 +238,6 @@ namespace gem {
                                    const std::string &comment,
                                    const Run &run)
             {
-                try {
-                    // Initialize Xerces
-                    XMLPlatformUtils::Initialize();
-                } catch (const XMLException &e) {
-                    XCEPT_RAISE(exception::SoftwareProblem,
-                                std::string("Xerces failed to initialize: ") +
-                                    detail::transcode(e.getMessage()));
-                }
-
                 // Get the implementation
                 auto impl = DOMImplementationRegistry::getDOMImplementation("LS"_xml);
                 XCEPT_ASSERT(impl != nullptr, exception::SoftwareProblem,

@@ -76,24 +76,13 @@ namespace gem {
              * @brief Transcodes a Xerces string to an std::string in local
              *        encoding.
              */
-            std::string transcode(const XMLCh * const xercesStr)
-            {
-                char *transcoded = xercesc::XMLString::transcode(xercesStr);
-                std::string result(transcoded);
-                xercesc::XMLString::release(&transcoded);
-                return result;
-            }
+            std::string transcode(const XMLCh * const xercesStr);
 
             /**
              * @brief Transcodes a Xerces string to an std::string in local
              *        encoding, and releases the input memory.
              */
-            std::string transcodeAndRelease(XMLCh *xercesStr)
-            {
-                std::string transcoded = transcode(xercesStr);
-                xercesc::XMLString::release(&xercesStr);
-                return transcoded;
-            }
+            std::string transcodeAndRelease(XMLCh *xercesStr);
 
             /**
              * @brief Defines the @c ""_xml literal to declare Xerces strings.
@@ -102,12 +91,30 @@ namespace gem {
                 /**
                  * @brief Creates Xerces strings from string literals.
                  */
-                XercesString operator"" _xml (const char *string,
+                inline XercesString operator"" _xml (const char *string,
                                                      std::size_t)
                 {
                     return XercesString(string);
                 }
             } /* namespace literals */
+
+            /**
+             * @brief Takes care of initializing and finalizing the Xerces
+             *        library.
+             */
+            class XercesGuard
+            {
+            public:
+                /**
+                 * @brief Initializes Xerces.
+                 */
+                XercesGuard();
+
+                /**
+                 * @brief Finalizes Xerces.
+                 */
+                ~XercesGuard();
+            };
 
         } /* namespace detail */
     } /* namespace onlinedb */
