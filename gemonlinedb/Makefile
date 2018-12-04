@@ -21,6 +21,7 @@ Sources = \
     VFAT3ChipConfigurationGen.cc \
     version.cc \
     XMLSerializationData.cc \
+    XMLUtils.cc \
 
 DynamicLibrary=gemonlinedb
 

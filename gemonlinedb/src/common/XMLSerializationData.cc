@@ -1,15 +1,9 @@
 #include "gem/onlinedb/XMLSerializationData.h"
 
 #include <xercesc/dom/DOM.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
-#include <xercesc/util/XMLString.hpp>
-
-#include <stdexcept>
-
-#include <iomanip>
-#include <iostream>
 
 #include "gem/onlinedb/exception/Exception.h"
+#include "gem/onlinedb/detail/XMLUtils.h"
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -17,13 +11,7 @@ namespace gem {
     namespace onlinedb {
         namespace detail {
             namespace /* anonymous */ {
-                /**
-                 * @brief Convenience string literal to shorten Xerces code.
-                 */
-                const XMLCh *operator"" _xml (const char *string, std::size_t)
-                {
-                    return XMLString::transcode(string);
-                }
+                using namespace literals;
 
                 /**
                  * @brief Executes an XSD query on the given document and
@@ -37,13 +25,10 @@ namespace gem {
                         root = document->getDocumentElement();
                     }
 
-                    // Transcode query
-                    auto transcoded = XMLString::transcode(query);
-
                     // Evaluate query
                     // Note: only result types 6 to 9 are supported by Xerces
                     auto result = document->evaluate(
-                        transcoded,
+                        detail::XercesString(query),
                         root,
                         nullptr,
                         DOMXPathResult::FIRST_ORDERED_NODE_TYPE,
@@ -53,7 +38,6 @@ namespace gem {
                     auto node = result->getNodeValue();
 
                     // Cleanup
-                    XMLString::release(&transcoded);
                     delete result;
 
                     return node;
@@ -70,19 +54,7 @@ namespace gem {
                 {
                     // Get node
                     auto node = xsdGet(document, query, root);
-
-                    // Get its text content
-                    auto utf16 = node->getTextContent();
-
-                    // Transcode
-                    auto transcoded = XMLString::transcode(utf16);
-
-                    // Turn into std::string with proper memory management
-                    std::string result(transcoded);
-
-                    // Cleanup and return
-                    delete transcoded;
-                    return result;
+                    return detail::transcode(node->getTextContent());
                 }
 
                 /**
@@ -95,7 +67,7 @@ namespace gem {
                 DOMElement *appendChildElement(DOMElement *parent,
                                                const std::string &tagName)
                 {
-                    auto xmlTagName = XMLString::transcode(tagName.c_str());
+                    auto xmlTagName = detail::XercesString(tagName);
                     auto element = parent->getOwnerDocument()->createElement(xmlTagName);
                     XCEPT_ASSERT(element != nullptr, exception::SoftwareProblem,
                                  "Xerces failed to create element " + tagName);
@@ -111,7 +83,7 @@ namespace gem {
                 DOMText *appendChildText(DOMElement *parent,
                                          const std::string &content)
                 {
-                    auto xmlContent = XMLString::transcode(content.c_str());
+                    auto xmlContent = detail::XercesString(content);
                     auto node = parent->getOwnerDocument()->createTextNode(xmlContent);
                     XCEPT_ASSERT(node != nullptr, exception::SoftwareProblem,
                                  "Xerces failed to create text node");
@@ -248,20 +220,16 @@ namespace gem {
                     for (XMLSize_t child = 0; child < childCount; ++child) {
                         auto node = childNodes->item(child);
 
-                        auto nameUtf16 = node->getNodeName();
-                        auto valueUtf16 = node->getTextContent();
-
-                        auto name = XMLString::transcode(nameUtf16);
-                        auto value = XMLString::transcode(valueUtf16);
+                        auto name = detail::transcode(node->getNodeName());
+                        auto value = detail::transcode(node->getTextContent());
 
                         data[name] = std::stoi(value);
-
-                        XMLString::release(&name);
-                        XMLString::release(&value);
                     }
 
                     vec.push_back(data);
                 }
+
+                delete queryResult;
 
                 return vec;
             }
@@ -270,15 +238,6 @@ namespace gem {
                                    const std::string &comment,
                                    const Run &run)
             {
-                try {
-                    // Initialize Xerces
-                    XMLPlatformUtils::Initialize();
-                } catch (const XMLException &e) {
-                    XCEPT_RAISE(exception::SoftwareProblem,
-                                std::string("Xerces failed to initialize: ") +
-                                    XMLString::transcode(e.getMessage()));
-                }
-
                 // Get the implementation
                 auto impl = DOMImplementationRegistry::getDOMImplementation("LS"_xml);
                 XCEPT_ASSERT(impl != nullptr, exception::SoftwareProblem,

@@ -35,6 +35,11 @@ namespace gem {
 
         public:
             /**
+             * @brief Checks two data sets for equality.
+             */
+            bool operator== (const DataSet<ConfigurationType> &other) const;
+
+            /**
              * @brief Gets the human-readable comment for this dataset.
              */
             std::string getComment() const { return comment; }
@@ -81,6 +86,16 @@ namespace gem {
                 data.push_back(configuration);
             }
         };
+
+        template<class ConfigurationType>
+        bool DataSet<ConfigurationType>::operator== (
+            const DataSet<ConfigurationType> &other) const
+        {
+            return comment == other.comment
+                && version == other.version
+                && part == other.part
+                && data == other.data;
+        }
 
     } /* namespace onlinedb */
 } /* namespace gem */

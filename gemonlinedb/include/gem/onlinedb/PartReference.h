@@ -12,6 +12,14 @@ namespace gem {
         struct PartReferenceBarcode
         {
             std::string barcode;
+
+            /**
+             * @brief Checks two barcode part references for equality.
+             */
+            bool operator== (const PartReferenceBarcode &other) const
+            {
+                return barcode == other.barcode;
+            }
         };
 
         /**
@@ -20,6 +28,14 @@ namespace gem {
         struct PartReferenceSN
         {
             std::string serialNumber;
+
+            /**
+             * @brief Checks two S/N part references for equality.
+             */
+            bool operator== (const PartReferenceSN &other) const
+            {
+                return serialNumber == other.serialNumber;
+            }
         };
 
     } /* namespace onlinedb */

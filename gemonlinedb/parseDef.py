@@ -137,6 +137,8 @@ namespace gem {{
             public:
                 RegisterData getRegisterData() const;
                 void readRegisterData(const RegisterData &data);
+
+                bool operator== (const {baseName}Gen &other) const;
 {publicMembers}
             }};
         }} /* namespace detail */
@@ -194,6 +196,12 @@ def _makeCpp(config, className):
 namespace gem {{
     namespace onlinedb {{
         namespace detail {{
+            bool {baseName}Gen::operator== (const {baseName}Gen &other) const
+            {{
+                return true
+{operatorEq};
+            }}
+
             RegisterData {baseName}Gen::getRegisterData() const
             {{
                 RegisterData data;
@@ -222,9 +230,15 @@ namespace gem {{
         readRegisterData += '''
                 set{1}(data.at("{0}"));'''.format(f.name, f.cppName(True))
 
+    operatorEq = ''
+    for f in fields:
+        operatorEq += '''
+                    && {0} == other.{0}'''.format(f.cppName())
+
     return template.format(baseName = className,
                            getRegisterData = getRegisterData,
-                           readRegisterData = readRegisterData)
+                           readRegisterData = readRegisterData,
+                           operatorEq = operatorEq)
 
 if __name__ == '__main__':
     import argparse
