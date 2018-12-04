@@ -11,11 +11,7 @@ namespace gem {
 
         // Forward decl.
         template<class ConfigurationTypeT>
-        class XMLBuilder;
-
-        // Forward decl.
-        template<class ConfigurationTypeT>
-        class XMLReader;
+        class XMLSerializationData;
 
         /**
          * @brief Represents a dataset to be stored in the XML file (a
@@ -31,8 +27,7 @@ namespace gem {
             using ConfigurationType = ConfigurationTypeT;
 
         private:
-            friend class XMLBuilder<ConfigurationType>;
-            friend class XMLReader<ConfigurationType>;
+            friend class XMLSerializationData<ConfigurationType>;
 
             std::string comment, version;
             typename ConfigurationTraits<ConfigurationType>::PartType part;

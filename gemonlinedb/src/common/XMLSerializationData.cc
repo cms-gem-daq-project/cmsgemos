@@ -1,4 +1,4 @@
-#include "gem/onlinedb/XMLBuilder.h"
+#include "gem/onlinedb/XMLSerializationData.h"
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
