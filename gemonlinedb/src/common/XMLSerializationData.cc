@@ -218,6 +218,54 @@ namespace gem {
                 return ref;
             }
 
+            std::vector<detail::RegisterData> readRegisterData(
+                const DOMDocumentPtr &document,
+                const xercesc::DOMXPathResult *result)
+            {
+                // Evaluate query
+                // Note: only result types 6 to 9 are supported by Xerces
+                auto queryResult = document->evaluate(
+                    "//DATA_SET/DATA"_xml,
+                    result->getNodeValue(),
+                    nullptr,
+                    DOMXPathResult::ORDERED_NODE_SNAPSHOT_TYPE,
+                    nullptr);
+
+                auto count = queryResult->getSnapshotLength();
+                auto vec = std::vector<detail::RegisterData>();
+                vec.reserve(count);
+
+                // Loop over DATA tags
+                for (XMLSize_t i = 0; i < count; ++i) {
+                    queryResult->snapshotItem(i);
+
+                    auto data = detail::RegisterData();
+
+                    auto childNodes = queryResult->getNodeValue()->getChildNodes();
+                    auto childCount = childNodes->getLength();
+
+                    // Loop over elements inside DATA tags
+                    for (XMLSize_t child = 0; child < childCount; ++child) {
+                        auto node = childNodes->item(child);
+
+                        auto nameUtf16 = node->getNodeName();
+                        auto valueUtf16 = node->getTextContent();
+
+                        auto name = XMLString::transcode(nameUtf16);
+                        auto value = XMLString::transcode(valueUtf16);
+
+                        data[name] = std::stoi(value);
+
+                        XMLString::release(&name);
+                        XMLString::release(&value);
+                    }
+
+                    vec.push_back(data);
+                }
+
+                return vec;
+            }
+
             DOMDocumentPtr makeDOM(const std::string &extTableName,
                                    const std::string &comment,
                                    const Run &run)
