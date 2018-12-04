@@ -160,6 +160,7 @@ BOOST_AUTO_TEST_CASE(XMLSerializationMakeDOMReadDOM)
         data2.readDOM(dom);
 
         BOOST_REQUIRE(data.getRun() == data2.getRun());
+        BOOST_REQUIRE(data.getDataSets() == data2.getDataSets());
 
     } catch (DOMException &e) {
         throw std::runtime_error(XMLString::transcode(e.getMessage()));
