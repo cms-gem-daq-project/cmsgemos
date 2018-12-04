@@ -135,6 +135,19 @@ class HwAMC(object):
         self.readSBits.restype = c_uint
         self.readSBits.argtypes = [c_uint, c_uint, c_char_p]
 
+        # Define the GBTX module
+        self._scanGBTPhases = self.lib.scanGBTPhases
+        self._scanGBTPhases.restype = c_uint
+        self._scanGBTPhases.argtype = [c_uint, c_uint, c_uint, c_uint, c_uint, POINTER(c_uint)]
+
+        self._writeGBTConfig = self.lib.writeGBTConfig
+        self._writeGBTConfig.restype = c_uint
+        self._writeGBTConfig.argtype = [c_uint, c_uint, c_uint, POINTER(c_char)]
+
+        self._writeGBTPhase = self.lib.writeGBTPhase
+        self._writeGBTPhase.restype = c_uint
+        self._writeGBTPhase.argtype = [c_uint, c_uint, c_char]
+
         # Parse XML
         parseXML()
 
@@ -503,3 +516,47 @@ class HwAMC(object):
             for reg in regs_with_vals.keys():
                 self.writeRegister(reg,regs_with_vals[reg],debug)
             return
+
+    def scanGBTPhases(self, ohN, N, phaseMin, phaseMax, phaseStep, results):
+        """
+        Scan the VFAT phases for one OptoHybrid.
+
+        V3 electronics only.
+
+        ohN - OptoHybrid to scan.
+        N - Number of times the scan is performed.
+        phaseMin - First value to scan the phases.
+        phaseMax - Last value to scan the phases.
+        phaseStep - Step size to scan the phases with.
+        results - Array of type c_uint32. 1 c_uint32 per phase value. 
+                  See ctp7_module documentation for details about the content.
+        """
+
+        return self._scanGBTPhases(ohN, N, phaseMin, phaseMax, phaseStep, byref(results))
+
+    def writeGBTConfig(self, ohN, gbtN, config):
+        """
+        Write the configuration blob of one GBT.
+
+        V3 electronics only.
+
+        ohN - OptoHybrid to configure.
+        gbtN - GBT to configure.
+        config - Array of type c_uint8 of size 366.
+        """
+
+        return self._writeGBTConfig(ohN, gbtN, len(config), byref(config))
+
+    def writeGBTPhase(self, ohN, vfatN, phase):
+        """
+        Write the RX phase of one VFAT of one OptoHybrid.
+
+        V3 electronics only.
+
+        ohN - OptoHybrid to configure.
+        vaftN - VFAT to configure.
+        phase - Phase value to write. (Min = 0; max = 15).
+        """
+
+        return self._writeGBTPhase(ohN, vfatN, phase)
+
