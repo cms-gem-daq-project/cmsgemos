@@ -17,6 +17,7 @@ GEMONLINEDB_VER_PATCH=0
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 
 Sources = \
+    Run.cc \
     VFAT3ChipConfigurationGen.cc \
     version.cc \
     XMLSerializationData.cc \

@@ -73,11 +73,40 @@ namespace gem {
             }
 
             /**
+             * @brief Reads data from a DOM document.
+             *
+             * @warning No validation is performed as part of this function.
+             *          Feeding a document that doesn't conform to the schema
+             *          results in undefined behaviour.
+             */
+            void readDOM(const DOMDocumentPtr &dom);
+
+            /**
              * @brief Generates a DOM document representing data previously set
              *        using @ref setRun and @ref addDataSet.
              */
             DOMDocumentPtr makeDOM() const;
         };
+
+        // Utility functions for readDOM
+        namespace detail {
+
+            /**
+             * @brief Extracts run information from XML data.
+             */
+            Run getRun(const DOMDocumentPtr &dom);
+
+        } /* namespace detail */
+
+        template<class ConfigurationType>
+        void XMLSerializationData<ConfigurationType>::readDOM(
+            const DOMDocumentPtr &dom)
+        {
+            using Traits = ConfigurationTraits<ConfigurationType>;
+
+            // Get run info
+            run = detail::getRun(dom);
+        }
 
         // Utility functions for makeDOM
         namespace detail {

@@ -146,3 +146,33 @@ BOOST_AUTO_TEST_CASE(XMLSerializationMakeDOMXsdValidation)
         throw std::runtime_error(XMLString::transcode(e.getMessage()));
     }
 }
+
+BOOST_AUTO_TEST_CASE(XMLSerializationMakeDOMReadDOM)
+{
+    XERCES_CPP_NAMESPACE_USE
+
+    auto data = createTestXMLSerializationData();
+    auto dom = data.makeDOM();
+
+    try {
+
+        auto data2 = XMLSerializationData<VFAT3ChipConfiguration>();
+        data2.readDOM(dom);
+
+        BOOST_REQUIRE(data.getRun() == data2.getRun());
+
+    } catch (DOMException &e) {
+        throw std::runtime_error(XMLString::transcode(e.getMessage()));
+    } catch (XMLException &e) {
+        throw std::runtime_error(XMLString::transcode(e.getMessage()));
+    } catch (SAXParseException &e) {
+        auto column = e.getColumnNumber();
+        auto line = e.getLineNumber();
+        throw std::runtime_error(
+            std::to_string(line) + ":" +
+            std::to_string(column) + ": " +
+            XMLString::transcode(e.getMessage()));
+    } catch (SAXException &e) {
+        throw std::runtime_error(XMLString::transcode(e.getMessage()));
+    }
+}

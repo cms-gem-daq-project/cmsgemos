@@ -26,6 +26,58 @@ namespace gem {
                 }
 
                 /**
+                 * @brief Executes an XSD query on the given document and
+                 *        retrieves the corresponding DOMNode.
+                 */
+                DOMNode *xsdGet(const DOMDocumentPtr &document, const char *query)
+                {
+                    // Transcode query
+                    auto transcoded = XMLString::transcode(query);
+
+                    // Evaluate query
+                    // Node: only result types 6 to 9 are supported by Xerces
+                    auto result = document->evaluate(
+                        transcoded,
+                        document->getDocumentElement(),
+                        nullptr,
+                        DOMXPathResult::FIRST_ORDERED_NODE_TYPE,
+                        nullptr);
+
+                    // Get resulting DOMNode
+                    auto node = result->getNodeValue();
+
+                    // Cleanup
+                    XMLString::release(&transcoded);
+
+                    return node;
+                }
+
+                /**
+                 * @brief Executes an XSD query on the given document and
+                 *        retrieves the text content of the corresponding
+                 *        DOMNode.
+                 */
+                std::string xsdGetTextContent(const DOMDocumentPtr &document,
+                                               const char *query)
+                {
+                    // Get node
+                    auto node = xsdGet(document, query);
+
+                    // Get its text content
+                    auto utf16 = node->getTextContent();
+
+                    // Transcode
+                    auto transcoded = XMLString::transcode(utf16);
+
+                    // Turn into std::string with proper memory management
+                    std::string result(transcoded);
+
+                    // Cleanup and return
+                    delete transcoded;
+                    return result;
+                }
+
+                /**
                  * @brief Appends a child element to @c parent with tag name
                  *        @c tagName.
                  *
@@ -88,6 +140,22 @@ namespace gem {
                     appendChildText(user, run.initiatingUser);
                 }
             } /* anonymous namespace */
+
+            Run getRun(const DOMDocumentPtr &dom)
+            {
+                Run r;
+                r.type = xsdGetTextContent(dom, "//ROOT/HEADER/RUN/RUN_TYPE");
+                r.number =
+                    std::stoll(xsdGetTextContent(dom, "//ROOT/HEADER/RUN/RUN_NUMBER"));
+                r.begin = xsdGetTextContent(dom, "//ROOT/HEADER/RUN/RUN_BEGIN_TIMESTAMP");
+                r.end = xsdGetTextContent(dom, "//ROOT/HEADER/RUN/RUN_END_TIMESTAMP");
+                r.description =
+                    xsdGetTextContent(dom, "//ROOT/HEADER/RUN/COMMENT_DESCRIPTION");
+                r.location = xsdGetTextContent(dom, "//ROOT/HEADER/RUN/LOCATION");
+                r.initiatingUser =
+                    xsdGetTextContent(dom, "//ROOT/HEADER/RUN/INITIATED_BY_USER");
+                return r;
+            }
 
             DOMDocumentPtr makeDOM(const std::string &extTableName,
                                    const std::string &comment,
