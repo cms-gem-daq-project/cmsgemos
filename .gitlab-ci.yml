@@ -132,6 +132,8 @@ stages:
 .buildrpm_common: &buildrpm_common
   stage: buildrpm
   only:
+    - /^feature.*ci-cd*$/
+    - /^citest.*$/
     - tags
     - triggers
   script:
@@ -172,6 +174,8 @@ docs:
   <<: *cc7setup
   stage: compile
   only:
+    - /^feature.*ci-cd*$/
+    - /^citest.*$/
     - tags
     - master
   dependencies:
@@ -234,6 +238,8 @@ test:cc7:
 deploy:
   stage: deploy
   only:
+    - /^feature.*ci-cd*$/
+    - /^citest.*$/
     - tags
   dependencies:
     - docs # is a dep of each of the below, so not necessary?
