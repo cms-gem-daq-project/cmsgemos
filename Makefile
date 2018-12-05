@@ -35,7 +35,7 @@ default: all
 
 all: $(SUBPACKAGES)
 
-release: all doc
+release: all doc rpm
 
 gcc47: UserCFlags+=${GCC47Flags}
 gcc47: UserCCFlags+=${GCC47Flags}
@@ -71,7 +71,8 @@ dbgprofile: UserDynamicLinkFlags+=${PROFILING_LDFlags}
 dbgprofile: DependentLibraries+=${PROFILING_LIBS}
 dbgprofile: $(SUBPACKAGES)
 
-doc:  $(SUBPACKAGES)
+.phony: doc
+doc:
 	@echo "Generating doxygen"
 	@mkdir ./doc/build
 	@rm -fr ./doc/build/* 2> /dev/null

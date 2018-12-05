@@ -117,10 +117,14 @@ stages:
   tags:
   stage: compile
   before_script:
+    - export BUILD_HOME=/builds/$CI_PROJECT_NAMESPACE
+    - export ARTIFACT_DIR=$BUILD_HOME/artifacts
+    - env
     # - ${BUILD_HOME}/config/build/setupMachine.sh
     # - . /etc/profile/xdaq.sh
     - . ${BUILD_HOME}/cmsgemos/setup/etc/profile.d/gemdaqenv.sh
     - . ${BUILD_HOME}/cmsgemos/setup/paths.sh
+    - env
   script:
     - make all -j8
     - mkdir ${ARTIFACTS_DIR}/${XDAQ_PLATFORM}
