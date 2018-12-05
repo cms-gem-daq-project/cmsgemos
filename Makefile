@@ -13,6 +13,7 @@ SUBPACKAGES := \
         gemonlinedb \
         # gemHwMonitor \
 
+# SUBPACKAGES.DOC      := $(patsubst %,%.doc,    ${SUBPACKAGES})
 # SUBPACKAGES.CHECK    := $(patsubst %,%.check,    ${SUBPACKAGES})
 SUBPACKAGES.DEBUG    := $(patsubst %,%.debug,    ${SUBPACKAGES})
 SUBPACKAGES.INSTALL  := $(patsubst %,%.install,  ${SUBPACKAGES})
