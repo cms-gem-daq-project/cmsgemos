@@ -109,6 +109,8 @@ stages:
     - /^.*.hotfix.*$/
     - /^release.*$/
     - /^feature.*$/
+    - /^feature.*ci-cd*$/
+    - /^citest.*$/
     - develop
     - master
     - tags
