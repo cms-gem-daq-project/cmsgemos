@@ -2,8 +2,8 @@
 
 ## used variables:
   # https://gitlab.cern.ch/help/ci/variables/README.md
-  # CI_COMMIT_TAG
-  # CI_COMMIT_REF_NAME
+  # CI_COMMIT_TAG ## tag name
+  # CI_COMMIT_REF_NAME ## branch name
   # CI_COMMIT_SHA
   # CI_DEPLOY_USER
   # CI_DEPLOY_PASSWORD
@@ -62,7 +62,13 @@ stages:
 .deploy_variables: &deploy_variables
   EOS_BASE_WEB_DIR: /eos/project/c/cmsgemdaq/www
   EOS_COMMON_WEB_DIR: cmsgemdaq
-  EOS_SITE_WEB_DIR: ${EOS_BASE_WEB_DIR}/${PACKAGE_NAME}
+  EOS_SITE_WEB_DIR:   ${EOS_BASE_WEB_DIR}/${PACKAGE_NAME}
+  EOS_SW_DIR:         ${EOS_BASE_WEB_DIR}/sw/${PACKAGE_NAME}
+  EOS_DOC_DIR:        ${EOS_BASE_WEB_DIR}/docs/${PACKAGE_NAME}
+  EOS_LATEST_DIR:     ${EOS_SW_DIR}/unstable
+  EOS_RELEASE_DIR:    ${EOS_SW_DIR}/releases
+  EOS_DOC_DIR:        api
+  EOS_REPO_DIR:       repos
   # EOS_PATH: ${EOS_BASE_WEB_DIR}/${EOS_COMMON_WEB_DIR}
   # EOS_PATH: ${EOS_BASE_WEB_DIR}/${EOS_SITE_WEB_DIR}/sw/release/${SUB_VERSION}/repos/${ARCH}
   
@@ -79,7 +85,7 @@ stages:
   variables: *common_variables
 
 .common_artifacts: &common_artifacts
-  expire_in: 6h
+  expire_in: 1d
 
 .compile_artifacts: &compile_artifacts
   <<: *common_artifacts
@@ -117,14 +123,17 @@ stages:
   tags:
   stage: compile
   before_script:
+    ## these are set in the Dockerfile, but don't work in the gitlab CI by default
     - export BUILD_HOME=/builds/$CI_PROJECT_NAMESPACE
     - export ARTIFACT_DIR=$BUILD_HOME/artifacts
-    - env
+    ## need to pull in all cmsgemos dependencies, based on some requirements?
+    # - yum clean all && yum install xhal xhal-devel
     # - ${BUILD_HOME}/config/build/setupMachine.sh
     # - . /etc/profile/xdaq.sh
     - . ${BUILD_HOME}/cmsgemos/setup/etc/profile.d/gemdaqenv.sh
     - . ${BUILD_HOME}/cmsgemos/setup/paths.sh
     - env
+    - sudo yum install -y daq-jansson\* xhal\* --enablerepo=gemos*
   script:
     - make all -j8
     - mkdir ${ARTIFACTS_DIR}/${XDAQ_PLATFORM}
@@ -151,12 +160,12 @@ stages:
     name: ${CI_JOB_STAGE}
     <<: *rpm_artifacts
   
-compile:slc6:
-  <<: *slc6setup
-  <<: *compile_common
-  environment:
-  variables:
-  cache:
+# compile:slc6:
+#   <<: *slc6setup
+#   <<: *compile_common
+#   environment:
+#   variables:
+#   cache:
 
 compile:cc7:
   <<: *cc7setup
@@ -194,12 +203,12 @@ docs:
   coverage: '/Documentation coverage: \d+\.\d+/'
 
 # generate RPMs
-buildrpm:slc6:
-  <<: *slc6setup
-  dependencies:
-    - compile:slc6
-    - docs
-  <<: *buildrpm_common
+# buildrpm:slc6:
+#   <<: *slc6setup
+#   dependencies:
+#     - compile:slc6
+#     - docs
+#   <<: *buildrpm_common
   
 buildrpm:cc7:
   <<: *cc7setup
@@ -216,13 +225,13 @@ buildrpm:cc7:
 #   <<: *buildrpm_common
 
 # run tests using the binary built before
-test:slc6:
-  <<: *slc6setup
-  stage: test
-  dependencies:
-    - buildrpm:slc6
-  script:
-    - echo ${BUILD_HOME}/runmytests.sh
+# test:slc6:
+#   <<: *slc6setup
+#   stage: test
+#   dependencies:
+#     - buildrpm:slc6
+#   script:
+#     - echo ${BUILD_HOME}/runmytests.sh
 
 test:cc7:
   <<: *cc7setup
@@ -249,7 +258,7 @@ deploy:
     - tags
   dependencies:
     - docs # is a dep of each of the below, so not necessary?
-    - buildrpm:slc6
+    # - buildrpm:slc6
     - buildrpm:cc7
     # - buildrpm:cc8
   script:
