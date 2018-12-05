@@ -1,42 +1,119 @@
 ## GitLab Continuous Integration YAML file
 
-before_script:
+## used variables:
+  # https://gitlab.cern.ch/help/ci/variables/README.md
+  # CI_COMMIT_TAG
+  # CI_COMMIT_REF_NAME
+  # CI_COMMIT_SHA
+  # CI_DEPLOY_USER
+  # CI_DEPLOY_PASSWORD
+  # GITLAB_USER_EMAIL
+  # GITLAB_USER_ID
+  # GITLAB_USER_LOGIN
+  # GITLAB_USER_NAME
 
-after_script:
+## used secure variables:
+  # EOS_ACCOUNT_USERNAME: Username of  to write in the EOS folder whose path is EOS_PATH
+  # EOS_ACCOUNT_PASSWORD: Account password
+  # KRB_PASSWORD
+  # KRB_USERNAME
+  # CI_DEPLOY_PASSWORD
 
+## Stage definitions
+stages:
+  - compile   # compile the sources, make the docs (if requested)
+  - buildrpm  # build the RPMs
+  - test      # test the packages (install, run basic tests)
+  - deploy    # deploy the RPMs and docs
+
+# ## script defaults
+# before_script:
+#   - 'echo mkdir -p ${ARTIFACT_DIR}'
+#   - 'echo mkdir -p ~/.ssh'
+#   # validate lxplus's SSH key?
+#   - 'echo "$SSH_SERVER_HOSTKEYS" > ~/.ssh/known_hosts'
+#   # tell SSH to forward Kerberos credentials so lxplus can access AFS/EOS on behalf of the user
+#   - 'echo -e "Host *\n\tGSSAPIDelegateCredentials yes\n\tGSSAPITrustDNS yes\n\n" > ~/.ssh/config'
+# script:
+#   # make sure to get a forwardable Kerberos ticket so lxplus can access AFS/EOS on behalf of the user
+#   - 'echo "${KRB_PASSWORD}" \| kinit -f ${KRB_USERNAME}@CERN.CH'
+#   - 'echo ssh ${KRB_USERNAME}@lxplus "ls /eos/some/path/"'
+                          
+
+# after_script:
+
+## Define up anchors for various tasks, shared across all jobs utilizing them
+# .compile_setup: &compile_setup
+
+# .buildrpm_setup: &buildrpm_setup
+  
+# .deply_setup: &deply_setup
+
+  
 .common_variables: &common_variables
-  BUILD_HOME: /builds/$CI_PROJECT_NAMESPACE
-  XDAQ_OS: linux
-  XDAQ_ROOT: /opt/xdaq
-  LD_LIBRARY_PATH: /opt/xdaq/lib
+  BUILD_HOME:        /builds/$CI_PROJECT_NAMESPACE
+  XDAQ_OS:           linux
+  XDAQ_ROOT:         /opt/xdaq
+  LD_LIBRARY_PATH:   /opt/xdaq/lib
+  ARTIFACT_DIR:      $BUILD_HOME/artifacts
+  PACKAGE_NAME:      ${CI_PROJECT_NAME}
+  # REPO_NAME:         ${${CI_REPOSITORY_URL##?*/}%%.*}
+
+.deploy_variables: &deploy_variables
   EOS_BASE_WEB_DIR: /eos/project/c/cmsgemdaq/www
   EOS_COMMON_WEB_DIR: cmsgemdaq
-  EOS_SITE_WEB_DIR: ${PACKAGE_NAME}
+  EOS_SITE_WEB_DIR: ${EOS_BASE_WEB_DIR}/${PACKAGE_NAME}
+  # EOS_PATH: ${EOS_BASE_WEB_DIR}/${EOS_COMMON_WEB_DIR}
+  # EOS_PATH: ${EOS_BASE_WEB_DIR}/${EOS_SITE_WEB_DIR}/sw/release/${SUB_VERSION}/repos/${ARCH}
   
 .slc6setup: &slc6setup
-  image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker:slc6
+  image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:slc6
   variables: *common_variables
 
 .cc7setup: &cc7setup
-  image: gitlab-registry.cern.ch/cms-gem-daq-project/custom_ci_worker:cc7
+  image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc7
   variables: *common_variables
 
-stages:
-  - build
-  - test
-  - deploy
-  - cleanup
+.cc8setup: &cc8setup
+  image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc8
+  variables: *common_variables
 
-build:slc6:
-  <<: *slc6setup
+.common_artifacts: &common_artifacts
+  expire_in: 6h
+
+.compile_artifacts: &compile_artifacts
+  <<: *common_artifacts
+  paths:
+    - ${ARTIFACTS_DIR}
+    - gem*/lib/**/*.so
+    - gem*/rpm/**/*.tar.gz
+    - gem*/rpm/**/*.zip
+    - gem*/rpm/**/*.tgz
+    - gem*/rpm/**/*.tbz2
+
+.docs_artifacts: &docs_artifacts
+  <<: *common_artifacts
+  paths:
+    - ${ARTIFACTS_DIR}
+    - doc/build/html
+
+.rpm_artifacts: &rpm_artifacts
+  <<: *common_artifacts
+  paths:
+    - ${ARTIFACTS_DIR}
+    - gem*/rpm/**/*.rpm
+  
+.compile_common: &compile_common
   only:
     - /^issue-.*$/
     - /^.*.hotfix.*$/
     - /^release.*$/
+    - /^feature.*$/
+    - develop
     - master
     - tags
   tags:
-  stage: build
+  stage: compile
   before_script:
     # - ${BUILD_HOME}/config/build/setupMachine.sh
     # - . /etc/profile/xdaq.sh
@@ -44,71 +121,128 @@ build:slc6:
     - . ${BUILD_HOME}/cmsgemos/setup/paths.sh
   script:
     - make all -j8
-    - make rpm -j8
+    - mkdir ${ARTIFACTS_DIR}/${XDAQ_PLATFORM}
+    - find . -iname '*.so' -print0 -exec mv -t ${ARTIFACTS_DIR}/${XDAQ_PLATFORM} {} \+
+  artifacts:
+    name: ${CI_JOB_STAGE}
+    <<: *compile_artifacts
+
+# .buildrpm_common: &buildrpm_common
+  
+.buildrpm_common: &buildrpm_common
+  stage: buildrpm
+  only:
+    - tags
+    - triggers
+  script:
+    - make rpm
+    - mkdir ${ARTIFACTS_DIR}/${XDAQ_PLATFORM}
+    - find . -iname '*.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/${XDAQ_PLATFORM} {} \+
+    - glob gem*/rpm/**/*.rpm # what is this for again?
+  artifacts:
+    name: ${CI_JOB_STAGE}
+    <<: *rpm_artifacts
+  
+compile:slc6:
+  <<: *slc6setup
+  <<: *compile_common
   environment:
   variables:
   cache:
+
+compile:cc7:
+  <<: *cc7setup
+  <<: *compile_common
+  environment:
+  variables:
+  cache:
+
+# compile:cc8:
+#   <<: *cc8setup
+#   <<: *compile_common
+#   environment:
+#   variables:
+#   cache:
+    
+# coverage:
+#   coverage: '/Code coverage: \d+\.\d+/'
+
+# generate docs
+docs:
+  <<: *cc7setup
+  stage: compile
+  only:
+    - tags
+    - master
+  dependencies:
+  script:
+    - make doc
+    # - doxygen -s ${BUILD_HOME}/doc/cmsgemos.cfg >& /dev/null
   artifacts:
-    paths:
-      - gem*/lib/**/*.so
-      - gem*/rpm/**/*.rpm
-      - gem*/rpm/**/*.tar.gz
-      - gem*/rpm/**/*.zip
-      - gem*/rpm/**/*.tgz
-      - gem*/rpm/**/*.tbz2
-  coverage: '/Code coverage: \d+\.\d+/'
+    name: ${CI_JOB_STAGE}
+    <<: *docs_artifacts
+  coverage: '/Documentation coverage: \d+\.\d+/'
+
+# generate RPMs
+buildrpm:slc6:
+  <<: *slc6setup
+  dependencies:
+    - compile:slc6
+    - docs
+  <<: *buildrpm_common
+  
+buildrpm:cc7:
+  <<: *cc7setup
+  dependencies:
+    - compile:cc7
+    - docs
+  <<: *buildrpm_common
+
+# buildrpm:cc8:
+#   <<: *cc8setup
+#   dependencies:
+#     - compile:cc8
+#     - docs
+#   <<: *buildrpm_common
 
 # run tests using the binary built before
 test:slc6:
   <<: *slc6setup
   stage: test
   dependencies:
-    - build:slc6
+    - buildrpm:slc6
   script:
-    - ${BUILD_HOME}/runmytests.sh
-  coverage: '/Testing coverage: \d+\.\d+/'
+    - echo ${BUILD_HOME}/runmytests.sh
 
-# generate RPMs
-buildrpm:slc6:
-  <<: *slc6setup
-  stage: deploy
-  only:
-    - tags
-    - triggers
+test:cc7:
+  <<: *cc7setup
+  stage: test
   dependencies:
-    - build:slc6
+    - buildrpm:cc7
   script:
-    - make rpm
-    - glob gem*/rpm/**/*.rpm
+    - echo ${BUILD_HOME}/runmytests.sh
 
-# package and release RPMs
-docs:
-  <<: *slc6setup
-  stage: deploy
-  only:
-    - tags
-    - triggers
-    - master
-  dependencies:
-  script:
-    - doxygen -s ${BUILD_HOME}/doc/cmsgemos.cfg >& /dev/null
-  coverage: '/Documentation coverage: \d+\.\d+/'
-
-# deploy:
-#   only:
-#     - tags
+# test:cc8:
+#   <<: *cc8setup
+#   stage: test
 #   dependencies:
-#     - buildrpm:slc6
-#     - buildrpm:cc7
-#     - docs # only build docs once, don't need arch versioned docs...
-# script:
-#     - push python packages to pypi/conda
-#     - push RPMs to packagecloud.io
-#     - push RPMs to $EOS_WEB_DIR/release/${shorttag}/${OS_VER}/{base,updates,test,devel}, trigger createrepo --update?
-#       - if $EOS_WEB_DIR/release/${shorttag}/${OS_VER}/base doesn't exist, create and run createrepo to generate structure
-#       - if tag is x.y.0, push RPMs to $EOS_WEB_DIR/release/${shorttag}/${OS_VER}/base
-#       - if tag is x.y.z, z > 0 push RPMs to $EOS_WEB_DIR/release/${shorttag}/${OS_VER}/updates
-#       - if tag is x.y.z-anything, push RPMs to $EOS_WEB_DIR/release/${shorttag}/${OS_VER}/{test,devel}
-#     - push sphinx/rst/md/rtd docs to readthedocs.io
-#     - push sphinx/rst/md/rtd docs to $EOS_WEB_DIR/docs/${fulltag}, update doc main page index
-#     - push doxygen to $EOS_WEB_DIR/release/${shorttag}/api/html
+#     - buildrpm:cc8
+#   script:
+#     - echo ${BUILD_HOME}/runmytests.sh
+
+##package and release RPMs
+deploy:
+  stage: deploy
+  only:
+    - tags
+  dependencies:
+    - docs # is a dep of each of the below, so not necessary?
+    - buildrpm:slc6
+    - buildrpm:cc7
+    # - buildrpm:cc8
+  script:
+    # - push python packages to pypi/conda
+    # - push RPMs to packagecloud.io
+    # - push sphinx/rst/md/rtd docs to readthedocs.io
+    # - push sphinx/rst/md/rtd docs to $EOS_WEB_DIR/docs/${fulltag}, update doc main page index
+    - .ci/deploy_eos.sh ${PACKAGE_NAME} ${ARTIFACTS_DIR}
