@@ -18,6 +18,7 @@ include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 
 Sources = \
     Run.cc \
+    VFAT3ChannelConfiguration.cc \
     VFAT3ChipConfigurationGen.cc \
     version.cc \
     XMLSerializationData.cc \
@@ -28,6 +29,7 @@ DynamicLibrary=gemonlinedb
 TestLibraries = $(DependentLibraries) xoap boost_unit_test_framework
 
 TestExecutables = \
+    test/testVFAT3ChannelConfiguration.cc \
     test/testXMLSerialization.cc \
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
