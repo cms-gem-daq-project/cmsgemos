@@ -23,16 +23,19 @@
     }, {
         "name": "GLB_LATENCY_CTRL"
     }, {
-        "name": "GLB_CAL_CFG_CTRL",
-        "child names": [ "GLB_CAL0_CFG_CTRL", "GLB_CAL1_CFG_CTRL" ]
+        "name": "GLB_CAL0_CFG_CTRL"
+    }, {
+        "name": "GLB_CAL1_CFG_CTRL"
     }, {
         "name": "GLB_CFD_BIAS_CTRL"
     }, {
-        "name": "GLB_PREAMP_BIAS_CTRL",
-        "child names": [ "GLB_PREAMP_BIAS_CTRL0", "GLB_PREAMP_BIAS_CTRL1" ]
+        "name": "GLB_PREAMP_BIAS_CTRL0"
     }, {
-        "name": "GLB_SHAPER_BIAS_CTRL",
-        "child names": [ "GLB_SHAPER_BIAS_CTRL0", "GLB_SHAPER_BIAS_CTRL1" ]
+        "name": "GLB_PREAMP_BIAS_CTRL1"
+    }, {
+        "name": "GLB_SHAPER_BIAS_CTRL0"
+    }, {
+        "name": "GLB_SHAPER_BIAS_CTRL1"
     }, {
         "name": "GLB_SD_BIAS_CTRL"
     }, {
