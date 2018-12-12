@@ -16,24 +16,21 @@
 The `reader` is responsible for connecting to the DB and extracting the necessary information
 * The connection could be bypassed by either
   * A dump (`sql`) file for the appropriate table
-  * A filled template (`xml`) file for the appropriate table: DOM readout
-    handled by @ref gem::onlinedb::XMLSerializationData "XMLSerializationData"
+  * A filled template (`xml`) file for the appropriate table
 
 #### writer
 The `writer` is responsible for creating the template (`xml`) file for use in the `gemdbldr` tool to update the DB
 * It's possible the SW could directly write to the/a DB, but do we want this?
-* DOM creation handled by
-  @ref gem::onlinedb::XMLSerializationData "XMLSerializationData"
 
 #### converter
 The `converter` should create a `c++` object(s) from the parsed DB/`xml` information that can then be used in the online SW.
 * Objects could be defined for:
   * `VFAT`
     * `VFAT2`
-    * @ref gem::onlinedb::VFAT3ChipConfiguration "VFAT3"
+    * `VFAT3`
   * `VFATChannel`
     * `VFAT2Channel`
-    * @ref gem::onlinedb::VFAT3ChannelConfiguration "VFAT3Channel"
+    * `VFAT3Channel`
   * `OptoHybrid`
     * `OptoHybridV2`
     * `OptoHybridV3`
