@@ -39,6 +39,11 @@ class Field(object):
         else:
             self.childNames = []
 
+        if 'cpp name' in json:
+            self._cppName = _checkedJsonGet(json, 'cpp name', unicode)
+        else:
+            self._cppName = _toCamelCase(self.name)
+
     def subElement(self, parent):
         """
         Creates subElements of parent defining this field in XSD syntax
@@ -71,7 +76,10 @@ class Field(object):
         """
         Returns the name used to represent this C++ code
         """
-        return _toCamelCase(self.name, capitalizeFirstLetter)
+        if capitalizeFirstLetter:
+            return self._cppName[0].upper() + self._cppName[1:]
+        else:
+            return self._cppName
 
     def __repr__(self):
         return 'Field:{}'.format(self.name)
