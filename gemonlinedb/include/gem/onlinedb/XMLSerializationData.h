@@ -100,21 +100,24 @@ namespace gem {
             /**
              * @brief Queries the list of data sets present in @c dom
              */
-            xercesc::DOMXPathResult *queryDataSets(const DOMDocumentPtr &dom);
+            std::unique_ptr<xercesc::DOMXPathResult> queryDataSets(
+                const DOMDocumentPtr &dom);
 
             /**
              * @brief Reads the comment for the data set currently represented
              *        by @c result.
              */
-            std::string readDataSetComment(const DOMDocumentPtr &document,
-                                           const xercesc::DOMXPathResult *result);
+            std::string readDataSetComment(
+                const DOMDocumentPtr &document,
+                const std::unique_ptr<xercesc::DOMXPathResult> &result);
 
             /**
              * @brief Reads the version for the data set currently represented
              *        by @c result.
              */
-            std::string readDataSetVersion(const DOMDocumentPtr &document,
-                                           const xercesc::DOMXPathResult *result);
+            std::string readDataSetVersion(
+                const DOMDocumentPtr &document,
+                const std::unique_ptr<xercesc::DOMXPathResult> &result);
 
             /**
              * @brief Reads the part reference for the data set currently
@@ -123,7 +126,7 @@ namespace gem {
             template<class PartReferenceType>
             PartReferenceType readPartReference(
                 const DOMDocumentPtr &document,
-                const xercesc::DOMXPathResult *result);
+                const std::unique_ptr<xercesc::DOMXPathResult> &result);
 
             /**
              * @brief Reads DATA elements for the data set currently
@@ -131,7 +134,7 @@ namespace gem {
              */
             std::vector<detail::RegisterData> readRegisterData(
                 const DOMDocumentPtr &document,
-                const xercesc::DOMXPathResult *result);
+                const std::unique_ptr<xercesc::DOMXPathResult> &result);
 
         } /* namespace detail */
 
@@ -166,7 +169,6 @@ namespace gem {
                     dataSet.addData(config);
                 }
             }
-            delete dataSetsResult;
         }
 
         // Utility functions for makeDOM
