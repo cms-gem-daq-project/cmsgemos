@@ -19,7 +19,7 @@ namespace gem {
             /**
              * @brief The number of channels in a VFAT 3
              */
-            static const constexpr std::size_t channelCount = 128;
+            static const constexpr std::size_t CHANNEL_COUNT = 128;
 
             /**
              * @brief Represents the value of a channel register.
@@ -82,7 +82,7 @@ namespace gem {
                           "ChannelRegisterValue not packed in the expected way");
 
         private:
-            std::array<ChannelRegisterValue, channelCount> registers;
+            std::array<ChannelRegisterValue, CHANNEL_COUNT> registers;
 
         public:
             /**

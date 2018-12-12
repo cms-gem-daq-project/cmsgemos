@@ -27,11 +27,9 @@ namespace gem {
             using ConfigurationType = ConfigurationTypeT;
 
         private:
-            friend class XMLSerializationData<ConfigurationType>;
-
-            std::string comment, version;
-            typename ConfigurationTraits<ConfigurationType>::PartType part;
-            std::vector<ConfigurationType> data;
+            std::string m_comment, m_version;
+            typename ConfigurationTraits<ConfigurationType>::PartType m_part;
+            std::vector<ConfigurationType> m_data;
 
         public:
             /**
@@ -42,27 +40,27 @@ namespace gem {
             /**
              * @brief Gets the human-readable comment for this dataset.
              */
-            std::string getComment() const { return comment; }
+            std::string getComment() const { return m_comment; }
 
             /**
              * @brief Sets the human-readable comment for this dataset.
              */
-            void setComment(const std::string &comment) { this->comment = comment; }
+            void setComment(const std::string &comment) { m_comment = comment; }
 
             /**
              * @brief Gets the version of the dataset.
              */
-            std::string getVersion() const { return version; }
+            std::string getVersion() const { return m_version; }
 
             /**
              * @brief Sets the version of the dataset.
              */
-            void setVersion(const std::string &version) { this->version = version; }
+            void setVersion(const std::string &version) { m_version = version; }
 
             /**
              * @brief Gets the part configured by this dataset.
              */
-            auto getPart() const -> decltype(part) { return part; }
+            auto getPart() const -> decltype(m_part) { return m_part; }
 
             /**
              * @brief Sets the part configured by this dataset.
@@ -70,20 +68,20 @@ namespace gem {
             void setPart(
                 const typename ConfigurationTraits<ConfigurationType>::PartType &part)
             {
-                this->part = part;
+                m_part = part;
             }
 
             /**
              * @brief Retrieves configuration data.
              */
-            auto getData() -> decltype(data) const { return data; }
+            auto getData() const -> decltype(m_data) { return m_data; }
 
             /**
              * @brief Adds configuration data.
              */
             void addData(const ConfigurationType &configuration)
             {
-                data.push_back(configuration);
+                m_data.push_back(configuration);
             }
         };
 
@@ -91,10 +89,10 @@ namespace gem {
         bool DataSet<ConfigurationType>::operator== (
             const DataSet<ConfigurationType> &other) const
         {
-            return comment == other.comment
-                && version == other.version
-                && part == other.part
-                && data == other.data;
+            return m_comment == other.m_comment
+                && m_version == other.m_version
+                && m_part == other.m_part
+                && m_data == other.m_data;
         }
 
     } /* namespace onlinedb */

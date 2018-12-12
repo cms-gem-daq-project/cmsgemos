@@ -24,7 +24,7 @@ namespace gem {
          */
         class VFAT3ChipConfiguration: public detail::VFAT3ChipConfigurationGen
         {
-            VFAT3ChannelConfiguration channelConfig;
+            VFAT3ChannelConfiguration m_channelConfig;
 
         public:
             /**
@@ -33,7 +33,7 @@ namespace gem {
             void setChannelConfiguration(
                 const VFAT3ChannelConfiguration &channelConfig)
             {
-                this->channelConfig = channelConfig;
+                m_channelConfig = channelConfig;
             }
 
             /**
@@ -41,7 +41,7 @@ namespace gem {
              */
             VFAT3ChannelConfiguration &getChannelConfiguration()
             {
-                return channelConfig;
+                return m_channelConfig;
             }
 
             /**
@@ -49,7 +49,7 @@ namespace gem {
              */
             const VFAT3ChannelConfiguration &getChannelConfiguration() const
             {
-                return channelConfig;
+                return m_channelConfig;
             }
         };
 
