@@ -1,5 +1,5 @@
-#ifndef _Run_h_
-#define _Run_h_
+#ifndef GEM_ONLINEDB_RUN_H
+#define GEM_ONLINEDB_RUN_H
 
 #include <string>
 
@@ -33,4 +33,4 @@ namespace gem {
     } /* namespace onlinedb */
 } /* namespace gem */
 
-#endif // _Run_h_
+#endif // GEM_ONLINEDB_RUN_H

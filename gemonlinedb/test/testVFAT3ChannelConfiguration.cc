@@ -31,15 +31,15 @@ BOOST_AUTO_TEST_CASE(ChannelRegisterValue)
     BOOST_CHECK(value.registerValue == (1 << 15));
 
     value.registerValue = 0;
-    value.fields.armDacCorrectionPolarity = 1;
+    value.fields.armDACCorrectionPolarity = 1;
     BOOST_CHECK(value.registerValue == (1 << 6));
 
     value.registerValue = 0;
-    value.fields.zccDacCorrectionPolarity = 1;
+    value.fields.zccDACCorrectionPolarity = 1;
     BOOST_CHECK(value.registerValue == (1 << 13));
 
     value.registerValue = 0;
-    value.fields.zccDacCorrectionAmplitude = 0b101010;
+    value.fields.zccDACCorrectionAmplitude = 0b101010;
     BOOST_CHECK(value.registerValue == (0b101010 << 7));
 }
 

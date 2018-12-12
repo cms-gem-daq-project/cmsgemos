@@ -1,5 +1,5 @@
-#ifndef _VFAT3ChannelConfiguration_h_
-#define _VFAT3ChannelConfiguration_h_
+#ifndef GEM_ONLINEDB_VFAT3CHANNELCONFIGURATION_H
+#define GEM_ONLINEDB_VFAT3CHANNELCONFIGURATION_H
 
 #include <array>
 #include <cstdint>
@@ -38,24 +38,24 @@ namespace gem {
                     /**
                      * @brief Arming comparator threshold trimming: amplitude.
                      */
-                    std::uint16_t armDacCorrectionAmplitude : 6;
+                    std::uint16_t armDACCorrectionAmplitude : 6;
 
                     /**
                      * @brief Arming comparator threshold trimming: polarity.
                      */
-                    bool armDacCorrectionPolarity : 1;
+                    bool armDACCorrectionPolarity : 1;
 
                     /**
                      * @brief Zero crossing comparator timing optimization:
                      *        amplitude.
                      */
-                    std::uint16_t zccDacCorrectionAmplitude : 6;
+                    std::uint16_t zccDACCorrectionAmplitude : 6;
 
                     /**
                      * @brief Zero crossing comparator timing optimization:
                      *        polarity.
                      */
-                    bool zccDacCorrectionPolarity : 1;
+                    bool zccDACCorrectionPolarity : 1;
 
                     /**
                      * @brief Mask the channel output for trigger and readout.
@@ -130,4 +130,4 @@ namespace gem {
     } /* namespace onlinedb */
 } /* namespace gem */
 
-#endif // _VFAT3ChannelConfiguration_h_
+#endif // GEM_ONLINEDB_VFAT3CHANNELCONFIGURATION_H

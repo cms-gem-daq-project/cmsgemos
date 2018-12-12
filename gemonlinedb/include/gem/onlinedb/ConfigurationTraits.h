@@ -1,5 +1,5 @@
-#ifndef _ConfigurationTraits_h_
-#define _ConfigurationTraits_h_
+#ifndef GEM_ONLINEDB_CONFIGURATIONTRAITS_H
+#define GEM_ONLINEDB_CONFIGURATIONTRAITS_H
 
 namespace gem {
     namespace onlinedb {
@@ -26,4 +26,4 @@ namespace gem {
     } /* namespace onlinedb */
 } /* namespace gem */
 
-#endif // _ConfigurationTraits_h_
+#endif // GEM_ONLINEDB_CONFIGURATIONTRAITS_H

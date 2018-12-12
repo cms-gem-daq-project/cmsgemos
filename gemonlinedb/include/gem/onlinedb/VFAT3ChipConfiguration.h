@@ -1,3 +1,6 @@
+#ifndef GEM_ONLINEDB_VFAT3CHIPCONFIGURATION_H
+#define GEM_ONLINEDB_VFAT3CHIPCONFIGURATION_H
+
 #include <string>
 
 #include "VFAT3ChannelConfiguration.h"
@@ -57,3 +60,5 @@ namespace gem {
 
     } /* namespace onlinedb */
 } /* namespace gem */
+
+#endif // GEM_ONLINEDB_VFAT3CHIPCONFIGURATION_H

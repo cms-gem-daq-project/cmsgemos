@@ -1,5 +1,5 @@
-#ifndef _RegisterData_h_
-#define _RegisterData_h_
+#ifndef GEM_ONLINEDB_DETAIL_REGISTERDATA_H
+#define GEM_ONLINEDB_DETAIL_REGISTERDATA_H
 
 #include <map>
 
@@ -15,4 +15,4 @@ namespace gem {
     } /* namespace onlinedb */
 } /* namespace gem */
 
-#endif // _RegisterData_h_
+#endif // GEM_ONLINEDB_DETAIL_REGISTERDATA_H
