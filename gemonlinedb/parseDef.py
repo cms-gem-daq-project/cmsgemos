@@ -265,8 +265,8 @@ if __name__ == '__main__':
     # Get the file name without extension nor base path (ie bar in /foo/bar.ext)
     baseFileName = os.path.splitext(os.path.basename(args.inputFile.name))[0]
 
-    print('-- Generating: schema/{}.xsd'.format(baseFileName))
-    _makeXml(config).write('schema/{}.xsd'.format(baseFileName), encoding='UTF-8')
+    print('-- Generating: xml/schema/{}.xsd'.format(baseFileName))
+    _makeXml(config).write('xml/schema/{}.xsd'.format(baseFileName), encoding='UTF-8')
 
     headerFileName = 'include/gem/onlinedb/detail/{}Gen.h'.format(baseFileName)
     with open(headerFileName, 'w') as f:

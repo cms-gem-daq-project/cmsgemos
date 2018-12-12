@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(MakeDOMXsdValidation)
 
         XercesDOMParser parser;
         parser.setErrorHandler(errorHandler.get());
-        parser.setExternalNoNamespaceSchemaLocation("schema/VFAT3ChipConfiguration.xsd");
+        parser.setExternalNoNamespaceSchemaLocation("xml/schema/VFAT3ChipConfiguration.xsd");
         parser.setValidationScheme(XercesDOMParser::Val_Always);
         parser.setDoNamespaces(true);
         parser.setDoSchema(true);
