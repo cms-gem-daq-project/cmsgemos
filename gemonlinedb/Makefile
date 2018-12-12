@@ -45,20 +45,20 @@ include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
 
 # Auto-generated files
-schema/%.xsd include/gem/onlinedb/%Gen.h src/common/%Gen.cc: defs/%.json parseDef.py
+xml/schema/%.xsd include/gem/onlinedb/%Gen.h src/common/%Gen.cc: defs/%.json parseDef.py
 	python parseDef.py $<
 
 # XML schemas
 .PHONY: xsd
-xsd: schema/VFAT3ChipConfiguration.xsd
+xsd: xml/schema/VFAT3ChipConfiguration.xsd
 
 .PHONY: clean-xsd
 clean-xsd:
-	$(RM) schema/VFAT3ChipConfiguration.xsd
+	$(RM) xml/schema/VFAT3ChipConfiguration.xsd
 
 .PHONY: test-xsd
 test-xsd:
-	xmllint --noout --schema schema/VFAT3ChipConfiguration.xsd xml/VFAT3_Chip_Configuration.xml
+	xmllint --noout --schema xml/schema/VFAT3ChipConfiguration.xsd xml/VFAT3_Chip_Configuration.xml
 
 # Auto-generated headers
 .PHONY: clean-gen-headers
