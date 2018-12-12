@@ -27,20 +27,16 @@ namespace gem {
 
                     // Evaluate query
                     // Note: only result types 6 to 9 are supported by Xerces
-                    auto result = document->evaluate(
+                    auto result = std::unique_ptr<DOMXPathResult>();
+                    result.reset(document->evaluate(
                         detail::XercesString(query),
                         root,
                         nullptr,
                         DOMXPathResult::FIRST_ORDERED_NODE_TYPE,
-                        nullptr);
+                        nullptr));
 
                     // Get resulting DOMNode
-                    auto node = result->getNodeValue();
-
-                    // Cleanup
-                    delete result;
-
-                    return node;
+                    return result->getNodeValue();
                 }
 
                 /**
@@ -137,28 +133,32 @@ namespace gem {
                 return r;
             }
 
-            DOMXPathResult *queryDataSets(const DOMDocumentPtr &dom)
+            std::unique_ptr<DOMXPathResult> queryDataSets(const DOMDocumentPtr &dom)
             {
                 // Evaluate query
                 // Note: only result types 6 to 9 are supported by Xerces
-                return dom->evaluate(
+                auto result = std::unique_ptr<DOMXPathResult>();
+                result.reset(dom->evaluate(
                     "//ROOT/DATA_SET"_xml,
                     dom->getDocumentElement(),
                     nullptr,
                     DOMXPathResult::ORDERED_NODE_SNAPSHOT_TYPE,
-                    nullptr);
+                    nullptr));
+                return result;
             }
 
-            std::string readDataSetComment(const DOMDocumentPtr &document,
-                                           const DOMXPathResult *result)
+            std::string readDataSetComment(
+                const DOMDocumentPtr &document,
+                const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
                 return xsdGetTextContent(document,
                                          "//DATA_SET/COMMENT_DESCRIPTION",
                                          result->getNodeValue());
             }
 
-            std::string readDataSetVersion(const DOMDocumentPtr &document,
-                                           const DOMXPathResult *result)
+            std::string readDataSetVersion(
+                const DOMDocumentPtr &document,
+                const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
                 return xsdGetTextContent(document,
                                          "//DATA_SET/VERSION",
@@ -168,7 +168,7 @@ namespace gem {
             template<>
             PartReferenceBarcode readPartReference<PartReferenceBarcode>(
                 const DOMDocumentPtr &document,
-                const DOMXPathResult *result)
+                const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
                 PartReferenceBarcode ref;
                 ref.barcode = xsdGetTextContent(document,
@@ -180,7 +180,7 @@ namespace gem {
             template<>
             PartReferenceSN readPartReference<PartReferenceSN>(
                 const DOMDocumentPtr &document,
-                const DOMXPathResult *result)
+                const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
                 PartReferenceSN ref;
                 ref.serialNumber = xsdGetTextContent(
@@ -192,16 +192,17 @@ namespace gem {
 
             std::vector<detail::RegisterData> readRegisterData(
                 const DOMDocumentPtr &document,
-                const xercesc::DOMXPathResult *result)
+                const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
                 // Evaluate query
                 // Note: only result types 6 to 9 are supported by Xerces
-                auto queryResult = document->evaluate(
+                auto queryResult = std::unique_ptr<DOMXPathResult>();
+                queryResult.reset(document->evaluate(
                     "//DATA_SET/DATA"_xml,
                     result->getNodeValue(),
                     nullptr,
                     DOMXPathResult::ORDERED_NODE_SNAPSHOT_TYPE,
-                    nullptr);
+                    nullptr));
 
                 auto count = queryResult->getSnapshotLength();
                 auto vec = std::vector<detail::RegisterData>();
@@ -228,8 +229,6 @@ namespace gem {
 
                     vec.push_back(data);
                 }
-
-                delete queryResult;
 
                 return vec;
             }
