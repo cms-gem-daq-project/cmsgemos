@@ -38,24 +38,24 @@ namespace gem {
                     /**
                      * @brief Arming comparator threshold trimming: amplitude.
                      */
-                    std::uint16_t armDacCorrectionAmplitude : 6;
+                    std::uint16_t armDACCorrectionAmplitude : 6;
 
                     /**
                      * @brief Arming comparator threshold trimming: polarity.
                      */
-                    bool armDacCorrectionPolarity : 1;
+                    bool armDACCorrectionPolarity : 1;
 
                     /**
                      * @brief Zero crossing comparator timing optimization:
                      *        amplitude.
                      */
-                    std::uint16_t zccDacCorrectionAmplitude : 6;
+                    std::uint16_t zccDACCorrectionAmplitude : 6;
 
                     /**
                      * @brief Zero crossing comparator timing optimization:
                      *        polarity.
                      */
-                    bool zccDacCorrectionPolarity : 1;
+                    bool zccDACCorrectionPolarity : 1;
 
                     /**
                      * @brief Mask the channel output for trigger and readout.
