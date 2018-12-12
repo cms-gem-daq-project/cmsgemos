@@ -1,5 +1,5 @@
-#ifndef _XMLSerializationData_h_
-#define _XMLSerializationData_h_
+#ifndef GEM_ONLINEDB_XMLSERIALIZATIONDATA_H
+#define GEM_ONLINEDB_XMLSERIALIZATIONDATA_H
 
 #include <cstdint>
 #include <memory>
@@ -245,4 +245,4 @@ namespace gem {
     } /* namespace onlinedb */
 } /* namespace gem */
 
-#endif // _XMLSerializationData_h_
+#endif // GEM_ONLINEDB_XMLSERIALIZATIONDATA_H

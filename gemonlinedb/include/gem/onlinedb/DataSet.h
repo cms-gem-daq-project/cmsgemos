@@ -1,5 +1,5 @@
-#ifndef _DataSet_h_
-#define _DataSet_h_
+#ifndef GEM_ONLINEDB_DATASET_H
+#define GEM_ONLINEDB_DATASET_H
 
 #include <string>
 #include <vector>
@@ -100,4 +100,4 @@ namespace gem {
     } /* namespace onlinedb */
 } /* namespace gem */
 
-#endif // _DataSet_h_
+#endif // GEM_ONLINEDB_DATASET_H

@@ -1,5 +1,5 @@
-#ifndef _XMLUtils_h_
-#define _XMLUtils_h_
+#ifndef GEM_ONLINEDB_DETAIL_XMLUTILS_H
+#define GEM_ONLINEDB_DETAIL_XMLUTILS_H
 
 #include <string>
 
@@ -120,4 +120,4 @@ namespace gem {
     } /* namespace onlinedb */
 } /* namespace gem */
 
-#endif // _XMLUtils_h_
+#endif // GEM_ONLINEDB_DETAIL_XMLUTILS_H

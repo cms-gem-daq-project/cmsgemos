@@ -115,8 +115,8 @@ def _makeHeader(config, className):
  * Changes will be overwritten. Modify parseDef.py instead.
  */
 
-#ifndef _{baseName}Gen_h_
-#define _{baseName}Gen_h_
+#ifndef GEM_ONLINEDB_DETAIL_{baseNameCaps}GEN_H
+#define GEM_ONLINEDB_DETAIL_{baseNameCaps}GEN_H
 
 #include <cstdint>
 
@@ -155,7 +155,7 @@ namespace gem {{
     }} /* namespace onlinedb */
 }} /* namespace gem */
 
-#endif // _{baseName}Gen_h_
+#endif // GEM_ONLINEDB_DETAIL_{baseNameCaps}GEN_H
 '''
     fields = [ Field(f) for f in _checkedJsonGet(config, 'fields', list) ]
 
@@ -177,6 +177,7 @@ namespace gem {{
     partReference = _checkedJsonGet(config, 'part reference', unicode)
 
     return template.format(baseName = className,
+                           baseNameCaps = className.upper(),
                            privateMembers = privateMembers,
                            publicMembers = publicMembers,
                            extTableName = extTableName,

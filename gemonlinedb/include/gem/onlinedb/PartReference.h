@@ -1,5 +1,5 @@
-#ifndef _PartReference_h_
-#define _PartReference_h_
+#ifndef GEM_ONLINEDB_PARTREFERENCE_H
+#define GEM_ONLINEDB_PARTREFERENCE_H
 
 #include <string>
 
@@ -41,4 +41,4 @@ namespace gem {
     } /* namespace onlinedb */
 } /* namespace gem */
 
-#endif // _PartReference_h_
+#endif // GEM_ONLINEDB_PARTREFERENCE_H
