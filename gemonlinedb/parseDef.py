@@ -170,13 +170,13 @@ namespace gem {{
     privateMembers = ''
     for f in fields:
         privateMembers += '''
-                std::int32_t {};'''.format(f.cppName())
+                std::int32_t m_{};'''.format(f.cppName())
 
     publicMembers = ''
     for f in fields:
         publicMembers += '''
-                std::int32_t get{1}() const {{ return {0}; }}
-                void set{1}(std::int32_t value) {{ {0} = value; }}
+                std::int32_t get{1}() const {{ return m_{0}; }}
+                void set{1}(std::int32_t {0}) {{ m_{0} = {0}; }}
                 '''.format(f.cppName(False), f.cppName(True))
 
     extTableName = _checkedJsonGet(config, 'extension table name', unicode)
@@ -242,7 +242,7 @@ namespace gem {{
     operatorEq = ''
     for f in fields:
         operatorEq += '''
-                    && {0} == other.{0}'''.format(f.cppName())
+                    && get{0}() == other.get{0}()'''.format(f.cppName(True))
 
     return template.format(baseName = className,
                            getRegisterData = getRegisterData,

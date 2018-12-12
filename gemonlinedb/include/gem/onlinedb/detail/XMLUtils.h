@@ -21,7 +21,7 @@ namespace gem {
              */
             class XercesString final
             {
-                XMLCh *transcoded;
+                XMLCh *m_transcoded;
 
             public:
                 /**
@@ -29,7 +29,7 @@ namespace gem {
                  */
                 XercesString(const char * const literal)
                 {
-                    transcoded = xercesc::XMLString::transcode(literal);
+                    m_transcoded = xercesc::XMLString::transcode(literal);
                 }
 
                 /**
@@ -37,7 +37,7 @@ namespace gem {
                  */
                 XercesString(const std::string &string)
                 {
-                    transcoded = xercesc::XMLString::transcode(string.c_str());
+                    m_transcoded = xercesc::XMLString::transcode(string.c_str());
                 }
 
                 /**
@@ -50,7 +50,7 @@ namespace gem {
                  */
                 XercesString(const XercesString &&other)
                 {
-                    transcoded = other.transcoded;
+                    m_transcoded = other.m_transcoded;
                 }
 
                 /**
@@ -58,7 +58,7 @@ namespace gem {
                  */
                 ~XercesString()
                 {
-                    xercesc::XMLString::release(&transcoded);
+                    xercesc::XMLString::release(&m_transcoded);
                 }
 
                 /**
@@ -67,7 +67,7 @@ namespace gem {
                  */
                 operator const XMLCh * const () const
                 {
-                    return transcoded;
+                    return m_transcoded;
                 }
 
             };

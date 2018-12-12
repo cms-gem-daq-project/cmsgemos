@@ -43,26 +43,26 @@ namespace gem {
             using ConfigurationType = ConfigurationTypeT;
 
         private:
-            Run run;
-            std::vector<DataSet<ConfigurationType>> dataSets;
+            Run m_run;
+            std::vector<DataSet<ConfigurationType>> m_dataSets;
 
         public:
             /**
              * @brief Returns the run information from the file.
              */
-            Run getRun() const { return run; }
+            Run getRun() const { return m_run; }
 
             /**
              * @brief Sets the run for which to generate XML data.
              */
-            void setRun(const Run &run) { this->run = run; }
+            void setRun(const Run &run) { m_run = run; }
 
             /**
              * @brief Gets the list of parsed datasets.
              */
             std::vector<DataSet<ConfigurationType>> getDataSets() const
             {
-                return dataSets;
+                return m_dataSets;
             }
 
             /**
@@ -70,7 +70,7 @@ namespace gem {
              */
             void addDataSet(const DataSet<ConfigurationType> &dataSet)
             {
-                dataSets.push_back(dataSet);
+                m_dataSets.push_back(dataSet);
             }
 
             /**
@@ -143,7 +143,7 @@ namespace gem {
             using PartType = typename Traits::PartType;
 
             // Get run info
-            run = detail::getRun(dom);
+            m_run = detail::getRun(dom);
 
             // Iterate over DATA_SETs
             auto dataSetsResult = detail::queryDataSets(dom);
@@ -151,8 +151,8 @@ namespace gem {
             for (XMLSize_t i = 0; i < count; ++i) {
                 dataSetsResult->snapshotItem(i);
 
-                dataSets.emplace_back();
-                auto &dataSet = dataSets.back();
+                m_dataSets.emplace_back();
+                auto &dataSet = m_dataSets.back();
 
                 dataSet.setComment(detail::readDataSetComment(dom, dataSetsResult));
                 dataSet.setVersion(detail::readDataSetVersion(dom, dataSetsResult));
@@ -224,17 +224,19 @@ namespace gem {
             using Info = ConfigurationTraits<ConfigurationType>;
 
             // Create the general DOM structure
-            auto dom = detail::makeDOM(Info::extTableName(), Info::typeName(), run);
+            auto dom = detail::makeDOM(Info::extTableName(), Info::typeName(), m_run);
 
-            for (const auto &dataSet : dataSets) {
+            for (const auto &dataSet : m_dataSets) {
                 // Add a DATA_SET node
                 auto dataSetNode = detail::createDataSetElement(dom,
-                                                                dataSet.comment,
-                                                                dataSet.version);
+                                                                dataSet.getComment(),
+                                                                dataSet.getVersion());
                 // Create the PART element
-                detail::createPartElement(dataSetNode, Info::kindOfPart(), dataSet.part);
+                detail::createPartElement(dataSetNode,
+                                          Info::kindOfPart(),
+                                          dataSet.getPart());
                 // Add DATA elements
-                for (const auto &entry : dataSet.data) {
+                for (const auto &entry : dataSet.getData()) {
                     detail::createDataElement(dataSetNode,
                                               entry.getRegisterData());
                 }
