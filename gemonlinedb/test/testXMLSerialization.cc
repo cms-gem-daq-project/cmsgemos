@@ -100,7 +100,8 @@ BOOST_AUTO_TEST_CASE(MakeDOMXsdValidation)
         auto implLS = dynamic_cast<DOMImplementationLS *>(impl);
 
         // Create the serializer, write and delete it
-        auto lsser = implLS->createLSSerializer();
+        auto lsser = std::unique_ptr<DOMLSSerializer>();
+        lsser.reset(implLS->createLSSerializer());
         BOOST_REQUIRE(lsser != nullptr);
 
         // Serialize
@@ -129,9 +130,6 @@ BOOST_AUTO_TEST_CASE(MakeDOMXsdValidation)
         // Validate
         parser.parse(source);
 
-        // Cleanup
-        delete lsser;
-        delete implLS;
     } catch (DOMException &e) {
         throw std::runtime_error(detail::transcode(e.getMessage()));
     } catch (XMLException &e) {
