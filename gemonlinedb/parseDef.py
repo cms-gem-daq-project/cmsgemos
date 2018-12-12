@@ -147,9 +147,9 @@ namespace gem {{
         class ConfigurationTraits<detail::{baseName}Gen>
         {{
         public:
-            static const char *extTableName() {{ return "{extTableName}"; }}
-            static const char *typeName() {{ return "{typeName}"; }}
-            static const char *kindOfPart() {{ return "{kindOfPart}"; }}
+            static std::string extTableName() {{ return "{extTableName}"; }}
+            static std::string typeName() {{ return "{typeName}"; }}
+            static std::string kindOfPart() {{ return "{kindOfPart}"; }}
             using PartType = {partReference};
         }};
     }} /* namespace onlinedb */
