@@ -121,9 +121,9 @@ namespace gem {
         class ConfigurationTraits<VFAT3ChannelConfiguration>
         {
         public:
-            static const char *extTableName() { return "GEM_VFAT3_CHANNEL_CONF"; }
-            static const char *typeName() { return "GEM VFAT3 Channel Conf Lookup Table"; }
-            static const char *kindOfPart() { return "GEM VFAT3"; }
+            static std::string extTableName() { return "GEM_VFAT3_CHANNEL_CONF"; }
+            static std::string typeName() { return "GEM VFAT3 Channel Conf Lookup Table"; }
+            static std::string kindOfPart() { return "GEM VFAT3"; }
             using PartType = PartReferenceBarcode;
         };
 
