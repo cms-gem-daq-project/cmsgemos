@@ -16,14 +16,54 @@ GEMONLINEDB_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 
-Sources =version.cc
+Sources = \
+    Run.cc \
+    VFAT3ChannelConfiguration.cc \
+    VFAT3ChipConfigurationGen.cc \
+    version.cc \
+    XMLSerializationData.cc \
+    XMLUtils.cc \
 
 DynamicLibrary=gemonlinedb
 
+TestLibraries = $(DependentLibraries) xoap boost_unit_test_framework
+
+TestExecutables = \
+    test/testVFAT3ChannelConfiguration.cc \
+    test/testXMLSerialization.cc \
+
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 
+# Targets with additional dependencies. Keep "default" first
+.PHONY: default clean tests
+default: xsd
+clean: clean-xsd clean-gen-headers
+tests: default test-xsd
+
+# Common definitions
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
+
+# Auto-generated files
+xml/schema/%.xsd include/gem/onlinedb/%Gen.h src/common/%Gen.cc: defs/%.json parseDef.py
+	python parseDef.py $<
+
+# XML schemas
+.PHONY: xsd
+xsd: xml/schema/VFAT3ChipConfiguration.xsd
+
+.PHONY: clean-xsd
+clean-xsd:
+	$(RM) xml/schema/VFAT3ChipConfiguration.xsd
+
+.PHONY: test-xsd
+test-xsd:
+	xmllint --noout --schema xml/schema/VFAT3ChipConfiguration.xsd xml/VFAT3_Chip_Configuration.xml
+
+# Auto-generated headers
+.PHONY: clean-gen-headers
+clean-gen-headers:
+	$(RM) include/gem/onlinedb/detail/*Gen.h
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
