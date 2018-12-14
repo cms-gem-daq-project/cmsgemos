@@ -360,7 +360,7 @@ void gem::hw::glib::GLIBManager::configureAction()
       amc->disableDAQLink();
       amc->resetDAQLink();
       amc->enableDAQLink(0x4);  // FIXME
-      amc->enableZeroSuppression(0x1);
+      amc->setZS(0x1);
       amc->setDAQLinkRunType(0x0);
       amc->setDAQLinkRunParameters(0xfaac);
 
@@ -476,7 +476,7 @@ void gem::hw::glib::GLIBManager::startAction()
       amc->ttcReset();
       amc->enableDAQLink(0x4);  // FIXME
       amc->resetDAQLink();
-      amc->enableZeroSuppression(0x1);
+      amc->setZS(0x1);
       amc->setL1AEnable(true);
       usleep(10); // just for testing the timing of different applications
 

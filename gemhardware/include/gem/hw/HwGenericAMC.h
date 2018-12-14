@@ -259,25 +259,25 @@ namespace gem {
         /**
          * Get the recorded number of L1A signals received from the TTC decoder
          */
-        virtual uint32_t getL1ACount() {
+        uint32_t getL1ACount() {
           return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.L1A"); }
 
         /**
          * Get the recorded number of CalPulse signals received from the TTC decoder
          */
-        virtual uint32_t getCalPulseCount() {
+        uint32_t getCalPulseCount() {
           return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.CALPULSE"); }
 
         /**
          * Get the recorded number of Resync signals received from the TTC decoder
          */
-        virtual uint32_t getResyncCount() {
+        uint32_t getResyncCount() {
           return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.RESYNC"); }
 
         /**
          * Get the recorded number of BC0 signals
          */
-        virtual uint32_t getBC0Count() {
+        uint32_t getBC0Count() {
           return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.BC0"); }
 
         ///Counter resets
@@ -297,82 +297,37 @@ namespace gem {
         /**
          * Reset the recorded number of L1A signals received from the TTC decoder
          */
-        virtual void resetL1ACount() {
+        void resetL1ACount() {
           return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Reset the recorded number of CalPulse signals received from the TTC decoder
          */
-        virtual void resetCalPulseCount() {
+        void resetCalPulseCount() {
           return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Reset the recorded number of Resync signals received from the TTC decoder
          */
-        virtual void resetResyncCount() {
+        void resetResyncCount() {
           return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Reset the recorded number of BC0 signals
          */
-        virtual void resetBC0Count() {
+        void resetBC0Count() {
           return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Read the trigger data
-         * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
+         * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch counter
          */
-        virtual uint32_t readTriggerFIFO(uint8_t const& gtx);
+        uint32_t readTriggerFIFO(uint8_t const& gtx);
 
         /**
          * Empty the trigger data FIFO
          */
-        virtual void flushTriggerFIFO(uint8_t const& gtx);
-
-        ///** obsolete in generic AMC firmware **/
-        ///**
-        // * Read the tracking data FIFO occupancy in terms of raw 32bit words
-        // * @param uint8_t gtx is the number of the gtx to query
-        // * @retval uint32_t returns the number of words in the tracking data FIFO
-        // */
-        //virtual uint32_t getFIFOOccupancy(uint8_t const& gtx);
-        //
-        ///**
-        // * Read the tracking data FIFO occupancy in terms of the number of 7x32bit words
-        // * composing a single VFAT block
-        // * @param uint8_t gtx is the number of the gtx to query
-        // * @retval uint32_t returns the number of VFAT blocks in the tracking data FIFO
-        // */
-        //virtual uint32_t getFIFOVFATBlockOccupancy(uint8_t const& gtx);
-        //
-        ///**
-        // * see if there is tracking data available
-        // * @param uint8_t gtx is the number of the column of the tracking data to read
-        // * @retval bool returns true if there is tracking data in the FIFO
-        // TRK_DATA.COLX.DATA_RDY
-        //*/
-        //virtual bool hasTrackingData(uint8_t const& gtx);
-        //
-        ///**
-        // * get the tracking data, have to do this intelligently, as IPBus transactions are expensive
-        // * and need to pack all events together
-        // * @param uint8_t gtx is the number of the GTX tracking data to read
-        // * @param sizeo_t nBlocks is the number of VFAT data blocks (7*32bit words) to read
-        // * @retval std::vector<uint32_t> returns the 7*nBlocks data words in the buffer
-        // */
-        //std::vector<uint32_t> getTrackingData(uint8_t const& gtx, size_t const& nBlocks=1);
-        ////which of these will be better and do what we want
-        //virtual uint32_t getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks=1);
-        ////which of these will be better and do what we want
-        //virtual uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
-        //                         size_t const& nBlocks=1);
-        //
-        ///**
-        // * Empty the tracking data FIFO
-        // * @param uint8_t gtx is the number of the gtx to query
-        // *
-        // */
-        //virtual void flushFIFO(uint8_t const& gtx);
+        void flushTriggerFIFO(uint8_t const& gtx);
 
         /**************************/
         /** DAQ link information **/
@@ -381,23 +336,23 @@ namespace gem {
          * @brief Set the enable mask and enable the DAQ link
          * @param enableMask 32 bit word for the 24 bit enable mask
          */
-        virtual void enableDAQLink(uint32_t const& enableMask=0x1);
+        void enableDAQLink(uint32_t const& enableMask=0x1);
 
         /**
          * @brief Set the DAQ link off and disable all inputs
          */
-        virtual void disableDAQLink();
+        void disableDAQLink();
 
         /**
          * @brief Set the zero suppression mode
          * @param enable true means any VFAT data packet with all 0's will be suppressed
          */
-        virtual void enableZeroSuppression(bool enable=true);
+        void setZS(bool enable=true);
 
         /**
          * @brief Disable zero suppression of VFAT data
          */
-        virtual void disableZeroSuppression();
+        void disableZS() { setZS(false); };
 
         /**
          * @brief reset the DAQ link and write the DAV timout
@@ -409,103 +364,103 @@ namespace gem {
          * @param davTO value to use for the DAV timeout
          * @param ttsOverride value to use for the TTS override
          */
-        virtual void resetDAQLink(uint32_t const& davTO=0x500, uint32_t const& ttsOverride=0x0);
+        void resetDAQLink(uint32_t const& davTO=0x500, uint32_t const& ttsOverride=0x0);
 
         /**
          * @returns Returns the 32 bit word corresponding to the DAQ link control register
          */
-        virtual uint32_t getDAQLinkControl();
+        uint32_t getDAQLinkControl();
 
         /**
          * @returns Returns the 32 bit word corresponding to the DAQ link status register
          */
-        virtual uint32_t getDAQLinkStatus();
+        uint32_t getDAQLinkStatus();
 
         /**
          * @returns Returns true if the DAQ link is ready
          */
-        virtual bool daqLinkReady();
+        bool daqLinkReady();
 
         /**
          * @returns Returns true if the DAQ link is clock is locked
          */
-        virtual bool daqClockLocked();
+        bool daqClockLocked();
 
         /**
          * @returns Returns true if the TTC is ready
          */
-        virtual bool daqTTCReady();
+        bool daqTTCReady();
 
         /**
          * @returns Returns the current TTS state asserted by the DAQ link firmware
          */
-        virtual uint8_t daqTTSState();
+        uint8_t daqTTSState();
 
         /**
          * @returns Returns true if the event FIFO is almost full (70%)
          */
-        virtual bool daqAlmostFull();
+        bool daqAlmostFull();
 
         /**
          * @returns Returns true if the L1A FIFO is empty (0%)
          */
-        virtual bool l1aFIFOIsEmpty();
+        bool l1aFIFOIsEmpty();
 
         /**
          * @returns Returns true if the L1A FIFO is almost full (70%)
          */
-        virtual bool l1aFIFOIsAlmostFull();
+        bool l1aFIFOIsAlmostFull();
 
         /**
          * @returns Returns true if the L1A FIFO is full (100%)
          */
-        virtual bool l1aFIFOIsFull();
+        bool l1aFIFOIsFull();
 
         /**
          * @returns Returns true if the L1A FIFO is underflos
          */
-        virtual bool l1aFIFOIsUnderflow();
+        bool l1aFIFOIsUnderflow();
 
         /**
          * @returns Returns the number of events built and sent on the DAQ link
          */
-        virtual uint32_t getDAQLinkEventsSent();
+        uint32_t getDAQLinkEventsSent();
 
         /**
          * @returns Returns the curent L1AID (number of L1As received)
          */
-        virtual uint32_t getDAQLinkL1AID();
+        uint32_t getDAQLinkL1AID();
 
         /* /\** */
         /*  * @returns Returns the curent L1A rate (in Hz) */
         /*  *\/ */
-        /* virtual uint32_t getDAQLinkL1ARate(); */
+        /* uint32_t getDAQLinkL1ARate(); */
 
         /**
          * @returns Returns
          */
-        virtual uint32_t getDAQLinkDisperErrors();
+        uint32_t getDAQLinkDisperErrors();
 
         /**
          * @returns Returns
          */
-        virtual uint32_t getDAQLinkNonidentifiableErrors();
+        uint32_t getDAQLinkNonidentifiableErrors();
 
         /**
          * @returns Returns the DAQ link input enable mask
          */
-        virtual uint32_t getDAQLinkInputMask();
+        uint32_t getDAQLinkInputMask();
 
         /**
          * @returns Returns the timeout used in the event builder before closing the event and sending the (potentially incomplete) data
          */
-        virtual uint32_t getDAQLinkDAVTimeout();
+        uint32_t getDAQLinkDAVTimeout();
 
         /**
          * @param max is a bool specifying whether to query the max timer or the last timer
          * @returns Returns the spent building an event
          */
-        virtual uint32_t getDAQLinkDAVTimer(bool const& max);
+        uint32_t getDAQLinkDAVTimer(bool const& max);
 
         /***************************************/
         /** GTX specific DAQ link information **/
@@ -515,7 +470,7 @@ namespace gem {
          * @returns Returns the the 32-bit word corresponding DAQ status for the specified link
          */
         // FIXME: renamed from DAQLink to LinkDAQ
-        virtual uint32_t getLinkDAQStatus(   uint8_t const& gtx);
+        uint32_t getLinkDAQStatus(   uint8_t const& gtx);
 
         /**
          * @param gtx is the input link counter to query
@@ -523,34 +478,34 @@ namespace gem {
          * @returns Returns the link counter for the specified mode
          */
         // FIXME: renamed from DAQLink to LinkDAQ
-        virtual uint32_t getLinkDAQCounters( uint8_t const& gtx, uint8_t const& mode);
+        uint32_t getLinkDAQCounters( uint8_t const& gtx, uint8_t const& mode);
 
         /**
          * @param gtx is the input link status to query
          * @returns Returns a block of the last 7 words received from the OH on the link specified
          */
         // FIXME: renamed from DAQLink to LinkDAQ
-        virtual uint32_t getLinkLastDAQBlock(uint8_t const& gtx);
+        uint32_t getLinkLastDAQBlock(uint8_t const& gtx);
 
         /**
          * @returns Returns the timeout before the event builder firmware will close the event and send the data
          */
-        virtual uint32_t getDAQLinkInputTimeout();
+        uint32_t getDAQLinkInputTimeout();
 
         /**
          * @returns Returns the run type stored in the data stream
          */
-        virtual uint32_t getDAQLinkRunType();
+        uint32_t getDAQLinkRunType();
 
         /**
          * @returns Special run parameters 1,2,3 as a single 24 bit word
          */
-        virtual uint32_t getDAQLinkRunParameters();
+        uint32_t getDAQLinkRunParameters();
 
         /**
          * @returns Special run parameter written into data stream
          */
-        virtual uint32_t getDAQLinkRunParameter(uint8_t const& parameter);
+        uint32_t getDAQLinkRunParameter(uint8_t const& parameter);
 
 
         /**
@@ -559,26 +514,26 @@ namespace gem {
          *        last packet received from the optical link before closing an "event"
          *        (in units of 160MHz clock cycles, value/4 for 40MHz clock cycles)
          */
-        virtual void setDAQLinkInputTimeout(uint32_t const& value=0x100);
+        void setDAQLinkInputTimeout(uint32_t const& value=0x100);
 
         /**
          * @brief Special run type to be written into data stream
          * @param value is the run type
          */
-        virtual void setDAQLinkRunType(uint32_t const& value);
+        void setDAQLinkRunType(uint32_t const& value);
 
         /**
          * @returns Set special run parameter to be written into data stream
          * @param value is a 24 bit word to write into the run paramter portion of the GEM header
          */
-        virtual void setDAQLinkRunParameters(uint32_t const& value);
+        void setDAQLinkRunParameters(uint32_t const& value);
 
         /**
          * @returns Special run parameter written into data stream
          * @param parameter is the number of parameter to be written (1-3)
          * @param value is the run paramter to write into the specified parameter
          */
-        virtual void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
+        void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
 
 
         /**************************/
@@ -589,12 +544,12 @@ namespace gem {
         /**
          * @brief Reset the TTC module
          */
-        virtual void ttcReset();
+        void ttcReset();
 
         /**
          * @brief Reset the MMCM of the TTC module
          */
-        virtual void ttcMMCMReset();
+        void ttcMMCMReset();
 
         /**
          * @brief Shift the phase of the MMCM of the TTC module
@@ -685,7 +640,7 @@ namespace gem {
         virtual uint32_t getTTCSpyBuffer();
 
         /**************************/
-        /** CLOW_CONTROL module information **/
+        /** SLOW_CONTROL module information **/
         /**************************/
 
         /*** SCA submodule ***/

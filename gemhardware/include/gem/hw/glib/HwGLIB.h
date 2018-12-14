@@ -276,7 +276,7 @@ namespace gem {
            *
            * XPoint1 inputs 1-4 can be routed to outputs 1-4
            * XPoint1 input 1 carries XPoint2 output 1
-           * XPoint1 input 2 carries SMA_CLK or the onboard 40MhZ oscillator
+           * XPoint1 input 2 carries SMA_CLK or the onboard 40MHz oscillator
            * XPoint1 input 3 carries TCLKA
            * XPoint1 input 4 carries FCLKA
            *

@@ -379,14 +379,9 @@ void gem::hw::HwGenericAMC::disableDAQLink()
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAQ_ENABLE",        0x0);
 }
 
-void gem::hw::HwGenericAMC::enableZeroSuppression(bool en)
+void gem::hw::HwGenericAMC::setZS(bool en)
 {
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.ZERO_SUPPRESSION_EN", uint32_t(en));
-}
-
-void gem::hw::HwGenericAMC::disableZeroSuppression()
-{
-  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.ZERO_SUPPRESSION_EN", 0x0);
 }
 
 void gem::hw::HwGenericAMC::resetDAQLink(uint32_t const& davTO, uint32_t const& ttsOverride)
