@@ -30,6 +30,12 @@ The basic idea is the following:
 * Avoid using `tab`s, use an editor that is smart enough to convert all `tab`s to `space`s
 * Current convention is 4 `space`s per `tab` for `python` and `c++` code
 
+### Naming conventions
+cmsgemos' naming conventions are inspired [from Java](https://en.wikipedia.org/wiki/Naming_convention_(programming)#Java):
+* Namespaces names are lowercase and nest easily: `gem::base::utils::exception` is a valid name. All code lives within the `gem` namespace, and every directory at the root of the source tree has its own namespace (the example above is from `gembase`). Header files are organized in a directory structure matching their main namespace: for instance, header files for the above namespace can be found in `include/gem/base/utils/exception`. Header guards use are constructed after the file path and written in UPPER_SNAKE_CASE: for our favorite example, one would use `GEM_BASE_UTILS_EXCEPTION_H`.
+* Class, structure and `typedef` names are written in PascalCase. The name of class member variables starts with `m_`, or `p_` for pointers (but this scheme is not used for structures). Accessor functions are named `getVariable()` and `setVariable()`.
+* Function (and member function) names are written in camelCase.
+
 ### Testing
 * You should, at a minimum, test that your code compiles, and if possible, test that it runs without crashing
 * When testing the `python` package, you should set up a `virtualenv` and use `pip` to install the `zip` created by:
