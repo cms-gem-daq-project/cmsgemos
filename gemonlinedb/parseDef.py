@@ -44,6 +44,11 @@ class Field(object):
         else:
             self._cppName = _toCamelCase(self.name)
 
+        if 'xsd only' in json:
+            self.xsdOnly = _checkedJsonGet(json, 'xsd only', bool)
+        else:
+            self.xsdOnly = False
+
     def subElement(self, parent):
         """
         Creates subElements of parent defining this field in XSD syntax
@@ -168,12 +173,12 @@ namespace gem {{
     fields = [ Field(f) for f in _checkedJsonGet(config, 'fields', list) ]
 
     privateMembers = ''
-    for f in fields:
+    for f in filter(lambda f: not f.xsdOnly, fields):
         privateMembers += '''
                 std::int32_t m_{};'''.format(f.cppName())
 
     publicMembers = ''
-    for f in fields:
+    for f in filter(lambda f: not f.xsdOnly, fields):
         publicMembers += '''
                 std::int32_t get{1}() const {{ return m_{0}; }}
                 void set{1}(std::int32_t {0}) {{ m_{0} = {0}; }}
@@ -230,17 +235,17 @@ namespace gem {{
     fields = [ Field(f) for f in _checkedJsonGet(config, 'fields', list) ]
 
     getRegisterData = ''
-    for f in fields:
+    for f in filter(lambda f: not f.xsdOnly, fields):
         getRegisterData += '''
                 data["{0}"] = get{1}();'''.format(f.name, f.cppName(True))
 
     readRegisterData = ''
-    for f in fields:
+    for f in filter(lambda f: not f.xsdOnly, fields):
         readRegisterData += '''
                 set{1}(data.at("{0}"));'''.format(f.name, f.cppName(True))
 
     operatorEq = ''
-    for f in fields:
+    for f in filter(lambda f: not f.xsdOnly, fields):
         operatorEq += '''
                     && get{0}() == other.get{0}()'''.format(f.cppName(True))
 
