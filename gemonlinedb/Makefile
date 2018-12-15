@@ -17,6 +17,8 @@ GEMONLINEDB_VER_PATCH=0
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 
 Sources = \
+    OHv3Configuration.cc \
+    OHv3ConfigurationGen.cc \
     Run.cc \
     VFAT3ChannelConfiguration.cc \
     VFAT3ChipConfigurationGen.cc \
@@ -50,11 +52,12 @@ xml/schema/%.xsd include/gem/onlinedb/%Gen.h src/common/%Gen.cc: defs/%.json par
 
 # XML schemas
 .PHONY: xsd
-xsd: xml/schema/VFAT3ChipConfiguration.xsd
+xsd: xml/schema/VFAT3ChipConfiguration.xsd xml/schema/OHv3Configuration.xsd
 
 .PHONY: clean-xsd
 clean-xsd:
 	$(RM) xml/schema/VFAT3ChipConfiguration.xsd
+	$(RM) xml/schema/OHv3Configuration.xsd
 
 .PHONY: test-xsd
 test-xsd:
