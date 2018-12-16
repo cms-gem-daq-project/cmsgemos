@@ -17,6 +17,7 @@ GEMONLINEDB_VER_PATCH=0
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 
 Sources = \
+    AMC13Configuration.cc \
     AMCConfiguration.cc \
     AMCConfigurationGen.cc \
     OHv3Configuration.cc \
@@ -33,6 +34,7 @@ DynamicLibrary=gemonlinedb
 TestLibraries = $(DependentLibraries) xoap boost_unit_test_framework
 
 TestExecutables = \
+    test/testAMC13Configuration.cc \
     test/testVFAT3ChannelConfiguration.cc \
     test/testXMLSerialization.cc \
 
