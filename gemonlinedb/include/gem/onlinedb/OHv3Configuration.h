@@ -1,13 +1,18 @@
 #ifndef GEM_ONLINEDB_OHV3CONFIGURATION_H
 #define GEM_ONLINEDB_OHV3CONFIGURATION_H
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
+#include <memory>
 
 #include "detail/OHv3ConfigurationGen.h"
 
 namespace gem {
     namespace onlinedb {
+
+        // Forward declaration
+        class VFAT3ChipConfiguration;
 
         /**
          * @brief Describes the configuration of a version 3 optohybrid.
@@ -43,6 +48,8 @@ namespace gem {
             std::array<std::uint32_t, VFAT_COUNT>      m_sotTapDelays;
             std::array<TrigTapDelayBits, VFAT_COUNT>   m_trigTapDelays;
 
+            std::array<std::shared_ptr<VFAT3ChipConfiguration>, VFAT_COUNT> m_VFATConfigs;
+
         public:
             /**
              * @brief Compares two OHv3 configurations for equality.
@@ -65,6 +72,10 @@ namespace gem {
 
             ////////////////////////////////////////////////////////////////////
 
+            /**
+             * @name HDMI pin control
+             * @{
+             */
             /**
              * @brief Retrieves the S-bit mode for an HDMI wire.
              */
@@ -153,8 +164,16 @@ namespace gem {
                 m_HDMISBitSel = values;
             }
 
+            /**
+             * @}
+             */
+
             ////////////////////////////////////////////////////////////////////
 
+            /**
+             * @name Trigger tap delays
+             * @{
+             */
             /**
              * @brief Retrieves the sot tap delay for the given VFAT.
              */
@@ -265,6 +284,120 @@ namespace gem {
             {
                 m_trigTapDelays = delays;
             }
+
+            /**
+             * @}
+             */
+
+            ////////////////////////////////////////////////////////////////////
+
+            /**
+             * @name Child VFAT configuration
+             * @{
+             */
+            /**
+             * @brief Retrieves the configuration of the given VFAT, if set.
+             */
+            const std::shared_ptr<VFAT3ChipConfiguration> getVFATConfig(
+                std::size_t vfat) const
+            {
+                return m_VFATConfigs.at(vfat);
+            }
+
+            /**
+             * @brief Retrieves the configuration of the given VFAT, if set.
+             */
+            std::shared_ptr<VFAT3ChipConfiguration> getVFATConfig(
+                std::size_t vfat)
+            {
+                return m_VFATConfigs.at(vfat);
+            }
+
+            /**
+             * @brief Retrieves the configuration of all VFATs.
+             */
+            auto getVFATConfigs() const -> const decltype(m_VFATConfigs) &
+            {
+                return m_VFATConfigs;
+            }
+
+            /**
+             * @brief Retrieves the configuration of all VFATs.
+             */
+            auto getVFATConfigs() -> decltype(m_VFATConfigs) &
+            {
+                return m_VFATConfigs;
+            }
+
+            /**
+             * @brief Modifies the configuration of the given VFAT.
+             */
+            void setVFATConfig(std::size_t vfat,
+                               const std::shared_ptr<VFAT3ChipConfiguration> &config)
+            {
+                m_VFATConfigs.at(vfat) = config;
+            }
+
+            /**
+             * @brief Modifies the configuration of all VFATs.
+             */
+            void setVFATConfigs(const decltype(m_VFATConfigs) &configs)
+            {
+                m_VFATConfigs = configs;
+            }
+
+            /**
+             * @brief Unsets the configuration of the given VFAT.
+             */
+            void unsetVFATConfig(std::size_t vfat)
+            {
+                setVFATConfig(vfat, nullptr);
+            }
+
+            /**
+             * @brief Unsets all VFAT configurations.
+             */
+            void unsetVFATConfigs()
+            {
+                for (auto &config : m_VFATConfigs) {
+                    config = nullptr;
+                }
+            }
+
+            /**
+             * @brief Checks that all VFAT configurations are set.
+             */
+            bool hasAllVFATConfigs() const
+            {
+                return 0 == std::count(getVFATConfigs().begin(),
+                                       getVFATConfigs().end(),
+                                       nullptr);
+            }
+
+            /**
+             * @brief Checks that no VFAT configurations is set.
+             */
+            bool hasNoVFATConfig() const
+            {
+                return VFAT_COUNT == std::count(getVFATConfigs().begin(),
+                                                getVFATConfigs().end(),
+                                                nullptr);
+            }
+
+            /**
+             * @brief Default-constructs all VFAT configurations.
+             */
+            void createAllVFATConfigs();
+
+            /**
+             * @brief Initializes all VFAT configurations with copies of
+             *        @c config.
+             */
+            void createAllVFATConfigs(const VFAT3ChipConfiguration &config);
+
+            /**
+             * @}
+             */
         };
 
         template<>
