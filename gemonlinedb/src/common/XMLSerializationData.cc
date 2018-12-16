@@ -53,39 +53,8 @@ namespace gem {
                     return detail::transcode(node->getTextContent());
                 }
 
-                /**
-                 * @brief Appends a child element to @c parent with tag name
-                 *        @c tagName.
-                 *
-                 * The new element is created without any attribute or child.
-                 * @returns The new element.
-                 */
-                DOMElement *appendChildElement(DOMElement *parent,
-                                               const std::string &tagName)
-                {
-                    auto xmlTagName = detail::XercesString(tagName);
-                    auto element = parent->getOwnerDocument()->createElement(xmlTagName);
-                    XCEPT_ASSERT(element != nullptr, exception::SoftwareProblem,
-                                 "Xerces failed to create element " + tagName);
-                    parent->appendChild(element);
-                    return element;
-                }
-
-                /**
-                 * @brief Appends a child text element to @c parent, with given
-                 *        @c contents.
-                 * @returns The new text node.
-                 */
-                DOMText *appendChildText(DOMElement *parent,
-                                         const std::string &content)
-                {
-                    auto xmlContent = detail::XercesString(content);
-                    auto node = parent->getOwnerDocument()->createTextNode(xmlContent);
-                    XCEPT_ASSERT(node != nullptr, exception::SoftwareProblem,
-                                 "Xerces failed to create text node");
-                    parent->appendChild(node);
-                    return node;
-                }
+                using detail::appendChildElement;
+                using detail::appendChildText;
 
                 /**
                  * @brief Creates a RUN element
@@ -115,6 +84,7 @@ namespace gem {
                     auto user = appendChildElement(runElement, "INITIATED_BY_USER");
                     appendChildText(user, run.initiatingUser);
                 }
+
             } /* anonymous namespace */
 
             Run getRun(const DOMDocumentPtr &dom)

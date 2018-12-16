@@ -41,6 +41,28 @@ namespace gem {
                 xercesc::XMLPlatformUtils::Terminate();
             }
 
+            xercesc::DOMElement *appendChildElement(
+                xercesc::DOMElement *parent, const std::string &tagName)
+            {
+                auto xmlTagName = detail::XercesString(tagName);
+                auto element = parent->getOwnerDocument()->createElement(xmlTagName);
+                XCEPT_ASSERT(element != nullptr, exception::SoftwareProblem,
+                             "Xerces failed to create element " + tagName);
+                parent->appendChild(element);
+                return element;
+            }
+
+            xercesc::DOMText *appendChildText(
+                xercesc::DOMElement *parent, const std::string &content)
+            {
+                auto xmlContent = detail::XercesString(content);
+                auto node = parent->getOwnerDocument()->createTextNode(xmlContent);
+                XCEPT_ASSERT(node != nullptr, exception::SoftwareProblem,
+                             "Xerces failed to create text node");
+                parent->appendChild(node);
+                return node;
+            }
+
         } /* namespace detail */
     } /* namespace onlinedb */
 } /* namespace gem */
