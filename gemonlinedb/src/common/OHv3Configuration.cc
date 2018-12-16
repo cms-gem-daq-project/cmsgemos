@@ -2,6 +2,8 @@
 
 #include <sstream>
 
+#include "gem/onlinedb/VFAT3ChipConfiguration.h"
+
 namespace gem {
     namespace onlinedb {
 
@@ -75,7 +77,23 @@ namespace gem {
                 && getHDMISbitModes() == other.getHDMISbitModes()
                 && getHDMISbitSel() == other.getHDMISbitSel()
                 && getSotTapDelays() == other.getSotTapDelays()
-                && getTrigTapDelays() == other.getTrigTapDelays();
+                && getTrigTapDelays() == other.getTrigTapDelays()
+                && getVFATConfigs() == other.getVFATConfigs();
+        }
+
+        void OHv3Configuration::createAllVFATConfigs()
+        {
+            for (auto &c : getVFATConfigs()) {
+                c = std::make_shared<VFAT3ChipConfiguration>();
+            }
+        }
+
+        void OHv3Configuration::createAllVFATConfigs(
+                const VFAT3ChipConfiguration &config)
+        {
+            for (auto &c : getVFATConfigs()) {
+                c = std::make_shared<VFAT3ChipConfiguration>(config);
+            }
         }
 
     } /* namespace onlinedb */
