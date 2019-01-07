@@ -27,10 +27,77 @@ The basic idea is the following:
       * Executive summary: *never* `rebase` a public branch, i.e., a branch you have pushed somewhere, and *especially* not a branch that others may be collaborating with
 
 ### Coding Style
-* Avoid using `tab`s, use an editor that is smart enough to convert all `tab`s to `space`s
-* Current convention is 4 `space`s per `tab` for `python` and `c++` code
 
-### Naming conventions
+cmsgemos loosely follows the [Google style](https://google.github.io/styleguide/cppguide.html#Inline_Functions).
+
+#### Indentation and spaces
+
+* Do not use tabs, use an editor that is smart enough to convert all tabs to spaces
+* Use 4 spaces per indentation level for both Python and C++ code
+* Don't add trailing whitespaces
+* Don't add a whitespace between a function name and the corresponding parenthesis:
+  ```cpp
+  void foo(int bar);
+  // ...
+  foo(5);
+  ```
+* Add a whitespace between a keword and the corresponding parenthesis:
+  ```cpp
+  if (success) {
+      while (true) {
+          // ...
+      }
+  }
+  ```
+
+#### Braces and parentheses
+
+Closing braces are indented at the same level as the line they were opened at:
+```cpp
+void foo()
+{
+    if (bar()) {
+        // ...
+    }
+}
+```
+
+`if` statements without braces are discouraged. They may *only* be used if none of the corresponding `else if` and `else` statements use braces.
+
+Opening braces after class/function definitions go on the subsequent line:
+```cpp
+class Foo
+{
+    // ...
+};
+
+void bar()
+{
+    // ...
+}
+```
+
+In-class function definitions follow a different convention: if possible, they're written on one line (case 1). In case that line would be too long, a line break may be added after the opening brace (case 2). If the function has several expressions, they are written on separate lines (case 3). A trailing semicolon is always added after the closing brace.
+```cpp
+class Foo
+{
+    // Case 1
+    int bar() { return 0; }; // Notice the second ;
+    
+    // Case 2
+    int longBar() {
+        return somethingLong; }; // Notice the second ;
+    
+    // Case 3
+    int veryLongBar() {
+        // Two-lines implementation
+        int constant = 0;
+        return something + constant;
+    }; // Notice the ;
+};
+```
+
+#### Naming conventions
 cmsgemos' naming conventions are inspired [from Java](https://en.wikipedia.org/wiki/Naming_convention_(programming)#Java):
 * Namespaces names are lowercase and nest easily: `gem::base::utils::exception` is a valid name. All code lives within the `gem` namespace, and every directory at the root of the source tree has its own namespace (the example above is from `gembase`). Header files are organized in a directory structure matching their main namespace: for instance, header files for the above namespace can be found in `include/gem/base/utils/exception`. Header guards use are constructed after the file path and written in UPPER_SNAKE_CASE: for our favorite example, one would use `GEM_BASE_UTILS_EXCEPTION_H`.
 * Class, structure and `typedef` names are written in PascalCase. The name of class member variables starts with `m_`, or `p_` for pointers (but this scheme is not used for structures). Accessor functions are named `getVariable()` and `setVariable()`.
