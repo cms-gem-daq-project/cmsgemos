@@ -98,10 +98,12 @@ class Foo
 ```
 
 #### Naming conventions
-cmsgemos' naming conventions are inspired [from Java](https://en.wikipedia.org/wiki/Naming_convention_(programming)#Java):
 * Namespaces names are lowercase and nest easily: `gem::base::utils::exception` is a valid name. All code lives within the `gem` namespace, and every directory at the root of the source tree has its own namespace (the example above is from `gembase`). Header files are organized in a directory structure matching their main namespace: for instance, header files for the above namespace can be found in `include/gem/base/utils/exception`. Header guards use are constructed after the file path and written in UPPER_SNAKE_CASE: for our favorite example, one would use `GEM_BASE_UTILS_EXCEPTION_H`.
 * Class, structure and `typedef` names are written in PascalCase. The name of class member variables starts with `m_`, or `p_` for pointers (but this scheme is not used for structures). Accessor functions are named `getVariable()` and `setVariable()`.
 * Function (and member function) names are written in camelCase.
+* Typedefs and `using` directives may follow the naming convention of the target type, eg `using int_pair = std::pair<int, int>`.
+
+Acronyms such as HDMI are capitalized (`getHDMIStuff()`), except at the beginning of a name (`hdmiVariable`).
 
 ### Testing
 * You should, at a minimum, test that your code compiles, and if possible, test that it runs without crashing
