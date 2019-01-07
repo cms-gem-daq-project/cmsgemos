@@ -61,84 +61,62 @@ namespace gem {
             /**
              * @brief Retrieves the VFAT EOE timeout for the given optohybrid.
              */
-            std::uint32_t getEOETimeout(std::size_t oh) const
-            {
-                return m_eoeTimeouts.at(oh);
-            }
+            std::uint32_t getEOETimeout(std::size_t oh) const {
+                return m_eoeTimeouts.at(oh); };
 
             /**
              * @brief Retrieves the VFAT EOE timeouts.
              */
-            auto getEOETimeouts() const -> const decltype(m_eoeTimeouts) &
-            {
-                return m_eoeTimeouts;
-            }
+            auto getEOETimeouts() const -> const decltype(m_eoeTimeouts) & {
+                return m_eoeTimeouts; };
 
             /**
              * @brief Retrieves the VFAT EOE timeouts.
              */
-            auto getEOETimeouts() -> decltype(m_eoeTimeouts) &
-            {
-                return m_eoeTimeouts;
-            }
+            auto getEOETimeouts() -> decltype(m_eoeTimeouts) & {
+                return m_eoeTimeouts; };
 
             /**
              * @brief Modifies the VFAT EOE timeout for the given optohybrid.
              */
-            void setEOETimeout(std::size_t oh, std::uint32_t timeout)
-            {
-                m_eoeTimeouts.at(oh) = timeout;
-            }
+            void setEOETimeout(std::size_t oh, std::uint32_t timeout) {
+                m_eoeTimeouts.at(oh) = timeout; };
 
             /**
              * @brief Modifies the VFAT EOE timeouts.
              */
-            void setEOETimeouts(const decltype(m_eoeTimeouts) &timeouts)
-            {
-                m_eoeTimeouts = timeouts;
-            }
+            void setEOETimeouts(const decltype(m_eoeTimeouts) &timeouts) {
+                m_eoeTimeouts = timeouts; };
 
             ////////////////////////////////////////////////////////////////////
 
             /**
              * @brief Retrieves the VFAT mask for the given optohybrid.
              */
-            std::uint32_t getVFATMask(std::size_t oh) const
-            {
-                return m_vfatMasks.at(oh);
-            }
+            std::uint32_t getVFATMask(std::size_t oh) const { return m_vfatMasks.at(oh); };
 
             /**
              * @brief Retrieves the S-bit mode for all HDMI ohs.
              */
-            auto getVFATMasks() const -> const decltype(m_vfatMasks) &
-            {
-                return m_vfatMasks;
-            }
+            auto getVFATMasks() const -> const decltype(m_vfatMasks) & {
+                return m_vfatMasks; };
 
             /**
              * @brief Retrieves the S-bit mode for all HDMI ohs.
              */
-            auto getVFATMasks() -> decltype(m_vfatMasks) &
-            {
-                return m_vfatMasks;
-            }
+            auto getVFATMasks() -> decltype(m_vfatMasks) & {
+                return m_vfatMasks; };
 
             /**
              * @brief Modifies the S-bit mode for an HDMI oh.
              */
-            void setVFATMask(std::size_t oh, std::uint32_t mode)
-            {
-                m_vfatMasks.at(oh) = mode;
-            }
+            void setVFATMask(std::size_t oh, std::uint32_t mode) {
+                m_vfatMasks.at(oh) = mode; };
 
             /**
              * @brief Modifies the S-bit mode for all HDMI ohs.
              */
-            void setVFATMasks(const decltype(m_vfatMasks) &modes)
-            {
-                m_vfatMasks = modes;
-            }
+            void setVFATMasks(const decltype(m_vfatMasks) &modes) { m_vfatMasks = modes; };
 
             ////////////////////////////////////////////////////////////////////
 
@@ -150,89 +128,70 @@ namespace gem {
              * @brief Retrieves the configuration of the given OH, if set.
              */
             const std::shared_ptr<OHv3Configuration> getOHConfig(
-                std::size_t oh) const
-            {
-                return m_ohConfigs.at(oh);
-            }
+                std::size_t oh) const {
+                return m_ohConfigs.at(oh); };
 
             /**
              * @brief Retrieves the configuration of the given OH, if set.
              */
-            std::shared_ptr<OHv3Configuration> getOHConfig(std::size_t oh)
-            {
-                return m_ohConfigs.at(oh);
-            }
+            std::shared_ptr<OHv3Configuration> getOHConfig(std::size_t oh) {
+                return m_ohConfigs.at(oh); };
 
             /**
              * @brief Retrieves the configuration of all OHs.
              */
-            auto getOHConfigs() const -> const decltype(m_ohConfigs) &
-            {
-                return m_ohConfigs;
-            }
+            auto getOHConfigs() const -> const decltype(m_ohConfigs) & {
+                return m_ohConfigs; };
 
             /**
              * @brief Retrieves the configuration of all OHs.
              */
-            auto getOHConfigs() -> decltype(m_ohConfigs) &
-            {
-                return m_ohConfigs;
-            }
+            auto getOHConfigs() -> decltype(m_ohConfigs) & { return m_ohConfigs; };
 
             /**
              * @brief Modifies the configuration of the given OH.
              */
             void setOHConfig(std::size_t oh,
-                             const std::shared_ptr<OHv3Configuration> &config)
-            {
-                m_ohConfigs.at(oh) = config;
-            }
+                             const std::shared_ptr<OHv3Configuration> &config) {
+                m_ohConfigs.at(oh) = config; };
 
             /**
              * @brief Modifies the configuration of all OHs.
              */
-            void setOHConfigs(const decltype(m_ohConfigs) &configs)
-            {
-                m_ohConfigs = configs;
-            }
+            void setOHConfigs(const decltype(m_ohConfigs) &configs) {
+                m_ohConfigs = configs; };
 
             /**
              * @brief Unsets the configuration of the given OH.
              */
-            void unsetOHConfig(std::size_t oh)
-            {
-                setOHConfig(oh, nullptr);
-            }
+            void unsetOHConfig(std::size_t oh) { setOHConfig(oh, nullptr); };
 
             /**
              * @brief Unsets all OH configurations.
              */
-            void unsetOHConfigs()
-            {
+            void unsetOHConfigs() {
                 for (auto &config : getOHConfigs()) {
                     config = nullptr;
                 }
-            }
+            };
 
             /**
              * @brief Checks that all OH configurations are set.
              */
-            bool hasAllOHConfigs() const
-            {
+            bool hasAllOHConfigs() const {
                 return 0 == std::count(getOHConfigs().begin(),
                                        getOHConfigs().end(),
                                        nullptr);
-            }
+            };
 
             /**
              * @brief Checks that no OH configurations is set.
              */
-            bool hasNoOHConfig() const
-            {
+            bool hasNoOHConfig() const {
                 return OH_CONNECTION_COUNT == std::count(getOHConfigs().begin(),
                                                          getOHConfigs().end(),
                                                          nullptr);
-            }
+            };
 
             /**
              * @brief Default-constructs all OH configurations.
