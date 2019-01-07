@@ -43,12 +43,12 @@ namespace gem {
             using TrigTapDelayBits = std::array<std::uint32_t, TRIGGER_CHANNEL_COUNT>;
 
         private:
-            std::array<std::uint32_t, HDMI_WIRE_COUNT> m_HDMISBitModes;
-            std::array<std::uint32_t, HDMI_WIRE_COUNT> m_HDMISBitSel;
+            std::array<std::uint32_t, HDMI_WIRE_COUNT> m_hdmiSBitModes;
+            std::array<std::uint32_t, HDMI_WIRE_COUNT> m_hdmiSBitSel;
             std::array<std::uint32_t, VFAT_COUNT>      m_sotTapDelays;
             std::array<TrigTapDelayBits, VFAT_COUNT>   m_trigTapDelays;
 
-            std::array<std::shared_ptr<VFAT3ChipConfiguration>, VFAT_COUNT> m_VFATConfigs;
+            std::array<std::shared_ptr<VFAT3ChipConfiguration>, VFAT_COUNT> m_vfatConfigs;
 
         public:
             /**
@@ -79,42 +79,42 @@ namespace gem {
             /**
              * @brief Retrieves the S-bit mode for an HDMI wire.
              */
-            auto getHDMISbitMode(std::size_t wire) const ->
-                decltype(m_HDMISBitModes)::const_reference
+            auto getHDMISBitMode(std::size_t wire) const ->
+                decltype(m_hdmiSBitModes)::const_reference
             {
-                return m_HDMISBitModes.at(wire);
+                return m_hdmiSBitModes.at(wire);
             }
 
             /**
              * @brief Retrieves the S-bit mode for all HDMI wires.
              */
-            auto getHDMISbitModes() const -> const decltype(m_HDMISBitModes) &
+            auto getHDMISBitModes() const -> const decltype(m_hdmiSBitModes) &
             {
-                return m_HDMISBitModes;
+                return m_hdmiSBitModes;
             }
 
             /**
              * @brief Retrieves the S-bit mode for all HDMI wires.
              */
-            auto getHDMISbitModes() -> decltype(m_HDMISBitModes) &
+            auto getHDMISBitModes() -> decltype(m_hdmiSBitModes) &
             {
-                return m_HDMISBitModes;
+                return m_hdmiSBitModes;
             }
 
             /**
              * @brief Modifies the S-bit mode for an HDMI wire.
              */
-            void setHDMISbitMode(std::size_t wire, std::uint32_t mode)
+            void setHDMISBitMode(std::size_t wire, std::uint32_t mode)
             {
-                m_HDMISBitModes.at(wire) = mode;
+                m_hdmiSBitModes.at(wire) = mode;
             }
 
             /**
              * @brief Modifies the S-bit mode for all HDMI wires.
              */
-            void setHDMISbitModes(const decltype(m_HDMISBitModes) &modes)
+            void setHDMISBitModes(const decltype(m_hdmiSBitModes) &modes)
             {
-                m_HDMISBitModes = modes;
+                m_hdmiSBitModes = modes;
             }
 
             ////////////////////////////////////////////////////////////////////
@@ -123,45 +123,45 @@ namespace gem {
              * @brief Retrieves the value of the S-bit selection register for an
              *        HDMI wire.
              */
-            std::uint32_t getHDMISbitSel(std::size_t wire) const
+            std::uint32_t getHDMISBitSel(std::size_t wire) const
             {
-                return m_HDMISBitSel.at(wire);
+                return m_hdmiSBitSel.at(wire);
             }
 
             /**
              * @brief Retrieves the values of S-bit selection registers for all
              *        HDMI wires.
              */
-            auto getHDMISbitSel() -> decltype(m_HDMISBitSel)
+            auto getHDMISBitSel() -> decltype(m_hdmiSBitSel)
             {
-                return m_HDMISBitSel;
+                return m_hdmiSBitSel;
             }
 
             /**
              * @brief Retrieves the values of S-bit selection registers for all
              *        HDMI wires.
              */
-            auto getHDMISbitSel() const -> const decltype(m_HDMISBitSel) &
+            auto getHDMISBitSel() const -> const decltype(m_hdmiSBitSel) &
             {
-                return m_HDMISBitSel;
+                return m_hdmiSBitSel;
             }
 
             /**
              * @brief Modifies the value of the S-bit selection register for an
              *        HDMI wire.
              */
-            void setHDMISbitSel(std::size_t wire, std::uint32_t value)
+            void setHDMISBitSel(std::size_t wire, std::uint32_t value)
             {
-                m_HDMISBitSel.at(wire) = value;
+                m_hdmiSBitSel.at(wire) = value;
             }
 
             /**
              * @brief Modifies the values of S-bit selection registers for all
              *        HDMI wires.
              */
-            void setHDMISbitSel(const decltype(m_HDMISBitSel) &values)
+            void setHDMISBitSel(const decltype(m_hdmiSBitSel) &values)
             {
-                m_HDMISBitSel = values;
+                m_hdmiSBitSel = values;
             }
 
             /**
@@ -301,7 +301,7 @@ namespace gem {
             const std::shared_ptr<VFAT3ChipConfiguration> getVFATConfig(
                 std::size_t vfat) const
             {
-                return m_VFATConfigs.at(vfat);
+                return m_vfatConfigs.at(vfat);
             }
 
             /**
@@ -310,23 +310,23 @@ namespace gem {
             std::shared_ptr<VFAT3ChipConfiguration> getVFATConfig(
                 std::size_t vfat)
             {
-                return m_VFATConfigs.at(vfat);
+                return m_vfatConfigs.at(vfat);
             }
 
             /**
              * @brief Retrieves the configuration of all VFATs.
              */
-            auto getVFATConfigs() const -> const decltype(m_VFATConfigs) &
+            auto getVFATConfigs() const -> const decltype(m_vfatConfigs) &
             {
-                return m_VFATConfigs;
+                return m_vfatConfigs;
             }
 
             /**
              * @brief Retrieves the configuration of all VFATs.
              */
-            auto getVFATConfigs() -> decltype(m_VFATConfigs) &
+            auto getVFATConfigs() -> decltype(m_vfatConfigs) &
             {
-                return m_VFATConfigs;
+                return m_vfatConfigs;
             }
 
             /**
@@ -335,15 +335,15 @@ namespace gem {
             void setVFATConfig(std::size_t vfat,
                                const std::shared_ptr<VFAT3ChipConfiguration> &config)
             {
-                m_VFATConfigs.at(vfat) = config;
+                m_vfatConfigs.at(vfat) = config;
             }
 
             /**
              * @brief Modifies the configuration of all VFATs.
              */
-            void setVFATConfigs(const decltype(m_VFATConfigs) &configs)
+            void setVFATConfigs(const decltype(m_vfatConfigs) &configs)
             {
-                m_VFATConfigs = configs;
+                m_vfatConfigs = configs;
             }
 
             /**
@@ -359,7 +359,7 @@ namespace gem {
              */
             void unsetVFATConfigs()
             {
-                for (auto &config : m_VFATConfigs) {
+                for (auto &config : m_vfatConfigs) {
                     config = nullptr;
                 }
             }

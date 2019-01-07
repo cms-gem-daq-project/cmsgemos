@@ -31,7 +31,7 @@ namespace gem {
         class AMC13Configuration
         {
         private:
-            int m_FEDId;
+            int m_fedId;
             bool m_enableLocalTTC;
             std::string m_hostname;
 
@@ -48,12 +48,12 @@ namespace gem {
             /**
              * @brief Retrieves the id of the attached FED.
              */
-            int getFEDId() const { return m_FEDId; }
+            int getFEDId() const { return m_fedId; }
 
             /**
              * @brief Modifies the id of the attached FED.
              */
-            void setFEDId(int id) { m_FEDId = id; }
+            void setFEDId(int id) { m_fedId = id; }
 
             /**
              * @brief Retrieves whether local TTC is enabled.
