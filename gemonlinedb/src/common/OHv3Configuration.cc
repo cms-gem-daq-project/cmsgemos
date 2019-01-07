@@ -11,29 +11,29 @@ namespace gem {
         {
             auto data = OHv3ConfigurationGen::getRegisterData();
 
-            for (std::size_t wire = 0; wire < m_HDMISBitModes.size(); ++wire) {
+            for (std::size_t wire = 0; wire < getHDMISBitModes().size(); ++wire) {
                 std::stringstream ss;
                 ss << "HDMI_SBIT_MODE" << wire;
-                data[ss.str()] = m_HDMISBitModes[wire];
+                data[ss.str()] = getHDMISBitModes()[wire];
             }
 
-            for (std::size_t wire = 0; wire < m_HDMISBitSel.size(); ++wire) {
+            for (std::size_t wire = 0; wire < getHDMISBitSel().size(); ++wire) {
                 std::stringstream ss;
                 ss << "HDMI_SBIT_SEL" << wire;
-                data[ss.str()] = m_HDMISBitSel[wire];
+                data[ss.str()] = getHDMISBitSel()[wire];
             }
 
-            for (std::size_t vfat = 0; vfat < m_sotTapDelays.size(); ++vfat) {
+            for (std::size_t vfat = 0; vfat < getSotTapDelays().size(); ++vfat) {
                 std::stringstream ss;
                 ss << "SOT_TAP_DELAY_VFAT" << vfat;
-                data[ss.str()] = m_sotTapDelays[vfat];
+                data[ss.str()] = getSotTapDelays()[vfat];
             }
 
-            for (std::size_t vfat = 0; vfat < m_trigTapDelays.size(); ++vfat) {
-                for (std::size_t i = 0; i < m_trigTapDelays[vfat].size(); ++i) {
+            for (std::size_t vfat = 0; vfat < getTrigTapDelays().size(); ++vfat) {
+                for (std::size_t i = 0; i < getTrigTapDelays(vfat).size(); ++i) {
                     std::stringstream ss;
                     ss << "TRIG_TAP_DELAY_VFAT" << vfat << "_BIT" << i;
-                    data[ss.str()] = m_trigTapDelays[vfat][i];
+                    data[ss.str()] = getTrigTapDelay(vfat, i);
                 }
             }
 
@@ -44,29 +44,29 @@ namespace gem {
         {
             OHv3ConfigurationGen::readRegisterData(data);
 
-            for (std::size_t wire = 0; wire < m_HDMISBitModes.size(); ++wire) {
+            for (std::size_t wire = 0; wire < getHDMISBitModes().size(); ++wire) {
                 std::stringstream ss;
                 ss << "HDMI_SBIT_MODE" << wire;
-                m_HDMISBitModes[wire] = data.at(ss.str());
+                setHDMISBitMode(wire, data.at(ss.str()));
             }
 
-            for (std::size_t wire = 0; wire < m_HDMISBitSel.size(); ++wire) {
+            for (std::size_t wire = 0; wire < getHDMISBitSel().size(); ++wire) {
                 std::stringstream ss;
                 ss << "HDMI_SBIT_SEL" << wire;
-                m_HDMISBitSel[wire] = data.at(ss.str());
+                setHDMISBitSel(wire, data.at(ss.str()));
             }
 
-            for (std::size_t vfat = 0; vfat < m_sotTapDelays.size(); ++vfat) {
+            for (std::size_t vfat = 0; vfat < getSotTapDelays().size(); ++vfat) {
                 std::stringstream ss;
                 ss << "SOT_TAP_DELAY_VFAT" << vfat;
-                m_sotTapDelays[vfat] = data.at(ss.str());
+                setSotTapDelay(vfat, data.at(ss.str()));
             }
 
-            for (std::size_t vfat = 0; vfat < m_trigTapDelays.size(); ++vfat) {
-                for (std::size_t i = 0; i < m_trigTapDelays[vfat].size(); ++i) {
+            for (std::size_t vfat = 0; vfat < getTrigTapDelays().size(); ++vfat) {
+                for (std::size_t i = 0; i < getTrigTapDelays(vfat).size(); ++i) {
                     std::stringstream ss;
                     ss << "TRIG_TAP_DELAY_VFAT" << vfat << "_BIT" << i;
-                    m_trigTapDelays[vfat][i] = data.at(ss.str());
+                    setTrigTapDelay(vfat, i, data.at(ss.str()));
                 }
             }
         }
@@ -74,8 +74,8 @@ namespace gem {
         bool OHv3Configuration::operator== (const OHv3Configuration &other) const
         {
             return OHv3ConfigurationGen::operator== (other)
-                && getHDMISbitModes() == other.getHDMISbitModes()
-                && getHDMISbitSel() == other.getHDMISbitSel()
+                && getHDMISBitModes() == other.getHDMISBitModes()
+                && getHDMISBitSel() == other.getHDMISBitSel()
                 && getSotTapDelays() == other.getSotTapDelays()
                 && getTrigTapDelays() == other.getTrigTapDelays()
                 && getVFATConfigs() == other.getVFATConfigs();
