@@ -17,6 +17,11 @@ GEMONLINEDB_VER_PATCH=0
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 
 Sources = \
+    AMC13Configuration.cc \
+    AMCConfiguration.cc \
+    AMCConfigurationGen.cc \
+    OHv3Configuration.cc \
+    OHv3ConfigurationGen.cc \
     Run.cc \
     VFAT3ChannelConfiguration.cc \
     VFAT3ChipConfigurationGen.cc \
@@ -29,6 +34,7 @@ DynamicLibrary=gemonlinedb
 TestLibraries = $(DependentLibraries) xoap boost_unit_test_framework
 
 TestExecutables = \
+    test/testAMC13Configuration.cc \
     test/testVFAT3ChannelConfiguration.cc \
     test/testXMLSerialization.cc \
 
@@ -50,15 +56,18 @@ xml/schema/%.xsd include/gem/onlinedb/%Gen.h src/common/%Gen.cc: defs/%.json par
 
 # XML schemas
 .PHONY: xsd
-xsd: xml/schema/VFAT3ChipConfiguration.xsd
+xsd: xml/schema/AMCConfiguration.xsd xml/schema/VFAT3ChipConfiguration.xsd xml/schema/OHv3Configuration.xsd
 
 .PHONY: clean-xsd
 clean-xsd:
+	$(RM) xml/schema/AMCConfiguration.xsd
 	$(RM) xml/schema/VFAT3ChipConfiguration.xsd
+	$(RM) xml/schema/OHv3Configuration.xsd
 
 .PHONY: test-xsd
 test-xsd:
 	xmllint --noout --schema xml/schema/VFAT3ChipConfiguration.xsd xml/VFAT3_Chip_Configuration.xml
+	xmllint --noout --schema xml/schema/VFAT3ChannelConfiguration.xsd xml/VFAT3_Channel_Configuration.xml
 
 # Auto-generated headers
 .PHONY: clean-gen-headers

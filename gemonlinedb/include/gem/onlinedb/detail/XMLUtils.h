@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include <xercesc/dom/DOM.hpp>
 #include <xercesc/util/XMLString.hpp>
 
 /**
@@ -115,6 +116,24 @@ namespace gem {
                  */
                 ~XercesGuard();
             };
+
+            /**
+             * @brief Appends a child element to @c parent with tag name
+             *        @c tagName.
+             *
+             * The new element is created without any attribute or child.
+             * @returns The new element.
+             */
+            xercesc::DOMElement *appendChildElement(
+                xercesc::DOMElement *parent, const std::string &tagName);
+
+            /**
+             * @brief Appends a child text element to @c parent, with given
+             *        @c contents.
+             * @returns The new text node.
+             */
+            xercesc::DOMText *appendChildText(
+                xercesc::DOMElement *parent, const std::string &content);
 
         } /* namespace detail */
     } /* namespace onlinedb */
