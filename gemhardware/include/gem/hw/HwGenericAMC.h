@@ -564,7 +564,7 @@ namespace gem {
          * @param Number of times to read the PLL lock status
          * @returns Lock count of the MMCM PLL
          */
-        int checkPllLock(int readAttempts);
+        int checkPLLLock(int readAttempts);
 
         /**
          * @brief Check the lock status of the MMCM PLL

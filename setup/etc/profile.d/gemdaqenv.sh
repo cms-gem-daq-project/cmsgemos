@@ -11,6 +11,7 @@ if [ "$XDAQ_ROOT" != "0" ]; then
     # only do this for regular users
     # export XDAQ_DOCUMENT_ROOT=/data/xdaq/${USER}
     export uHALROOT=/opt/cactus
+    export XHAL_ROOT=/opt/xhal
     export CMSGEMOS_ROOT=/opt/cmsgemos
 fi
 
@@ -19,15 +20,18 @@ if [ "$LD_LIBRARY_PATH" != "0" ]; then
 	export LD_LIBRARY_PATH=${XDAQ_ROOT}/lib:${LD_LIBRARY_PATH}
 	export LD_LIBRARY_PATH=${uHALROOT}/lib:${LD_LIBRARY_PATH}
 	export LD_LIBRARY_PATH=${CMSGEMOS_ROOT}/lib:${LD_LIBRARY_PATH}
+	export LD_LIBRARY_PATH=${XHAL_ROOT}/lib:${LD_LIBRARY_PATH}
     else
 	export LD_LIBRARY_PATH=${XDAQ_ROOT}/lib
 	export LD_LIBRARY_PATH=${uHALROOT}/lib:${LD_LIBRARY_PATH}
 	export LD_LIBRARY_PATH=${CMSGEMOS_ROOT}/lib:${LD_LIBRARY_PATH}
+	export LD_LIBRARY_PATH=${XHAL_ROOT}/lib:${LD_LIBRARY_PATH}
     fi
 else
     export LD_LIBRARY_PATH=${XDAQ_ROOT}/lib
     export LD_LIBRARY_PATH=${uHALROOT}/lib:${LD_LIBRARY_PATH}
     export LD_LIBRARY_PATH=${CMSGEMOS_ROOT}/lib:${LD_LIBRARY_PATH}
+    export LD_LIBRARY_PATH=${XHAL_ROOT}/lib:${LD_LIBRARY_PATH}
 fi
 
 if [ "$PYTHONPATH" != "0" ]; then
@@ -76,6 +80,7 @@ else
 fi
 
 export PATH=$CMSGEMOS_ROOT/bin:$PATH
+export PATH=$XHAL_ROOT/bin:$PATH
 export PATH=$XDAQ_ROOT/bin:$PATH
 export PATH=$uHALROOT/bin:$PATH
 export PATH=$uHALROOT/bin/amc13:$PATH
@@ -94,5 +99,6 @@ then
     echo "XDAQ_DOCUMENT_ROOT=${XDAQ_DOCUMENT_ROOT}"
     echo "uHALROOT=${uHALROOT}"
     echo "CMSGEMOS_ROOT=${CMSGEMOS_ROOT}"
+    echo "XHAL_ROOT=${XHAL_ROOT}"
     echo "System setup done"
 fi

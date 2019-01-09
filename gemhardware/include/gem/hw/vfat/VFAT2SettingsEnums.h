@@ -272,18 +272,18 @@ namespace gem {
   typedef gem::hw::vfat::VFAT2Settings::HitCountMode  VFAT2HitCountMode;
   typedef gem::hw::vfat::VFAT2Settings::MSPulseLength VFAT2MSPulseLength;
   typedef gem::hw::vfat::VFAT2Settings::DigInSel      VFAT2DigInSel;
-      
+
   typedef gem::hw::vfat::VFAT2Settings::TrimDACRange  VFAT2TrimDACRange;
   typedef gem::hw::vfat::VFAT2Settings::PbBG          VFAT2PbBG;
   typedef gem::hw::vfat::VFAT2Settings::DFTestPattern VFAT2DFTestPattern;
-      
+
   //typedef the enum for casting and access
   typedef gem::hw::vfat::VFAT2ChannelSettings::ChannelBitMasks::EChannelBitMasks   VFAT2ChannelBitMasksT;
   typedef gem::hw::vfat::VFAT2ChannelSettings::ChannelBitShifts::EChannelBitShifts VFAT2ChannelBitShiftsT;
-      
+
   typedef gem::hw::vfat::VFAT2Settings::ContRegBitMasks::EContRegBitMasks   VFAT2ContRegBitMasksT;
   typedef gem::hw::vfat::VFAT2Settings::ContRegBitShifts::EContRegBitShifts VFAT2ContRegBitShiftsT;
-      
+
   typedef gem::hw::vfat::VFAT2Settings::RunMode::ERunMode                 VFAT2RunModeT;
   typedef gem::hw::vfat::VFAT2Settings::TriggerMode::ETriggerMode         VFAT2TrigModeT;
   typedef gem::hw::vfat::VFAT2Settings::MSPolarity::EMSPolarity           VFAT2MSPolT;
@@ -294,11 +294,11 @@ namespace gem {
   typedef gem::hw::vfat::VFAT2Settings::ProbeMode::EProbeMode         VFAT2ProbeModeT;
   typedef gem::hw::vfat::VFAT2Settings::LVDSPowerSave::ELVDSPowerSave VFAT2LVDSModeT;
   typedef gem::hw::vfat::VFAT2Settings::ReHitCT::EReHitCT             VFAT2ReHitCTT;
-      
+
   typedef gem::hw::vfat::VFAT2Settings::HitCountMode::EHitCountMode   VFAT2HitCountModeT;
   typedef gem::hw::vfat::VFAT2Settings::MSPulseLength::EMSPulseLength VFAT2MSPulseLengthT;
   typedef gem::hw::vfat::VFAT2Settings::DigInSel::EDigInSel           VFAT2DigInSelT;
-      
+
   typedef gem::hw::vfat::VFAT2Settings::TrimDACRange::ETrimDACRange   VFAT2TrimDACRangeT;
   typedef gem::hw::vfat::VFAT2Settings::PbBG::EPbBG                   VFAT2PbBGT;
   typedef gem::hw::vfat::VFAT2Settings::DFTestPattern::EDFTestPattern VFAT2DFTestPatternT;

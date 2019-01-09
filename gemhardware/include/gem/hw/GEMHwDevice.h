@@ -249,9 +249,7 @@ namespace gem {
        *
        * @retval returns the 32 bit unsigned value
        */
-      uint32_t readReg(const std::string &regPrefix,
-                       const std::string &regName) {
-        return readReg(regPrefix+"."+regName); };
+      uint32_t readReg(const std::string &regPrefix, const std::string &regName) { return readReg(regPrefix+"."+regName); };
 
       /**
        * @ingroup uhalwrappers
@@ -335,10 +333,7 @@ namespace gem {
        * @param regName name of the register to write to
        * @param val value to write to the register
        */
-      void     writeReg(const std::string &regPrefix,
-                        const std::string &regName,
-                        uint32_t const val) {
-        return writeReg(regPrefix+"."+regName, val); };
+      void     writeReg(const std::string &regPrefix, const std::string &regName, uint32_t const val) { return writeReg(regPrefix+"."+regName, val); };
 
       /**
        * @ingroup uhalwrappers
@@ -363,9 +358,7 @@ namespace gem {
        * @param regValue uint32_t value to write to the list of registers
        * @param freq integer number of transactions to bundle (-1 for all)
        */
-      void     writeValueToRegs(std::vector<std::string> const& regList,
-                                uint32_t                 const& regValue,
-                                int                      const& freq=8);
+      void     writeValueToRegs(std::vector<std::string> const& regList, uint32_t const& regValue, int const& freq=8);
 
       /**
        * @ingroup uhalwrappers
@@ -409,8 +402,7 @@ namespace gem {
        *
        * @retval a vector of 32 bit unsigned values
        */
-      std::vector<uint32_t> readBlock(std::string const& regName,
-                                      size_t      const& nWords);
+      std::vector<uint32_t> readBlock(std::string const& regName, size_t const& nWords);
 
       /**
        * @ingroup uhalwrappers
@@ -450,8 +442,7 @@ namespace gem {
        * @param regName name of memory block to write to
        * @param values list of 32-bit words to write into the memory block
        */
-      void writeBlock(std::string           const& regName,
-                      std::vector<uint32_t> const values);
+      void writeBlock(std::string const& regName, std::vector<uint32_t> const values);
 
       /**
        * @ingroup uhalwrappers
@@ -485,8 +476,7 @@ namespace gem {
        *
        * @retval a vector of 32 bit unsigned values
        */
-      std::vector<uint32_t> readFIFO(std::string const& regName,
-                                     size_t      const& nWords);
+      std::vector<uint32_t> readFIFO(std::string const& regName, size_t const& nWords);
 
       /**
        * @ingroup uhalwrappers
@@ -497,8 +487,7 @@ namespace gem {
        * @param regName FIFO to write to
        * @param values list of 32-bit words to write into the FIFO
        */
-      void writeFIFO(std::string           const& regName,
-                     std::vector<uint32_t> const values);
+      void writeFIFO(std::string const& regName, std::vector<uint32_t> const values);
 
       /**
        * @ingroup uhalwrappers FIXME: does this even make semantic sense?
@@ -527,24 +516,16 @@ namespace gem {
       const uint32_t getIPBusPort()      const { return m_ipBusPort;     };
 
       //setters, should maybe be private/protected? defeats the purpose?
-      void setControlHubIPAddress(std::string const& ipAddress) {
-        m_controlHubIPAddress = ipAddress; };
-      void setIPBusProtocolVersion(std::string const& version) {
-        m_ipBusProtocol = version; };
-      void setDeviceIPAddress(std::string const& deviceIPAddr) {
-        m_deviceIPAddress = deviceIPAddr; };
-      void setAddressTableFileName(std::string const& name) {
-        m_addressTable = "file://${GEM_ADDRESS_TABLE_PATH}/"+name; };
+      void setControlHubIPAddress( std::string const& ipAddress) { m_controlHubIPAddress = ipAddress; };
+      void setIPBusProtocolVersion(std::string const& version) { m_ipBusProtocol = version; };
+      void setDeviceIPAddress(     std::string const& deviceIPAddr) { m_deviceIPAddress = deviceIPAddr; };
+      void setAddressTableFileName(std::string const& name) { m_addressTable = "file://${GEM_ADDRESS_TABLE_PATH}/"+name; };
 
-      void setDeviceBaseNode(std::string const& deviceBase) {
-        m_deviceBaseNode = deviceBase; };
-      void setDeviceID(std::string const& deviceID) {
-        m_deviceID = deviceID; };
+      void setDeviceBaseNode(std::string const& deviceBase) { m_deviceBaseNode = deviceBase; };
+      void setDeviceID(      std::string const& deviceID) { m_deviceID = deviceID; };
 
-      void setControlHubPort(uint32_t const& port) {
-        m_controlHubPort = port; };
-      void setIPBusPort(uint32_t const& port) {
-        m_ipBusPort = port; };
+      void setControlHubPort(uint32_t const& port) { m_controlHubPort = port; };
+      void setIPBusPort(     uint32_t const& port) { m_ipBusPort = port; };
 
       /* uhal::HwInterface& getGEMHwInterface() const; */
 
@@ -553,8 +534,7 @@ namespace gem {
       //******************* Generic properties of the GEMHwDevice object ******************//
       ///////////////////////////////////////////////////////////////////////////////////////
 
-      std::string getLoggerName() const {
-        return m_gemLogger.getName(); };
+      std::string getLoggerName() const { return m_gemLogger.getName(); };
 
       void updateErrorCounters(std::string const& errCode);
 
@@ -623,27 +603,27 @@ namespace gem {
        * @param should reconnect in the case of an already connected manager
        */
       virtual void connectRPC(bool reconnect=false)=0;
-      
-      std::string m_controlHubIPAddress;  //!< 
-      std::string m_addressTable;         //!< 
-      std::string m_ipBusProtocol;        //!< 
-      std::string m_deviceIPAddress;      //!< 
 
-      std::string m_deviceBaseNode;       //!< 
-      std::string m_deviceID;             //!< 
+      std::string m_controlHubIPAddress;  //!<
+      std::string m_addressTable;         //!<
+      std::string m_ipBusProtocol;        //!<
+      std::string m_deviceIPAddress;      //!<
 
-      uint32_t m_controlHubPort;          //!< 
-      uint32_t m_ipBusPort;               //!< 
+      std::string m_deviceBaseNode;       //!<
+      std::string m_deviceID;             //!<
+
+      uint32_t m_controlHubPort;          //!<
+      uint32_t m_ipBusPort;               //!<
 
       /** FIXME removed when infospace was dropped
       //infospace im(ex)portables
-      xdata::String xs_controlHubIPAddress;  //!< 
-      xdata::String xs_deviceIPAddress;      //!< 
-      xdata::String xs_ipBusProtocol;        //!< 
-      xdata::String xs_addressTable;         //!< 
+      xdata::String xs_controlHubIPAddress;  //!<
+      xdata::String xs_deviceIPAddress;      //!<
+      xdata::String xs_ipBusProtocol;        //!<
+      xdata::String xs_addressTable;         //!<
 
-      xdata::UnsignedInteger32 xs_controlHubPort;  //!< 
-      xdata::UnsignedInteger32 xs_ipBusPort;       //!< 
+      xdata::UnsignedInteger32 xs_controlHubPort;  //!<
+      xdata::UnsignedInteger32 xs_ipBusPort;       //!<
       **/
 
       bool knownErrorCode(std::string const& errCode) const;

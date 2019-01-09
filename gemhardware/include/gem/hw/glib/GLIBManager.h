@@ -38,20 +38,20 @@ namespace gem {
           virtual ~GLIBManager();
 
         protected:
-          virtual void init();
+          virtual void init() override;
 
-          virtual void actionPerformed(xdata::Event& event);
+          virtual void actionPerformed(xdata::Event& event) override;
 
-          //state transitions
-          virtual void initializeAction() throw (gem::hw::glib::exception::Exception);
-          virtual void configureAction()  throw (gem::hw::glib::exception::Exception);
-          virtual void startAction()      throw (gem::hw::glib::exception::Exception);
-          virtual void pauseAction()      throw (gem::hw::glib::exception::Exception);
-          virtual void resumeAction()     throw (gem::hw::glib::exception::Exception);
-          virtual void stopAction()       throw (gem::hw::glib::exception::Exception);
-          virtual void haltAction()       throw (gem::hw::glib::exception::Exception);
-          virtual void resetAction()      throw (gem::hw::glib::exception::Exception);
-          //virtual void noAction()         throw (gem::hw::glib::exception::Exception);
+          // state transitions FIXME: remove exception specifiers
+          virtual void initializeAction() throw (gem::hw::glib::exception::Exception) override;
+          virtual void configureAction()  throw (gem::hw::glib::exception::Exception) override;
+          virtual void startAction()      throw (gem::hw::glib::exception::Exception) override;
+          virtual void pauseAction()      throw (gem::hw::glib::exception::Exception) override;
+          virtual void resumeAction()     throw (gem::hw::glib::exception::Exception) override;
+          virtual void stopAction()       throw (gem::hw::glib::exception::Exception) override;
+          virtual void haltAction()       throw (gem::hw::glib::exception::Exception) override;
+          virtual void resetAction()      throw (gem::hw::glib::exception::Exception) override;
+          //virtual void noAction()         throw (gem::hw::glib::exception::Exception) override;
 
           virtual void failAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
@@ -107,6 +107,7 @@ namespace gem {
 
             //registers to set
             xdata::Integer sbitSource;
+            xdata::Boolean enableZS;
 
             inline std::string toString() {
               std::stringstream os;
@@ -127,6 +128,7 @@ namespace gem {
                  << "gtxLinkEnableMask:" << std::hex << gtxLinkEnableMask.value_ << std::dec << std::endl
 
                  << "sbitSource:0x"      << std::hex << sbitSource.value_ << std::dec << std::endl
+                 << "enableZS:0x"        << std::hex << enableZS.value_   << std::dec << std::endl
                  << std::endl;
               return os.str();
             };

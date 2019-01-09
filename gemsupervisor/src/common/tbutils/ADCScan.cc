@@ -1337,4 +1337,3 @@ void gem::supervisor::tbutils::ADCScan::noAction(toolbox::Event::Reference e)
   //vfatDevice_->setRunMode(0);
   hw_semaphore_.give();
 }
-

@@ -38,6 +38,7 @@ gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo()
   cardName   = "";
   birdName   = "";
   sbitSource = 0;
+  enableZS   = true;
 }
 
 void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::glib::GLIBManager::GLIBInfo>* bag)
@@ -48,6 +49,7 @@ void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::gl
   bag->addField("CardName",   &cardName);
   bag->addField("BirdName",   &birdName);
   bag->addField("sbitSource", &sbitSource);
+  bag->addField("enableZS",   &enableZS);
 }
 
 gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
@@ -356,13 +358,30 @@ void gem::hw::glib::GLIBManager::configureAction()
       }
 
       // reset the DAQ (could move this to HwGenericAMC and eventually  a corresponding RPC module
-      amc->setL1AEnable(false);
-      amc->disableDAQLink();
-      amc->resetDAQLink();
-      amc->enableDAQLink(0x4);  // FIXME
-      amc->setZS(0x1);
-      amc->setDAQLinkRunType(0x0);
-      amc->setDAQLinkRunParameters(0xfaac);
+      try { // if we fail, do we go to error?
+        amc->setL1AEnable(false);
+        amc->disableDAQLink();
+        amc->resetDAQLink();
+        amc->enableDAQLink(0x4);  // FIXME
+        amc->setZS(info.enableZS.value_);
+        amc->setDAQLinkRunType(0x0);
+        amc->setDAQLinkRunParameters(0xfaac);
+      } catch (xhal::utils::XHALRPCNotConnectedException const& e) {
+        std::stringstream errmsg;
+        errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
+        // fireEvent("Fail");
+        XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
+      } catch (xhal::utils::XHALRPCException const& e) {
+        std::stringstream errmsg;
+        errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
+        // fireEvent("Fail");
+        XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
+      } catch (gem::hw::exception::RPCMethodError const& e) {
+        std::stringstream errmsg;
+        errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
+        // fireEvent("Fail");
+        XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
+      }
 
       if (m_scanType.value_ == 2) {
         CMSGEMOS_INFO("GLIBManager::configureAction: FIRST  " << m_scanMin.value_);
@@ -476,7 +495,7 @@ void gem::hw::glib::GLIBManager::startAction()
       amc->ttcReset();
       amc->enableDAQLink(0x4);  // FIXME
       amc->resetDAQLink();
-      amc->setZS(0x1);
+      amc->setZS(info.enableZS.value_);
       amc->setL1AEnable(true);
       usleep(10); // just for testing the timing of different applications
 
