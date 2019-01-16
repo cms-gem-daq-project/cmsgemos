@@ -33,6 +33,9 @@ DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLA
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(XHALROOT)/lib
 
+UserCFlags  +=$(PYTHONCFLAGS)
+UserCCFlags +=$(PYTHONCFLAGS)
+
 DependentLibraries =gembase
 DependentLibraries+=gemhardware_devices xhal
 DependentLibraries+=boost_iostreams

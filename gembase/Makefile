@@ -28,6 +28,9 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
+UserCFlags  +=$(PYTHONCFLAGS)
+UserCCFlags +=$(PYTHONCFLAGS)
+
 DependentLibraries+=gemutils
 
 include $(XDAQ_ROOT)/config/Makefile.rules

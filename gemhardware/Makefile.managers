@@ -36,6 +36,9 @@ DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemreadout/lib/$(XDAQ_OS)/$(XDAQ_
 DependentLibraryDirs+=$(uHALROOT)/lib
 DependentLibraryDirs+=$(XHALROOT)/lib
 
+UserCFlags  +=$(PYTHONCFLAGS)
+UserCCFlags +=$(PYTHONCFLAGS)
+
 DependentLibraries =gemreadout gemhardware_devices
 DependentLibraries+=cactus_amc13_amc13 cactus_amc13_tools
 

@@ -40,6 +40,9 @@ DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLA
 DependentLibraryDirs+=$(uHALROOT)/lib
 DependentLibraryDirs+=$(XHALROOT)/lib
 
+UserCFlags  +=$(PYTHONCFLAGS)
+UserCCFlags +=$(PYTHONCFLAGS)
+
 DependentLibraries =gemhardware_managers xdaq2rc
 
 ## not building an exe

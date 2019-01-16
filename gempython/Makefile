@@ -31,6 +31,9 @@ UserCFlags += \
 	-Wno-inline -DNDEBUG
 UserCCFlags=$(UserCFlags)
 
+UserCFlags  +=$(PYTHONCFLAGS)
+UserCCFlags +=$(PYTHONCFLAGS)
+
 # The leading undescore is meant to be there
 DynamicLibrary = _cmsgemos_gempython
 # Changing some defaults from $XDAQ_ROOT/config/mfDefs
