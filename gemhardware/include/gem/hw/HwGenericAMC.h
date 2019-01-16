@@ -294,29 +294,26 @@ namespace gem {
          */
         virtual void resetIPBusCounters(uint8_t const& gtx, uint8_t const& mode);
 
+        /** FIXME specific counter resets from legacy, counter resets are module wide now  **/
         /**
          * Reset the recorded number of L1A signals received from the TTC decoder
          */
-        void resetL1ACount() {
-          return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
+        void resetL1ACount() { return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Reset the recorded number of CalPulse signals received from the TTC decoder
          */
-        void resetCalPulseCount() {
-          return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
+        void resetCalPulseCount() { return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Reset the recorded number of Resync signals received from the TTC decoder
          */
-        void resetResyncCount() {
-          return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
+        void resetResyncCount() { return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Reset the recorded number of BC0 signals
          */
-        void resetBC0Count() {
-          return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
+        void resetBC0Count() { return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Read the trigger data
@@ -332,6 +329,17 @@ namespace gem {
         /**************************/
         /** DAQ link information **/
         /**************************/
+
+        /**
+         * @brief Set the enable mask and enable the DAQ link
+         * @param enableZS enable/disable zero suppression
+         * @param doPhaseScan turn on/off the phase shifting during configure
+         * @param runType parameter
+         * @param relock when doing the phase shift
+         * @param bc0LockPSMode use the BC0 locked phase shifting mode
+         */
+        void configureDAQModule(bool enableZS, bool doPhaseShift, uint32_t const& runType=0x0, uint32_t const& marker=0xfaac, bool relock=false, bool bc0LockPSMode=false);
+
         /**
          * @brief Set the enable mask and enable the DAQ link
          * @param enableMask 32 bit word for the 24 bit enable mask
@@ -567,16 +575,36 @@ namespace gem {
         int checkPLLLock(int readAttempts);
 
         /**
-         * @brief Check the lock status of the MMCM PLL
-         * @returns Mean value (calculated in firmware) of the MMCH phase
+         * @brief Check the phase mean of the MMCM PLL
+         * @param Number of times to read the phase mean
+         *        * 0 reads means take the mean calculated in FW
+         *        * 1+ reads means take the mean of the specified reads of the phase directly
+         * @returns Mean value of the MMCH phase
          */
-        uint32_t getMMCMPhaseMean();
+        double getMMCMPhaseMean(int readAttempts);
 
         /**
-         * @brief Check the lock status of the MMCM PLL
-         * @returns Mean value (calculated in firmware) of the GTH phase
+         * @brief Check the phase median of the MMCM PLL
+         * @param Number of times to read the phase and compute the median
+         * @returns Median value of the MMCH phase
          */
-        uint32_t getGTHPhaseMean();
+        double getMMCMPhaseMedian(int readAttempts);
+
+        /**
+         * @brief Check the phase mean of the GTH PLL
+         * @param Number of times to read the phase mean
+         *        * 0 reads means take the mean calculated in FW
+         *        * 1+ reads means take the mean of the specified reads of the phase directly
+         * @returns Mean value of the GTH phase
+         */
+        double getGTHPhaseMean(int readAttempts);
+
+        /**
+         * @brief Check the phase median of the GTH PLL
+         * @param Number of times to read the phase and compute the median
+         * @returns Median value of the MMCH phase
+         */
+        double getGTHPhaseMedian(int readAttempts);
 
         /**
          * @brief Reset the counters of the TTC module

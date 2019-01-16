@@ -38,7 +38,8 @@ namespace gem {
           virtual ~GLIBManager();
 
         protected:
-          virtual void init() override;
+          /* virtual void init() override; */
+          void init();
 
           virtual void actionPerformed(xdata::Event& event) override;
 
@@ -143,7 +144,7 @@ namespace gem {
           xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;  // [MAX_AMCS_PER_CRATE];
           xdata::String                        m_amcSlots;
           xdata::String                        m_connectionFile;
-          xdata::Boolean                       m_uhalPhaseShift;
+          xdata::Boolean                       m_uhalPhaseShift; // FIXME OBSOLETE
           xdata::Boolean                       m_bc0LockPhaseShift;
           xdata::Boolean                       m_relockPhase;
 

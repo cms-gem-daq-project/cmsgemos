@@ -92,7 +92,6 @@ void gem::hw::HwGenericAMC::connectRPC(bool reconnect)
   if (isConnected) {
     // TODO: find better way than hardcoded versions
     this->loadModule("amc", "amc v1.0.1");
-    this->loadModule("amc", "amc v1.0.1");
     CMSGEMOS_DEBUG("HwGenericAMC::connectRPC modules loaded");
   } else {
     CMSGEMOS_WARN("HwGenericAMC::connectRPC RPC interface failed to connect");
@@ -353,28 +352,65 @@ void gem::hw::HwGenericAMC::flushTriggerFIFO(uint8_t const& gtx)
 }
 
 /** DAQ link module functions **/
+void gem::hw::HwGenericAMC::configureDAQModule(bool enableZS, bool doPhaseShift, uint32_t const& runType, uint32_t const& marker, bool relock, bool bc0LockPSMode)
+{
+  try {
+    req = wisc::RPCMsg("amc.configureDAQModule");
+    req.set_word("enableZS",     enableZS);
+    req.set_word("doPhaseShift", doPhaseShift);
+    req.set_word("runType",      runType);
+    req.set_word("marker",       marker);
+    req.set_word("relock",       relock);
+    req.set_word("bc0LockPSMode",bc0LockPSMode);
+    try {
+      rsp = rpc.call_method(req);
+      try {
+        if (rsp.get_key_exists("error")) {
+          std::stringstream errmsg;
+          errmsg << rsp.get_string("error");
+          CMSGEMOS_ERROR("HwGenericAMC::configureDAQModule: " << errmsg.str());
+          XCEPT_RAISE(gem::hw::exception::RPCMethodError, errmsg.str());
+        }
+      } STANDARD_CATCH;
+    } STANDARD_CATCH;
+  } GEM_CATCH_RPC_ERROR("HwGenericAMC::enableDAQLink", gem::hw::exception::Exception);
+}
+
 void gem::hw::HwGenericAMC::enableDAQLink(uint32_t const& enableMask)
 {
-  req = wisc::RPCMsg("amc.enableDAQLink");
-  req.set_word("enableMask",enableMask);
   try {
-    rsp = rpc.call_method(req);
+    req = wisc::RPCMsg("amc.enableDAQLink");
+    req.set_word("enableMask",enableMask);
     try {
-      if (rsp.get_key_exists("error")) {
-        std::stringstream errmsg;
-        errmsg << rsp.get_string("error");
-        CMSGEMOS_ERROR("HwGenericAMC::enableDAQLink: " << errmsg.str());
-        XCEPT_RAISE(gem::hw::exception::RPCMethodError, errmsg.str())
-      }
+      rsp = rpc.call_method(req);
+      try {
+        if (rsp.get_key_exists("error")) {
+          std::stringstream errmsg;
+          errmsg << rsp.get_string("error");
+          CMSGEMOS_ERROR("HwGenericAMC::enableDAQLink: " << errmsg.str());
+          XCEPT_RAISE(gem::hw::exception::RPCMethodError, errmsg.str());
+        }
+      } STANDARD_CATCH;
     } STANDARD_CATCH;
-  } STANDARD_CATCH;
-  // should reraise gem::hw::exception::RPCMethodError as a result of the STANDARD_CATCH
+  } GEM_CATCH_RPC_ERROR("HwGenericAMC::enableDAQLink", gem::hw::exception::Exception);
 }
 
 void gem::hw::HwGenericAMC::disableDAQLink()
 {
-  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
-  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAQ_ENABLE",        0x0);
+  try {
+    req = wisc::RPCMsg("amc.disableDAQLink");
+    try {
+      rsp = rpc.call_method(req);
+      try {
+        if (rsp.get_key_exists("error")) {
+          std::stringstream errmsg;
+          errmsg << rsp.get_string("error");
+          CMSGEMOS_ERROR("HwGenericAMC::disableDAQLink: " << errmsg.str());
+          XCEPT_RAISE(gem::hw::exception::RPCMethodError, errmsg.str());
+        }
+      } STANDARD_CATCH;
+    } STANDARD_CATCH;
+  } GEM_CATCH_RPC_ERROR("HwGenericAMC::enableDAQLink", gem::hw::exception::Exception);
 }
 
 void gem::hw::HwGenericAMC::setZS(bool en)
@@ -398,22 +434,20 @@ void gem::hw::HwGenericAMC::resetDAQLink(uint32_t const& davTO, uint32_t const& 
         }
       } STANDARD_CATCH;
     } STANDARD_CATCH;
-  } catch (xhal::utils::XHALRPCNotConnectedException const& e) {
-    std::stringstream errmsg;
-    errmsg << e.what();
-    CMSGEMOS_ERROR("HwGenericAMC::resetDAQLink error: " << errmsg.str());
-    XCEPT_RAISE(gem::hw::exception::Exception, errmsg.str());
-  } catch (xhal::utils::XHALRPCException const& e) {
-    std::stringstream errmsg;
-    errmsg << e.what();
-    CMSGEMOS_ERROR("HwGenericAMC::resetDAQLink error: " << errmsg.str());
-    XCEPT_RAISE(gem::hw::exception::Exception, errmsg.str());
-  } catch (gem::hw::exception::RPCMethodError const& e) {
-    std::stringstream errmsg;
-    errmsg << e.what();
-    CMSGEMOS_ERROR("HwGenericAMC::resetDAQLink error: " << errmsg.str());
-    XCEPT_RAISE(gem::hw::exception::Exception, errmsg.str());
-  }
+    /*  FIXME alternative
+    // should reraise gem::hw::exception::RPCMethodError as a result of the STANDARD_CATCH
+    // turn this into a macro?
+    } catch (...) {
+      handleRPCError("HwGenericAMC::enableDAQLink");
+      // https://stackoverflow.com/questions/3561659/how-can-i-abstract-out-a-repeating-try-catch-pattern-in-c
+      // https://stackoverflow.com/questions/2466131/is-re-throwing-an-exception-legal-in-a-nested-try
+      // https://stackoverflow.com/questions/13007793/is-a-macro-to-catch-a-set-of-exceptions-at-different-places-fine
+      // with lambdas
+      // https://codereview.stackexchange.com/questions/2484/generic-c-exception-catch-handler-macro
+    }
+     */
+  } GEM_CATCH_RPC_ERROR("HwGenericAMC::enableDAQLink", gem::hw::exception::Exception);
+
   /**
      need to wrap any exceptions into gem::hw::exception exceptions, or handle them as STANDARD_CATCH simply throws:
      xhal::utils::XHALRPCNotConnectedException
@@ -428,6 +462,7 @@ uint32_t gem::hw::HwGenericAMC::getDAQLinkControl()
 
 uint32_t gem::hw::HwGenericAMC::getDAQLinkStatus()
 {
+  // FIXME: can't read non-terminal register by node name in rwreg
   return readReg(getDeviceBaseNode(), "DAQ.STATUS");
 }
 
@@ -623,26 +658,13 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
       rsp = rpc.call_method(req);
       try {
         if (rsp.get_key_exists("error")) {
+          std::stringstream errmsg;
+          errmsg << rsp.get_string("error");
           XCEPT_RAISE(gem::hw::exception::RPCMethodError, errmsg.str());
         }
       } STANDARD_CATCH;
     } STANDARD_CATCH;
-  } catch (xhal::utils::XHALRPCNotConnectedException const& e) {
-    std::stringstream errmsg;
-    errmsg << e.what();
-    CMSGEMOS_ERROR("HwGenericAMC::ttcMMCMPhaseShift error: " << errmsg.str());
-    XCEPT_RAISE(gem::hw::exception::Exception, errmsg.str());
-  } catch (xhal::utils::XHALRPCException const& e) {
-    std::stringstream errmsg;
-    errmsg << e.what();
-    CMSGEMOS_ERROR("HwGenericAMC::ttcMMCMPhaseShift error: " << errmsg.str());
-    XCEPT_RAISE(gem::hw::exception::Exception, errmsg.str());
-  } catch (gem::hw::exception::RPCMethodError const& e) {
-    std::stringstream errmsg;
-    errmsg << e.what();
-    CMSGEMOS_ERROR("HwGenericAMC::ttcMMCMPhaseShift error: " << errmsg.str());
-    XCEPT_RAISE(gem::hw::exception::Exception, errmsg.str());
-  }
+  } GEM_CATCH_RPC_ERROR("HwGenericAMC::ttcMMCMPhaseShift", gem::hw::exception::Exception);
 
   /** Description of phase alignment algorithm
       shiftOutOfLockFirst controls whether the procedure will force a relock
@@ -672,37 +694,79 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
 
 int gem::hw::HwGenericAMC::checkPLLLock(int readAttempts)
 {
-  // FIXME CANDIDATE for CTP7 module
-  const int PHASE_CHECK_AVERAGE_CNT = 100;
-  const int PLL_LOCK_READ_ATTEMPTS  = 10;
-  const double PLL_LOCK_WAIT_TIME   = 0.00001; // wait 100us to allow the PLL to lock
-  int lockCnt = 0;
-  for (int i = 0; i < readAttempts; ++i ) {
-    writeReg(getDeviceBaseNode(),"TTC.CTRL.PA_MANUAL_PLL_RESET", 0x1);
-    sleep(PLL_LOCK_WAIT_TIME);
-    if (readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PHASE_LOCKED") != 0)
-      lockCnt += 1;
+  try {
+    req = wisc::RPCMsg("amc.checkPLLLock");
+    req.set_word("readAttempts", readAttempts);
+    try {
+      rsp = rpc.call_method(req);
+      try {
+        if (rsp.get_key_exists("error")) {
+          std::stringstream errmsg;
+          errmsg << rsp.get_string("error");
+          XCEPT_RAISE(gem::hw::exception::RPCMethodError, errmsg.str());
+        }
+      } STANDARD_CATCH;
+      return rsp.get_word("lockCnt");
+    } STANDARD_CATCH;
+  } GEM_CATCH_RPC_ERROR("HwGenericAMC::checkPLLLock", gem::hw::exception::Exception);
+}
+
+double gem::hw::HwGenericAMC::getMMCMPhaseMean(int readAttempts)
+{
+  if (readAttempts == 1) {
+    return double(readReg(getDeviceBaseNode(), "TTC.STATUS.CLK.TTC_PM_PHASE_MEAN"));
+  } else {
+    try {
+      req = wisc::RPCMsg("amc.getMMCMPhaseMean");
+      req.set_word("reads", readAttempts);
+      try {
+        rsp = rpc.call_method(req);
+        try {
+          if (rsp.get_key_exists("error")) {
+            std::stringstream errmsg;
+            errmsg << rsp.get_string("error");
+            XCEPT_RAISE(gem::hw::exception::RPCMethodError, errmsg.str());
+          }
+        } STANDARD_CATCH;
+        return rsp.get_word("phase");
+      } STANDARD_CATCH;
+    } GEM_CATCH_RPC_ERROR("HwGenericAMC::getMMCMPhaseMean", gem::hw::exception::Exception);
   }
-  return lockCnt;
-  /*
-  const double PLL_LOCK_WAIT_TIME = 0.0001; // wait 100us to allow the PLL to lock
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_PLL_RESET", 0x1);
-  sleep(PLL_LOCK_WAIT_TIME);
-  if (((readReg(getDeviceBaseNode(), "TTC.STATUS.CLK.PHASE_LOCKED") & 0x4) >> 2) == 0)
-    return false;
-  else
-    return true;
-   */
 }
 
-uint32_t gem::hw::HwGenericAMC::getMMCMPhaseMean()
+double gem::hw::HwGenericAMC::getMMCMPhaseMedian(int readAttempts)
 {
-  return readReg(getDeviceBaseNode(), "TTC.STATUS.CLK.TTC_PM_PHASE_MEAN");
+  CMSGEMOS_WARN("HwGenericAMC::getMMCMPhaseMedian is not implemented, returning the mean");
+  return getMMCMPhaseMean(readAttempts);
 }
 
-uint32_t gem::hw::HwGenericAMC::getGTHPhaseMean()
+double gem::hw::HwGenericAMC::getGTHPhaseMean(int readAttempts)
 {
-  return readReg(getDeviceBaseNode(), "TTC.STATUS.CLK.GTH_PM_PHASE_MEAN");
+  if (readAttempts == 1) {
+    return readReg(getDeviceBaseNode(), "TTC.STATUS.CLK.GTH_PM_PHASE_MEAN");
+  } else {
+    try {
+      req = wisc::RPCMsg("amc.getGTHPhaseMean");
+      req.set_word("reads", readAttempts);
+      try {
+        rsp = rpc.call_method(req);
+        try {
+          if (rsp.get_key_exists("error")) {
+            std::stringstream errmsg;
+            errmsg << rsp.get_string("error");
+            XCEPT_RAISE(gem::hw::exception::RPCMethodError, errmsg.str());
+          }
+        } STANDARD_CATCH;
+        return rsp.get_word("phase");
+      } STANDARD_CATCH;
+    } GEM_CATCH_RPC_ERROR("HwGenericAMC::getGTHPhaseMean", gem::hw::exception::Exception);
+  }
+}
+
+double gem::hw::HwGenericAMC::getGTHPhaseMedian(int readAttempts)
+{
+  CMSGEMOS_WARN("HwGenericAMC::getGTHPhaseMedian is not implemented, returning the mean");
+  return getGTHPhaseMean(readAttempts);
 }
 
 void gem::hw::HwGenericAMC::ttcCounterReset()

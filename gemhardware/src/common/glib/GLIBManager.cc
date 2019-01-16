@@ -164,7 +164,8 @@ void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
     }
     // p_gemMonitor->startMonitoring();
   }
-  // update monitoring variables
+
+  // FIXME update monitoring variables?
   gem::base::GEMApplication::actionPerformed(event);
 }
 
@@ -259,27 +260,28 @@ void gem::hw::glib::GLIBManager::initializeAction()
         CMSGEMOS_ERROR(msg.str());
         XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
       }
-    } catch (uhalException const& e) {
-      std::stringstream msg;
-      msg << "GLIBManager::initializeAction caught uHAL exception " << e.what();
-      CMSGEMOS_ERROR(msg.str());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-    } catch (gem::hw::glib::exception::Exception const& e) {
-      std::stringstream msg;
-      msg << "GLIBManager::initializeAction caught exception " << e.what();
-      CMSGEMOS_ERROR(msg.str());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-    } catch (toolbox::net::exception::MalformedURN const& e) {
-      std::stringstream msg;
-      msg << "GLIBManager::initializeAction caught exception " << e.what();
-      CMSGEMOS_ERROR(msg.str());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-    } catch (std::exception const& e) {
-      std::stringstream msg;
-      msg << "GLIBManager::initializeAction caught exception " << e.what();
-      CMSGEMOS_ERROR(msg.str());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-    }
+    } GEM_HW_TRANSITION_CATCH("GLIBManager::initializeAction",gem::hw::glib::exception::Exception);
+    // catch (uhalException const& e) {
+    //   std::stringstream msg;
+    //   msg << "GLIBManager::initializeAction caught uHAL exception " << e.what();
+    //   CMSGEMOS_ERROR(msg.str());
+    //   XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+    // } catch (gem::hw::glib::exception::Exception const& e) {
+    //   std::stringstream msg;
+    //   msg << "GLIBManager::initializeAction caught exception " << e.what();
+    //   CMSGEMOS_ERROR(msg.str());
+    //   XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+    // } catch (toolbox::net::exception::MalformedURN const& e) {
+    //   std::stringstream msg;
+    //   msg << "GLIBManager::initializeAction caught exception " << e.what();
+    //   CMSGEMOS_ERROR(msg.str());
+    //   XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+    // } catch (std::exception const& e) {
+    //   std::stringstream msg;
+    //   msg << "GLIBManager::initializeAction caught exception " << e.what();
+    //   CMSGEMOS_ERROR(msg.str());
+    //   XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+    // }
     CMSGEMOS_DEBUG("GLIBManager::connected");
     // set the web view to be empty or grey
     // if (!info.present.value_) continue;
@@ -328,60 +330,52 @@ void gem::hw::glib::GLIBManager::configureAction()
       if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->pauseMonitoring();
 
-      amc->scaHardResetEnable(false);
-      amc->resetL1ACount();
-      amc->resetCalPulseCount();
-
-      if (m_uhalPhaseShift.value_) {
-        CMSGEMOS_INFO("GLIBManager::configureAction uhal phase shifting disabled");
+      bool enableZS     = info.enableZS.value_;
+      bool doPhaseShift = m_uhalPhaseShift.value_;
+      uint32_t runType  = 0x0;
+      try { // FIXME if we fail, do we go to error?
         // amc->ttcMMCMPhaseShift(m_relockPhase.value_, m_bc0LockPhaseShift.value_);
-      } else {
-        std::stringstream pashiftcmd;
-        // FIXME hard coded for now, but super hacky garbage (only works at P5)
-        pashiftcmd << "ssh -Tq texas@" << info.birdName.toString()
-                   << " \"sh -lic '/mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py";
-        if (m_bc0LockPhaseShift.value_)
-          pashiftcmd << " --useBC0";
-        if (m_relockPhase.value_)
-          pashiftcmd << " --relock";
-        pashiftcmd << "'\"";
-        CMSGEMOS_INFO("GLIBManager::configureAction executing " << pashiftcmd.str());
-        int retval = std::system(pashiftcmd.str().c_str());
-        if (retval) {
-          std::stringstream msg;
-          msg << "GLIBManager::configureAction unable to shift phases: " << retval;
-          CMSGEMOS_ERROR(msg.str());
-          // fireEvent("Fail");
-          // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-          XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
-        }
-      }
+        amc->configureDAQModule(enableZS, doPhaseShift, runType, 0xfaac, m_relockPhase.value_, m_bc0LockPhaseShift.value_);
+      } GEM_CATCH_RPC_ERROR("GLIBManager::configureAction", gem::hw::glib::exception::ConfigurationProblem);
 
-      // reset the DAQ (could move this to HwGenericAMC and eventually  a corresponding RPC module
-      try { // if we fail, do we go to error?
-        amc->setL1AEnable(false);
-        amc->disableDAQLink();
-        amc->resetDAQLink();
-        amc->enableDAQLink(0x4);  // FIXME
-        amc->setZS(info.enableZS.value_);
-        amc->setDAQLinkRunType(0x0);
-        amc->setDAQLinkRunParameters(0xfaac);
-      } catch (xhal::utils::XHALRPCNotConnectedException const& e) {
-        std::stringstream errmsg;
-        errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
-        // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
-      } catch (xhal::utils::XHALRPCException const& e) {
-        std::stringstream errmsg;
-        errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
-        // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
-      } catch (gem::hw::exception::RPCMethodError const& e) {
-        std::stringstream errmsg;
-        errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
-        // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
-      }
+      // amc->scaHardResetEnable(false);
+      // amc->resetL1ACount();
+      // amc->resetCalPulseCount();
+
+      // if (m_uhalPhaseShift.value_) {
+      //   CMSGEMOS_INFO("GLIBManager::configureAction uhal phase shifting disabled");
+      //   try { // if we fail, do we go to error?
+      //     amc->ttcMMCMPhaseShift(m_relockPhase.value_, m_bc0LockPhaseShift.value_);
+      //   } GEM_CATCH_RPC_ERROR("GLIBManager::configureAction", gem::hw::glib::exception::PhaseShiftError);
+      // }
+
+      // // reset the DAQ (could move this to HwGenericAMC and eventually  a corresponding RPC module
+      // try { // FIXME if we fail, do we go to error?
+      //   amc->configure(info.enableZS.value_,0x0,0xfaac);
+      //   // amc->setL1AEnable(false);
+      //   // amc->disableDAQLink();
+      //   // amc->resetDAQLink();
+      //   // amc->enableDAQLink(0x4);  // FIXME
+      //   // amc->setZS(info.enableZS.value_);
+      //   // amc->setDAQLinkRunType(0x0);
+      //   // amc->setDAQLinkRunParameters(0xfaac);
+      // } GEM_CATCH_RPC_ERROR("GLIBManager::configureAction", gem::hw::glib::exception::ConfigurationProblem);
+      // catch (xhal::utils::XHALRPCNotConnectedException const& e) {
+      //   std::stringstream errmsg;
+      //   errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
+      //   // fireEvent("Fail");
+      //   XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
+      // } catch (xhal::utils::XHALRPCException const& e) {
+      //   std::stringstream errmsg;
+      //   errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
+      //   // fireEvent("Fail");
+      //   XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
+      // } catch (gem::hw::exception::RPCMethodError const& e) {
+      //   std::stringstream errmsg;
+      //   errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
+      //   // fireEvent("Fail");
+      //   XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
+      // }
 
       if (m_scanType.value_ == 2) {
         CMSGEMOS_INFO("GLIBManager::configureAction: FIRST  " << m_scanMin.value_);
