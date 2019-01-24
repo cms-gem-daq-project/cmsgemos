@@ -19,7 +19,7 @@ class GracefulKiller:
     def exit_gracefully(self,signum, frame):
         self.kill_now = True
 
-def main(args):
+def setScanParamsLatency(args):
     killer = GracefulKiller()
 
     global amc
@@ -114,5 +114,5 @@ if __name__ == '__main__':
         exit(os.EX_USAGE)
 
     if args.d:
-        print("Executing main")
-    main(args)
+        print("Executing setScanParamsLatency()")
+    setScanParamsLatency(args)
