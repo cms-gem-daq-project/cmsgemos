@@ -1,11 +1,12 @@
 #!/bin/env python
 
+from gempython.tools.amc_user_functions_uhal import *
+
 def setDAQParams(args):
     from gempython.utils.gracefulKiller import GracefulKiller
     killer = GracefulKiller()
 
     # Make the AMC Object w/uhal
-    from gempython.tools.amc_user_functions_uhal import *
     global amc
     amc = getAMCObject(args.slot,args.shelf,args.d)
 
@@ -25,7 +26,9 @@ def setDAQParams(args):
     from time import sleep
     from gempython.utils.gemlogger import printGreen, printRed
     printRed("I will now wait 60 seconds; you must navigate to the RCMS Page and Press Start")
+    sleep(60)
     amc.getNode("GEM_AMC.DAQ.CONTROL.ZERO_SUPPRESSION_EN").write(0x0)
+    amc.dispatch()
     printGreen("Zero Suppression has been correctly disabled; happy data taking!!")
 
     return
@@ -43,9 +46,11 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    from gempython.utils.gemlogger import *
     gemlogger = getGEMLogger(__name__)
     gemlogger.setLevel(logging.INFO)
 
+    import uhal
     uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
     if args.d:
