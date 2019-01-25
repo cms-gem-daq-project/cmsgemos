@@ -1,3 +1,5 @@
+import signal
+
 ## https://stackoverflow.com/questions/18499497/how-to-process-sigterm-signal-gracefully
 class GracefulKiller:
     kill_now = False
