@@ -220,6 +220,34 @@ def printmsg(msg, foreground, background):
     print "%s%s%s%s"%(background,foreground,msg,colors.ENDC)
     pass
 
+def printBlue(st):
+    printmsg(st,colors.BLUE,colors.BLACK)
+    pass
+
+def printCyan(st):
+    printmsg(st,colors.CYAN,colors.BLACK)
+    pass
+
+def printGreen(st):
+    printmsg(st,colors.GREEN,colors.BLACK)
+    pass
+
+def printMagenta(st):
+    printmsg(st,colors.MAGENTA,colors.BLACK)
+    pass
+
+def printRed(st):
+    printmsg(st,colors.RED,colors.BLACK)
+    pass
+
+def printWhite(st):
+    printmsg(st,colors.WHITE,colors.BLACK)
+    pass
+
+def printYellow(st):
+    printmsg(st,colors.YELLOW,colors.BLACK)
+    pass
+
 # will modify the source of the logger message, so not super helpful
 # better to get the colorized formatter working properly
 def gemdebug(loclogger,msg):
