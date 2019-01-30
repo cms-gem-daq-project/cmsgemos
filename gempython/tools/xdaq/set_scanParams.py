@@ -38,13 +38,13 @@ def setScanParams(args):
     runType = 0xf
     regName = ""
     if args.caldac:
-        #runType = 
+        runType = 4
         regName = "CFG_CAL_DAC"
     elif args.latency:
-        runType = 3
+        runType = 2
         regName = "CFG_LATENCY"
     elif args.thresh:
-        #runType = 
+        runType = 3
         regName = "CFG_THR_ARM_DAC"
     else:
         printRed("One of the following must be true: {args.caldac, args.latency, args.thresh}")
