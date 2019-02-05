@@ -209,6 +209,12 @@ def printSystemTTCInfo(amc,debug=False):
     pass
 
 def printSystemSCAInfo(amc,debug=False):
+    """
+    Prints SCA information and returns a nesteddict with the results
+    """
+
+    scaInfo = nesteddict()
+
     print "--=======================================--"
     print "-> GEM SYSTEM SCA INFORMATION"
     print "--=======================================--"
@@ -216,11 +222,15 @@ def printSystemSCAInfo(amc,debug=False):
     nOHs = readRegister(amc,"GEM_AMC.GEM_SYSTEM.CONFIG.NUM_OF_OH")
     scaRdy  = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.READY")
     scaCErr = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.CRITICAL_ERROR")
+    scaInfo["READY"]=scaRdy
+    scaInfo["CRITICAL_ERROR"]=scaCErr
     print("READY             %s0x%08x%s"%(colors.BLUE,scaRdy,colors.ENDC))
     print("CRITICAL_ERROR    %s0x%08x%s"%(colors.RED if scaCErr else colors.GREEN,scaCErr,colors.ENDC))
     for li in range(nOHs):
+        notRdyCnt = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.NOT_READY_CNT_OH%d"%(li))
+        scaInfo["NOT_READY_CNT"][li]=notRdyCnt
         print("NOT_READY_CNT_OH%02d %s0x%08x%s"%(li,
                                                  colors.GREEN,
-                                                 readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.NOT_READY_CNT_OH%d"%(li)),
+                                                 notRdyCnt,
                                                  colors.ENDC))
-    pass
+    return scaInfo
