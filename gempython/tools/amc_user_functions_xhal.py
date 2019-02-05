@@ -35,9 +35,19 @@ maxVfat3DACSize = {
         34:(0xff,"CFG_BIAS_PRE_VREF"),
         35:(0xff,"CFG_THR_ARM_DAC"),
         36:(0xff,"CFG_THR_ZCC_DAC"),
-        39:(0x3,"CFG_ADC_VREF")
+        39:(0x3,"CFG_VREF_ADC")
         #41:(0x3f,""))Don't know reg in CTP7 address space
         }
+
+gbtValueArray = c_uint32 * 3
+class OHLinkMonitorParams(Structure):
+    _fields_ = [
+            ("gbtRdy",gbtValueArray),
+            ("gbtNotRdy",gbtValueArray),
+            ("gbtRxOverflow",gbtValueArray),
+            ("gbtRxUnderflow",gbtValueArray)
+            ]
+OHLinkMonitorArrayType = OHLinkMonitorParams * 12
 
 ohBoardTempArray = c_uint32 * 9 # Temperature Array
 class SCAMonitorParams(Structure):
@@ -72,6 +82,15 @@ class SysmonMonitorParams(Structure):
             ]
 SysmonMonitorArrayType = SysmonMonitorParams * 12 # Sysmon Monitor Array
 
+vfatValueArray = c_uint32 * 24
+class VFATLinkMonitorParams(Structure):
+    _fields_ = [
+            ("daqCRCErrCnt",vfatValueArray),
+            ("daqEvtCnt",vfatValueArray),
+            ("syncErrCnt",vfatValueArray)
+            ]
+VFATLinkMonitorArrayType = VFATLinkMonitorParams * 12
+
 class HwAMC(object):
     def __init__(self, cardName, debug=False):
         """
@@ -89,7 +108,20 @@ class HwAMC(object):
 
         # Open the foreign function library
         self.lib = CDLL("librpcman.so")
-       
+        
+        # Define Link Monitoring
+        self.getmonGBTLink = self.lib.getmonGBTLink
+        self.getmonGBTLink.argTypes = [ OHLinkMonitorArrayType, c_uint, c_bool ]
+        self.getmonGBTLink.restype = c_uint
+
+        self.getmonOHLink = self.lib.getmonOHLink
+        self.getmonOHLink.argTypes = [ OHLinkMonitorArrayType, VFATLinkMonitorArrayType, c_uint, c_bool ]
+        self.getmonOHLink.restype = c_uint
+
+        self.getmonVFATLink = self.lib.getmonVFATLink
+        self.getmonVFATLink.argTypes = [ VFATLinkMonitorArrayType, c_uint, c_bool ]
+        self.getmonVFATLink.restype = c_uint
+        
         # Define VFAT3 DAC Monitoring
         self.confDacMonitorMulti = self.lib.configureVFAT3DacMonitorMultiLink
         self.confDacMonitorMulti.argTypes = [ c_uint, POINTER(c_uint32), c_uint ]
@@ -218,31 +250,72 @@ class HwAMC(object):
         self.writeRegister("GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x1)
         return
 
+    def getGBTLinkStatus(self,doReset=False,printSummary=False, ohMask=0xfff):
+        """
+        Get's the GBT Status and can print a table of the status for each unmasked OH.
+        Returns True if all unmasked OH's have all GBT's with:
+            1. GBT_READY = 0x1
+            2. GBT_NOT_READY = 0x0
+            3. RX_HAD_OVERFLOW = 0x0
+            4. RX_HAD_UNDERFLOW = 0x0
+        
+        doReset - Issues a link reset if True
+        printSummary - prints a table summarizing the status of the GBT's for each unmasked OH
+        ohMask - Mask which defines which OH's to query; 12 bit number where
+                 having a 1 in the N^th bit means to query the N^th optohybrid
+        """
+
+        gbtMonData = OHLinkMonitorArrayType()
+        self.getmonGBTLink(gbtMonData, self.nOHs, doReset)
+
+        if(printSummary):
+            print("--=======================================--")
+            print("-> GEM SYSTEM GBT INFORMATION")
+            print("--=======================================--")
+            print("")
+            pass
+
+        allRdy = 1
+        noneNotRdy = 0
+        hadOverflow = 0
+        hadUnderflow = 0
+        for ohN in range(self.nOHs):
+            # Skip Masked OH's
+            if (not ((ohMask >> ohN) and 0x1)):
+                continue
+
+            if(printSummary):
+                print("----------OH{0}----------".format(ohN))
+                pass
+
+            for gbtN in range(3):
+                gbtRdy      = gbtMonData.gbtRdy[gbtN]
+                gbtNotRdy   = gbtMonData.gbtNotRdy[gbtN]
+                gbtRxOver   = gbtMonData.gbtRxOverflow[gbtN]
+                gbtRxUnder  = gbtMonData.gbtRxUnderflow[gbtN]
+
+                allRdy *= gbtRdy
+                noneNotRdy += gbtNotRdy
+                hadOverflow += gbtRxOver
+                hadUnderflow += gbtRxUnder
+
+                if(printSummary):
+                    print("GBT{0}.READY             {1}{2}{3}".format(
+                        gbtN,colors.RED if not gbtRdy else colors.GREEN,gbtRdy,colors.ENDC))
+                    print("GBT{0}.NOT_READY         {1}{2}{3}",format(
+                        gbtN,colors.RED if gbtNotRdy else colors.GREEN,gbtNotRdy,colors.ENDC))
+                    print("GBT{0}.RX_HAD_OVERFLOW   {1}{2}{3}".format(
+                        gbtN,colors.RED if gbtRxOver else colors.GREEN,gbtRxOver,colors.ENDC))
+                    print("GBT{0}.RX_HAD_UNDERFLOW   {1}{2}{3}".format(
+                        gbtN,colors.RED if gbtRxUnder else colors.GREEN,gbtRxUnder,colors.ENDC))
+                    pass
+                pass
+            pass
+
+        return (allRdy == 1 and noneNotRdy == 0 and hadOverflow == 0 and hadUnderflow == 0)
+
     def getL1ACount(self):
         return self.readRegister("GEM_AMC.TTC.CMD_COUNTERS.L1A")
-
-    def getTTCStatus(self, ohN, display=False):
-        running = 0xdeaddead
-        if self.fwVersion < 3:
-            contBase = "GEM_AMC.OH.OH%i.T1Controller"%(ohN)
-            running = self.readRegister("%s.MONITOR"%(contBase))
-            if display:
-                print("Info for %s"%(contBase))
-                print("\tDELAY:\t\t%i"%(self.readRegister("%s.DELAY"%(contBase))))
-                print("\tINTERVAL:\t%i"%(self.readRegister("%s.INTERVAL"%(contBase))))
-                print("\tMODE:\t\t%i"%(self.readRegister("%s.MODE"%(contBase))))
-                print("\tMONITOR:\t%i"%(running))
-                print("\tNUMBER:\t\t%i"%(self.readRegister("%s.NUMBER"%(contBase))))
-                print("\tTYPE:\t\t%i"%(self.readRegister("%s.TYPE"%(contBase))))
-        else:
-            contBase = "GEM_AMC.TTC.GENERATOR"
-            running = self.readRegister("%s.ENABLE"%(contBase))
-            if display:
-                print("Info for %s"%(contBase))
-                print("\tCYCLIC_L1A_GAP: \t\t%i"%(self.readRegister("%s.CYCLIC_L1A_GAP"%(contBase))))
-                print("\tCYCLIC_CALPULSE_TO_L1A_GAP: \t%i"%(self.readRegister("%s.CYCLIC_CALPULSE_TO_L1A_GAP"%(contBase))))
-                print("\tENABLE: \t\t\t%i"%(running))
-        return running
 
     def getLinkVFATMask(self,ohN):
         """
@@ -283,6 +356,77 @@ class HwAMC(object):
             raise Exception("RPC response was non-zero, failed to determine VFAT masks for ohMask {0}".format(hex(ohMask)))
         else:
             return vfatMaskArray
+
+    def getOHLinkStatus(self,doReset=False,printSummary=False, ohMask=0xfff):
+        #place holder
+
+    def getTTCStatus(self, ohN, display=False):
+        running = 0xdeaddead
+        if self.fwVersion < 3:
+            contBase = "GEM_AMC.OH.OH%i.T1Controller"%(ohN)
+            running = self.readRegister("%s.MONITOR"%(contBase))
+            if display:
+                print("Info for %s"%(contBase))
+                print("\tDELAY:\t\t%i"%(self.readRegister("%s.DELAY"%(contBase))))
+                print("\tINTERVAL:\t%i"%(self.readRegister("%s.INTERVAL"%(contBase))))
+                print("\tMODE:\t\t%i"%(self.readRegister("%s.MODE"%(contBase))))
+                print("\tMONITOR:\t%i"%(running))
+                print("\tNUMBER:\t\t%i"%(self.readRegister("%s.NUMBER"%(contBase))))
+                print("\tTYPE:\t\t%i"%(self.readRegister("%s.TYPE"%(contBase))))
+        else:
+            contBase = "GEM_AMC.TTC.GENERATOR"
+            running = self.readRegister("%s.ENABLE"%(contBase))
+            if display:
+                print("Info for %s"%(contBase))
+                print("\tCYCLIC_L1A_GAP: \t\t%i"%(self.readRegister("%s.CYCLIC_L1A_GAP"%(contBase))))
+                print("\tCYCLIC_CALPULSE_TO_L1A_GAP: \t%i"%(self.readRegister("%s.CYCLIC_CALPULSE_TO_L1A_GAP"%(contBase))))
+                print("\tENABLE: \t\t\t%i"%(running))
+        return running
+
+    def getVFATLinkStatus(self,doReset=False,printSummary=False, ohMask=0xfff):
+        """
+        Get's the VFAT link status and can print a table of the status for each unmasked OH.
+        Returns True if all unmasked OH's have all VFAT's with:
+            1. SYNC_ERR_CNT = 0x0
+        
+        doReset - Issues a link reset if True
+        printSummary - prints a table summarizing the status of the GBT's for each unmasked OH
+        ohMask - Mask which defines which OH's to query; 12 bit number where
+                 having a 1 in the N^th bit means to query the N^th optohybrid
+        """
+
+        vfatMonData = VFATLinkMonitorArrayType()
+        self.getmonVFATLink(vfatMonData, self.nOHs, doReset)
+
+        if(printSummary):
+            print("--=======================================--")
+            print("-> GEM SYSTEM VFAT INFORMATION")
+            print("--=======================================--")
+            print("")
+            pass
+
+        totalSyncErrors = 0
+        for ohN in range(self.nOHs):
+            # Skip Masked OH's
+            if (not ((ohMask >> ohN) and 0x1)):
+                continue
+
+            if(printSummary):
+                print("----------OH{0}----------".format(ohN))
+                pass
+
+            for vfatN in range(24):
+                nSyncErrors = vfatMonData[ohN].syncErrCnt[vfatN]
+                totalSyncErrors += nSyncErrors
+
+                if(printSummary):
+                    print("VFAT{0}.SYNC_ERR_CNT {1}{2}{3}".format(
+                        vfatN,colors.RED if (nSyncErrors > 0) else colors.GREEN,hex(nSyncErrors),colors.ENDC))
+                    pass
+                pass
+            pass
+
+        return (totalSyncErrors == 0)
 
     def performDacScanMultiLink(self, dacDataAll, dacSelect, dacStep=1, ohMask=0x3ff, useExtRefADC=False):
         """
