@@ -3,6 +3,7 @@
 
 # Don't ignore common xsd definitions
 !xml/schema/common.xsd
+!xml/examples/*.xml
 
 # Do ignore auto-generated files
 **/*Gen.h

@@ -1,0 +1,55 @@
+<gem:system xmlns:gem="https://github.com/cms-gem-daq-project/cmsgemos">
+    <gem:configuration>
+        <gem:vfat3-channel-file>vfat3_channel.xml</gem:vfat3-channel-file>
+        <gem:vfat3-chip-file>vfat3_chip.xml</gem:vfat3-chip-file>
+        <gem:gbt-file>gbt.xml</gem:gbt-file>
+        <gem:ohv3-file>ohv3.xml</gem:ohv3-file>
+        <gem:amc-file>amc.xml</gem:amc-file>
+        <gem:amc13-file>amc13.xml</gem:amc13-file>
+    </gem:configuration>
+    <gem:topology>
+        <gem:amc13 gem:serial-number="123">
+            <gem:amc gem:serial-number="456">
+                <gem:empty-slot/>
+                <gem:ohv3 gem:serial-number="789">
+                    <gem:vfat gem:barcode="012"/>
+                    <gem:vfat gem:barcode="345"/>
+                    <gem:vfat gem:barcode="678"/>
+                    <gem:vfat gem:barcode="901"/>
+                    <gem:vfat gem:barcode="234"/>
+                    <gem:vfat gem:barcode="567"/>
+                    <gem:vfat gem:barcode="890"/>
+                    <gem:vfat gem:barcode="123"/>
+                    <gem:vfat gem:barcode="456"/>
+                    <gem:vfat gem:barcode="789"/>
+                    <gem:empty-slot/>
+                    <gem:empty-slot/>
+                    <gem:empty-slot/>
+                    <gem:empty-slot/>
+                    <gem:empty-slot/>
+                    <gem:empty-slot/>
+                    <gem:empty-slot/>
+                    <gem:empty-slot/>
+                    <gem:empty-slot/>
+                    <gem:empty-slot/>
+                    <gem:empty-slot/>
+                    <gem:empty-slot/>
+                    <gem:empty-slot/>
+                    <gem:empty-slot/>
+                    <gem:empty-slot/>
+                </gem:ohv3>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+            </gem:amc>
+        </gem:amc13>
+    </gem:topology>
+</gem:system>
