@@ -85,99 +85,100 @@ namespace gem {
         /****************************/
         /**
          * Read the board ID registers
-         * @returns the AMC board ID
+         * @returns the AMC board ID as a std::string
          */
         virtual std::string getBoardID();
 
         /**
          * Read the board ID registers
-         * @returns the AMC board ID as 32 bit unsigned
+         * @returns the AMC board ID as 32 bit unsigned value
          */
         virtual uint32_t getBoardIDRaw();
 
         /**
          * Check how many OptoHybrids the AMC FW can support
-         * @returns the number of supported OptoHybrid boards
+         * @returns the number of OptoHybrid boards supported by the FW
          */
         uint32_t getSupportedOptoHybrids() {
           return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.NUM_OF_OH"); }
 
         /**
          * FIXME: OBSOLETE
-         * Check if the firmware supports GBT communication
-         * @returns whether or not the firmware supports GBT communication
+         * Check if the AMC FW supports GBT communication
+         * @returns whether or not the AMC FW supports GBT communication
          */
         uint32_t supportsGBTLink() {
           return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.USE_GBT"); }
 
         /**
-         * Check if the firmware supports trigger links
-         * @returns whether or not the firmware supports trigger links
+         * Check if the AMC FW supports trigger links
+         * @returns whether or not the AMC FW supports trigger links
          */
         uint32_t supportsTriggerLink() {
           return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.USE_TRIG_LINKS"); }
 
         /**
-         * Read the system firmware register
-         * @param system determines whether to read the system or user firmware register
-         * @returns a string corresponding to firmware version
+         * Read the AMC FW register
+         * @param system determines whether to read the system (default) or user FW register
+         * @returns a string corresponding to AMC FW version
          */
         virtual std::string getFirmwareVer(bool const& system=true);
 
         /**
-         * Read the system firmware register
-         * @param system determines whether to read the system or user firmware register
-         * @returns the firmware version as a 32 bit unsigned
+         * Read the AMC FW register
+         * @param system determines whether to read the system (default) or user FW register
+         * @returns the AMC FW version as a 32 bit unsigned
          */
         virtual uint32_t getFirmwareVerRaw(bool const& system=true);
 
         /**
-         * Read the system firmware register
+         * Read the AMC FW register
+         * @param system determines whether to read the system (default) or user FW register
          * @returns a string corresponding to the build date dd-mm-yyyy
          */
         virtual std::string getFirmwareDate(bool const& system=true);
 
         /**
-         * Read the system firmware register
-         * @param system determines whether to read the system or user firmware register
+         * Read the AMC FW register
+         * @param system determines whether to read the system (default) or user FW register
          * @returns the build date as a 32 bit unsigned
          */
         virtual uint32_t getFirmwareDateRaw(bool const& system=true);
 
         //user core functionality
         /**
-         * Read the user firmware register
-         * @returns a hex number corresponding to the build date
-         * OBSOLETE in V2 firmware
+         * Read the user AMC FW register
+         * @returns the user FW build date as a 32-bit unsigned value
+         * OBSOLETE in V2 AMC FW
          */
         virtual uint32_t getUserFirmware();
 
         /**
-         * Read the user firmware register
-         * @returns a std::string corresponding to the build date
-         * OBSOLETE in V2 firmware
+         * Read the user AMC FW register
+         * @returns the user FW build date as a std::string
+         * OBSOLETE in V2 AMC FW
          */
         virtual std::string getUserFirmwareDate();
 
       private:
         /**
          * Connect to te RPC manager and load necessary modules
-         * @param reconnect determine if the conection should be reestablished and the modules reloaded
+         * @param `reconnect` determine if the conection should be reestablished and the modules reloaded
          */
         void connectRPC(bool reconnect=false) override;
 
         /**
          * Check if the gtx requested is known to be operational
-         * @param uint8_t gtx GTX gtx to be queried
-         * @param std::string opMsg Operation message to append to the log message
-         * @returns true if the gtx is in range and active, false otherwise
+         * @param gtx GTX to be queried
+         * @param opMsg Operation message to append to the log message
+         * @returns true if the GTX is in range and active, false otherwise
          */
         virtual bool linkCheck(uint8_t const& gtx, std::string const& opMsg);
 
       public:
         /**
          * Read the gtx status registers, store the information in a struct
-         * @param uint8_t gtx is the number of the gtx to query
+         * @param gtx is the number of the gtx to query
          * @retval _status a struct containing the status bits of the optical link
          * @throws gem::hw::exception::InvalidLink if the gtx number is outside of 0-N_GTX
          */
@@ -193,6 +194,7 @@ namespace gem {
          * bit 4 - GBT_TRK_ErrCnt         0x8
          * bit 5 - GBT_Data_Rec           0x10
          * @throws gem::hw::exception::InvalidLink if the gtx number is outside of 0-N_GTX
+         * FIXME: OBSOLETE IN V2/V3, reimplement to remove linkReset/ResetLinks duplication?
          */
         virtual void LinkReset(uint8_t const& gtx, uint8_t const& resets);
 
@@ -206,40 +208,34 @@ namespace gem {
         }
 
         /**
-         * Set the Trigger source
+         * Set the trigger source to the front end
          * @param uint8_t mode 0 from software, 1 from TTC decoder (AMC13), 2 from both
          * OBSOLETE in V2 firmware, taken care of in the OptoHybrid
+         * UNOBSOLETE? in V3 firmware?
          */
-        virtual void setTrigSource(uint8_t const& mode, uint8_t const& gtx=0x0) {
-          return;
-        }
+        virtual void setTrigSource(uint8_t const& mode, uint8_t const& gtx=0x0) { return; }
 
         /**
-         * Read the Trigger source
+         * Read the front end trigger source
          * @retval uint8_t 0 from GenericAMC, 1 from AMC13, 2 from both
          * OBSOLETE in V2 firmware, taken care of in the OptoHybrid
+         * UNOBSOLETE? in V3 firmware?
          */
-        virtual uint8_t getTrigSource(uint8_t const& gtx=0x0) {
-          return 0;
-        }
+        virtual uint8_t getTrigSource(uint8_t const& gtx=0x0) { return 0; }
 
         /**
          * Set the S-bit source
          * @param uint8_t chip
          * OBSOLETE in V2 firmware
          */
-        virtual void setSBitSource(uint8_t const& mode, uint8_t const& gtx=0x0) {
-          return;
-        }
+        virtual void setSBitSource(uint8_t const& mode, uint8_t const& gtx=0x0) { return; }
 
         /**
          * Read the S-bit source
          * @retval uint8_t which VFAT chip is sending the S-bits
          * OBSOLETE in V2 firmware
          */
-        virtual uint8_t getSBitSource(uint8_t const& gtx=0x0) {
-          return 0;
-        }
+        virtual uint8_t getSBitSource(uint8_t const& gtx=0x0) { return 0; }
 
         ///Counters
         /**
@@ -259,26 +255,22 @@ namespace gem {
         /**
          * Get the recorded number of L1A signals received from the TTC decoder
          */
-        uint32_t getL1ACount() {
-          return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.L1A"); }
+        uint32_t getL1ACount() { return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.L1A"); }
 
         /**
          * Get the recorded number of CalPulse signals received from the TTC decoder
          */
-        uint32_t getCalPulseCount() {
-          return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.CALPULSE"); }
+        uint32_t getCalPulseCount() { return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.CALPULSE"); }
 
         /**
          * Get the recorded number of Resync signals received from the TTC decoder
          */
-        uint32_t getResyncCount() {
-          return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.RESYNC"); }
+        uint32_t getResyncCount() { return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.RESYNC"); }
 
         /**
          * Get the recorded number of BC0 signals
          */
-        uint32_t getBC0Count() {
-          return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.BC0"); }
+        uint32_t getBC0Count() { return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.BC0"); }
 
         ///Counter resets
         /**
@@ -329,6 +321,10 @@ namespace gem {
         /**************************/
         /** DAQ link information **/
         /**************************/
+        /**
+         * @defgroup AMCDAQModule
+         */
+
 
         /**
          * @brief Set the enable mask and enable the DAQ link
@@ -352,8 +348,9 @@ namespace gem {
         void disableDAQLink();
 
         /**
-         * @brief Set the zero suppression mode
+         * @brief Set the zero suppression mode (handled by the AMC)
          * @param enable true means any VFAT data packet with all 0's will be suppressed
+         * FIXME: toggle different VFAT3 modes?
          */
         void setZS(bool enable=true);
 
@@ -496,7 +493,7 @@ namespace gem {
         uint32_t getLinkLastDAQBlock(uint8_t const& gtx);
 
         /**
-         * @returns Returns the timeout before the event builder firmware will close the event and send the data
+         * @returns Returns the timeout before the event builder FW will close the event and send the data
          */
         uint32_t getDAQLinkInputTimeout();
 
@@ -547,12 +544,15 @@ namespace gem {
         /**************************/
         /** TTC module information **/
         /**************************/
+        /**
+         * @defgroup AMCTTCModule
+         */
 
         /*** CTRL submodule ***/
         /**
          * @brief Reset the TTC module
          */
-        void ttcReset();
+        void ttcModuleReset();
 
         /**
          * @brief Reset the MMCM of the TTC module
@@ -561,18 +561,18 @@ namespace gem {
 
         /**
          * @brief Shift the phase of the MMCM of the TTC module
-         * @param shiftOutOfLockFirst to shift of lock before looking for a good lock
-         * @param useBC0Locked to determine the good phase region, rather than the PLL lock status
-         * @param doScan whether to roll around multiple times for monitoring purposes
+         * @param relock to shift of lock before looking for a good lock
+         * @param modeBC0 to determine the good phase region, rather than the PLL lock status
+         * @param scan whether to roll around multiple times for monitoring purposes
          */
-        void ttcMMCMPhaseShift(bool shiftOutOfLockFirst=false, bool useBC0Locked=false, bool doScan=false);
+        void ttcMMCMPhaseShift(bool relock=false, bool modeBC0=false, bool scan=false);
 
         /**
          * @brief Check the lock status of the MMCM PLL
          * @param Number of times to read the PLL lock status
          * @returns Lock count of the MMCM PLL
          */
-        int checkPLLLock(int readAttempts);
+        int checkPLLLock(uint32_t readAttempts);
 
         /**
          * @brief Check the phase mean of the MMCM PLL
@@ -581,14 +581,14 @@ namespace gem {
          *        * 1+ reads means take the mean of the specified reads of the phase directly
          * @returns Mean value of the MMCH phase
          */
-        double getMMCMPhaseMean(int readAttempts);
+        double getMMCMPhaseMean(uint32_t readAttempts);
 
         /**
          * @brief Check the phase median of the MMCM PLL
          * @param Number of times to read the phase and compute the median
          * @returns Median value of the MMCH phase
          */
-        double getMMCMPhaseMedian(int readAttempts);
+        double getMMCMPhaseMedian(uint32_t readAttempts);
 
         /**
          * @brief Check the phase mean of the GTH PLL
@@ -597,14 +597,14 @@ namespace gem {
          *        * 1+ reads means take the mean of the specified reads of the phase directly
          * @returns Mean value of the GTH phase
          */
-        double getGTHPhaseMean(int readAttempts);
+        double getGTHPhaseMean(uint32_t readAttempts);
 
         /**
          * @brief Check the phase median of the GTH PLL
          * @param Number of times to read the phase and compute the median
          * @returns Median value of the MMCH phase
          */
-        double getGTHPhaseMedian(int readAttempts);
+        double getGTHPhaseMedian(uint32_t readAttempts);
 
         /**
          * @brief Reset the counters of the TTC module

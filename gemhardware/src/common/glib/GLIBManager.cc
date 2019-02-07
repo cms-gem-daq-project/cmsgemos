@@ -486,7 +486,9 @@ void gem::hw::glib::GLIBManager::startAction()
 
       CMSGEMOS_DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
-      amc->ttcReset();
+      // amc->enableDAQModule(info.enableZS.value_);
+
+      amc->ttcModuleReset();
       amc->enableDAQLink(0x4);  // FIXME
       amc->resetDAQLink();
       amc->setZS(info.enableZS.value_);

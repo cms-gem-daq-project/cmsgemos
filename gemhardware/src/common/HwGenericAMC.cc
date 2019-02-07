@@ -636,7 +636,7 @@ void gem::hw::HwGenericAMC::setDAQLinkRunParameter(uint8_t const& parameter, uin
 /********************************/
 
 /** TTC module functions **/
-void gem::hw::HwGenericAMC::ttcReset()
+void gem::hw::HwGenericAMC::ttcModuleReset()
 {
   writeReg(getDeviceBaseNode(), "TTC.CTRL.MODULE_RESET", 0x1);
 }
@@ -647,13 +647,13 @@ void gem::hw::HwGenericAMC::ttcMMCMReset()
   // writeReg(getDeviceBaseNode(), "TTC.CTRL.PHASE_ALIGNMENT_RESET", 0x1);
 }
 
-void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool useBC0Locked, bool doScan)
+void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool relock, bool modeBC0, bool scan)
 {
   try {
     req = wisc::RPCMsg("amc.ttcMMCMPhaseShift");
-    req.set_word("shiftOutOfLockFirst", shiftOutOfLockFirst);
-    req.set_word("useBC0Locked",        useBC0Locked);
-    req.set_word("doScan",              doScan);
+    req.set_word("relock",  relock);
+    req.set_word("modeBC0", modeBC0);
+    req.set_word("scan",    scan);
     try {
       rsp = rpc.call_method(req);
       try {
@@ -665,34 +665,9 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
       } STANDARD_CATCH;
     } STANDARD_CATCH;
   } GEM_CATCH_RPC_ERROR("HwGenericAMC::ttcMMCMPhaseShift", gem::hw::exception::Exception);
-
-  /** Description of phase alignment algorithm
-      shiftOutOfLockFirst controls whether the procedure will force a relock
-      useBC0Locked controls whether the procedure will use the BC0_LOCKED or the PLL_LOCKED register
-      * BC0_LOCKED doesn't work in GEM_AMC FW > 1.13.0
-      doScan tells the procedure to run through the full possibility of phases several times, and just
-      logs the places where it found a lock
-
-      Locking procedure:
-      * 3840 shifts is the full width of one good + bad region
-      * if shiftOutOfLockFirst
-      * * shift into bad region, not on the edge
-      * * find next good lock status
-      * * shift halfway through the region
-      * * * 1920 for BC0_LOCKED,
-      * * * 1000 for PLL_LOCKED,
-      * if !shiftOutOfLockFirst
-      * * find X consecutive "good" locks
-      * * * 200 for BC0_LOCKED,
-      * * * 50 for PLL_LOCKED,
-      * * reverse direction
-      * * shift backwards halfway
-      * * if a bad lock is encountered, reset and try again
-      * * else take the phase at the back half point
-   */
 }
 
-int gem::hw::HwGenericAMC::checkPLLLock(int readAttempts)
+int gem::hw::HwGenericAMC::checkPLLLock(uint32_t readAttempts)
 {
   try {
     req = wisc::RPCMsg("amc.checkPLLLock");
@@ -711,7 +686,7 @@ int gem::hw::HwGenericAMC::checkPLLLock(int readAttempts)
   } GEM_CATCH_RPC_ERROR("HwGenericAMC::checkPLLLock", gem::hw::exception::Exception);
 }
 
-double gem::hw::HwGenericAMC::getMMCMPhaseMean(int readAttempts)
+double gem::hw::HwGenericAMC::getMMCMPhaseMean(uint32_t readAttempts)
 {
   if (readAttempts == 1) {
     return double(readReg(getDeviceBaseNode(), "TTC.STATUS.CLK.TTC_PM_PHASE_MEAN"));
@@ -734,13 +709,13 @@ double gem::hw::HwGenericAMC::getMMCMPhaseMean(int readAttempts)
   }
 }
 
-double gem::hw::HwGenericAMC::getMMCMPhaseMedian(int readAttempts)
+double gem::hw::HwGenericAMC::getMMCMPhaseMedian(uint32_t readAttempts)
 {
   CMSGEMOS_WARN("HwGenericAMC::getMMCMPhaseMedian is not implemented, returning the mean");
   return getMMCMPhaseMean(readAttempts);
 }
 
-double gem::hw::HwGenericAMC::getGTHPhaseMean(int readAttempts)
+double gem::hw::HwGenericAMC::getGTHPhaseMean(uint32_t readAttempts)
 {
   if (readAttempts == 1) {
     return readReg(getDeviceBaseNode(), "TTC.STATUS.CLK.GTH_PM_PHASE_MEAN");
@@ -763,7 +738,7 @@ double gem::hw::HwGenericAMC::getGTHPhaseMean(int readAttempts)
   }
 }
 
-double gem::hw::HwGenericAMC::getGTHPhaseMedian(int readAttempts)
+double gem::hw::HwGenericAMC::getGTHPhaseMedian(uint32_t readAttempts)
 {
   CMSGEMOS_WARN("HwGenericAMC::getGTHPhaseMedian is not implemented, returning the mean");
   return getGTHPhaseMean(readAttempts);

@@ -140,7 +140,7 @@ BOOST_PYTHON_MODULE(_cmsgemos_gempython) {
     .def("setDAQLinkRunType",                &gem::hw::HwGenericAMC::setDAQLinkRunType)
     .def("setDAQLinkRunParameters",          &gem::hw::HwGenericAMC::setDAQLinkRunParameters)
     .def("setDAQLinkRunParameter",           &gem::hw::HwGenericAMC::setDAQLinkRunParameter)
-    .def("ttcReset",                         &gem::hw::HwGenericAMC::ttcReset)
+    .def("ttcModuleReset",                   &gem::hw::HwGenericAMC::ttcModuleReset)
     .def("ttcMMCMReset",                     &gem::hw::HwGenericAMC::ttcMMCMReset)
     .def("ttcMMCMPhaseShift",                &gem::hw::HwGenericAMC::ttcMMCMPhaseShift)
     .def("checkPLLLock",                     &gem::hw::HwGenericAMC::checkPLLLock)
