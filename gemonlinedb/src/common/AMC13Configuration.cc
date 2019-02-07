@@ -115,5 +115,34 @@ namespace gem {
             return dom;
         }
 
+        template<>
+        AMC13Configuration DBInterface::convertRow<AMC13Configuration>(
+            const xdata::Table &table, xdata::Table::Row &row)
+        {
+            AMC13Configuration config;
+
+            auto value = row.getField("FED_ID");
+            if (value != nullptr && value->type() == "string") {
+                auto str = value->toString();
+                if (!str.empty()) {
+                    config.setFEDId(std::stoi(value->toString()));
+                }
+            }
+
+            value = row.getField("ENABLE_LOCALTTC");
+            if (value != nullptr && value->type() == "string") {
+                auto str = value->toString();
+                if (!str.empty()) {
+                    config.setLocalTTCEnabled(std::stoi(value->toString()));
+                }
+            }
+
+            value = row.getField("HOSTNAME");
+            if (value != nullptr && value->type() == "string") {
+                config.setHostname(value->toString());
+            }
+
+            return config;
+        }
     } /* namespace onlinedb */
 } /* namespace gem */

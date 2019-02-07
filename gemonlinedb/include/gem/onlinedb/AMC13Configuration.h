@@ -9,6 +9,7 @@
 #include <xercesc/dom/DOMDocument.hpp>
 
 #include "gem/onlinedb/DataSet.h"
+#include "gem/onlinedb/DBInterface.h"
 #include "gem/onlinedb/PartReference.h"
 #include "gem/onlinedb/Run.h"
 
@@ -194,6 +195,9 @@ namespace gem {
             DOMDocumentPtr makeDOM() const;
         };
 
+        template<>
+        AMC13Configuration DBInterface::convertRow<AMC13Configuration>(
+            const xdata::Table &table, xdata::Table::Row &row);
     } /* namespace onlinedb */
 } /* namespace gem */
 
