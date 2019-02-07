@@ -1,6 +1,7 @@
 #ifndef GEM_ONLINEDB_DETAIL_XMLUTILS_H
 #define GEM_ONLINEDB_DETAIL_XMLUTILS_H
 
+#include <memory>
 #include <string>
 
 #include <xercesc/dom/DOM.hpp>
@@ -13,6 +14,11 @@
 
 namespace gem {
     namespace onlinedb {
+        /**
+         * @brief Convenience alias.
+         */
+        using DOMDocumentPtr = std::unique_ptr<xercesc::DOMDocument>;
+
         namespace detail {
             /**
              * @brief Wraps a Xerces string and xerces::XMLString::transcode
@@ -134,6 +140,23 @@ namespace gem {
              */
             xercesc::DOMText *appendChildText(
                 xercesc::DOMElement *parent, const std::string &content);
+
+
+            /**
+             * @brief Executes an XSD query on the given document and retrieves
+             *        the corresponding DOMNode.
+             */
+            xercesc::DOMNode *xsdGet(const DOMDocumentPtr &document,
+                                     const char *query,
+                                     const xercesc::DOMNode *root = nullptr);
+
+            /**
+             * @brief Executes an XSD query on the given document and retrieves
+             *        the text content of the corresponding DOMNode.
+             */
+            std::string xsdGetTextContent(const DOMDocumentPtr &document,
+                                          const char *query,
+                                          const xercesc::DOMNode *root = nullptr);
 
         } /* namespace detail */
     } /* namespace onlinedb */

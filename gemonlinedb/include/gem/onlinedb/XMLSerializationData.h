@@ -14,14 +14,10 @@
 #include "gem/onlinedb/PartReference.h"
 #include "gem/onlinedb/Run.h"
 #include "gem/onlinedb/detail/RegisterData.h"
+#include "gem/onlinedb/detail/XMLUtils.h"
 
 namespace gem {
     namespace onlinedb {
-
-        /**
-         * @brief Convenience alias.
-         */
-        using DOMDocumentPtr = std::unique_ptr<xercesc::DOMDocument>;
 
         /**
          * @brief Represents the contents of XML files.
