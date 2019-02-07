@@ -72,13 +72,17 @@ namespace gem {
                     root = document->getDocumentElement();
                 }
 
+                // Create a name resolver
+                auto nsResolver = std::unique_ptr<xercesc::DOMXPathNSResolver>();
+                nsResolver.reset(document->createNSResolver(root));
+
                 // Evaluate query
                 // Note: only result types 6 to 9 are supported by Xerces
                 auto result = std::unique_ptr<xercesc::DOMXPathResult>();
                 result.reset(document->evaluate(
                     detail::XercesString(query),
                     root,
-                    nullptr,
+                    nsResolver.get(),
                     xercesc::DOMXPathResult::FIRST_ORDERED_NODE_TYPE,
                     nullptr));
 
