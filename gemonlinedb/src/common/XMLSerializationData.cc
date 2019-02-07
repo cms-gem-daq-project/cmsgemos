@@ -12,47 +12,6 @@ namespace gem {
         namespace detail {
             namespace /* anonymous */ {
                 using namespace literals;
-
-                /**
-                 * @brief Executes an XSD query on the given document and
-                 *        retrieves the corresponding DOMNode.
-                 */
-                DOMNode *xsdGet(const DOMDocumentPtr &document,
-                                const char *query,
-                                const DOMNode *root = nullptr)
-                {
-                    if (root == nullptr) {
-                        root = document->getDocumentElement();
-                    }
-
-                    // Evaluate query
-                    // Note: only result types 6 to 9 are supported by Xerces
-                    auto result = std::unique_ptr<DOMXPathResult>();
-                    result.reset(document->evaluate(
-                        detail::XercesString(query),
-                        root,
-                        nullptr,
-                        DOMXPathResult::FIRST_ORDERED_NODE_TYPE,
-                        nullptr));
-
-                    // Get resulting DOMNode
-                    return result->getNodeValue();
-                }
-
-                /**
-                 * @brief Executes an XSD query on the given document and
-                 *        retrieves the text content of the corresponding
-                 *        DOMNode.
-                 */
-                std::string xsdGetTextContent(const DOMDocumentPtr &document,
-                                              const char *query,
-                                              const DOMNode *root = nullptr)
-                {
-                    // Get node
-                    auto node = xsdGet(document, query, root);
-                    return detail::transcode(node->getTextContent());
-                }
-
                 using detail::appendChildElement;
                 using detail::appendChildText;
 
