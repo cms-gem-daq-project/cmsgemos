@@ -12,17 +12,16 @@
             <gem:amc gem:serial-number="456">
                 <gem:empty-slot/>
                 <gem:ohv3 gem:serial-number="789">
-                    <gem:vfat gem:barcode="012"/>
-                    <gem:vfat gem:barcode="345"/>
-                    <gem:vfat gem:barcode="678"/>
-                    <gem:vfat gem:barcode="901"/>
-                    <gem:vfat gem:barcode="234"/>
-                    <gem:vfat gem:barcode="567"/>
-                    <gem:vfat gem:barcode="890"/>
-                    <gem:vfat gem:barcode="123"/>
-                    <gem:vfat gem:barcode="456"/>
-                    <gem:vfat gem:barcode="789"/>
-                    <gem:empty-slot/>
+                    <gem:vfat3 gem:barcode="012"/>
+                    <gem:vfat3 gem:barcode="345"/>
+                    <gem:vfat3 gem:barcode="678"/>
+                    <gem:vfat3 gem:barcode="901"/>
+                    <gem:vfat3 gem:barcode="234"/>
+                    <gem:vfat3 gem:barcode="567"/>
+                    <gem:vfat3 gem:barcode="890"/>
+                    <gem:vfat3 gem:barcode="123"/>
+                    <gem:vfat3 gem:barcode="456"/>
+                    <gem:vfat3 gem:barcode="789"/>
                     <gem:empty-slot/>
                     <gem:empty-slot/>
                     <gem:empty-slot/>
@@ -38,7 +37,6 @@
                     <gem:empty-slot/>
                     <gem:empty-slot/>
                 </gem:ohv3>
-                <gem:empty-slot/>
                 <gem:empty-slot/>
                 <gem:empty-slot/>
                 <gem:empty-slot/>

@@ -71,6 +71,7 @@ clean-xsd:
 test-xsd:
 	xmllint --noout --schema xml/schema/VFAT3ChipConfiguration.xsd xml/VFAT3_Chip_Configuration.xml
 	xmllint --noout --schema xml/schema/VFAT3ChannelConfiguration.xsd xml/VFAT3_Channel_Configuration.xml
+	xmllint --noout --schema xml/schema/system-topology.xsd xml/examples/system-topology.xml
 
 # Auto-generated headers
 .PHONY: clean-gen-headers
