@@ -10,6 +10,7 @@ SUBPACKAGES := \
         gemsupervisor \
         gempython \
         gemdaqmonitor \
+        gemonlinedb \
         # gemHwMonitor \
 
 SUBPACKAGES.DEBUG    := $(patsubst %,%.debug,    ${SUBPACKAGES})
@@ -121,6 +122,8 @@ gembase: gemutils
 gemsupervisor: gemutils gembase gemhardware gemreadout
 
 gemutils:
+
+gemonlinedb: gemutils gembase
 
 gemreadout: gemutils gembase gemhwdevices
 
