@@ -4,6 +4,7 @@
 #include <xdata/Table.h>
 
 #include "gem/onlinedb/detail/RegisterData.h"
+#include "gem/onlinedb/exception/Exception.h"
 
 namespace gem {
     namespace onlinedb {
@@ -31,17 +32,17 @@ namespace gem {
                 auto value = row.getField(c);
                 if (value != nullptr && value->type() == "string") {
                     auto str = value->toString();
-                    if (!str.empty()) {
+                    try {
                         data[c] = std::stoi(str);
-                    } else {
-                        // Empty value in database -> use 0
-                        // This *does* actually happen...
-                        data[c] = 0;
+                    } catch (const std::invalid_argument &e) {
+                        XCEPT_RAISE(exception::ParseError,
+                                    "In database field \"" + c + "\": "
+                                    "Cannot convert \"" + str + "\" to integer: " +
+                                    e.what());
                     }
                 } else {
-                    // "null" in database -> use 0
-                    // This *does* actually happen...
-                    data[c] = 0;
+                    XCEPT_RAISE(exception::ParseError,
+                                "In database field \"" + c + "\": Null value");
                 }
             }
             auto config = ConfigurationType();

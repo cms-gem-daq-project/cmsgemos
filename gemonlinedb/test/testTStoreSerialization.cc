@@ -14,7 +14,7 @@
 #include "gem/onlinedb/VFAT3ChipConfiguration.h"
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE TestTStore
+#define BOOST_TEST_MODULE TStoreSerialization
 #include <boost/test/unit_test.hpp>
 
 /* Needed to make the linker happy. */
@@ -77,7 +77,9 @@ BOOST_AUTO_TEST_CASE(OHv3Configuration)
 
 BOOST_AUTO_TEST_CASE(AMCConfiguration)
 {
-    test<gem::onlinedb::AMCConfiguration>();
+    // There are some broken AMC configurations in the DB
+    BOOST_CHECK_THROW(test<gem::onlinedb::AMCConfiguration>(),
+                      gem::onlinedb::exception::ParseError);
 }
 
 BOOST_AUTO_TEST_CASE(AMC13Configuration)
