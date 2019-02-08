@@ -134,34 +134,33 @@ namespace gem {
 
                 auto vec = std::vector<detail::RegisterData>();
 
-                auto dataElement = dataSetElement->getFirstElementChild();
-                if (dataElement != nullptr) {
-                    do {
-                        if (detail::transcode(dataElement->getNodeName()) != "DATA") {
-                            // Need to skip COMMENT_DESCRIPTION, VERSION and PART
+                for (auto dataElement = dataSetElement->getFirstElementChild();
+                     dataElement != nullptr;
+                     dataElement = dataElement->getNextElementSibling()) {
+                    if (detail::transcode(dataElement->getNodeName()) != "DATA") {
+                        // Need to skip COMMENT_DESCRIPTION, VERSION and PART
+                        continue;
+                    }
+
+                    auto data = detail::RegisterData();
+
+                    auto childNodes = dataElement->getChildNodes();
+                    auto childCount = childNodes->getLength();
+
+                    // Loop over elements inside DATA tags
+                    for (XMLSize_t child = 0; child < childCount; ++child) {
+                        auto node = childNodes->item(child);
+                        if (node->getNodeType() != DOMNode::ELEMENT_NODE) {
                             continue;
                         }
 
-                        auto data = detail::RegisterData();
+                        auto name = detail::transcode(node->getNodeName());
+                        auto value = detail::transcode(node->getTextContent());
 
-                        auto childNodes = dataElement->getChildNodes();
-                        auto childCount = childNodes->getLength();
+                        data[name] = std::stoi(value);
+                    }
 
-                        // Loop over elements inside DATA tags
-                        for (XMLSize_t child = 0; child < childCount; ++child) {
-                            auto node = childNodes->item(child);
-                            if (node->getNodeType() != DOMNode::ELEMENT_NODE) {
-                                continue;
-                            }
-
-                            auto name = detail::transcode(node->getNodeName());
-                            auto value = detail::transcode(node->getTextContent());
-
-                            data[name] = std::stoi(value);
-                        }
-
-                        vec.push_back(data);
-                    } while ((dataElement = dataElement->getNextElementSibling()));
+                    vec.push_back(data);
                 }
 
                 return vec;

@@ -98,17 +98,13 @@ namespace gem {
             xercesc::DOMElement *findChildElement(
                 const xercesc::DOMElement *root, const std::string &tagName)
             {
-                auto child = root->getFirstElementChild();
-                if (child == nullptr) {
-                    // No child at all
-                    return nullptr;
-                }
-
-                do {
+                for (auto child = root->getFirstElementChild();
+                     child != nullptr;
+                     child = child->getNextElementSibling()) {
                     if (transcode(child->getNodeName()) == tagName) {
                         return child;
                     }
-                } while ((child = child->getNextElementSibling()));
+                }
 
                 // Not found
                 return nullptr;
