@@ -123,43 +123,39 @@ namespace gem {
                 const DOMDocumentPtr &document,
                 const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
-                // Evaluate query
-                // Note: only result types 6 to 9 are supported by Xerces
-                auto queryResult = std::unique_ptr<DOMXPathResult>();
-                queryResult.reset(document->evaluate(
-                    "//DATA_SET/DATA"_xml,
-                    result->getNodeValue(),
-                    nullptr,
-                    DOMXPathResult::ORDERED_NODE_SNAPSHOT_TYPE,
-                    nullptr));
+                auto dataSetElement =
+                    dynamic_cast<DOMElement *>(result->getNodeValue());
 
-                auto count = queryResult->getSnapshotLength();
                 auto vec = std::vector<detail::RegisterData>();
-                vec.reserve(count);
 
-                // Loop over DATA tags
-                for (XMLSize_t i = 0; i < count; ++i) {
-                    queryResult->snapshotItem(i);
-
-                    auto data = detail::RegisterData();
-
-                    auto childNodes = queryResult->getNodeValue()->getChildNodes();
-                    auto childCount = childNodes->getLength();
-
-                    // Loop over elements inside DATA tags
-                    for (XMLSize_t child = 0; child < childCount; ++child) {
-                        auto node = childNodes->item(child);
-                        if (node->getNodeType() != DOMNode::ELEMENT_NODE) {
+                auto dataElement = dataSetElement->getFirstElementChild();
+                if (dataElement != nullptr) {
+                    do {
+                        if (detail::transcode(dataElement->getNodeName()) != "DATA") {
+                            // Need to skip COMMENT_DESCRIPTION, VERSION and PART
                             continue;
                         }
 
-                        auto name = detail::transcode(node->getNodeName());
-                        auto value = detail::transcode(node->getTextContent());
+                        auto data = detail::RegisterData();
 
-                        data[name] = std::stoi(value);
-                    }
+                        auto childNodes = dataElement->getChildNodes();
+                        auto childCount = childNodes->getLength();
 
-                    vec.push_back(data);
+                        // Loop over elements inside DATA tags
+                        for (XMLSize_t child = 0; child < childCount; ++child) {
+                            auto node = childNodes->item(child);
+                            if (node->getNodeType() != DOMNode::ELEMENT_NODE) {
+                                continue;
+                            }
+
+                            auto name = detail::transcode(node->getNodeName());
+                            auto value = detail::transcode(node->getTextContent());
+
+                            data[name] = std::stoi(value);
+                        }
+
+                        vec.push_back(data);
+                    } while ((dataElement = dataElement->getNextElementSibling()));
                 }
 
                 return vec;
