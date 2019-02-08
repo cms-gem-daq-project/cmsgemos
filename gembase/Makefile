@@ -9,9 +9,9 @@ LongPackage=gembase
 ShortPackage=base
 PackageName=base
 
-GEMBASE_VER_MAJOR:=1
-GEMBASE_VER_MINOR:=0
-GEMBASE_VER_PATCH:=0
+GEMBASE_VER_MAJOR=1
+GEMBASE_VER_MINOR=0
+GEMBASE_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
@@ -28,17 +28,11 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
-UserCFlags  +=$(PYTHONCFLAGS)
-UserCCFlags +=$(PYTHONCFLAGS)
-
 DependentLibraries+=gemutils
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
 
-check:
-	$(CPPCHECK) $(CPPCHECKFLAGS) --xml $(addprefix -I,$(IncludeDirs)) src/common 2> cppcheck.gembase.xml; \
-	$(CPPCHECK) $(CPPCHECKFLAGS) $(addprefix -I,$(IncludeDirs)) src/common 2> cppcheck.gembase.log
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

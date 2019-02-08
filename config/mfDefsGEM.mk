@@ -140,14 +140,12 @@ else
 $(info Unable to determine flags for gcc($(GCCNUM))/clang($(CLANGNUM)))
 endif
 
-UserCFlags+=-O0 -g3 -fno-inline
 UserCCFlags =${UserCFlags}
+#UserCCFlags =-std=c++0x -std=gnu++0x -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
 
-##  -Wl,--no-undefined ## not necessarily a good things always
-UserStaticLinkFlags  = -Wl,--as-needed -Wl,--warn-unresolved-symbols
-UserDynamicLinkFlags = -Wl,--as-needed -Wl,--warn-unresolved-symbols
+UserStaticLinkFlags  =
+UserDynamicLinkFlags =
 
-## Set up include dirs, might be better to do all this setup at a per package level for minimum linking
 IncludeDirs+=$(XDAQ_ROOT)/include
 
 # ROOT Config
@@ -158,6 +156,7 @@ ROOTGLIBS  = $(shell root-config --glibs)
 # MySQL Config
 MySQLCFLAGS = $(shell mysql_config --cflags)
 MySQLLIBS   = $(shell mysql_config --libs)
+MySQLGLIBS  = $(shell mysql_config --glibs)
 
 LibraryDirs+=$(XDAQ_ROOT)/lib
 # LibraryDirs+=/usr/local/lib
@@ -166,24 +165,21 @@ DependentLibraryDirs+=$(XDAQ_ROOT)/lib
 # DependentLibraryDirs+=/usr/local/lib
 
 # Let's clean this up and only link against the requried libs, may require moving non-xdaq dependencies out of certain build chains
-## libraries are linked against in a one-pass mode, so least depended to the left, more depended to the right
-StandardLibraries =
-StandardLibraries+=xdaq2rc xdaq
-StandardLibraries+=xoap xdata xerces-c xcept
-StandardLibraries+=peer xgi
-StandardLibraries+=toolbox config
-StandardLibraries+=logudpappender logxmlappender log4cplus
-StandardLibraries+=cgicc mimetic numa uuid asyncresolv
-# StandardLibraries+=boost_filesystem boost_regex boost_system
-# StandardLibraries+=readline ncurses pthread
+DependentLibraries+= log4cplus xcept
+DependentLibraries+= config toolbox
+DependentLibraries+= boost_system
+DependentLibraries+= asyncresolv
+DependentLibraries+= uuid
+# DependentLibraries+= numa uuid
+# DependentLibraries+= xdaq2rc
+DependentLibraries+= xerces-c
 
-## DependentLibraries is used for building any shared object
-DependentLibraries =
+# Libraries+=config xcept
+# Libraries+=log4cplus toolbox
+# Libraries+=asyncresolv uuid
+# Libraries+=xerces-c
+# Libraries+=numa
 
-## Libraries is used for building any exe
-Libraries =
-
-# UserExecutableLinkFlags+=-Wl,-soname
 #UserExecutableLinkFlags+=-Wl,-rpath-link ${XDAQ_ROOT}/lib -Wl,-rpath-link $(uHALROOT)/lib
 #UserExecutableLinkFlags+=-Wl,-rpath-link ${HCAL_XDAQ_ROOT}/lib
 #UserExecutableLinkFlags+=-L$(CACTUS_HOME)/lib
@@ -236,5 +232,3 @@ GCCVERSION = $(shell $(CC) -dumpversion)
 CLANGVERSION = $(shell $(CC) -dumpversion)
 
 CCVERSION = $(shell $(CC) -dumpversion)
-CPPCHECK  = cppcheck
-CPPCHECKFLAGS = --quiet --verbose --inconclusive --force --enable=information,unusedFunction,warning --suppress=purgedConfiguration
