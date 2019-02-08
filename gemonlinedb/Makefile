@@ -16,10 +16,13 @@ GEMONLINEDB_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 
+DependentLibraries += boost_filesystem
+
 Sources = \
     AMC13Configuration.cc \
     AMCConfiguration.cc \
     AMCConfigurationGen.cc \
+    FileUtils.cc \
     OHv3Configuration.cc \
     OHv3ConfigurationGen.cc \
     Run.cc \
@@ -36,6 +39,7 @@ TestLibraries = $(DependentLibraries) xoap boost_unit_test_framework
 
 TestExecutables = \
     test/testAMC13Configuration.cc \
+    test/testFileUtils.cc \
     test/testSystemTopology.cc \
     test/testTStoreSerialization.cc \
     test/testVFAT3ChannelConfiguration.cc \
