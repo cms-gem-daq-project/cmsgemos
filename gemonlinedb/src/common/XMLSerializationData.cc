@@ -149,6 +149,9 @@ namespace gem {
                     // Loop over elements inside DATA tags
                     for (XMLSize_t child = 0; child < childCount; ++child) {
                         auto node = childNodes->item(child);
+                        if (node->getNodeType() != DOMNode::ELEMENT_NODE) {
+                            continue;
+                        }
 
                         auto name = detail::transcode(node->getNodeName());
                         auto value = detail::transcode(node->getTextContent());

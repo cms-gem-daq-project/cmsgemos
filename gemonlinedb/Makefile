@@ -30,6 +30,7 @@ Sources = \
     VFAT3ChannelConfiguration.cc \
     VFAT3ChipConfigurationGen.cc \
     version.cc \
+    XMLConfigurationProvider.cc \
     XMLSerializationData.cc \
     XMLUtils.cc \
 
@@ -43,6 +44,7 @@ TestExecutables = \
     test/testSystemTopology.cc \
     test/testTStoreSerialization.cc \
     test/testVFAT3ChannelConfiguration.cc \
+    test/testXMLConfigurationProvider.cc \
     test/testXMLSerialization.cc \
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
