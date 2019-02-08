@@ -52,11 +52,12 @@ namespace gem {
             populatePart(reference, el);
 
             amc.clear();
-            auto amcEl = el->getFirstElementChild();
-            do {
+            for (auto amcEl = el->getFirstElementChild();
+                 amcEl != nullptr;
+                 amcEl = amcEl->getNextElementSibling()) {
                 amc.emplace_back();
                 amc.back().populate(amcEl);
-            } while ((amcEl = amcEl->getNextElementSibling()));
+            }
         }
 
         void SystemTopology::AMCNode::populate(const DOMElement *el)
