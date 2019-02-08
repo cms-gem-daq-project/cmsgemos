@@ -65,12 +65,9 @@ namespace gem {
             }
 
             xercesc::DOMNode *xsdGet(const DOMDocumentPtr &document,
-                                     const char *query,
-                                     const xercesc::DOMNode *root)
+                                     const char *query)
             {
-                if (root == nullptr) {
-                    root = document->getDocumentElement();
-                }
+                auto root = document->getDocumentElement();
 
                 // Create a name resolver
                 auto nsResolver = std::unique_ptr<xercesc::DOMXPathNSResolver>();
@@ -91,12 +88,30 @@ namespace gem {
             }
 
             std::string xsdGetTextContent(const DOMDocumentPtr &document,
-                                          const char *query,
-                                          const xercesc::DOMNode *root)
+                                          const char *query)
             {
                 // Get node
-                auto node = xsdGet(document, query, root);
+                auto node = xsdGet(document, query);
                 return detail::transcode(node->getTextContent());
+            }
+
+            xercesc::DOMElement *findChildElement(
+                const xercesc::DOMElement *root, const std::string &tagName)
+            {
+                auto child = root->getFirstElementChild();
+                if (child == nullptr) {
+                    // No child at all
+                    return nullptr;
+                }
+
+                do {
+                    if (transcode(child->getNodeName()) == tagName) {
+                        return child;
+                    }
+                } while ((child = child->getNextElementSibling()));
+
+                // Not found
+                return nullptr;
             }
 
         } /* namespace detail */

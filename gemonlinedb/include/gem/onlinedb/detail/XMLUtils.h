@@ -168,16 +168,21 @@ namespace gem {
              *        the corresponding DOMNode.
              */
             xercesc::DOMNode *xsdGet(const DOMDocumentPtr &document,
-                                     const char *query,
-                                     const xercesc::DOMNode *root = nullptr);
+                                     const char *query);
 
             /**
              * @brief Executes an XSD query on the given document and retrieves
              *        the text content of the corresponding DOMNode.
              */
             std::string xsdGetTextContent(const DOMDocumentPtr &document,
-                                          const char *query,
-                                          const xercesc::DOMNode *root = nullptr);
+                                          const char *query);
+
+            /**
+             * @brief Finds the first direct child of @c root with the given
+             *        @c tagName
+             */
+            xercesc::DOMElement *findChildElement(
+                const xercesc::DOMElement *root, const std::string &tagName);
 
         } /* namespace detail */
     } /* namespace onlinedb */

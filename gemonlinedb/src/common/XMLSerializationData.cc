@@ -80,18 +80,21 @@ namespace gem {
                 const DOMDocumentPtr &document,
                 const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
-                return xsdGetTextContent(document,
-                                         "//DATA_SET/COMMENT_DESCRIPTION",
-                                         result->getNodeValue());
+                auto dataSetElement =
+                    dynamic_cast<DOMElement *>(result->getNodeValue());
+                auto commentElement = findChildElement(dataSetElement,
+                                                       "COMMENT_DESCRIPTION");
+                return transcode(commentElement->getTextContent());
             }
 
             std::string readDataSetVersion(
                 const DOMDocumentPtr &document,
                 const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
-                return xsdGetTextContent(document,
-                                         "//DATA_SET/VERSION",
-                                         result->getNodeValue());
+                auto dataSetElement =
+                    dynamic_cast<DOMElement *>(result->getNodeValue());
+                auto versionElement = findChildElement(dataSetElement, "VERSION");
+                return transcode(versionElement->getTextContent());
             }
 
             template<>
@@ -99,11 +102,13 @@ namespace gem {
                 const DOMDocumentPtr &document,
                 const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
-                PartReferenceBarcode ref;
-                ref.barcode = xsdGetTextContent(document,
-                                                "//DATA_SET/PART/BARCODE",
-                                                result->getNodeValue());
-                return ref;
+                auto dataSetElement =
+                    dynamic_cast<DOMElement *>(result->getNodeValue());
+                auto partElement = findChildElement(dataSetElement, "PART");
+                auto barcodeElement = findChildElement(partElement, "BARCODE");
+                return PartReferenceBarcode{
+                    transcode(barcodeElement->getTextContent())
+                };
             }
 
             template<>
@@ -111,12 +116,13 @@ namespace gem {
                 const DOMDocumentPtr &document,
                 const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
-                PartReferenceSN ref;
-                ref.serialNumber = xsdGetTextContent(
-                    document,
-                    "//DATA_SET/PART/SERIAL_NUMBER",
-                    result->getNodeValue());
-                return ref;
+                auto dataSetElement =
+                    dynamic_cast<DOMElement *>(result->getNodeValue());
+                auto partElement = findChildElement(dataSetElement, "PART");
+                auto snElement = findChildElement(partElement, "SERIAL_NUMBER");
+                return PartReferenceSN{
+                    transcode(snElement->getTextContent())
+                };
             }
 
             std::vector<detail::RegisterData> readRegisterData(
