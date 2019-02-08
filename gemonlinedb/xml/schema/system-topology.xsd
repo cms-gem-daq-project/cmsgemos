@@ -1,7 +1,7 @@
 <?xml version="1.0" standalone="yes"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:gem="https://github.com/cms-gem-daq-project/cmsgemos"
-           targetNamespace="https://github.com/cms-gem-daq-project/cmsgemos"
+           xmlns:gem="https://github.com/cms-gem-daq-project/cmsgemos/tree/master/gemonlinedb/xml/schema/system-topology.xsd"
+           targetNamespace="https://github.com/cms-gem-daq-project/cmsgemos/tree/master/gemonlinedb/xml/schema/system-topology.xsd"
            elementFormDefault="qualified">
 
     <!-- Attributes -->

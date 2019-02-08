@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(Populate)
         XercesDOMParser parser;
         parser.setErrorHandler(errorHandler.get());
         parser.setExternalSchemaLocation(
-            "https://github.com/cms-gem-daq-project/cmsgemos "
+            "https://github.com/cms-gem-daq-project/cmsgemos/tree/master/gemonlinedb/xml/schema/system-topology.xsd "
             "../schema/system-topology.xsd"); // Need to figure out a better way
         parser.setValidationScheme(XercesDOMParser::Val_Always);
         parser.setDoNamespaces(true);

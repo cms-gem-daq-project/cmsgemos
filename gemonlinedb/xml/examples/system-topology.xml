@@ -1,4 +1,4 @@
-<gem:system xmlns:gem="https://github.com/cms-gem-daq-project/cmsgemos">
+<gem:system xmlns:gem="https://github.com/cms-gem-daq-project/cmsgemos/tree/master/gemonlinedb/xml/schema/system-topology.xsd">
     <gem:configuration>
         <gem:vfat3-channel-file>vfat3_channel.xml</gem:vfat3-channel-file>
         <gem:vfat3-chip-file>vfat3_chip.xml</gem:vfat3-chip-file>
