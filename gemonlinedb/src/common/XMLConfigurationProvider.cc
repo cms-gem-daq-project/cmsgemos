@@ -8,6 +8,7 @@
 #include "gem/onlinedb/XMLSerializationData.h"
 #include "gem/onlinedb/detail/FileUtils.h"
 #include "gem/onlinedb/detail/XMLUtils.h"
+#include "gem/onlinedb/exception/Exception.h"
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -92,7 +93,8 @@ namespace gem {
                     if (map.count(toString(part)) > 0) {
                         // Corresponds to more than one configuration for the same
                         // part, which is not supported.
-                        throw std::runtime_error(
+                        XCEPT_RAISE(
+                            exception::ParseError,
                             "In " + filename + ": Duplicated part " + toString(part));
                     }
 
@@ -101,7 +103,8 @@ namespace gem {
                         std::cout << data.size() << std::endl;
                         // Corresponds to more than one configuration for the same
                         // part, which is not supported.
-                        throw std::runtime_error(
+                        XCEPT_RAISE(
+                            exception::ParseError,
                             "In " + filename +
                             ": DATA_SET section contains more than one DATA entry");
                     }
