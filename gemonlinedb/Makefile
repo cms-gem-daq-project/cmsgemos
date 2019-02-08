@@ -22,6 +22,7 @@ Sources = \
     AMC13Configuration.cc \
     AMCConfiguration.cc \
     AMCConfigurationGen.cc \
+    ConfigurationLinker.cc \
     FileUtils.cc \
     OHv3Configuration.cc \
     OHv3ConfigurationGen.cc \
