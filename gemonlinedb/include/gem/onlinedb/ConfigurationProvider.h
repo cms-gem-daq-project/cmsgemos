@@ -34,7 +34,7 @@ namespace gem {
             /**
              * @brief Retrieves a configuration for the referenced AMC 13
              *
-             * The corresponding AMC configurations must not be linked.
+             * The corresponding AMC configurations doesn't need to be linked.
              */
             virtual std::shared_ptr<AMC13Configuration> getAMC13Configuration(
                 const ConfigurationTraits<AMC13Configuration>::PartType &reference) const = 0;
@@ -42,7 +42,7 @@ namespace gem {
             /**
              * @brief Retrieves a configuration for the referenced AMC
              *
-             * The corresponding OH configurations must not be linked.
+             * The corresponding OH configurations doesn't need to be linked.
              */
             virtual std::shared_ptr<AMCConfiguration> getAMCConfiguration(
                 const ConfigurationTraits<AMCConfiguration>::PartType &reference) const = 0;
@@ -50,7 +50,7 @@ namespace gem {
             /**
              * @brief Retrieves a configuration for the referenced OH
              *
-             * The corresponding VFAT configurations must not be linked.
+             * The corresponding VFAT configurations doesn't need to be linked.
              */
             virtual std::shared_ptr<OHv3Configuration> getOHv3Configuration(
                 const ConfigurationTraits<OHv3Configuration>::PartType &reference) const = 0;
@@ -58,7 +58,7 @@ namespace gem {
             /**
              * @brief Retrieves a chip configuration for the referenced VFAT.
              *
-             * The corresponding channel configuration must not be linked.
+             * The corresponding channel configuration doesn't need to be linked.
              */
             virtual std::shared_ptr<VFAT3ChipConfiguration>
             getVFAT3ChipConfiguration(
