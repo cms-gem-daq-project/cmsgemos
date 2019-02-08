@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(SerializationData)
 {
     VFAT3ChannelConfiguration config;
     auto data = config.getRegisterData();
-    BOOST_CHECK(data.count("CHANNEL_REG_15") == 1);
+    BOOST_CHECK(data.count("CFG_CHANNEL_15") == 1);
     config.readRegisterData(data);
 }
 
