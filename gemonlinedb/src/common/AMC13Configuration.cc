@@ -125,7 +125,7 @@ namespace gem {
             if (value != nullptr && value->type() == "string") {
                 auto str = value->toString();
                 if (!str.empty()) {
-                    config.setFEDId(std::stoi(value->toString()));
+                    config.setFEDId(std::stoi(str));
                 }
             }
 
@@ -133,7 +133,7 @@ namespace gem {
             if (value != nullptr && value->type() == "string") {
                 auto str = value->toString();
                 if (!str.empty()) {
-                    config.setLocalTTCEnabled(std::stoi(value->toString()));
+                    config.setLocalTTCEnabled(std::stoi(str));
                 }
             }
 

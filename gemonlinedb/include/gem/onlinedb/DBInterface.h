@@ -32,7 +32,7 @@ namespace gem {
                 if (value != nullptr && value->type() == "string") {
                     auto str = value->toString();
                     if (!str.empty()) {
-                        data[c] = std::stoi(value->toString());
+                        data[c] = std::stoi(str);
                     } else {
                         // Empty value in database -> use 0
                         // This *does* actually happen...
