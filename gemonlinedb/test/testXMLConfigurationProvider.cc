@@ -30,14 +30,14 @@ BOOST_AUTO_TEST_CASE(LoadAMC)
     provider.loadAMC("xml/AMC_Configuration.xml");
 
     // SN "unknown" isn't present in the xml file
-    BOOST_CHECK_THROW(provider.getVFAT3ChipConfiguration({ "unknown" }),
+    BOOST_CHECK_THROW(provider.getAMCConfiguration({ "unknown" }),
                       std::out_of_range);
 
     // SN "AMC-VI-VERSION-0001" is present in the xml file
-    provider.getVFAT3ChipConfiguration({ "AMC-VI-VERSION-0001" });
+    provider.getAMCConfiguration({ "AMC-VI-VERSION-0001" });
 
     // SN "AMC-VI-VERSION-6464" is present in the xml file
-    provider.getVFAT3ChipConfiguration({ "AMC-VI-VERSION-6464" });
+    provider.getAMCConfiguration({ "AMC-VI-VERSION-6464" });
 }
 
 BOOST_AUTO_TEST_CASE(LoadOHv3)
