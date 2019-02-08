@@ -49,5 +49,35 @@
                 <gem:empty-slot/>
             </gem:amc>
         </gem:amc13>
+        <gem:amc13 gem:serial-number="456">
+            <gem:amc gem:serial-number="123">
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+            </gem:amc>
+            <gem:amc gem:serial-number="123">
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+                <gem:empty-slot/>
+            </gem:amc>
+        </gem:amc13>
     </gem:topology>
 </gem:system>

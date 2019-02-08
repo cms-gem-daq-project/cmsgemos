@@ -89,10 +89,15 @@ namespace gem {
             m_provider(provider)
         {}
 
-        std::unique_ptr<AMC13Configuration> ConfigurationLinker::link(
+        std::vector<std::unique_ptr<AMC13Configuration>>
+        ConfigurationLinker::link(
             const std::shared_ptr<SystemTopology> &topology) const
         {
-            return linkAMC13(m_provider, topology->root());
+            std::vector<std::unique_ptr<AMC13Configuration>> result;
+            for (const auto &root : topology->roots()) {
+                result.emplace_back(linkAMC13(m_provider, root));
+            }
+            return result;
         }
 
     } // namespace onlinedb

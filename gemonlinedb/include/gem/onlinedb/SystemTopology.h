@@ -19,9 +19,8 @@ namespace gem {
          * @brief Describes the topology of a system.
          *
          * The description is built as a tree of nodes containing part
-         * references for the various components. The root node is the AMC 13
-         * (only one AMC 13 is supported), under which AMCs are found, then OHs
-         * and VFATs.
+         * references for the various components. The root nodes are the AMC 13,
+         * under which AMCs are found, then OHs and VFATs.
          *
          * The tree can be read from an XML document that adheres to the
          * @c system-topology schema.
@@ -110,7 +109,7 @@ namespace gem {
                 void populate(const xercesc::DOMElement *el);
             };
 
-            AMC13Node m_root;
+            std::vector<AMC13Node> m_roots;
 
         public:
             /// @brief Constructor.
@@ -125,8 +124,8 @@ namespace gem {
              */
             void populate(const DOMDocumentPtr &document);
 
-            /// @brief Returns the root node of the system tree.
-            const AMC13Node &root() const { return m_root; };
+            /// @brief Returns the root nodes of the system trees.
+            const std::vector<AMC13Node> &roots() const { return m_roots; };
         };
 
     } // namespace onlinedb
