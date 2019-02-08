@@ -6,6 +6,7 @@
 
 #include "gem/onlinedb/XMLSerializationData.h"
 #include "gem/onlinedb/detail/XMLUtils.h"
+#include "gem/onlinedb/exception/Exception.h"
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -124,22 +125,41 @@ namespace gem {
             auto value = row.getField("FED_ID");
             if (value != nullptr && value->type() == "string") {
                 auto str = value->toString();
-                if (!str.empty()) {
+                try {
                     config.setFEDId(std::stoi(str));
+                } catch (const std::invalid_argument &e) {
+                    XCEPT_RAISE(exception::ParseError,
+                                "In database field \"FED_ID\": "
+                                "Cannot convert \"" + str + "\" to integer: " +
+                                e.what());
                 }
+            } else {
+                XCEPT_RAISE(exception::ParseError,
+                            "In database field \"FED_ID\": Null value");
             }
 
             value = row.getField("ENABLE_LOCALTTC");
             if (value != nullptr && value->type() == "string") {
                 auto str = value->toString();
-                if (!str.empty()) {
+                try {
                     config.setLocalTTCEnabled(std::stoi(str));
+                } catch (const std::invalid_argument &e) {
+                    XCEPT_RAISE(exception::ParseError,
+                                "In database field \"ENABLE_LOCALTTC\": "
+                                "Cannot convert \"ENABLE_LOCALTTC\" to integer: " +
+                                std::string(e.what()));
                 }
+            } else {
+                XCEPT_RAISE(exception::ParseError,
+                            "In database field \"ENABLE_LOCALTTC\": Null value");
             }
 
             value = row.getField("HOSTNAME");
             if (value != nullptr && value->type() == "string") {
                 config.setHostname(value->toString());
+            } else {
+                XCEPT_RAISE(exception::ParseError,
+                            "In database field \"HOSTNAME\": Null value");
             }
 
             return config;
