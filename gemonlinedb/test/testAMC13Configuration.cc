@@ -12,7 +12,7 @@
 #include "gem/onlinedb/detail/XMLUtils.h"
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE XMLSerializationData
+#define BOOST_TEST_MODULE TestAMC13Configuration
 #include <boost/test/unit_test.hpp>
 
 /* Needed to make the linker happy. */
@@ -25,7 +25,7 @@ config::PackageInfo xdaq::getPackageInfo()
 using namespace gem::onlinedb;
 using namespace gem::onlinedb::detail::literals;
 
-BOOST_FIXTURE_TEST_SUITE(XMLSerialization, detail::XercesGuard)
+BOOST_FIXTURE_TEST_SUITE(TestAMC13Configuration, detail::XercesGuard)
 
 XMLSerializationData<AMC13Configuration> createTestXMLSerializationData()
 {

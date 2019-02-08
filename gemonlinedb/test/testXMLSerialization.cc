@@ -9,7 +9,7 @@
 #include "gem/onlinedb/detail/XMLUtils.h"
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE XMLSerializationData
+#define BOOST_TEST_MODULE XMLSerialization
 #include <boost/test/unit_test.hpp>
 
 /* Needed to make the linker happy. */

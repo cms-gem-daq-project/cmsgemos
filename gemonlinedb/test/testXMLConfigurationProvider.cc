@@ -1,7 +1,7 @@
 #include "gem/onlinedb/XMLConfigurationProvider.h"
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE XMLSerializationData
+#define BOOST_TEST_MODULE TestXMLConfigurationProvider
 #include <boost/test/unit_test.hpp>
 
 #include <iostream>
