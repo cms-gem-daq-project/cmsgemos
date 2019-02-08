@@ -44,7 +44,7 @@
     <xs:element name="amc13">
         <xs:complexType>
             <xs:sequence>
-                <xs:element ref="gem:amc"/>
+                <xs:element ref="gem:amc" maxOccurs="12"/>
             </xs:sequence>
             <xs:attribute ref="gem:serial-number" use="required"/>
         </xs:complexType>
@@ -69,7 +69,7 @@
                 <xs:element name="topology">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element ref="gem:amc13"/>
+                            <xs:element ref="gem:amc13" maxOccurs="unbounded"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>

@@ -35,15 +35,16 @@ namespace gem {
 
         void SystemTopology::populate(const DOMDocumentPtr &document)
         {
-            auto topologyNode = detail::xsdGet(document, "//gem:system/gem:topology");
-            if (topologyNode == nullptr) {
-                throw std::logic_error("Invalid XML topology definition");
+            auto systemEl = document->getDocumentElement();
+            auto topologyEl = detail::findChildElement(systemEl, "gem:topology");
+
+            m_roots.clear();
+            for (auto amc13El = topologyEl->getFirstElementChild();
+                 amc13El != nullptr;
+                 amc13El = amc13El->getNextElementSibling()) {
+                m_roots.emplace_back();
+                m_roots.back().populate(amc13El);
             }
-
-            auto topologyEl = dynamic_cast<DOMElement *>(topologyNode);
-            auto amc13El = topologyEl->getFirstElementChild();
-
-            m_root.populate(amc13El);
         }
 
         void SystemTopology::AMC13Node::populate(const DOMElement *el)

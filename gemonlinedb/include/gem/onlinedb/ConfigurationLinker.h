@@ -48,11 +48,11 @@ namespace gem {
              * Configuration objects are pulled from the
              * @ref ConfigurationProvider associated with this linker.
              *
-             * Returns a pointer to the top-level node of the configuration
-             * object tree.
+             * Returns a vector of pointers to the top-level nodes of the
+             * configuration object trees.
              */
-            std::unique_ptr<AMC13Configuration> link(
-                const std::shared_ptr<SystemTopology> &topology) const;
+            std::vector<std::unique_ptr<AMC13Configuration>>
+            link(const std::shared_ptr<SystemTopology> &topology) const;
         };
 
     } // namespace onlinedb

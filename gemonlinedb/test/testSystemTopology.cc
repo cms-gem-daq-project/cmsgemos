@@ -55,6 +55,9 @@ BOOST_AUTO_TEST_CASE(Populate)
         SystemTopology topo;
         topo.populate(document);
 
+        // The example system topology has 2 AMC 13's
+        BOOST_CHECK(topo.roots().size() == 2);
+
     } catch (DOMException &e) {
         throw std::runtime_error(detail::transcode(e.getMessage()));
     } catch (XMLException &e) {
