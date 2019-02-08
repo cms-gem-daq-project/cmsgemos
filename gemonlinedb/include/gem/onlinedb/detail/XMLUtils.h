@@ -5,6 +5,8 @@
 #include <string>
 
 #include <xercesc/dom/DOM.hpp>
+#include <xercesc/sax/HandlerBase.hpp>
+#include <xercesc/sax/SAXException.hpp>
 #include <xercesc/util/XMLString.hpp>
 
 /**
@@ -122,6 +124,25 @@ namespace gem {
                  */
                 ~XercesGuard();
             };
+
+            /**
+             * @brief Xerces error handler that throws on every error or warning.
+             */
+            class XercesAlwaysThrowErrorHandler : public xercesc::ErrorHandler
+            {
+            public:
+                void warning(const xercesc::SAXParseException &e) override
+                { throw e; };
+
+                void error(const xercesc::SAXParseException &e) override
+                { throw e; };
+
+                void fatalError(const xercesc::SAXParseException &e) override
+                { throw e; };
+
+                void resetErrors() override {};
+            };
+
 
             /**
              * @brief Appends a child element to @c parent with tag name

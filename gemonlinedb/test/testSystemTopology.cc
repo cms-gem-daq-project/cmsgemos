@@ -3,8 +3,6 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/sax/HandlerBase.hpp>
-#include <xercesc/sax/SAXException.hpp>
 #include <xercesc/util/XMLString.hpp>
 
 #include "gem/onlinedb/SystemTopology.h"
@@ -26,15 +24,6 @@ using namespace gem::onlinedb::detail::literals;
 
 BOOST_FIXTURE_TEST_SUITE(SystemTopologyTest, detail::XercesGuard)
 
-class AlwaysThrowErrorHandler : public xercesc::ErrorHandler
-{
-public:
-    virtual void warning(const xercesc::SAXParseException &e) { throw e; }
-    virtual void error(const xercesc::SAXParseException &e) { throw e; }
-    virtual void fatalError(const xercesc::SAXParseException &e) { throw e; }
-    virtual void resetErrors() {}
-};
-
 BOOST_AUTO_TEST_CASE(Populate)
 {
     XERCES_CPP_NAMESPACE_USE
@@ -46,7 +35,7 @@ BOOST_AUTO_TEST_CASE(Populate)
         auto impl = DOMImplementationRegistry::getDOMImplementation("LS"_xml);
         BOOST_REQUIRE(impl != nullptr);
 
-        auto errorHandler = std::make_shared<AlwaysThrowErrorHandler>();
+        auto errorHandler = std::make_shared<detail::XercesAlwaysThrowErrorHandler>();
 
         XercesDOMParser parser;
         parser.setErrorHandler(errorHandler.get());
