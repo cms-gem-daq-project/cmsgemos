@@ -12,7 +12,7 @@
 #include "gem/onlinedb/detail/XMLUtils.h"
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE XMLSerializationData
+#define BOOST_TEST_MODULE TestAMC13Configuration
 #include <boost/test/unit_test.hpp>
 
 /* Needed to make the linker happy. */
@@ -25,7 +25,7 @@ config::PackageInfo xdaq::getPackageInfo()
 using namespace gem::onlinedb;
 using namespace gem::onlinedb::detail::literals;
 
-BOOST_FIXTURE_TEST_SUITE(XMLSerialization, detail::XercesGuard)
+BOOST_FIXTURE_TEST_SUITE(TestAMC13Configuration, detail::XercesGuard)
 
 XMLSerializationData<AMC13Configuration> createTestXMLSerializationData()
 {
@@ -66,15 +66,6 @@ BOOST_AUTO_TEST_CASE(MakeDOM)
     BOOST_CHECK(detail::transcode(root->getLastChild()->getNodeName()) ==
                 std::string("DATA_SET"));
 }
-
-class AlwaysThrowErrorHandler : public xercesc::ErrorHandler
-{
-public:
-    virtual void warning(const xercesc::SAXParseException &e) { throw e; }
-    virtual void error(const xercesc::SAXParseException &e) { throw e; }
-    virtual void fatalError(const xercesc::SAXParseException &e) { throw e; }
-    virtual void resetErrors() {}
-};
 
 BOOST_AUTO_TEST_CASE(MakeDOMXsdValidation)
 {
@@ -117,7 +108,8 @@ BOOST_AUTO_TEST_CASE(MakeDOMXsdValidation)
             true); // The buffer will be freed automatically
         source.setEncoding("UTF-16"_xml);
 
-        auto errorHandler = std::make_shared<AlwaysThrowErrorHandler>();
+        auto errorHandler = std::make_shared<
+            detail::XercesAlwaysThrowErrorHandler>();
 
         XercesDOMParser parser;
         parser.setErrorHandler(errorHandler.get());
