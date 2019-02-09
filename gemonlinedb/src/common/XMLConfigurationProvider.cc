@@ -192,35 +192,60 @@ namespace gem {
         XMLConfigurationProvider::getAMC13Configuration(
             const ConfigurationTraits<AMC13Configuration>::PartType &reference) const
         {
-            return m_amc13Config.at(toString(reference));
+            try {
+                return m_amc13Config.at(toString(reference));
+            } catch (const std::out_of_range &e) {
+                XCEPT_RAISE(exception::ReferenceError,
+                            "AMC13 config not found: " + toString(reference));
+            }
         }
 
         std::shared_ptr<AMCConfiguration>
         XMLConfigurationProvider::getAMCConfiguration(
             const ConfigurationTraits<AMCConfiguration>::PartType &reference) const
         {
-            return m_amcConfig.at(toString(reference));
+            try {
+                return m_amcConfig.at(toString(reference));
+            } catch (const std::out_of_range &e) {
+                XCEPT_RAISE(exception::ReferenceError,
+                            "AMC config not found: " + toString(reference));
+            }
         }
 
         std::shared_ptr<OHv3Configuration>
         XMLConfigurationProvider::getOHv3Configuration(
             const ConfigurationTraits<OHv3Configuration>::PartType &reference) const
         {
-            return m_ohv3Config.at(toString(reference));
+            try {
+                return m_ohv3Config.at(toString(reference));
+            } catch (const std::out_of_range &e) {
+                XCEPT_RAISE(exception::ReferenceError,
+                            "OHv3 config not found: " + toString(reference));
+            }
         }
 
         std::shared_ptr<VFAT3ChipConfiguration>
         XMLConfigurationProvider::getVFAT3ChipConfiguration(
             const ConfigurationTraits<VFAT3ChipConfiguration>::PartType &reference) const
         {
-            return m_vfat3ChipConfig.at(toString(reference));
+            try {
+                return m_vfat3ChipConfig.at(toString(reference));
+            } catch (const std::out_of_range &e) {
+                XCEPT_RAISE(exception::ReferenceError,
+                            "VFAT3 chip config not found: " + toString(reference));
+            }
         }
 
         std::shared_ptr<VFAT3ChannelConfiguration>
         XMLConfigurationProvider::getVFAT3ChannelConfiguration(
             const ConfigurationTraits<VFAT3ChannelConfiguration>::PartType &reference) const
         {
-            return m_vfat3ChannelConfig.at(toString(reference));
+            try {
+                return m_vfat3ChannelConfig.at(toString(reference));
+            } catch (const std::out_of_range &e) {
+                XCEPT_RAISE(exception::ReferenceError,
+                            "VFAT3 channel config not found: " + toString(reference));
+            }
         }
 
     } // namespace onlinedb
