@@ -41,6 +41,7 @@ TestLibraries = $(DependentLibraries) xoap boost_unit_test_framework
 
 TestExecutables = \
     test/testAMC13Configuration.cc \
+    test/testConfigurationLinker.cc \
     test/testFileUtils.cc \
     test/testSystemTopology.cc \
     test/testTStoreSerialization.cc \

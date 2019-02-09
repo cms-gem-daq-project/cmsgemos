@@ -100,21 +100,43 @@ namespace gem {
 
                     auto data = set.getData();
                     if (data.size() > 1) {
-                        std::cout << data.size() << std::endl;
                         // Corresponds to more than one configuration for the same
                         // part, which is not supported.
                         XCEPT_RAISE(
                             exception::ParseError,
                             "In " + filename +
                             ": DATA_SET section contains more than one DATA entry");
+                    } else if (data.size() == 1) {
+                        map[toString(part)] =
+                            std::make_shared<ConfigurationType>(data.front());
                     }
-
-                    map[toString(part)] =
-                        std::make_shared<ConfigurationType>(data.front());
                 }
             }
 
         } // anonymous namespace
+
+        void XMLConfigurationProvider::load(const DOMDocumentPtr &document)
+        {
+            auto systemEl = document->getDocumentElement();
+            auto configEl = detail::findChildElement(systemEl, "gem:configuration");
+
+            for (auto fileEl = configEl->getFirstElementChild();
+                 fileEl != nullptr;
+                 fileEl = fileEl->getNextElementSibling()) {
+                auto tagName = detail::transcode(fileEl->getTagName());
+                if (tagName == "gem:vfat3-channel-file") {
+                    loadVFAT3Channel(detail::transcode(fileEl->getTextContent()));
+                } else if (tagName == "gem:vfat3-chip-file") {
+                    loadVFAT3Chip(detail::transcode(fileEl->getTextContent()));
+                } else if (tagName == "gem:ohv3-file") {
+                    loadOHv3(detail::transcode(fileEl->getTextContent()));
+                } else if (tagName == "gem:amc-file") {
+                    loadAMC(detail::transcode(fileEl->getTextContent()));
+                } else if (tagName == "gem:amc13-file") {
+                    loadAMC13(detail::transcode(fileEl->getTextContent()));
+                }
+            }
+        }
 
         void XMLConfigurationProvider::loadAMC13(const std::string &filename)
         {

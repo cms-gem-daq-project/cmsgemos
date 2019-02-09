@@ -5,6 +5,7 @@
 #include <string>
 
 #include "gem/onlinedb/ConfigurationProvider.h"
+#include "gem/onlinedb/detail/XMLUtils.h"
 
 namespace gem {
     namespace onlinedb {
@@ -30,6 +31,15 @@ namespace gem {
             virtual ~XMLConfigurationProvider() = default;
 
             ////////////////////////////////////////////////////////////////////
+
+            /**
+             * @brief Constructs an @c XMLConfigurationProvider by reading the
+             *        contents of a @c system-topology file.
+             * @param document The document to load data from.
+             * @warning Behavior is undefined if the provided document doesn't
+             *          conform to the @c system-topology schema.
+             */
+            void load(const DOMDocumentPtr &document);
 
             /**
              * @brief Sets the base path used to locate XML files
