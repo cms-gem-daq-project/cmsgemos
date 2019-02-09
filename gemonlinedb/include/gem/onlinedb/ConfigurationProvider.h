@@ -19,8 +19,8 @@ namespace gem {
          * configuration for parts of a GEM system. It is primarily intended for
          * use with @ref ConfigurationLinker.
          *
-         * Retrieval functions throw @c std::out_of_range when the requested
-         * configuration is not found.
+         * Retrieval functions throw @ref exception::ReferenceError when the
+         * requested configuration is not found.
          */
         class ConfigurationProvider
         {
