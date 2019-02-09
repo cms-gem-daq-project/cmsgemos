@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(LoadAMC)
 
     // SN "unknown" isn't present in the xml file
     BOOST_CHECK_THROW(provider.getAMCConfiguration({ "unknown" }),
-                      std::out_of_range);
+                      exception::ReferenceError);
 
     // SN "AMC-VI-VERSION-0001" is present in the xml file
     provider.getAMCConfiguration({ "AMC-VI-VERSION-0001" });
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(LoadVFAT3Chip)
 
     // Barcode "unknown" isn't present in the xml file
     BOOST_CHECK_THROW(provider.getVFAT3ChipConfiguration({ "unknown" }),
-                      std::out_of_range);
+                      exception::ReferenceError);
 
     // Barcode "2940" is present in the xml file
     provider.getVFAT3ChipConfiguration({ "2940" });
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(LoadVFAT3Channel)
 
     // Barcode "unknown" isn't present in the xml file
     BOOST_CHECK_THROW(provider.getVFAT3ChannelConfiguration({ "unknown" }),
-                      std::out_of_range);
+                      exception::ReferenceError);
 
     // Barcode "2940" is present in the xml file
     provider.getVFAT3ChannelConfiguration({ "2940" });
