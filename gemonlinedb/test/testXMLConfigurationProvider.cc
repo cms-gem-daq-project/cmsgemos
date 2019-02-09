@@ -21,13 +21,13 @@ BOOST_AUTO_TEST_SUITE(TestXMLConfigurationProvider)
 BOOST_AUTO_TEST_CASE(LoadAMC13)
 {
     XMLConfigurationProvider provider;
-    provider.loadAMC13("xml/AMC13_Configuration.xml");
+    provider.loadAMC13("xml/examples/AMC13_Configuration.xml");
 }
 
 BOOST_AUTO_TEST_CASE(LoadAMC)
 {
     XMLConfigurationProvider provider;
-    provider.loadAMC("xml/AMC_Configuration.xml");
+    provider.loadAMC("xml/examples/AMC_Configuration.xml");
 
     // SN "unknown" isn't present in the xml file
     BOOST_CHECK_THROW(provider.getAMCConfiguration({ "unknown" }),
@@ -43,13 +43,13 @@ BOOST_AUTO_TEST_CASE(LoadAMC)
 BOOST_AUTO_TEST_CASE(LoadOHv3)
 {
     XMLConfigurationProvider provider;
-    provider.loadOHv3("xml/OHv3_Configuration.xml");
+    provider.loadOHv3("xml/examples/OHv3_Configuration.xml");
 }
 
 BOOST_AUTO_TEST_CASE(LoadVFAT3Chip)
 {
     XMLConfigurationProvider provider;
-    provider.loadVFAT3Chip("xml/VFAT3_Chip_Configuration.xml");
+    provider.loadVFAT3Chip("xml/examples/VFAT3_Chip_Configuration.xml");
 
     // Barcode "unknown" isn't present in the xml file
     BOOST_CHECK_THROW(provider.getVFAT3ChipConfiguration({ "unknown" }),
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(LoadVFAT3Chip)
 BOOST_AUTO_TEST_CASE(LoadVFAT3Channel)
 {
     XMLConfigurationProvider provider;
-    provider.loadVFAT3Channel("xml/VFAT3_Channel_Configuration.xml");
+    provider.loadVFAT3Channel("xml/examples/VFAT3_Channel_Configuration.xml");
 
     // Barcode "unknown" isn't present in the xml file
     BOOST_CHECK_THROW(provider.getVFAT3ChannelConfiguration({ "unknown" }),
