@@ -44,44 +44,25 @@ namespace gem {
                 dataSet.setPart(
                     detail::readPartReference<PartType>(dom, dataSetsResult));
 
-                // Evaluate queries
-                auto queryResultFEDId = std::unique_ptr<DOMXPathResult>();
-                queryResultFEDId.reset(dom->evaluate(
-                    "//DATA_SET/DATA/FED_ID"_xml,
-                    dataSetsResult->getNodeValue(),
-                    nullptr,
-                    DOMXPathResult::ORDERED_NODE_SNAPSHOT_TYPE,
-                    nullptr));
-
-                auto queryResultTTC = std::unique_ptr<DOMXPathResult>();
-                queryResultTTC.reset(dom->evaluate(
-                    "//DATA_SET/DATA/ENABLE_LOCALTTC"_xml,
-                    dataSetsResult->getNodeValue(),
-                    nullptr,
-                    DOMXPathResult::ORDERED_NODE_SNAPSHOT_TYPE,
-                    nullptr));
-
-                auto queryResultHostname = std::unique_ptr<DOMXPathResult>();
-                queryResultHostname.reset(dom->evaluate(
-                    "//DATA_SET/DATA/HOSTNAME"_xml,
-                    dataSetsResult->getNodeValue(),
-                    nullptr,
-                    DOMXPathResult::ORDERED_NODE_SNAPSHOT_TYPE,
-                    nullptr));
-
-                // We assume that count is the same for all three queries, which
-                // is the case if the XML is well-formed
-                auto count = queryResultFEDId->getSnapshotLength();
+                auto dataSetElement =
+                    dynamic_cast<DOMElement *>(dataSetsResult->getNodeValue());
 
                 // Loop over DATA tags
-                for (XMLSize_t i = 0; i < count; ++i) {
-                    queryResultFEDId->snapshotItem(i);
-                    queryResultTTC->snapshotItem(i);
-                    queryResultHostname->snapshotItem(i);
+                // We assume that their contents are well-formed. The user is
+                // responsible for checking this using the schema.
+                for (auto dataElement = dataSetElement->getFirstElementChild();
+                     dataElement != nullptr;
+                     dataElement = dataElement->getNextElementSibling()) {
+                    if (detail::transcode(dataElement->getNodeName()) != "DATA") {
+                        // Need to skip COMMENT_DESCRIPTION, VERSION and PART
+                        continue;
+                    }
 
-                    auto FEDIdNode = queryResultFEDId->getNodeValue();
-                    auto TTCNode = queryResultTTC->getNodeValue();
-                    auto hostnameNode = queryResultHostname->getNodeValue();
+                    auto FEDIdNode = detail::findChildElement(dataElement, "FED_ID");
+                    auto TTCNode =
+                        detail::findChildElement(dataElement, "ENABLE_LOCALTTC");
+                    auto hostnameNode =
+                        detail::findChildElement(dataElement, "HOSTNAME");
 
                     auto config = AMC13Configuration();
                     config.setFEDId(
