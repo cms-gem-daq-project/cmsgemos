@@ -13,6 +13,10 @@ namespace gem {
          */
         class DBInterface
         {
+        private:
+            /// @brief Converts a database field to an integer.
+            static int toInt(xdata::Table::Row &row, const std::string &column);
+
         public:
             /**
              * @brief Creates a configuration object from a database row.
@@ -29,21 +33,7 @@ namespace gem {
             auto columns = table.getColumns();
             detail::RegisterData data;
             for (const auto &c : columns) {
-                auto value = row.getField(c);
-                if (value != nullptr && value->type() == "string") {
-                    auto str = value->toString();
-                    try {
-                        data[c] = std::stoi(str);
-                    } catch (const std::invalid_argument &e) {
-                        XCEPT_RAISE(exception::ParseError,
-                                    "In database field \"" + c + "\": "
-                                    "Cannot convert \"" + str + "\" to integer: " +
-                                    e.what());
-                    }
-                } else {
-                    XCEPT_RAISE(exception::ParseError,
-                                "In database field \"" + c + "\": Null value");
-                }
+                data[c] = toInt(row, c);
             }
             auto config = ConfigurationType();
             config.readRegisterData(data);
