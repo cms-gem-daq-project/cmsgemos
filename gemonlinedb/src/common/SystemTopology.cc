@@ -20,7 +20,7 @@ namespace gem {
                                                     const DOMElement *el)
             {
                 using namespace detail::literals;
-                part.barcode = detail::transcode(el->getAttribute("barcode"_xml));
+                part.barcode = detail::transcode(el->getAttribute("gem:barcode"_xml));
             }
 
             template<>
@@ -29,7 +29,7 @@ namespace gem {
             {
                 using namespace detail::literals;
                 part.serialNumber =
-                    detail::transcode(el->getAttribute("serial-number"_xml));
+                    detail::transcode(el->getAttribute("gem:serial-number"_xml));
             }
         } // anonymous namespace
 
