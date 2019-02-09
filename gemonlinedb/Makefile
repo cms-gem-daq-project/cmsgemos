@@ -24,6 +24,7 @@ Sources = \
     AMCConfiguration.cc \
     AMCConfigurationGen.cc \
     ConfigurationLinker.cc \
+    DBInterface.cc \
     FileUtils.cc \
     OHv3Configuration.cc \
     OHv3ConfigurationGen.cc \

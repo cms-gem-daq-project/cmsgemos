@@ -122,37 +122,19 @@ namespace gem {
         {
             AMC13Configuration config;
 
-#define GET_CONVERT_SET(field, setter)                                         \
-            {                                                                  \
-                auto value = row.getField(field);                              \
-                if (value != nullptr && value->type() == "string") {           \
-                    auto str = value->toString();                              \
-                    try {                                                      \
-                        config.setter(std::stoi(str));                         \
-                    } catch (const std::invalid_argument &e) {                 \
-                        XCEPT_RAISE(exception::ParseError,                     \
-                                    "In database field \"" field "\": "        \
-                                    "Cannot convert \"" + str +                \
-                                    "\" to integer: " + e.what());             \
-                    }                                                          \
-                } else {                                                       \
-                    XCEPT_RAISE(exception::ParseError,                         \
-                                "In database field \"" field "\": Null value");\
-                }                                                              \
-            }
+            config.setFEDId(toInt(row, "FED_ID"));
+            config.setLocalTTCEnabled(toInt(row, "ENABLE_LOCALTTC"));
 
-            GET_CONVERT_SET("FED_ID", setFEDId)
-            GET_CONVERT_SET("ENABLE_LOCALTTC", setLocalTTCEnabled)
-#undef GET_CONVERT_SET
-
-            {
-                auto value = row.getField("HOSTNAME");
-                if (value != nullptr && value->type() == "string") {
-                    config.setHostname(value->toString());
-                } else {
-                    XCEPT_RAISE(exception::ParseError,
-                                "In database field \"HOSTNAME\": Null value");
-                }
+            auto value = row.getField("HOSTNAME");
+            if (value == nullptr) {
+                XCEPT_RAISE(exception::ParseError,
+                            "In database field \"HOSTNAME\": Null value");
+            } else if (value->type() == "string") {
+                config.setHostname(value->toString());
+            } else {
+                XCEPT_RAISE(exception::ParseError,
+                            "In database field \"HOSTNAME\": Unknown type " +
+                            value->type());
             }
 
             return config;
