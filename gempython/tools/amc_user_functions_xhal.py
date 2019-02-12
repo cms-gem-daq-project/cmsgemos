@@ -1,5 +1,5 @@
 from ctypes import *
-from gempython.utils.gemlogger import colors
+from gempython.utils.gemlogger import colors, printYellow
 
 from reg_utils.reg_interface.common.reg_base_ops import rpc_connect, rReg, writeReg
 from reg_utils.reg_interface.common.reg_xml_parser import getNode, parseInt, parseXML
@@ -111,15 +111,15 @@ class HwAMC(object):
         
         # Define Link Monitoring
         self.getmonGBTLink = self.lib.getmonGBTLink
-        self.getmonGBTLink.argTypes = [ OHLinkMonitorArrayType, c_uint, c_bool ]
+        self.getmonGBTLink.argTypes = [ OHLinkMonitorArrayType, c_uint, c_uint, c_bool ]
         self.getmonGBTLink.restype = c_uint
 
         self.getmonOHLink = self.lib.getmonOHLink
-        self.getmonOHLink.argTypes = [ OHLinkMonitorArrayType, VFATLinkMonitorArrayType, c_uint, c_bool ]
+        self.getmonOHLink.argTypes = [ OHLinkMonitorArrayType, VFATLinkMonitorArrayType, c_uint, c_uint, c_bool ]
         self.getmonOHLink.restype = c_uint
 
         self.getmonVFATLink = self.lib.getmonVFATLink
-        self.getmonVFATLink.argTypes = [ VFATLinkMonitorArrayType, c_uint, c_bool ]
+        self.getmonVFATLink.argTypes = [ VFATLinkMonitorArrayType, c_uint, c_uint, c_bool ]
         self.getmonVFATLink.restype = c_uint
         
         # Define VFAT3 DAC Monitoring
@@ -266,7 +266,7 @@ class HwAMC(object):
         """
 
         gbtMonData = OHLinkMonitorArrayType()
-        self.getmonGBTLink(gbtMonData, self.nOHs, doReset)
+        self.getmonGBTLink(gbtMonData, self.nOHs, ohMask, doReset)
 
         if(printSummary):
             print("--=======================================--")
@@ -289,10 +289,10 @@ class HwAMC(object):
                 pass
 
             for gbtN in range(3):
-                gbtRdy      = gbtMonData.gbtRdy[gbtN]
-                gbtNotRdy   = gbtMonData.gbtNotRdy[gbtN]
-                gbtRxOver   = gbtMonData.gbtRxOverflow[gbtN]
-                gbtRxUnder  = gbtMonData.gbtRxUnderflow[gbtN]
+                gbtRdy      = gbtMonData[ohN].gbtRdy[gbtN]
+                gbtNotRdy   = gbtMonData[ohN].gbtNotRdy[gbtN]
+                gbtRxOver   = gbtMonData[ohN].gbtRxOverflow[gbtN]
+                gbtRxUnder  = gbtMonData[ohN].gbtRxUnderflow[gbtN]
 
                 allRdy *= gbtRdy
                 noneNotRdy += gbtNotRdy
@@ -300,11 +300,11 @@ class HwAMC(object):
                 hadUnderflow += gbtRxUnder
 
                 if(printSummary):
-                    print("GBT{0}.READY             {1}{2}{3}".format(
-                        gbtN,colors.RED if not gbtRdy else colors.GREEN,gbtRdy,colors.ENDC))
-                    print("GBT{0}.NOT_READY         {1}{2}{3}",format(
+                    print("GBT{0}.READY              {1}{2}{3}".format(
+                        gbtN,colors.RED if (not gbtRdy) else colors.GREEN,gbtRdy,colors.ENDC))
+                    print("GBT{0}.NOT_READY          {1}{2}{3}".format(
                         gbtN,colors.RED if gbtNotRdy else colors.GREEN,gbtNotRdy,colors.ENDC))
-                    print("GBT{0}.RX_HAD_OVERFLOW   {1}{2}{3}".format(
+                    print("GBT{0}.RX_HAD_OVERFLOW    {1}{2}{3}".format(
                         gbtN,colors.RED if gbtRxOver else colors.GREEN,gbtRxOver,colors.ENDC))
                     print("GBT{0}.RX_HAD_UNDERFLOW   {1}{2}{3}".format(
                         gbtN,colors.RED if gbtRxUnder else colors.GREEN,gbtRxUnder,colors.ENDC))
@@ -359,6 +359,8 @@ class HwAMC(object):
 
     def getOHLinkStatus(self,doReset=False,printSummary=False, ohMask=0xfff):
         #place holder
+        printYellow("HwAMC::getOHLinkStatus() not yet implemented")
+        return
 
     def getTTCStatus(self, ohN, display=False):
         running = 0xdeaddead
@@ -396,7 +398,7 @@ class HwAMC(object):
         """
 
         vfatMonData = VFATLinkMonitorArrayType()
-        self.getmonVFATLink(vfatMonData, self.nOHs, doReset)
+        self.getmonVFATLink(vfatMonData, self.nOHs, ohMask, doReset)
 
         if(printSummary):
             print("--=======================================--")
@@ -539,7 +541,9 @@ class HwAMC(object):
         while (nRetries<gRetries):
             res = rReg(parseInt(m_node.real_address))
             if res == 0xdeaddead:
-                print colors.MAGENTA,"Bus error encountered while reading (%s), retrying operation (%d,%d)"%(register,nRetries,gRetries),colors.ENDC
+                if debug:
+                    print colors.MAGENTA,"Bus error encountered while reading (%s), retrying operation (%d,%d)"%(register,nRetries,gRetries),colors.ENDC
+                nRetries+=1
                 continue
             else:
                 if m_node.mask is not None:
