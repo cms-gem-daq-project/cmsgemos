@@ -39,16 +39,19 @@ Sources = \
 
 DynamicLibrary=gemonlinedb
 
-TestExecutables = \
+SimpleTestExecutables = \
     test/testAMC13Configuration.cc \
     test/testConfigurationLinker.cc \
     test/testFileUtils.cc \
     test/testSystemTopology.cc \
-    test/testTStoreSerialization.cc \
     test/testVFAT3ChannelConfiguration.cc \
     test/testXMLConfigurationProvider.cc \
     test/testXMLSerialization.cc \
+
+DBTestExecutables = \
     test/testTStoreSerialization.cc \
+
+TestExecutables = $(SimpleTestExecutables) $(DBTestExecutables)
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
@@ -66,11 +69,12 @@ TestLibraries= $(DependentLibraries) boost_unit_test_framework tstoreapi wsaddre
 TestLibraryDirs= $(DependentLibraryDirs)
 
 # Targets with additional dependencies. Keep "default" first
-.PHONY: default clean tests
+.PHONY: default clean tests run-tests run-tests-ci
 default: xsd
 clean: clean-xsd clean-gen-headers
 tests: default
-run-tests: run-tests-xsd run-tests-native
+run-tests: run-tests-xsd run-tests-simple run-tests-db
+run-tests-ci: run-tests-xsd run-tests-simple
 
 # Common definitions
 include $(XDAQ_ROOT)/config/Makefile.rules
@@ -100,14 +104,26 @@ run-tests-xsd:
 
 TEST_ENV = LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/
 TEST_LOC = test/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-TEST_EXE = $(TestExecutables:.cc=.exe)
+SIMPLE_TEST_EXE = $(SimpleTestExecutables:.cc=.exe)
+DB_TEST_EXE = $(DBTestExecutables:.cc=.exe)
 
-.PHONY: run-tests-native
-run-tests-native:
-	@for test in $(TEST_EXE); do \
+.PHONY: run-tests-simple
+run-tests-simple:
+	@status=0; \
+	for test in $(SIMPLE_TEST_EXE); do \
 	    echo Testing: $$test; \
-	    $(TEST_ENV) $(TEST_LOC)/$$test; \
-	done
+	    $(TEST_ENV) $(TEST_LOC)/$$test || set status=1; \
+	done; \
+	exit $$status
+
+.PHONY: run-tests-db
+run-tests-db:
+	@status=0; \
+	for test in $(DB_TEST_EXE); do \
+	    echo Testing: $$test; \
+	    $(TEST_ENV) $(TEST_LOC)/$$test || set status=1; \
+	done; \
+	exit $$status
 
 # Auto-generated headers
 .PHONY: clean-gen-headers
