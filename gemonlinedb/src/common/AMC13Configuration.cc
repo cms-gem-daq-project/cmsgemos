@@ -6,6 +6,7 @@
 
 #include "gem/onlinedb/XMLSerializationData.h"
 #include "gem/onlinedb/detail/XMLUtils.h"
+#include "gem/onlinedb/exception/Exception.h"
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -115,5 +116,28 @@ namespace gem {
             return dom;
         }
 
+        template<>
+        AMC13Configuration DBInterface::convertRow<AMC13Configuration>(
+            const xdata::Table &table, xdata::Table::Row &row)
+        {
+            AMC13Configuration config;
+
+            config.setFEDId(toInt(row, "FED_ID"));
+            config.setLocalTTCEnabled(toInt(row, "ENABLE_LOCALTTC"));
+
+            auto value = row.getField("HOSTNAME");
+            if (value == nullptr) {
+                XCEPT_RAISE(exception::ParseError,
+                            "In database field \"HOSTNAME\": Null value");
+            } else if (value->type() == "string") {
+                config.setHostname(value->toString());
+            } else {
+                XCEPT_RAISE(exception::ParseError,
+                            "In database field \"HOSTNAME\": Unknown type " +
+                            value->type());
+            }
+
+            return config;
+        }
     } /* namespace onlinedb */
 } /* namespace gem */

@@ -24,6 +24,7 @@ Sources = \
     AMCConfiguration.cc \
     AMCConfigurationGen.cc \
     ConfigurationLinker.cc \
+    DBInterface.cc \
     FileUtils.cc \
     OHv3Configuration.cc \
     OHv3ConfigurationGen.cc \
@@ -40,7 +41,7 @@ Sources = \
 
 DynamicLibrary=gemonlinedb
 
-TestLibraries = $(DependentLibraries) xoap boost_unit_test_framework
+TestLibraries = $(DependentLibraries) xoap boost_unit_test_framework tstoreapi xdata mimetic wsaddressing tstoreutils
 
 TestExecutables = \
     test/testAMC13Configuration.cc \
@@ -51,6 +52,7 @@ TestExecutables = \
     test/testVFAT3ChannelConfiguration.cc \
     test/testXMLConfigurationProvider.cc \
     test/testXMLSerialization.cc \
+    test/testTStoreSerialization.cc \
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
