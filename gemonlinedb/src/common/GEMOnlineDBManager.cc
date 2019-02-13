@@ -34,7 +34,7 @@ gem::onlinedb::GEMOnlineDBManager::GEMOnlineDBManager(xdaq::ApplicationStub* stu
 
 gem::onlinedb::GEMOnlineDBManager::~GEMOnlineDBManager()
 {
-  
+
 }
 
 void gem::onlinedb::GEMOnlineDBManager::actionPerformed(xdata::Event& event)

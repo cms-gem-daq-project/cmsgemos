@@ -9,8 +9,8 @@
 #include "gem/onlinedb/GEMOnlineDBManager.h"
 #include "gem/onlinedb/exception/Exception.h"
 
-gem::onlinedb::GEMOnlineDBManagerWeb::GEMOnlineDBManagerWeb(gem::onlinedb::GEMOnlineDBManager* glibApp) :
-  gem::base::GEMWebApplication(glibApp)
+gem::onlinedb::GEMOnlineDBManagerWeb::GEMOnlineDBManagerWeb(gem::onlinedb::GEMOnlineDBManager* dbApp) :
+  gem::base::GEMWebApplication(dbApp)
 {
   // default constructor
 }
@@ -71,4 +71,3 @@ void gem::onlinedb::GEMOnlineDBManagerWeb::jsonUpdate(xgi::Input* in, xgi::Outpu
   // fill JSON if needed
   *out << " } " << std::endl;
 }
-
