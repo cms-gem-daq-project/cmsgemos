@@ -15,7 +15,8 @@ namespace gem {
         {
         private:
             /// @brief Converts a database field to an integer.
-            static int toInt(xdata::Table::Row &row, const std::string &column);
+            static std::uint32_t toInt(xdata::Table::Row &row,
+                                       const std::string &column);
 
         public:
             /**
