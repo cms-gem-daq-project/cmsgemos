@@ -15,6 +15,7 @@ GEMONLINEDB_VER_MINOR=0
 GEMONLINEDB_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
 DependentLibraries += boost_filesystem
 
@@ -34,6 +35,8 @@ Sources = \
     XMLConfigurationProvider.cc \
     XMLSerializationData.cc \
     XMLUtils.cc \
+    GEMOnlineDBManager.cc \
+    GEMOnlineDBManagerWeb.cc
 
 DynamicLibrary=gemonlinedb
 
@@ -50,6 +53,14 @@ TestExecutables = \
     test/testXMLSerialization.cc \
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
+IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
+IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
+
+DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+
+DependentLibraries=gembase gemutils xdaq xdata mimetic xoap xerces-c xcept toolbox log4cplus
+# DependentLibraries+=$(StandardLibraries)
 
 # Targets with additional dependencies. Keep "default" first
 .PHONY: default clean tests
@@ -111,3 +122,6 @@ print-env:
 	@echo ROOTGLIBS     $(ROOTGLIBS)
 	@echo GIT_VERSION   $(GIT_VERSION)
 	@echo GEMDEVELOPER  $(GEMDEVELOPER)
+	@echo IncludeDirs   $(IncludeDirs)
+	@echo DependentLibraries   $(DependentLibraries)
+	@echo DependentLibraryDirs   $(DependentLibraryDirs)

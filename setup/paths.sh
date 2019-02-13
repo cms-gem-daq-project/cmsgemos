@@ -56,12 +56,22 @@ then
     export XDAQ_PLATFORM
 fi
 
-export LD_LIBRARY_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}:${LD_LIBRARY_PATH}
-export LD_LIBRARY_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}:${LD_LIBRARY_PATH}
-export LD_LIBRARY_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}/gemreadout/lib/${XDAQ_OS}/${XDAQ_PLATFORM}:${LD_LIBRARY_PATH}
-export LD_LIBRARY_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}:${LD_LIBRARY_PATH}
-export LD_LIBRARY_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}:${LD_LIBRARY_PATH}
-export LD_LIBRARY_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}/gemHwMonitor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}:${LD_LIBRARY_PATH}
+pkgs=(
+    gembase
+    gemutils
+    gemreadout
+    gemhardware
+    gemsupervisor
+    gemHwMonitor
+    gemonlinedb
+    gemdaqmonitor
+)
+
+for pkg in ${pkgs[@]}
+do
+    export LD_LIBRARY_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}/${pkg}/lib/${XDAQ_OS}/${XDAQ_PLATFORM}:${LD_LIBRARY_PATH}
+done
+
 export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
 export GEM_ADDRESS_TABLE_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}/setup/etc/addresstables
 export GEM_PYTHON_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}
