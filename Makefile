@@ -108,13 +108,13 @@ $(SUBPACKAGES.INSTALL):
 $(SUBPACKAGES.CLEAN):
 	$(MAKE) -C $(patsubst %.clean,%, $@) clean
 
-$(SUBPACKAGES.TESTS):
+$(SUBPACKAGES.TESTS): all
 	$(MAKE) -C $(patsubst %.tests,%, $@) tests
 
-$(SUBPACKAGES.RUNTESTS): $(patsubst %.run-tests,%, $@)
+$(SUBPACKAGES.RUNTESTS): tests
 	$(MAKE) -C $(patsubst %.run-tests,%, $@) run-tests
 
-$(SUBPACKAGES.RUNTESTSCI):
+$(SUBPACKAGES.RUNTESTSCI): tests
 	$(MAKE) -C $(patsubst %.run-tests-ci,%, $@) run-tests-ci
 
 .PHONY: $(SUBPACKAGES) $(SUBPACKAGES.INSTALL) $(SUBPACKAGES.CLEAN)
