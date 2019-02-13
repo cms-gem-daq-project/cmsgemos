@@ -12,47 +12,6 @@ namespace gem {
         namespace detail {
             namespace /* anonymous */ {
                 using namespace literals;
-
-                /**
-                 * @brief Executes an XSD query on the given document and
-                 *        retrieves the corresponding DOMNode.
-                 */
-                DOMNode *xsdGet(const DOMDocumentPtr &document,
-                                const char *query,
-                                const DOMNode *root = nullptr)
-                {
-                    if (root == nullptr) {
-                        root = document->getDocumentElement();
-                    }
-
-                    // Evaluate query
-                    // Note: only result types 6 to 9 are supported by Xerces
-                    auto result = std::unique_ptr<DOMXPathResult>();
-                    result.reset(document->evaluate(
-                        detail::XercesString(query),
-                        root,
-                        nullptr,
-                        DOMXPathResult::FIRST_ORDERED_NODE_TYPE,
-                        nullptr));
-
-                    // Get resulting DOMNode
-                    return result->getNodeValue();
-                }
-
-                /**
-                 * @brief Executes an XSD query on the given document and
-                 *        retrieves the text content of the corresponding
-                 *        DOMNode.
-                 */
-                std::string xsdGetTextContent(const DOMDocumentPtr &document,
-                                              const char *query,
-                                              const DOMNode *root = nullptr)
-                {
-                    // Get node
-                    auto node = xsdGet(document, query, root);
-                    return detail::transcode(node->getTextContent());
-                }
-
                 using detail::appendChildElement;
                 using detail::appendChildText;
 
@@ -121,18 +80,21 @@ namespace gem {
                 const DOMDocumentPtr &document,
                 const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
-                return xsdGetTextContent(document,
-                                         "//DATA_SET/COMMENT_DESCRIPTION",
-                                         result->getNodeValue());
+                auto dataSetElement =
+                    dynamic_cast<DOMElement *>(result->getNodeValue());
+                auto commentElement = findChildElement(dataSetElement,
+                                                       "COMMENT_DESCRIPTION");
+                return transcode(commentElement->getTextContent());
             }
 
             std::string readDataSetVersion(
                 const DOMDocumentPtr &document,
                 const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
-                return xsdGetTextContent(document,
-                                         "//DATA_SET/VERSION",
-                                         result->getNodeValue());
+                auto dataSetElement =
+                    dynamic_cast<DOMElement *>(result->getNodeValue());
+                auto versionElement = findChildElement(dataSetElement, "VERSION");
+                return transcode(versionElement->getTextContent());
             }
 
             template<>
@@ -140,11 +102,13 @@ namespace gem {
                 const DOMDocumentPtr &document,
                 const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
-                PartReferenceBarcode ref;
-                ref.barcode = xsdGetTextContent(document,
-                                                "//DATA_SET/PART/BARCODE",
-                                                result->getNodeValue());
-                return ref;
+                auto dataSetElement =
+                    dynamic_cast<DOMElement *>(result->getNodeValue());
+                auto partElement = findChildElement(dataSetElement, "PART");
+                auto barcodeElement = findChildElement(partElement, "BARCODE");
+                return PartReferenceBarcode{
+                    transcode(barcodeElement->getTextContent())
+                };
             }
 
             template<>
@@ -152,44 +116,43 @@ namespace gem {
                 const DOMDocumentPtr &document,
                 const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
-                PartReferenceSN ref;
-                ref.serialNumber = xsdGetTextContent(
-                    document,
-                    "//DATA_SET/PART/SERIAL_NUMBER",
-                    result->getNodeValue());
-                return ref;
+                auto dataSetElement =
+                    dynamic_cast<DOMElement *>(result->getNodeValue());
+                auto partElement = findChildElement(dataSetElement, "PART");
+                auto snElement = findChildElement(partElement, "SERIAL_NUMBER");
+                return PartReferenceSN{
+                    transcode(snElement->getTextContent())
+                };
             }
 
             std::vector<detail::RegisterData> readRegisterData(
                 const DOMDocumentPtr &document,
                 const std::unique_ptr<xercesc::DOMXPathResult> &result)
             {
-                // Evaluate query
-                // Note: only result types 6 to 9 are supported by Xerces
-                auto queryResult = std::unique_ptr<DOMXPathResult>();
-                queryResult.reset(document->evaluate(
-                    "//DATA_SET/DATA"_xml,
-                    result->getNodeValue(),
-                    nullptr,
-                    DOMXPathResult::ORDERED_NODE_SNAPSHOT_TYPE,
-                    nullptr));
+                auto dataSetElement =
+                    dynamic_cast<DOMElement *>(result->getNodeValue());
 
-                auto count = queryResult->getSnapshotLength();
                 auto vec = std::vector<detail::RegisterData>();
-                vec.reserve(count);
 
-                // Loop over DATA tags
-                for (XMLSize_t i = 0; i < count; ++i) {
-                    queryResult->snapshotItem(i);
+                for (auto dataElement = dataSetElement->getFirstElementChild();
+                     dataElement != nullptr;
+                     dataElement = dataElement->getNextElementSibling()) {
+                    if (detail::transcode(dataElement->getNodeName()) != "DATA") {
+                        // Need to skip COMMENT_DESCRIPTION, VERSION and PART
+                        continue;
+                    }
 
                     auto data = detail::RegisterData();
 
-                    auto childNodes = queryResult->getNodeValue()->getChildNodes();
+                    auto childNodes = dataElement->getChildNodes();
                     auto childCount = childNodes->getLength();
 
                     // Loop over elements inside DATA tags
                     for (XMLSize_t child = 0; child < childCount; ++child) {
                         auto node = childNodes->item(child);
+                        if (node->getNodeType() != DOMNode::ELEMENT_NODE) {
+                            continue;
+                        }
 
                         auto name = detail::transcode(node->getNodeName());
                         auto value = detail::transcode(node->getTextContent());

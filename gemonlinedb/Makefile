@@ -16,16 +16,22 @@ GEMONLINEDB_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 
+DependentLibraries += boost_filesystem
+
 Sources = \
     AMC13Configuration.cc \
     AMCConfiguration.cc \
     AMCConfigurationGen.cc \
+    ConfigurationLinker.cc \
+    FileUtils.cc \
     OHv3Configuration.cc \
     OHv3ConfigurationGen.cc \
     Run.cc \
+    SystemTopology.cc \
     VFAT3ChannelConfiguration.cc \
     VFAT3ChipConfigurationGen.cc \
     version.cc \
+    XMLConfigurationProvider.cc \
     XMLSerializationData.cc \
     XMLUtils.cc \
 
@@ -35,7 +41,12 @@ TestLibraries = $(DependentLibraries) xoap boost_unit_test_framework
 
 TestExecutables = \
     test/testAMC13Configuration.cc \
+    test/testConfigurationLinker.cc \
+    test/testFileUtils.cc \
+    test/testSystemTopology.cc \
+    test/testTStoreSerialization.cc \
     test/testVFAT3ChannelConfiguration.cc \
+    test/testXMLConfigurationProvider.cc \
     test/testXMLSerialization.cc \
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
@@ -44,7 +55,8 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 .PHONY: default clean tests
 default: xsd
 clean: clean-xsd clean-gen-headers
-tests: default test-xsd
+tests: default
+run-tests: run-tests-xsd run-tests-native
 
 # Common definitions
 include $(XDAQ_ROOT)/config/Makefile.rules
@@ -64,10 +76,24 @@ clean-xsd:
 	$(RM) xml/schema/VFAT3ChipConfiguration.xsd
 	$(RM) xml/schema/OHv3Configuration.xsd
 
-.PHONY: test-xsd
-test-xsd:
-	xmllint --noout --schema xml/schema/VFAT3ChipConfiguration.xsd xml/VFAT3_Chip_Configuration.xml
-	xmllint --noout --schema xml/schema/VFAT3ChannelConfiguration.xsd xml/VFAT3_Channel_Configuration.xml
+.PHONY: run-tests-xsd
+run-tests-xsd:
+	xmllint --noout --schema xml/schema/VFAT3ChipConfiguration.xsd xml/examples/VFAT3_Chip_Configuration.xml
+	xmllint --noout --schema xml/schema/VFAT3ChannelConfiguration.xsd xml/examples/VFAT3_Channel_Configuration.xml
+	xmllint --noout --schema xml/schema/OHv3Configuration.xsd xml/examples/OHv3_Configuration.xml
+	xmllint --noout --schema xml/schema/AMCConfiguration.xsd xml/examples/AMC_Configuration.xml
+	xmllint --noout --schema xml/schema/system-topology.xsd xml/examples/system-topology.xml
+
+TEST_ENV = LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/
+TEST_LOC = test/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+TEST_EXE = $(TestExecutables:.cc=.exe)
+
+.PHONY: run-tests-native
+run-tests-native:
+	@for test in $(TEST_EXE); do \
+	    echo Testing: $$test; \
+	    $(TEST_ENV) $(TEST_LOC)/$$test; \
+	done
 
 # Auto-generated headers
 .PHONY: clean-gen-headers

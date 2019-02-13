@@ -1,9 +1,12 @@
 #ifndef GEM_ONLINEDB_DETAIL_XMLUTILS_H
 #define GEM_ONLINEDB_DETAIL_XMLUTILS_H
 
+#include <memory>
 #include <string>
 
 #include <xercesc/dom/DOM.hpp>
+#include <xercesc/sax/HandlerBase.hpp>
+#include <xercesc/sax/SAXException.hpp>
 #include <xercesc/util/XMLString.hpp>
 
 /**
@@ -13,6 +16,11 @@
 
 namespace gem {
     namespace onlinedb {
+        /**
+         * @brief Convenience alias.
+         */
+        using DOMDocumentPtr = std::unique_ptr<xercesc::DOMDocument>;
+
         namespace detail {
             /**
              * @brief Wraps a Xerces string and xerces::XMLString::transcode
@@ -118,6 +126,25 @@ namespace gem {
             };
 
             /**
+             * @brief Xerces error handler that throws on every error or warning.
+             */
+            class XercesAlwaysThrowErrorHandler : public xercesc::ErrorHandler
+            {
+            public:
+                void warning(const xercesc::SAXParseException &e) override
+                { throw e; };
+
+                void error(const xercesc::SAXParseException &e) override
+                { throw e; };
+
+                void fatalError(const xercesc::SAXParseException &e) override
+                { throw e; };
+
+                void resetErrors() override {};
+            };
+
+
+            /**
              * @brief Appends a child element to @c parent with tag name
              *        @c tagName.
              *
@@ -134,6 +161,28 @@ namespace gem {
              */
             xercesc::DOMText *appendChildText(
                 xercesc::DOMElement *parent, const std::string &content);
+
+
+            /**
+             * @brief Executes an XSD query on the given document and retrieves
+             *        the corresponding DOMNode.
+             */
+            xercesc::DOMNode *xsdGet(const DOMDocumentPtr &document,
+                                     const char *query);
+
+            /**
+             * @brief Executes an XSD query on the given document and retrieves
+             *        the text content of the corresponding DOMNode.
+             */
+            std::string xsdGetTextContent(const DOMDocumentPtr &document,
+                                          const char *query);
+
+            /**
+             * @brief Finds the first direct child of @c root with the given
+             *        @c tagName
+             */
+            xercesc::DOMElement *findChildElement(
+                const xercesc::DOMElement *root, const std::string &tagName);
 
         } /* namespace detail */
     } /* namespace onlinedb */

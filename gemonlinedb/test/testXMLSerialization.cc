@@ -3,16 +3,13 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/sax/HandlerBase.hpp>
-#include <xercesc/sax/SAXException.hpp>
-#include <xercesc/util/XMLString.hpp>
 
 #include "gem/onlinedb/VFAT3ChipConfiguration.h"
 #include "gem/onlinedb/XMLSerializationData.h"
 #include "gem/onlinedb/detail/XMLUtils.h"
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE XMLSerializationData
+#define BOOST_TEST_MODULE XMLSerialization
 #include <boost/test/unit_test.hpp>
 
 /* Needed to make the linker happy. */
@@ -67,15 +64,6 @@ BOOST_AUTO_TEST_CASE(MakeDOM)
                 std::string("DATA_SET"));
 }
 
-class AlwaysThrowErrorHandler : public xercesc::ErrorHandler
-{
-public:
-    virtual void warning(const xercesc::SAXParseException &e) { throw e; }
-    virtual void error(const xercesc::SAXParseException &e) { throw e; }
-    virtual void fatalError(const xercesc::SAXParseException &e) { throw e; }
-    virtual void resetErrors() {}
-};
-
 BOOST_AUTO_TEST_CASE(MakeDOMXsdValidation)
 {
     XERCES_CPP_NAMESPACE_USE
@@ -117,7 +105,7 @@ BOOST_AUTO_TEST_CASE(MakeDOMXsdValidation)
             true); // The buffer will be freed automatically
         source.setEncoding("UTF-16"_xml);
 
-        auto errorHandler = std::make_shared<AlwaysThrowErrorHandler>();
+        auto errorHandler = std::make_shared<detail::XercesAlwaysThrowErrorHandler>();
 
         XercesDOMParser parser;
         parser.setErrorHandler(errorHandler.get());

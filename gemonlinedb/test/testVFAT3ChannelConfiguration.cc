@@ -1,7 +1,7 @@
 #include "gem/onlinedb/VFAT3ChannelConfiguration.h"
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE XMLSerializationData
+#define BOOST_TEST_MODULE TestVFAT3ChannelConfiguration
 #include <boost/test/unit_test.hpp>
 
 #include <iostream>
