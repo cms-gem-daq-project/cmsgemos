@@ -17,8 +17,6 @@ GEMONLINEDB_VER_PATCH=0
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
-DependentLibraries += boost_filesystem
-
 Sources = \
     AMC13Configuration.cc \
     AMCConfiguration.cc \
@@ -41,18 +39,19 @@ Sources = \
 
 DynamicLibrary=gemonlinedb
 
-TestLibraries = $(DependentLibraries) xoap boost_unit_test_framework tstoreapi xdata mimetic wsaddressing tstoreutils
-
-TestExecutables = \
+SimpleTestExecutables = \
     test/testAMC13Configuration.cc \
     test/testConfigurationLinker.cc \
     test/testFileUtils.cc \
     test/testSystemTopology.cc \
-    test/testTStoreSerialization.cc \
     test/testVFAT3ChannelConfiguration.cc \
     test/testXMLConfigurationProvider.cc \
     test/testXMLSerialization.cc \
+
+DBTestExecutables = \
     test/testTStoreSerialization.cc \
+
+TestExecutables = $(SimpleTestExecutables) $(DBTestExecutables)
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
@@ -61,15 +60,21 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
-DependentLibraries=gembase gemutils xdaq xdata mimetic xoap xerces-c xcept toolbox log4cplus
+DependentLibraries=gembase gemutils xdaq cgicc xgi peer xdata mimetic xoap xerces-c xcept toolbox logudpappender logxmlappender log4cplus config cgicc
+DependentLibraries += boost_filesystem boost_regex boost_system
+
 # DependentLibraries+=$(StandardLibraries)
 
+TestLibraries= $(DependentLibraries) boost_unit_test_framework tstoreapi wsaddressing tstoreutils
+TestLibraryDirs= $(DependentLibraryDirs)
+
 # Targets with additional dependencies. Keep "default" first
-.PHONY: default clean tests
+.PHONY: default clean tests run-tests run-tests-ci
 default: xsd
 clean: clean-xsd clean-gen-headers
 tests: default
-run-tests: run-tests-xsd run-tests-native
+run-tests: run-tests-xsd run-tests-simple run-tests-db
+run-tests-ci: run-tests-xsd run-tests-simple
 
 # Common definitions
 include $(XDAQ_ROOT)/config/Makefile.rules
@@ -99,14 +104,26 @@ run-tests-xsd:
 
 TEST_ENV = LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/
 TEST_LOC = test/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-TEST_EXE = $(TestExecutables:.cc=.exe)
+SIMPLE_TEST_EXE = $(SimpleTestExecutables:.cc=.exe)
+DB_TEST_EXE = $(DBTestExecutables:.cc=.exe)
 
-.PHONY: run-tests-native
-run-tests-native:
-	@for test in $(TEST_EXE); do \
+.PHONY: run-tests-simple
+run-tests-simple:
+	@status=0; \
+	for test in $(SIMPLE_TEST_EXE); do \
 	    echo Testing: $$test; \
-	    $(TEST_ENV) $(TEST_LOC)/$$test; \
-	done
+	    $(TEST_ENV) $(TEST_LOC)/$$test || set status=1; \
+	done; \
+	exit $$status
+
+.PHONY: run-tests-db
+run-tests-db:
+	@status=0; \
+	for test in $(DB_TEST_EXE); do \
+	    echo Testing: $$test; \
+	    $(TEST_ENV) $(TEST_LOC)/$$test || set status=1; \
+	done; \
+	exit $$status
 
 # Auto-generated headers
 .PHONY: clean-gen-headers
