@@ -17,8 +17,6 @@ GEMONLINEDB_VER_PATCH=0
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
-DependentLibraries += boost_filesystem
-
 Sources = \
     AMC13Configuration.cc \
     AMCConfiguration.cc \
@@ -41,8 +39,6 @@ Sources = \
 
 DynamicLibrary=gemonlinedb
 
-TestLibraries = $(DependentLibraries) xoap boost_unit_test_framework tstoreapi xdata mimetic wsaddressing tstoreutils
-
 TestExecutables = \
     test/testAMC13Configuration.cc \
     test/testConfigurationLinker.cc \
@@ -61,8 +57,13 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
-DependentLibraries=gembase gemutils xdaq xdata mimetic xoap xerces-c xcept toolbox log4cplus
+DependentLibraries=gembase gemutils xdaq cgicc xgi peer xdata mimetic xoap xerces-c xcept toolbox logudpappender logxmlappender log4cplus config cgicc
+DependentLibraries += boost_filesystem boost_regex boost_system
+
 # DependentLibraries+=$(StandardLibraries)
+
+TestLibraries= $(DependentLibraries) boost_unit_test_framework tstoreapi wsaddressing tstoreutils
+TestLibraryDirs= $(DependentLibraryDirs)
 
 # Targets with additional dependencies. Keep "default" first
 .PHONY: default clean tests
