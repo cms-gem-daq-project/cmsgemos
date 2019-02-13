@@ -18,6 +18,7 @@ SUBPACKAGES.INSTALL  := $(patsubst %,%.install,  ${SUBPACKAGES})
 SUBPACKAGES.RPM      := $(patsubst %,%.rpm,      ${SUBPACKAGES})
 SUBPACKAGES.CLEANRPM := $(patsubst %,%.cleanrpm, ${SUBPACKAGES})
 SUBPACKAGES.CLEAN    := $(patsubst %,%.clean,    ${SUBPACKAGES})
+SUBPACKAGES.TESTS    := $(patsubst %,%.tests,    ${SUBPACKAGES})
 
 #OS:=linux
 #ARCH:=x86_64
@@ -81,6 +82,8 @@ cleanrpm: $(SUBPACKAGES.CLEANRPM)
 
 clean: $(SUBPACKAGES.CLEAN)
 
+tests: $(SUBPACKAGES) $(SUBPACKAGES.TESTS)
+
 $(LIBDIR):
 	mkdir -p $(LIBDIR)
 
@@ -98,6 +101,9 @@ $(SUBPACKAGES.INSTALL):
 
 $(SUBPACKAGES.CLEAN):
 	$(MAKE) -C $(patsubst %.clean,%, $@) clean
+
+$(SUBPACKAGES.TESTS):
+	$(MAKE) -C $(patsubst %.tests,%, $@) tests
 
 .PHONY: $(SUBPACKAGES) $(SUBPACKAGES.INSTALL) $(SUBPACKAGES.CLEAN)
 
