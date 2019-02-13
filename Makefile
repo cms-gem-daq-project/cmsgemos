@@ -19,6 +19,8 @@ SUBPACKAGES.RPM      := $(patsubst %,%.rpm,      ${SUBPACKAGES})
 SUBPACKAGES.CLEANRPM := $(patsubst %,%.cleanrpm, ${SUBPACKAGES})
 SUBPACKAGES.CLEAN    := $(patsubst %,%.clean,    ${SUBPACKAGES})
 SUBPACKAGES.TESTS    := $(patsubst %,%.tests,    ${SUBPACKAGES})
+SUBPACKAGES.RUNTESTS := $(patsubst %,%.run-tests, ${SUBPACKAGES})
+SUBPACKAGES.RUNTESTSCI := $(patsubst %,%.run-tests-ci, ${SUBPACKAGES})
 
 #OS:=linux
 #ARCH:=x86_64
@@ -84,6 +86,10 @@ clean: $(SUBPACKAGES.CLEAN)
 
 tests: $(SUBPACKAGES) $(SUBPACKAGES.TESTS)
 
+run-tests: $(SUBPACKAGES.RUNTESTS)
+
+run-tests-ci: $(SUBPACKAGES.RUNTESTSCI)
+
 $(LIBDIR):
 	mkdir -p $(LIBDIR)
 
@@ -104,6 +110,12 @@ $(SUBPACKAGES.CLEAN):
 
 $(SUBPACKAGES.TESTS):
 	$(MAKE) -C $(patsubst %.tests,%, $@) tests
+
+$(SUBPACKAGES.RUNTESTS): $(patsubst %.run-tests,%, $@)
+	$(MAKE) -C $(patsubst %.run-tests,%, $@) run-tests
+
+$(SUBPACKAGES.RUNTESTSCI):
+	$(MAKE) -C $(patsubst %.run-tests-ci,%, $@) run-tests-ci
 
 .PHONY: $(SUBPACKAGES) $(SUBPACKAGES.INSTALL) $(SUBPACKAGES.CLEAN)
 
