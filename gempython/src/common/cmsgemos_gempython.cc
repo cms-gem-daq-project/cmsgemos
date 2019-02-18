@@ -83,6 +83,15 @@ BOOST_PYTHON_MODULE(_cmsgemos_gempython) {
     .def("getUserFirmware",     &gem::hw::HwGenericAMC::getUserFirmware)
     .def("getUserFirmwareDate", &gem::hw::HwGenericAMC::getUserFirmwareDate)
 
+    .def("getSupportedOptoHybrids", &gem::hw::HwGenericAMC::getSupportedOptoHybrids)
+    .def("supportsGBTLink",         &gem::hw::HwGenericAMC::supportsGBTLink)
+    .def("supportsTriggerLink",     &gem::hw::HwGenericAMC::supportsTriggerLink)
+
+    // .def("getSupportedOptoHybrids", &gem::hw::HwGenericAMC::getSupportedOptoHybrids)
+    // .def("getSupportedOptoHybrids", &gem::hw::HwGenericAMC::getSupportedOptoHybrids)
+    // .def("getSupportedOptoHybrids", &gem::hw::HwGenericAMC::getSupportedOptoHybrids)
+    // .def("getSupportedOptoHybrids", &gem::hw::HwGenericAMC::getSupportedOptoHybrids)
+
     // copy all by default
     // FIXME: prune the list of exposed functions
     // .def("linkCheck",                        &gem::hw::HwGenericAMC::linkCheck) // private
