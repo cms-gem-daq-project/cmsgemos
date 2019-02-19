@@ -281,7 +281,7 @@ class HwAMC(object):
         hadUnderflow = 0
         for ohN in range(self.nOHs):
             # Skip Masked OH's
-            if (not ((ohMask >> ohN) and 0x1)):
+            if (not ((ohMask >> ohN) & 0x1)):
                 continue
 
             if(printSummary):
@@ -410,7 +410,7 @@ class HwAMC(object):
         totalSyncErrors = 0
         for ohN in range(self.nOHs):
             # Skip Masked OH's
-            if (not ((ohMask >> ohN) and 0x1)):
+            if (not ((ohMask >> ohN) & 0x1)):
                 continue
 
             if(printSummary):
