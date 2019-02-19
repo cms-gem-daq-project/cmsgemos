@@ -66,7 +66,7 @@ def getOHObject(slot,link,shelf=1,ctrlhubhost=None,use_connection_file=False,deb
         manager         = uhal.ConnectionManager(connection_file)
         ohboard = manager.getDevice(hostname)
     else:
-        addresstable = "file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link{:02d}.xml".format(link)
+        addresstable = "file://${{GEM_ADDRESS_TABLE_PATH}}/uhal_gem_amc_ctp7_link{:02d}.xml".format(link)
         if ctrlhubhost:
             # for controlhub connection, non-CTP7 hardware
             port         = 50001
