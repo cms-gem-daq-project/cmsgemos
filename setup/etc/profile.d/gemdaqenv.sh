@@ -7,9 +7,9 @@ fi
 if [ "$XDAQ_ROOT" != "0" ]; then
     if [ -z ${SSH_TTY+x} ]; then echo "executing gem daq setup"; fi
     export XDAQ_ROOT=/opt/xdaq
-    export XDAQ_DOCUMENT_ROOT=$XDAQ_ROOT/htdocs
+    #export XDAQ_DOCUMENT_ROOT=$XDAQ_ROOT/htdocs
     # only do this for regular users
-    # export XDAQ_DOCUMENT_ROOT=/data/xdaq/${USER}
+    export XDAQ_DOCUMENT_ROOT=/data/xdaq/${USER}
     export uHALROOT=/opt/cactus
     export XHAL_ROOT=/opt/xhal
     export CMSGEMOS_ROOT=/opt/cmsgemos

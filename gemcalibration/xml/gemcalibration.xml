@@ -4,11 +4,7 @@
               xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
   <xc:Context url="http://gem904daq02:20500">
-    <xc:Application class="gem::daqmon::ShelfMonitor" id="30" instance="0" network="local">
-      <properties xmlns="urn:xdaq-application:ShelfMonitor"
-                  xsi:type="soapenc:Struct">
-        <shelfID  xsi:type="xsd:integer">1</shelfID>
-      </properties>
+    <xc:Application class="gem::calib::Calibration" id="30" instance="0" network="local">
     </xc:Application>
 
 
@@ -16,8 +12,7 @@
 
     <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemutils.so</xc:Module>
     <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardware_managers.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemdaqmonitor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemdaqmonitor.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemcalibration/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemcalibration.so</xc:Module>
 
 <!--    <xc:Module>${CMSGEMOS_ROOT}/lib/libgemutils.so</xc:Module>
     <xc:Module>${CMSGEMOS_ROOT}/lib/libgembase.so</xc:Module>
