@@ -10,8 +10,8 @@ LongPackage=gemdaqmonitor
 ShortPackage=daqmon
 PackageName=daqmonitor
 
-GEMDAQMONITOR_VER_MAJOR=0
-GEMDAQMONITOR_VER_MINOR=2
+GEMDAQMONITOR_VER_MAJOR=1
+GEMDAQMONITOR_VER_MINOR=0
 GEMDAQMONITOR_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk

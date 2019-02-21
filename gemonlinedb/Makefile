@@ -11,7 +11,7 @@ ShortPackage=onlinedb
 PackageName=onlinedb
 
 GEMONLINEDB_VER_MAJOR=0
-GEMONLINEDB_VER_MINOR=0
+GEMONLINEDB_VER_MINOR=1
 GEMONLINEDB_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk

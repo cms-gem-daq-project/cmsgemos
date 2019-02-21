@@ -11,7 +11,7 @@ PackageName=utils
 
 GEMUTILS_VER_MAJOR=1
 GEMUTILS_VER_MINOR=0
-GEMUTILS_VER_PATCH=0
+GEMUTILS_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
