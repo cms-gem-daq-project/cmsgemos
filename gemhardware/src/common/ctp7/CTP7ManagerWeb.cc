@@ -23,7 +23,7 @@ void gem::hw::ctp7::CTP7ManagerWeb::webDefault(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
   if (p_gemFSMApp)
-    DEBUG("current state is" << dynamic_cast<gem::hw::ctp7::CTP7Manager*>(p_gemFSMApp)->getCurrentState());
+    CMSGEMOS_DEBUG("current state is" << dynamic_cast<gem::hw::ctp7::CTP7Manager*>(p_gemFSMApp)->getCurrentState());
   *out << cgicc::script().set("type", "text/javascript")
     .set("src", "/gemdaq/gemhardware/html/scripts/ctp7/ctp7.js")
        << cgicc::script() << std::endl;
@@ -35,7 +35,7 @@ void gem::hw::ctp7::CTP7ManagerWeb::webDefault(xgi::Input* in, xgi::Output* out)
 void gem::hw::ctp7::CTP7ManagerWeb::monitorPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("CTP7ManagerWeb::monitorPage");
+  CMSGEMOS_DEBUG("CTP7ManagerWeb::monitorPage");
   *out << "    <div class=\"xdaq-tab-wrapper\">" << std::endl;
   *out << "      <div class=\"xdaq-tab\" title=\"DAQ Link Monitoring\" >"  << std::endl;
   // all monitored CTP7s in one page, or separate tabs?
@@ -52,7 +52,7 @@ void gem::hw::ctp7::CTP7ManagerWeb::monitorPage(xgi::Input* in, xgi::Output* out
 void gem::hw::ctp7::CTP7ManagerWeb::expertPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("CTP7ManagerWeb::expertPage");
+  CMSGEMOS_DEBUG("CTP7ManagerWeb::expertPage");
   // fill this page with the expert views for the CTP7Manager
   *out << "    <div class=\"xdaq-tab-wrapper\">" << std::endl;
   *out << "      <div class=\"xdaq-tab\" title=\"Register dump page\"/>"  << std::endl;
@@ -121,7 +121,7 @@ void gem::hw::ctp7::CTP7ManagerWeb::buildCardSummaryTable(xgi::Input* in, xgi::O
 void gem::hw::ctp7::CTP7ManagerWeb::cardPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("CTP7ManagerWeb::cardPage");
+  CMSGEMOS_DEBUG("CTP7ManagerWeb::cardPage");
   // fill this page with the card views for the CTP7Manager
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
@@ -139,7 +139,7 @@ void gem::hw::ctp7::CTP7ManagerWeb::cardPage(xgi::Input* in, xgi::Output* out)
 void gem::hw::ctp7::CTP7ManagerWeb::registerDumpPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("CTP7ManagerWeb::registerDumpPage");
+  CMSGEMOS_DEBUG("CTP7ManagerWeb::registerDumpPage");
   // dump registers for a given CTP7 and display
 }
 
@@ -147,7 +147,7 @@ void gem::hw::ctp7::CTP7ManagerWeb::registerDumpPage(xgi::Input* in, xgi::Output
 void gem::hw::ctp7::CTP7ManagerWeb::fifoDumpPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("CTP7ManagerWeb::fifoDumpPage");
+  CMSGEMOS_DEBUG("CTP7ManagerWeb::fifoDumpPage");
   // dump tracking fifo for given number of blocks
   //*out << cgicc::form() << std::endl;//.set("method","POST").set("action",);
   // input vs. button?
@@ -193,7 +193,7 @@ void gem::hw::ctp7::CTP7ManagerWeb::fifoDumpPage(xgi::Input* in, xgi::Output* ou
 void gem::hw::ctp7::CTP7ManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("CTP7ManagerWeb::jsonUpdate");
+  CMSGEMOS_DEBUG("CTP7ManagerWeb::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " { " << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
@@ -214,7 +214,7 @@ void gem::hw::ctp7::CTP7ManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
 void gem::hw::ctp7::CTP7ManagerWeb::dumpCTP7FIFO(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("CTP7ManagerWeb::dumpCTP7FIFO");
+  CMSGEMOS_DEBUG("CTP7ManagerWeb::dumpCTP7FIFO");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " { " << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {

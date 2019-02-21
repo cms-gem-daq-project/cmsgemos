@@ -19,7 +19,7 @@
 //   setDeviceBaseNode("GEM_AMC.OH.OH0");
 //   //gem::hw::optohybrid::HwOptoHybrid::initDevice();
 //   //set up which links are active, so that the control can be done without specifying a link
-//   INFO("HwOptoHybrid ctor done " << isHwConnected());
+//   CMSGEMOS_INFO("HwOptoHybrid ctor done " << isHwConnected());
 // }
 
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
@@ -33,7 +33,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   std::stringstream basenode;
   basenode << "GEM_AMC.OH.OH" << *optohybridDevice.rbegin();
   setDeviceBaseNode(basenode.str());
-  INFO("HwOptoHybrid ctor done (basenode "
+  CMSGEMOS_INFO("HwOptoHybrid ctor done (basenode "
        << basenode.str() << ") " << isHwConnected());
 }
 
@@ -50,7 +50,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   std::stringstream basenode;
   basenode << "GEM_AMC.OH.OH" << *optohybridDevice.rbegin();
   setDeviceBaseNode(basenode.str());
-  INFO("HwOptoHybrid ctor done (basenode "
+  CMSGEMOS_INFO("HwOptoHybrid ctor done (basenode "
        << basenode.str() << ") " << isHwConnected());
 }
 
@@ -65,7 +65,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   std::stringstream basenode;
   basenode << "GEM_AMC.OH.OH" << *optohybridDevice.rbegin();
   setDeviceBaseNode(basenode.str());
-  INFO("HwOptoHybrid ctor done (basenode "
+  CMSGEMOS_INFO("HwOptoHybrid ctor done (basenode "
        << basenode.str() << ") " << isHwConnected());
 }
 
@@ -79,7 +79,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& gli
   m_controlLink(-1),
   m_slot((int)slot)
 {
-  INFO("HwOptoHybrid creating OptoHybrid device from GLIB device " << glibDevice.getLoggerName());
+  CMSGEMOS_INFO("HwOptoHybrid creating OptoHybrid device from GLIB device " << glibDevice.getLoggerName());
   //use a connection file and connection manager?
   setDeviceID(toolbox::toString("%s.optohybrid%02d",glibDevice.getDeviceID().c_str(),slot));
   //uhal::ConnectionManager manager ( "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml" );
@@ -90,7 +90,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& gli
   std::stringstream basenode;
   basenode << "GEM_AMC.OH.OH" << (int)slot;
   setDeviceBaseNode(basenode.str());
-  INFO("HwOptoHybrid ctor done (basenode "
+  CMSGEMOS_INFO("HwOptoHybrid ctor done (basenode "
        << basenode.str() << ") " << isHwConnected());
 }
 
@@ -153,10 +153,10 @@ gem::hw::optohybrid::HwOptoHybrid::~HwOptoHybrid()
 bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
 {
   if (b_is_connected) {
-    DEBUG("HwOptoHybrid connection good");
+    CMSGEMOS_DEBUG("HwOptoHybrid connection good");
     return true;
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
-    DEBUG("Checking hardware connection");
+    CMSGEMOS_DEBUG("Checking hardware connection");
 
     // FIXME IN FIRMWARE, need better check of connectivity...
     if ((this->getFirmwareDateString()).rfind("15") != std::string::npos ||
@@ -164,19 +164,19 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
         (this->getFirmwareDateString()).rfind("17") != std::string::npos ||
         (this->getFirmwareDateString()).rfind("18") != std::string::npos) {
       b_is_connected = true;
-      INFO("OptoHybrid present ("
+      CMSGEMOS_INFO("OptoHybrid present ("
            << this->getFirmwareVersionString() << "/0x"
            << std::hex << this->getFirmwareDate() << std::dec << ")");
       return true;
     } else {
       b_is_connected = false;
-      DEBUG("OptoHybrid not reachable (unable to find 15 or 16 in the firmware string)."
+      CMSGEMOS_DEBUG("OptoHybrid not reachable (unable to find 15 or 16 in the firmware string)."
             << " Obviously we need a better strategy to check connectivity");
       return false;
     }
   }
   //shouldn't get to here unless HW isn't connected
-  DEBUG("OptoHybrid not reachable (!b_is_connected && !GEMHwDevice::isHwConnnected)");
+  CMSGEMOS_DEBUG("OptoHybrid not reachable (!b_is_connected && !GEMHwDevice::isHwConnnected)");
   return false;
 }
 
@@ -223,12 +223,12 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::stri
   readReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Request.%s", name.c_str()));
 
   while (readReg(getDeviceBaseNode(),"GEB.Broadcast.Running")) {
-    TRACE("HwOptoHybrid::broadcastRead transaction on "
+    CMSGEMOS_TRACE("HwOptoHybrid::broadcastRead transaction on "
           << name << " is still running...");
     usleep(10);
   }
   auto t2 = std::chrono::high_resolution_clock::now();
-  TRACE("HwOptoHybrid::broadcastRead transaction on " << name << " lasted "
+  CMSGEMOS_TRACE("HwOptoHybrid::broadcastRead transaction on " << name << " lasted "
         << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() << "ns");
   std::stringstream regName;
   regName << getDeviceBaseNode() << ".GEB.Broadcast.Results";
@@ -248,12 +248,12 @@ void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
   writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Mask"),mask);
   writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Request.%s", name.c_str()),value);
   while (readReg(getDeviceBaseNode(),"GEB.Broadcast.Running")) {
-    TRACE("HwOptoHybrid::broadcastWrite transaction on "
+    CMSGEMOS_TRACE("HwOptoHybrid::broadcastWrite transaction on "
           << name << " is still running...");
     usleep(10);
   }
   auto t2 = std::chrono::high_resolution_clock::now();
-  TRACE("HwOptoHybrid::broadcastWrite transaction on " << name << " lasted "
+  CMSGEMOS_TRACE("HwOptoHybrid::broadcastWrite transaction on " << name << " lasted "
         << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() << "ns");
 }
 
@@ -263,7 +263,7 @@ std::vector<std::pair<uint8_t,uint32_t> > gem::hw::optohybrid::HwOptoHybrid::get
   if (update || b_is_initial) {
     std::vector<uint32_t> chips0 = broadcastRead("ChipID0",ALL_VFATS_BCAST_MASK,false);
     std::vector<uint32_t> chips1 = broadcastRead("ChipID1",ALL_VFATS_BCAST_MASK,false);
-    DEBUG("HwOptoHybrid::getConnectedVFATs chips0 size:" << chips0.size() <<  ", chips1 size:" << chips1.size());
+    CMSGEMOS_DEBUG("HwOptoHybrid::getConnectedVFATs chips0 size:" << chips0.size() <<  ", chips1 size:" << chips1.size());
 
     std::vector<std::pair<uint8_t, uint32_t> > chipIDs;
     std::vector<std::pair<uint32_t,uint32_t> > chipPairs;
@@ -277,7 +277,7 @@ std::vector<std::pair<uint8_t,uint32_t> > gem::hw::optohybrid::HwOptoHybrid::get
       if (((chip->first) >> 16) != 0x3) {
         uint8_t slot = ((chip->first)>>8)&0xff;
         uint32_t chipID = (((chip->first)&0xff)<<8)+((chip->second)&0xff);
-        DEBUG("HwOptoHybrid::getConnectedVFATs GEB slot: " << (int)slot
+        CMSGEMOS_DEBUG("HwOptoHybrid::getConnectedVFATs GEB slot: " << (int)slot
               << ", chipID1: 0x" << std::hex << chip->first   << std::dec
               << ", chipID2: 0x" << std::hex << chip->second  << std::dec
               << ", chipID: 0x"  << std::hex << chipID        << std::dec);
@@ -297,13 +297,13 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask(bool update)
     std::vector<uint32_t> allChips = broadcastRead("ChipID0",ALL_VFATS_BCAST_MASK);
     uint32_t connectedMask = 0x0; // high means don't broadcast
     uint32_t disabledMask  = 0x0; // high means ignore data
-    DEBUG("HwOptoHybrid::getConnectedVFATMask Reading ChipID0 from all possible slots");
+    CMSGEMOS_DEBUG("HwOptoHybrid::getConnectedVFATMask Reading ChipID0 from all possible slots");
     for (auto id = allChips.begin(); id != allChips.end(); ++id) {
       // 0x00XXYYZZ
       // XX = status (00000EVR)
       // YY = chip number
       // ZZ = register contents
-      INFO("HwOptoHybrid::getConnectedVFATMask result 0x" << std::setw(8) << std::setfill('0') << std::hex << *id << std::dec);
+      CMSGEMOS_INFO("HwOptoHybrid::getConnectedVFATMask result 0x" << std::setw(8) << std::setfill('0') << std::hex << *id << std::dec);
       // bool e_bit(((*id)>>18)&0x1),v_bit(((*id)>>17)&0x1),r_bit(((*id)>>16)&0x1);
 
       // if (v_bit && !e_bit) {
@@ -312,18 +312,18 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask(bool update)
         connectedMask |= (0x1 << shift);
         disabledMask  |= (0x1 << shift);
       }
-      DEBUG("HwOptoHybrid::getConnectedVFATMask mask is " << std::hex << connectedMask << std::dec);
+      CMSGEMOS_DEBUG("HwOptoHybrid::getConnectedVFATMask mask is " << std::hex << connectedMask << std::dec);
   }
 
-    DEBUG("HwOptoHybrid::getConnectedVFATMask previous mask is 0x" << std::setw(8) << std::setfill('0')
+    CMSGEMOS_DEBUG("HwOptoHybrid::getConnectedVFATMask previous mask is 0x" << std::setw(8) << std::setfill('0')
           << std::hex << connectedMask << std::dec);
     connectedMask = ~connectedMask;
     disabledMask  = ~disabledMask ;
-    DEBUG("HwOptoHybrid::getConnectedVFATMask intermediate mask is 0x" << std::setw(8) << std::setfill('0')
+    CMSGEMOS_DEBUG("HwOptoHybrid::getConnectedVFATMask intermediate mask is 0x" << std::setw(8) << std::setfill('0')
           << std::hex << connectedMask << std::dec);
     connectedMask |= ALL_VFATS_BCAST_MASK;
     disabledMask  |= ALL_VFATS_BCAST_MASK;
-    DEBUG("HwOptoHybrid::getConnectedVFATMask final mask is 0x" << std::setw(8) << std::setfill('0')
+    CMSGEMOS_DEBUG("HwOptoHybrid::getConnectedVFATMask final mask is 0x" << std::setw(8) << std::setfill('0')
           << std::hex << connectedMask << std::dec);
 
      m_disabledMask  = connectedMask;
@@ -342,9 +342,9 @@ void gem::hw::optohybrid::HwOptoHybrid::setVFATsToDefaults(uint8_t  const& vt1,
   // regName << getDeviceBaseNode() << ".GEB.Broadcast.Results";
   // std::vector<uint32_t> res;
   // res = readBlock(regName.str(),std::bitset<32>(~broadcastMask).count());
-  // WARN("HwOptoHybrid::setVFATsToDefaults::Latency");
+  // CMSGEMOS_WARN("HwOptoHybrid::setVFATsToDefaults::Latency");
   // for (auto r = res.begin(); r != res.end(); ++r) {
-  //   WARN(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
+  //   CMSGEMOS_WARN(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
   // }
 
   broadcastWrite("ContReg0",   0x36, broadcastMask);
@@ -480,7 +480,7 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getADCVAUX(uint8_t const& vaux)
 {
   if (vaux > 15) {
     std::string msg = toolbox::toString("Invalid VAUX requested (%d): outside expectation (0-15)",int(vaux));
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     XCEPT_RAISE(gem::hw::optohybrid::exception::ValueError,msg);
   }
   std::stringstream vauxInput;
@@ -492,7 +492,7 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getVFATDACOutV(uint8_t const& column
 {
   if (column > 2) {
     std::string msg = toolbox::toString("Invalid column requested (%d): outside expectation (0-2)",int(column));
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     XCEPT_RAISE(gem::hw::optohybrid::exception::ValueError,msg);
   }
 
@@ -506,7 +506,7 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getVFATDACOutV(uint8_t const& column
     vauxInput << "ADC.VPVN";
   default:
     std::string msg = toolbox::toString("Invalid column requested (%d): outside expectation (0-2)",int(column));
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     return 0;
   }
   return readReg(getDeviceBaseNode(),vauxInput.str());
@@ -516,7 +516,7 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getVFATDACOutI(uint8_t const& column
 {
   if (column > 2) {
     std::string msg = toolbox::toString("Invalid column requested (%d): outside expectation (0-2)",int(column));
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     XCEPT_RAISE(gem::hw::optohybrid::exception::ValueError,msg);
   }
 
@@ -530,7 +530,7 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getVFATDACOutI(uint8_t const& column
     vauxInput << "ADC.VAUX.VAL_13";
   default:
     std::string msg = toolbox::toString("Invalid column requested (%d): outside expectation (0-2)",int(column));
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     return 0;
   }
   return readReg(getDeviceBaseNode(),vauxInput.str());
@@ -618,7 +618,7 @@ uint8_t gem::hw::optohybrid::HwOptoHybrid::getScanStatus(bool useUltra)
 std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::getScanResults(uint32_t const& npoints)
 {
   while (readReg(getDeviceBaseNode(),"ScanController.THLAT.MONITOR.STATUS") > 0) {
-    INFO("Scan still running, not returning results");
+    CMSGEMOS_INFO("Scan still running, not returning results");
     usleep(10);
   }
   std::stringstream regname;
@@ -629,7 +629,7 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::getScanResults(uint32_t
 std::vector<std::vector<uint32_t> > gem::hw::optohybrid::HwOptoHybrid::getUltraScanResults(uint32_t const& npoints)
 {
   while (readReg(getDeviceBaseNode(),"ScanController.ULTRA.MONITOR.STATUS") > 0) {
-    INFO("Scan still running, not returning results");
+    CMSGEMOS_INFO("Scan still running, not returning results");
     usleep(10);
   }
   std::vector<std::vector<uint32_t> > results;

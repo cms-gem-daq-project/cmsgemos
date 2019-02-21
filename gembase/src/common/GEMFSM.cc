@@ -28,7 +28,7 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP) :
   p_gemApp(gemAppP),
   m_gemLogger(gemAppP->getApplicationLogger())
 {
-  DEBUG("GEMFSM::ctor begin");
+  CMSGEMOS_DEBUG("GEMFSM::ctor begin");
 
   // Create the underlying Finite State Machine itself.
   std::stringstream commandLoopName;
@@ -192,7 +192,7 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP) :
   p_gemfsm->reset();
 
   m_gemFSMState = p_gemfsm->getStateName(p_gemfsm->getCurrentState());
-  DEBUG("GEMFSM::GEMFSM current state is " << m_gemFSMState.toString());
+  CMSGEMOS_DEBUG("GEMFSM::GEMFSM current state is " << m_gemFSMState.toString());
 
   p_gemApp->getAppISToolBox()->createString("FSMState", m_gemFSMState.toString(), &m_gemFSMState,
                                             utils::GEMInfoSpaceToolBox::PROCESS);
@@ -214,7 +214,7 @@ gem::base::GEMFSM::~GEMFSM()
 
 void gem::base::GEMFSM::fireEvent(toolbox::Event::Reference const &event)
 {
-  INFO("GEMFSM::fireEvent(" << event->type() << ")");
+  CMSGEMOS_INFO("GEMFSM::fireEvent(" << event->type() << ")");
   try {
     p_gemfsm->fireEvent(event);
   } catch (toolbox::fsm::exception::Exception & ex) {
@@ -224,7 +224,7 @@ void gem::base::GEMFSM::fireEvent(toolbox::Event::Reference const &event)
 
 xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg)
 {
-  INFO("GEMFSM::changeState()");
+  CMSGEMOS_INFO("GEMFSM::changeState()");
   if (msg.isNull()) {
     XCEPT_RAISE(xoap::exception::Exception, "Null message received!");
   }
@@ -232,10 +232,10 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
   std::string commandName = "undefined";
   try {
     commandName = gem::utils::soap::GEMSOAPToolBox::extractFSMCommandName(msg);
-    INFO("GEMFSM::received command " << commandName);
+    CMSGEMOS_INFO("GEMFSM::received command " << commandName);
   } catch(xoap::exception::Exception& err) {
     std::string msgBase = toolbox::toString("Unable to extract command from GEMFSM SOAP message");
-    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
+    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top,
                          toolbox::toString("%s.", msgBase.c_str()), err);
     p_gemApp->notifyQualified("error", top);
@@ -250,17 +250,17 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
     return reply;
   }
 
-  DEBUG("GEMFSM::changeState() received command '" <<  commandName.c_str() << "'.");
+  CMSGEMOS_DEBUG("GEMFSM::changeState() received command '" <<  commandName.c_str() << "'.");
 
   try {
     toolbox::Event::Reference event(new toolbox::Event(commandName, this));
-    INFO("Firing GEMFSM for event " << commandName);
-    INFO("initial state is: " << p_gemfsm->getStateName(p_gemfsm->getCurrentState()));
+    CMSGEMOS_INFO("Firing GEMFSM for event " << commandName);
+    CMSGEMOS_INFO("initial state is: " << p_gemfsm->getStateName(p_gemfsm->getCurrentState()));
     p_gemfsm->fireEvent(event);
-    INFO("new state is: " << p_gemfsm->getStateName(p_gemfsm->getCurrentState()));
+    CMSGEMOS_INFO("new state is: " << p_gemfsm->getStateName(p_gemfsm->getCurrentState()));
   } catch(toolbox::fsm::exception::Exception& err) {
     std::string msgBase = toolbox::toString("Problem executing the GEMFSM '%s' command", commandName.c_str());
-    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
+    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top,
                          toolbox::toString("%s.", msgBase.c_str()), err);
     p_gemApp->notifyQualified("error", top);
@@ -278,14 +278,14 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
   // Once we get here, the state transition has been triggered.
   // Notify the requestor of the new state.
   try {
-    INFO("changeState::sending command " << commandName << " newStateName " << newStateName);
+    CMSGEMOS_INFO("changeState::sending command " << commandName << " newStateName " << newStateName);
     return
       gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName,
                                                          p_gemfsm->getStateName(p_gemfsm->getCurrentState()));
   } catch(xcept::Exception& err) {
     std::string msgBase = toolbox::toString("Failed to create GEMFSM SOAP reply for command '%s'",
                                             commandName.c_str());
-    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
+    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
                          top, toolbox::toString("%s.", msgBase.c_str()), err);
     p_gemApp->notifyQualified("error", top);
@@ -300,37 +300,37 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
 
 std::string gem::base::GEMFSM::getCurrentState() const
 {
-  DEBUG("GEMFSM::getCurrentState()");
+  CMSGEMOS_DEBUG("GEMFSM::getCurrentState()");
   return p_gemfsm->getStateName(p_gemfsm->getCurrentState());
 }
 
 toolbox::fsm::State gem::base::GEMFSM::getCurrentFSMState() const
 {
-  DEBUG("GEMFSM::getCurrentFSMState()");
+  CMSGEMOS_DEBUG("GEMFSM::getCurrentFSMState()");
   return p_gemfsm->getCurrentState();
 }
 
 std::string gem::base::GEMFSM::getStateName(toolbox::fsm::State const& state) const
 {
-  DEBUG("GEMFSM::getStateName()");
+  CMSGEMOS_DEBUG("GEMFSM::getStateName()");
   return p_gemfsm->getStateName(state);
 }
 
 /* moved into GEMSupervisor, as only the supervisor global state should be reported to RCMS
 void gem::base::GEMFSM::notifyRCMS(toolbox::fsm::FiniteStateMachine &fsm, std::string const msg)
 {
-  INFO("GEMFSM::notifyRCMS()");
+  CMSGEMOS_INFO("GEMFSM::notifyRCMS()");
   // Notify RCMS of a state change.
   // NOTE: Should only be used for state _changes_.
 
   // toolbox::fsm::State currentState = fsm.getCurrentState();
   // std::string stateName            = fsm.getStateName(currentState);
   std::string stateName = fsm.getStateName(fsm.getCurrentState());
-  DEBUG("notifyRCMS() called with msg = " << msg);
+  CMSGEMOS_DEBUG("notifyRCMS() called with msg = " << msg);
   try {
     m_gemRCMSNotifier.stateChanged(stateName, msg);
   } catch(xcept::Exception& err) {
-    ERROR("GEMFSM::Failed to notify RCMS of state change: "
+    CMSGEMOS_ERROR("GEMFSM::Failed to notify RCMS of state change: "
           << xcept::stdformat_exception_history(err));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::RCMSNotificationError, top,
                          "Failed to notify RCMS of state change.", err);
@@ -341,7 +341,7 @@ void gem::base::GEMFSM::notifyRCMS(toolbox::fsm::FiniteStateMachine &fsm, std::s
 
 void gem::base::GEMFSM::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
 {
-  DEBUG("GEMFSM::stateChanged() begin");
+  CMSGEMOS_DEBUG("GEMFSM::stateChanged() begin");
   try {
     m_gemFSMState = fsm.getStateName(fsm.getCurrentState());
     p_gemApp->getAppISToolBox()->setString("FSMState",  m_gemFSMState.toString());
@@ -349,27 +349,27 @@ void gem::base::GEMFSM::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
   } catch (toolbox::fsm::exception::Exception & ex) {
     std::stringstream msg;
     msg << "Problem updating state after stateChanged " << ex.what();
-    FATAL(msg.str());
+    CMSGEMOS_FATAL(msg.str());
     XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), ex);
   } catch(xcept::Exception& ex) {
     std::stringstream msg;
     msg << "Problem updating state after stateChanged " << ex.what();
-    FATAL(msg.str());
+    CMSGEMOS_FATAL(msg.str());
     XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), ex);
     p_gemApp->notifyQualified("fatal", top);
   } catch (std::exception& ex) {
     std::stringstream msg;
     msg << "Problem updating state after stateChanged " << ex.what();
-    FATAL(msg.str());
+    CMSGEMOS_FATAL(msg.str());
     XCEPT_RAISE(gem::utils::exception::SoftwareProblem, msg.str());
   } catch (...) {
     std::stringstream msg;
     msg << "Problem updating state after stateChanged";
-    FATAL(msg.str());
+    CMSGEMOS_FATAL(msg.str());
     XCEPT_RAISE(gem::utils::exception::SoftwareProblem, msg.str());
   }
-  INFO("GEMFSM::stateChanged:Current state is: [" << m_gemFSMState.toString() << "]");
-  DEBUG("GEMFSM::stateChanged:stateChanged() end");
+  CMSGEMOS_INFO("GEMFSM::stateChanged:Current state is: [" << m_gemFSMState.toString() << "]");
+  CMSGEMOS_DEBUG("GEMFSM::stateChanged:stateChanged() end");
 }
 
 
@@ -378,7 +378,7 @@ void gem::base::GEMFSM::invalidAction(toolbox::Event::Reference event)
   /* what's the point of this action?
    * should we go to failed or try to ensure no action is taken and the initial state is preserved?
    */
-  INFO("GEMFSM::invalidAction(" << event->type() << ")");
+  CMSGEMOS_INFO("GEMFSM::invalidAction(" << event->type() << ")");
   toolbox::fsm::InvalidInputEvent& invalidInputEvent = dynamic_cast<toolbox::fsm::InvalidInputEvent&>(*event);
   std::string initialState   = p_gemfsm->getStateName(invalidInputEvent.getFromState());
   std::string requestedState = invalidInputEvent.getInput();
@@ -386,37 +386,37 @@ void gem::base::GEMFSM::invalidAction(toolbox::Event::Reference event)
   std::string message = toolbox::toString("An invalid state transition has been received:"
                                           " requested transition to '%s' from '%s'.",
                                           requestedState.c_str(), initialState.c_str());
-  ERROR("GEMFSM::" << message);
+  CMSGEMOS_ERROR("GEMFSM::" << message);
   gotoFailed(message);
 }
 
 void gem::base::GEMFSM::gotoFailed(std::string const reason)
 {
-  DEBUG("GEMFSM::gotoFailed(std::string)");
-  ERROR("GEMFSM::Going to 'Failed' state. Reason: '" << reason << "'.");
+  CMSGEMOS_DEBUG("GEMFSM::gotoFailed(std::string)");
+  CMSGEMOS_ERROR("GEMFSM::Going to 'Failed' state. Reason: '" << reason << "'.");
   XCEPT_RAISE(toolbox::fsm::exception::Exception, reason);
 }
 
 void gem::base::GEMFSM::gotoFailed(xcept::Exception& err)
 {
-  DEBUG("GEMFSM::gotoFailed(xcept::Exception&)");
+  CMSGEMOS_DEBUG("GEMFSM::gotoFailed(xcept::Exception&)");
   std::string reason = err.message();
   gotoFailed(reason);
 }
 
 void gem::base::GEMFSM::gotoFailedAsynchronously(xcept::Exception& err)
 {
-  DEBUG("GEMFSM::gotoFailedAsynchronously(xcept::Exception&)");
+  CMSGEMOS_DEBUG("GEMFSM::gotoFailedAsynchronously(xcept::Exception&)");
   std::string reason = err.message();
   // p_appStateInfoSpaceHandler->setFSMState("Failed", reason);
-  ERROR("GEMFSM::Going to 'Failed' state. Reason: " << reason);
+  CMSGEMOS_ERROR("GEMFSM::Going to 'Failed' state. Reason: " << reason);
   try {
     toolbox::Event::Reference event(new toolbox::Event("Fail", this));
     p_gemfsm->fireEvent(event);
   } catch(xcept::Exception& error) {
     std::stringstream msg;
     msg << "Cannot initiate asynchronous 'Fail' transition.";
-    FATAL(msg.str());
+    CMSGEMOS_FATAL(msg.str());
     XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), error);
     p_gemApp->notifyQualified("fatal", top);
   }

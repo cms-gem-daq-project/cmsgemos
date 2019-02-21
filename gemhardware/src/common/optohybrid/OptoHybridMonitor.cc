@@ -240,11 +240,11 @@ void gem::hw::optohybrid::OptoHybridMonitor::updateMonitorables()
   // define how to update the desired values
   // get SYSTEM monitorables
   // can this be split into two loops, one just to do a list read, the second to fill the InfoSpace with the returned values
-  DEBUG("OptoHybridMonitor: Updating monitorables");
+  CMSGEMOS_DEBUG("OptoHybridMonitor: Updating monitorables");
   for (auto monlist = m_monitorableSetsMap.begin(); monlist != m_monitorableSetsMap.end(); ++monlist) {
-    DEBUG("OptoHybridMonitor: Updating monitorables in set " << monlist->first);
+    CMSGEMOS_DEBUG("OptoHybridMonitor: Updating monitorables in set " << monlist->first);
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
-      DEBUG("OptoHybridMonitor: Updating monitorable " << monitem->first);
+      CMSGEMOS_DEBUG("OptoHybridMonitor: Updating monitorable " << monitem->first);
       std::stringstream regName;
       regName << p_optohybrid->getDeviceBaseNode() << "." << monitem->second.regname;
       uint32_t address = p_optohybrid->getGEMHwInterface().getNode(regName.str()).getAddress();
@@ -284,7 +284,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::updateMonitorables()
       } else if (monitem->second.updatetype == GEMUpdateType::NOUPDATE) {
         continue;
       } else {
-        ERROR("OptoHybridMonitor: Unknown update type encountered");
+        CMSGEMOS_ERROR("OptoHybridMonitor: Unknown update type encountered");
         continue;
       }
     } // end loop over items in list
@@ -293,9 +293,9 @@ void gem::hw::optohybrid::OptoHybridMonitor::updateMonitorables()
 
 void gem::hw::optohybrid::OptoHybridMonitor::buildMonitorPage(xgi::Output* out)
 {
-  DEBUG("OptoHybridMonitor::buildMonitorPage");
+  CMSGEMOS_DEBUG("OptoHybridMonitor::buildMonitorPage");
   if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
-    WARN("Unable to find item set HWMonitoring in monitor");
+    CMSGEMOS_WARN("Unable to find item set HWMonitoring in monitor");
     return;
   }
 
@@ -362,7 +362,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildMonitorPage(xgi::Output* out)
              << monitem->first
              << "</td>"   << std::endl;
 
-        DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
+        CMSGEMOS_DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
               << formatted);
         //this will be repeated for every OptoHybridMonitor in the OptoHybridManager..., need a better unique ID
         *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
@@ -394,16 +394,16 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildMonitorPage(xgi::Output* out)
 
 void gem::hw::optohybrid::OptoHybridMonitor::buildWishboneCounterTable(xgi::Output* out)
 {
-  DEBUG("OptoHybridMonitor::buildWishboneCounterTable");
+  CMSGEMOS_DEBUG("OptoHybridMonitor::buildWishboneCounterTable");
   if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
-    WARN("Unable to find item set HWMonitoring in monitor");
+    CMSGEMOS_WARN("Unable to find item set HWMonitoring in monitor");
     return;
   }
 
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
 
   if (std::find(monsets.begin(),monsets.end(),"Wishbone Counters") == monsets.end()) {
-    WARN("Unable to find item set 'Wishbone Counters' in monitor");
+    CMSGEMOS_WARN("Unable to find item set 'Wishbone Counters' in monitor");
     return;
   }
 
@@ -429,7 +429,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildWishboneCounterTable(xgi::Outp
 
         std::string formatted = (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format);
 
-        DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
+        CMSGEMOS_DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
               << formatted);
 
         *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
@@ -468,7 +468,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildWishboneCounterTable(xgi::Outp
 
         std::string formatted = (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format);
 
-        DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
+        CMSGEMOS_DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
               << formatted);
 
         *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
@@ -491,16 +491,16 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildWishboneCounterTable(xgi::Outp
 
 void gem::hw::optohybrid::OptoHybridMonitor::buildVFATCRCCounterTable(xgi::Output* out)
 {
-  DEBUG("OptoHybridMonitor::buildVFATCRCCounterTable");
+  CMSGEMOS_DEBUG("OptoHybridMonitor::buildVFATCRCCounterTable");
   if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
-    WARN("Unable to find item set HWMonitoring in monitor");
+    CMSGEMOS_WARN("Unable to find item set HWMonitoring in monitor");
     return;
   }
 
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
 
   if (std::find(monsets.begin(),monsets.end(),"VFAT CRCs") == monsets.end()) {
-    WARN("Unable to find item set 'VFAT CRCs' in list of HWMonitoring monitor sets");
+    CMSGEMOS_WARN("Unable to find item set 'VFAT CRCs' in list of HWMonitoring monitor sets");
     return;
   }
 
@@ -533,7 +533,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildVFATCRCCounterTable(xgi::Outpu
 
         std::string formatted = (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format);
 
-        DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
+        CMSGEMOS_DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
               << formatted);
 
         *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
@@ -560,16 +560,16 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildVFATCRCCounterTable(xgi::Outpu
 
 void gem::hw::optohybrid::OptoHybridMonitor::buildT1CounterTable(xgi::Output* out)
 {
-  DEBUG("OptoHybridMonitor::buildT1CounterTable");
+  CMSGEMOS_DEBUG("OptoHybridMonitor::buildT1CounterTable");
   if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
-    WARN("Unable to find item set HWMonitoring in monitor");
+    CMSGEMOS_WARN("Unable to find item set HWMonitoring in monitor");
     return;
   }
 
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
 
   if (std::find(monsets.begin(),monsets.end(),"T1 Counters") == monsets.end()) {
-    WARN("Unable to find item set 'T1 Counters' in list of HWMonitoring monitor sets");
+    CMSGEMOS_WARN("Unable to find item set 'T1 Counters' in list of HWMonitoring monitor sets");
     return;
   }
 
@@ -599,7 +599,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildT1CounterTable(xgi::Output* ou
 
         std::string formatted = (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format);
 
-        DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
+        CMSGEMOS_DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
               << formatted);
 
         *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
@@ -622,16 +622,16 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildT1CounterTable(xgi::Output* ou
 
 void gem::hw::optohybrid::OptoHybridMonitor::buildOtherCounterTable(xgi::Output* out)
 {
-  DEBUG("OptoHybridMonitor::buildOtherCounterTable");
+  CMSGEMOS_DEBUG("OptoHybridMonitor::buildOtherCounterTable");
   if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
-    WARN("Unable to find item set HWMonitoring in monitor");
+    CMSGEMOS_WARN("Unable to find item set HWMonitoring in monitor");
     return;
   }
 
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
 
   if (std::find(monsets.begin(),monsets.end(),"Other Counters") == monsets.end()) {
-    WARN("Unable to find item set 'Other Counters' in list of HWMonitoring monitor sets");
+    CMSGEMOS_WARN("Unable to find item set 'Other Counters' in list of HWMonitoring monitor sets");
     return;
   }
 
@@ -647,7 +647,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildOtherCounterTable(xgi::Output*
          << monitem->first
          << "</td>"   << std::endl;
 
-    DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
+    CMSGEMOS_DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
           << formatted);
 
     // count
@@ -674,16 +674,16 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildOtherCounterTable(xgi::Output*
 
 void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output* out)
 {
-  DEBUG("OptoHybridMonitor::buildFirmwareScanTable");
+  CMSGEMOS_DEBUG("OptoHybridMonitor::buildFirmwareScanTable");
   if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
-    WARN("Unable to find item set HWMonitoring in monitor");
+    CMSGEMOS_WARN("Unable to find item set HWMonitoring in monitor");
     return;
   }
 
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
 
   if (std::find(monsets.begin(),monsets.end(),"Firmware Scan Controller") == monsets.end()) {
-    WARN("Unable to find item set 'Firmware Scan Controller' in list of HWMonitoring monitor sets");
+    CMSGEMOS_WARN("Unable to find item set 'Firmware Scan Controller' in list of HWMonitoring monitor sets");
     return;
   }
 
@@ -730,7 +730,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
              << monname.erase(0,scan->first.length())
              << "</td>"   << std::endl;
 
-        DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to " << formatted);
+        CMSGEMOS_DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to " << formatted);
 
         // count
         *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
@@ -759,24 +759,24 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
 void gem::hw::optohybrid::OptoHybridMonitor::reset()
 {
   // have to get rid of the timer
-  DEBUG("GEMMonitor::reset");
+  CMSGEMOS_DEBUG("GEMMonitor::reset");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
-    DEBUG("OptoHybridMonitor::reset removing " << infoSpace->first << " from p_timer");
+    CMSGEMOS_DEBUG("OptoHybridMonitor::reset removing " << infoSpace->first << " from p_timer");
     try {
       p_timer->remove(infoSpace->first);
     } catch (toolbox::task::exception::Exception& te) {
-      ERROR("OptoHybridMonitor::Caught exception while removing timer task " << infoSpace->first << " " << te.what());
+      CMSGEMOS_ERROR("OptoHybridMonitor::Caught exception while removing timer task " << infoSpace->first << " " << te.what());
     }
   }
   stopMonitoring();
-  DEBUG("GEMMonitor::reset removing timer " << m_timerName << " from timerFactory");
+  CMSGEMOS_DEBUG("GEMMonitor::reset removing timer " << m_timerName << " from timerFactory");
   try {
     toolbox::task::getTimerFactory()->removeTimer(m_timerName);
   } catch (toolbox::task::exception::Exception& te) {
-    ERROR("OptoHybridMonitor::Caught exception while removing timer " << m_timerName << " " << te.what());
+    CMSGEMOS_ERROR("OptoHybridMonitor::Caught exception while removing timer " << m_timerName << " " << te.what());
   }
 
-  DEBUG("OptoHybridMonitor::reset - clearing all maps");
+  CMSGEMOS_DEBUG("OptoHybridMonitor::reset - clearing all maps");
   m_infoSpaceMap.clear();
   m_infoSpaceMonitorableSetMap.clear();
   m_monitorableSetInfoSpaceMap.clear();

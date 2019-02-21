@@ -54,9 +54,9 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   m_stepSize(0),
   m_nScanTriggers(0)
 {
-  DEBUG("GEMApplication::called gem::base::GEMApplication constructor");
-  INFO("GEMApplication GIT_VERSION:" << GIT_VERSION);
-  INFO("GEMApplication developer:"   << GEMDEVELOPER);
+  CMSGEMOS_DEBUG("GEMApplication::called gem::base::GEMApplication constructor");
+  CMSGEMOS_INFO("GEMApplication GIT_VERSION:" << GIT_VERSION);
+  CMSGEMOS_INFO("GEMApplication developer:"   << GEMDEVELOPER);
 
   //p_gemWebInterface = new GEMWebApplication(this);
 
@@ -77,14 +77,14 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
                                                                                                      p_appInfoSpace,
                                                                                                      // p_gemMonitor,
                                                                                                      false));
-  DEBUG("GEMApplication::application infospace has name: " << p_appInfoSpace->name());
-  DEBUG(m_urn);
+  CMSGEMOS_DEBUG("GEMApplication::application infospace has name: " << p_appInfoSpace->name());
+  CMSGEMOS_DEBUG(m_urn);
   toolbox::net::URN monISURN(m_urn+toolbox::toString(":monitoring-infospace"));
   if (xdata::getInfoSpaceFactory()->hasItem(monISURN.toString())) {
-    DEBUG("GEMApplication::GEMApplication::infospace " << monISURN.toString() << " already exists, getting");
+    CMSGEMOS_DEBUG("GEMApplication::GEMApplication::infospace " << monISURN.toString() << " already exists, getting");
     p_monitorInfoSpace = xdata::getInfoSpaceFactory()->get(monISURN.toString());
   } else {
-    DEBUG("GEMApplication::GEMApplication::infospace " << monISURN.toString() << " does not exist, creating");
+    CMSGEMOS_DEBUG("GEMApplication::GEMApplication::infospace " << monISURN.toString() << " does not exist, creating");
     p_monitorInfoSpace = xdata::getInfoSpaceFactory()->create(monISURN.toString());
   }
   p_monitorInfoSpaceToolBox = std::shared_ptr<utils::GEMInfoSpaceToolBox>(new utils::GEMInfoSpaceToolBox(this,
@@ -93,10 +93,10 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
                                                                                                          false));
   toolbox::net::URN cfgISURN(m_urn+toolbox::toString(":config-infospace"));
   if (xdata::getInfoSpaceFactory()->hasItem(cfgISURN.toString())) {
-    DEBUG("GEMApplication::GEMApplication::infospace " << cfgISURN.toString() << " already exists, getting");
+    CMSGEMOS_DEBUG("GEMApplication::GEMApplication::infospace " << cfgISURN.toString() << " already exists, getting");
     p_configInfoSpace = xdata::getInfoSpaceFactory()->get(cfgISURN.toString());
   } else {
-    DEBUG("GEMApplication::GEMApplication::infospace " << cfgISURN.toString() << " does not exist, creating");
+    CMSGEMOS_DEBUG("GEMApplication::GEMApplication::infospace " << cfgISURN.toString() << " does not exist, creating");
     p_configInfoSpace = xdata::getInfoSpaceFactory()->create(cfgISURN.toString());
   }
   p_configInfoSpaceToolBox = std::shared_ptr<utils::GEMInfoSpaceToolBox>(new utils::GEMInfoSpaceToolBox(this,
@@ -104,7 +104,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
                                                                                                         // p_gemMonitor,
                                                                                                         false));
 
-  DEBUG("GEMApplication::GEM application has infospace named " << p_appInfoSpace->name());
+  CMSGEMOS_DEBUG("GEMApplication::GEM application has infospace named " << p_appInfoSpace->name());
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiDefault, "Default"    );
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiMonitor, "monitorView");
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiExpert,  "expertView" );
@@ -159,13 +159,13 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   p_appInfoSpace->addItemChangedListener( "ScanMax",       this);
   p_appInfoSpace->addItemChangedListener( "StepSize",      this);
 
-  DEBUG("GEMApplication::gem::base::GEMApplication constructed");
+  CMSGEMOS_DEBUG("GEMApplication::gem::base::GEMApplication constructed");
 }
 
 
 gem::base::GEMApplication::~GEMApplication()
 {
-  DEBUG("GEMApplication::gem::base::GEMApplication destructor called");
+  CMSGEMOS_DEBUG("GEMApplication::gem::base::GEMApplication destructor called");
 }
 
 std::string gem::base::GEMApplication::getFullURL()
@@ -184,9 +184,9 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
   // followed by a call to gem::base::GEMApplication::actionPerformed(event)
   /*
     if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    DEBUG("GEMApplication::actionPerformed() setDefaultValues" <<
+    CMSGEMOS_DEBUG("GEMApplication::actionPerformed() setDefaultValues" <<
     "Default configuration values have been loaded from xml profile");
-    // DEBUG("GEMApplication::actionPerformed()   --> starting monitoring");
+    // CMSGEMOS_DEBUG("GEMApplication::actionPerformed()   --> starting monitoring");
     // monitorP_->startMonitoring();
     }
   */
@@ -195,34 +195,34 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
 
   if (event.type() == "ItemRetrieveEvent" ||
       event.type() == "urn:xdata-event:ItemRetrieveEvent") {
-    DEBUG("GEMApplication::actionPerformed() ItemRetrieveEvent"
+    CMSGEMOS_DEBUG("GEMApplication::actionPerformed() ItemRetrieveEvent"
           << "");
   } else if (event.type() == "ItemGroupRetrieveEvent" ||
              event.type() == "urn:xdata-event:ItemGroupRetrieveEvent") {
-    DEBUG("GEMApplication::actionPerformed() ItemGroupRetrieveEvent"
+    CMSGEMOS_DEBUG("GEMApplication::actionPerformed() ItemGroupRetrieveEvent"
           << "");
   }
   // item is changed, update it
   if (event.type() == "ItemChangedEvent" ||
       event.type() == "urn:xdata-event:ItemChangedEvent") {
-    DEBUG("GEMApplication::actionPerformed() ItemChangedEvent"
+    CMSGEMOS_DEBUG("GEMApplication::actionPerformed() ItemChangedEvent"
           << "m_runNumber:" << m_runNumber
           << " getInteger64(\"RunNumber\"):" << p_appInfoSpaceToolBox->getInteger64("RunNumber"));
 
     /*
-    INFO("GEMApplication::actionPerformed() ItemChangedEvent"
+    CMSGEMOS_INFO("GEMApplication::actionPerformed() ItemChangedEvent"
           << "m_RUNTYPE:" << m_RUNTYPE
           << " getInteger(\"ScanType\"):" << p_appInfoSpaceToolBox->getInteger("ScanType"));
 
-    INFO("GEMApplication::actionPerformed() ItemChangedEvent"
+    CMSGEMOS_INFO("GEMApplication::actionPerformed() ItemChangedEvent"
           << "m_Min:" << m_Min
           << " getInteger(\"Min\"):" << p_appInfoSpaceToolBox->getInteger("Min"));
 
-    INFO("GEMApplication::actionPerformed() ItemChangedEvent"
+    CMSGEMOS_INFO("GEMApplication::actionPerformed() ItemChangedEvent"
           << "m_Max:" << m_Max
           << " getInteger(\"Max\"):" << p_appInfoSpaceToolBox->getInteger("Max"));
 
-    INFO("GEMApplication::actionPerformed() ItemChangedEvent"
+    CMSGEMOS_INFO("GEMApplication::actionPerformed() ItemChangedEvent"
           << "m_StepSize:" << m_StepSize
           << " getInteger(\"StepSize\"):" << p_appInfoSpaceToolBox->getInteger("StepSize"));
     */
@@ -235,7 +235,7 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
        try {
        getMonitorInfospace()->fireItemGroupChanged(names, this);
        } catch (xcept::Exception& e) {
-       ERROR(xcept::stdformat_exception_history(e));
+       CMSGEMOS_ERROR(xcept::stdformat_exception_history(e));
        }
     */
   }

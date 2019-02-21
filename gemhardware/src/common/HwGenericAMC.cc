@@ -9,7 +9,7 @@
 //   m_crate(-1),
 //   m_slot(-1)
 // {
-//   INFO("HwGenericAMC ctor");
+//   CMSGEMOS_INFO("HwGenericAMC ctor");
 
 //   for (unsigned li = 0; li < N_GTX; ++li) {
 //     b_links[li] = false;
@@ -17,7 +17,7 @@
 //     m_ipBusCounters.push_back(tmpGTXCounter);
 //   }
 
-//   INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
+//   CMSGEMOS_INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
 // }
 
 // gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice) :
@@ -27,7 +27,7 @@
 //   m_crate(-1),
 //   m_slot(-1)
 // {
-//   INFO("HwGenericAMC ctor");
+//   CMSGEMOS_INFO("HwGenericAMC ctor");
 
 //   for (unsigned li = 0; li < N_GTX; ++li) {
 //     b_links[li] = false;
@@ -35,7 +35,7 @@
 //     m_ipBusCounters.push_back(tmpGTXCounter);
 //   }
 
-//   INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
+//   CMSGEMOS_INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
 // }
 
 // gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
@@ -47,7 +47,7 @@
 //   m_crate(crate),
 //   m_slot(slot)
 // {
-//   INFO("HwGenericAMC ctor");
+//   CMSGEMOS_INFO("HwGenericAMC ctor");
 
 //   for (unsigned li = 0; li < N_GTX; ++li) {
 //     b_links[li] = false;
@@ -55,7 +55,7 @@
 //     m_ipBusCounters.push_back(tmpGTXCounter);
 //   }
 
-//   INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
+//   CMSGEMOS_INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
 // }
 
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
@@ -66,7 +66,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
   m_crate(-1),
   m_slot(-1)
 {
-  INFO("HwGenericAMC ctor");
+  CMSGEMOS_INFO("HwGenericAMC ctor");
 
   for (unsigned li = 0; li < N_GTX; ++li) {
     b_links[li] = false;
@@ -74,7 +74,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
+  CMSGEMOS_INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
@@ -87,7 +87,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
   m_slot(-1)
 
 {
-  INFO("trying to create HwGenericAMC(" << amcDevice << "," << connectionURI << "," <<addressTable);
+  CMSGEMOS_INFO("trying to create HwGenericAMC(" << amcDevice << "," << connectionURI << "," <<addressTable);
   setDeviceBaseNode(amcDevice);
   for (unsigned li = 0; li < N_GTX; ++li) {
     b_links[li] = false;
@@ -95,7 +95,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
+  CMSGEMOS_INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
@@ -113,7 +113,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
+  CMSGEMOS_INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::HwGenericAMC::~HwGenericAMC()
@@ -124,32 +124,32 @@ bool gem::hw::HwGenericAMC::isHwConnected()
 {
   // DO NOT LIKE THIS FUNCTION FIXME!!!
   if (b_is_connected) {
-    INFO("basic check: HwGenericAMC connection good");
+    CMSGEMOS_INFO("basic check: HwGenericAMC connection good");
     return true;
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
-    INFO("basic check: HwGenericAMC pointer valid");
+    CMSGEMOS_INFO("basic check: HwGenericAMC pointer valid");
     std::vector<linkStatus> tmp_activeLinks;
     m_maxLinks = this->getSupportedOptoHybrids();
     tmp_activeLinks.reserve(m_maxLinks);
     if ((this->getBoardID()).rfind("GLIB") != std::string::npos ) {
-      INFO("HwGenericAMC found boardID");
+      CMSGEMOS_INFO("HwGenericAMC found boardID");
       for (unsigned int gtx = 0; gtx < m_maxLinks; ++gtx) {
         // FIXME!!! somehow need to actually check that the specified link is present
         b_links[gtx] = true;
-        INFO("m_links 0x" << std::hex << std::setw(8) << std::setfill('0')
+        CMSGEMOS_INFO("m_links 0x" << std::hex << std::setw(8) << std::setfill('0')
              << m_links
              << " 0x1 << gtx = " << std::setw(8) << std::setfill('0') << (0x1<<gtx)
              << std::dec);
         m_links |= (0x1<<gtx);
-        INFO("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
-        INFO("m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+        CMSGEMOS_INFO("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
+        CMSGEMOS_INFO("m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
               << m_links << std::dec);
         tmp_activeLinks.push_back(std::make_pair(gtx,this->LinkStatus(gtx)));
-        INFO("m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+        CMSGEMOS_INFO("m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
               << m_links << std::dec);
       }
     } else {
-      WARN("Device not reachable (unable to find 'GLIB' in the board ID)"
+      CMSGEMOS_WARN("Device not reachable (unable to find 'GLIB' in the board ID)"
            << " board ID "              << this->getBoardID()
            << " user firmware version " << this->getFirmwareVer());
       return false;
@@ -158,7 +158,7 @@ bool gem::hw::HwGenericAMC::isHwConnected()
     v_activeLinks = tmp_activeLinks;
     if (!v_activeLinks.empty()) {
       b_is_connected = true;
-      DEBUG("checked gtxs: HwGenericAMC connection good");
+      CMSGEMOS_DEBUG("checked gtxs: HwGenericAMC connection good");
       return true;
     } else {
       b_is_connected = false;
@@ -251,24 +251,24 @@ std::string gem::hw::HwGenericAMC::getUserFirmwareDate()
 
 bool gem::hw::HwGenericAMC::linkCheck(uint8_t const& gtx, std::string const& opMsg)
 {
-  INFO("linkCheck:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+  CMSGEMOS_INFO("linkCheck:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
        << m_links << std::dec);
   if (gtx > m_maxLinks) {
     std::string msg = toolbox::toString("%s requested for gtx (%d): outside expectation (0-%d)",
                                         opMsg.c_str(), gtx, m_maxLinks);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::exception::InvalidLink,msg);
     return false;
     //  } else if (!b_links[gtx]) {
   } else if (!((m_links>>gtx)&0x1)) {
-    INFO("linkCheck:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+    CMSGEMOS_INFO("linkCheck:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
          << m_links << std::dec);
     std::string msg = toolbox::toString("%s requested inactive gtx (%d, 0x%08x, 0x%08x)",opMsg.c_str(), gtx,m_links,m_links>>gtx);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::exception::InvalidLink,msg);
     return false;
   }
-  INFO("linkCheck:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+  CMSGEMOS_INFO("linkCheck:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
        << m_links << std::dec);
   return true;
 }
@@ -277,7 +277,7 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::HwGenericAMC::LinkStatus(uint8_
 {
   gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus;
 
-  INFO("LinkStatus:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+  CMSGEMOS_INFO("LinkStatus:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
        << m_links << std::dec);
   if (linkCheck(gtx, "Link status")) {
     linkStatus.GTX_TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.TRACK_LINK_ERROR_CNT", gtx));
@@ -286,7 +286,7 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::HwGenericAMC::LinkStatus(uint8_
     linkStatus.GBT_TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.TRACK_LINK_ERROR_CNT", gtx));
     linkStatus.GBT_Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.VFAT_BLOCK_CNT",       gtx));
   }
-  INFO("LinkStatus:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+  CMSGEMOS_INFO("LinkStatus:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
        << m_links << std::dec);
   return linkStatus;
 }
@@ -365,7 +365,7 @@ uint32_t gem::hw::HwGenericAMC::getFIFOOccupancy(uint8_t const& gtx)
     std::stringstream regName;
     regName << "TRK_DATA.OptoHybrid_" << (int)gtx;
     fifocc = readReg(getDeviceBaseNode(),regName.str()+".DEPTH");
-    DEBUG(toolbox::toString("getFIFOOccupancy(%d) %s.%s%s:: %d", gtx, getDeviceBaseNode().c_str(),
+    CMSGEMOS_DEBUG(toolbox::toString("getFIFOOccupancy(%d) %s.%s%s:: %d", gtx, getDeviceBaseNode().c_str(),
                             regName.str().c_str(), ".DEPTH", fifocc));
   }
   // the fifo occupancy is in number of 32 bit words
@@ -410,7 +410,7 @@ uint32_t gem::hw::HwGenericAMC::getTrackingData(uint8_t const& gtx, uint32_t* da
 {
   if (data==NULL) {
     std::string msg = toolbox::toString("Block read requested for null pointer");
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     XCEPT_RAISE(gem::hw::exception::NULLReadoutPointer,msg);
   } else if (!linkCheck(gtx, "Tracking data")) {
     return 0;
@@ -444,12 +444,12 @@ void gem::hw::HwGenericAMC::flushFIFO(uint8_t const& gtx)
   if (linkCheck(gtx, "Flush FIFO")) {
     std::stringstream regName;
     regName << "TRK_DATA.OptoHybrid_" << (int)gtx;
-    INFO("Tracking FIFO" << (int)gtx << ":"
+    CMSGEMOS_INFO("Tracking FIFO" << (int)gtx << ":"
          << " ISFULL  0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISFULL")  << std::dec
          << " ISEMPTY 0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISEMPTY") << std::dec
          << " Depth   0x" << std::hex << getFIFOOccupancy(gtx) << std::dec);
     writeReg(getDeviceBaseNode(),regName.str()+".FLUSH",0x1);
-    INFO("Tracking FIFO" << (int)gtx << ":"
+    CMSGEMOS_INFO("Tracking FIFO" << (int)gtx << ":"
          << " ISFULL  0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISFULL")  << std::dec
          << " ISEMPTY 0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISEMPTY") << std::dec
          << " Depth   0x" << std::hex << getFIFOOccupancy(gtx) << std::dec);
@@ -658,7 +658,7 @@ void gem::hw::HwGenericAMC::setDAQLinkRunParameter(uint8_t const& parameter, uin
   if (parameter < 1 || parameter > 3) {
     std::string msg = toolbox::toString("Attempting to set DAQ link run parameter %d: outside expectation (1-%d)",
                                         (int)parameter,3);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     return;
   }
   std::stringstream regBase;
@@ -712,7 +712,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
   const int PLL_LOCK_READ_ATTEMPTS  = 10;
   const double PLL_LOCK_WAIT_TIME   = 0.00001; // wait 100us to allow the PLL to lock
 
-  INFO("HwGenericAMC::ttcMMCMPhaseShift: starting phase shifting procedure");
+  CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift: starting phase shifting procedure");
   // writeReg(getDeviceBaseNode(), "TTC.CTRL.MMCM_PHASE_SHIFT", 0x1);
 
   /*
@@ -750,7 +750,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
   // add readback of aforementioned registers
 
   if (readReg(getDeviceBaseNode(),"TTC.CTRL.DISABLE_PHASE_ALIGNMENT") == 0x0) {
-    WARN("HwGeneircAMC::ttcMMCMPhaseShift automatic phase alignment is turned off!!");
+    CMSGEMOS_WARN("HwGeneircAMC::ttcMMCMPhaseShift automatic phase alignment is turned off!!");
     // EXCEPT_RAISE
     return;
   }
@@ -793,10 +793,10 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
     writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN", 0x1);
 
     if (!reversingForLock && (gthShiftCnt == 39)) {
-      DEBUG("HwGeneircAMC::ttcMMCMPhaseShift: normal GTH shift rollover 39->0");
+      CMSGEMOS_DEBUG("HwGeneircAMC::ttcMMCMPhaseShift: normal GTH shift rollover 39->0");
       gthShiftCnt = 0;
     } else if (reversingForLock && (gthShiftCnt == 0)){
-      DEBUG("HwGeneircAMC::ttcMMCMPhaseShift: rerversed GTH shift rollover 0->39");
+      CMSGEMOS_DEBUG("HwGeneircAMC::ttcMMCMPhaseShift: rerversed GTH shift rollover 0->39");
       gthShiftCnt = 39;
     } else {
       if (reversingForLock) {
@@ -808,10 +808,10 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
 
     uint32_t tmpGthShiftCnt  = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT");
     uint32_t tmpMmcmShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT");
-    INFO("HwGeneircAMC::ttcMMCMPhaseShift tmpGthShiftCnt: " << tmpGthShiftCnt
+    CMSGEMOS_INFO("HwGeneircAMC::ttcMMCMPhaseShift tmpGthShiftCnt: " << tmpGthShiftCnt
          << ", tmpMmcmShiftCnt: " << tmpMmcmShiftCnt);
     while (gthShiftCnt != tmpGthShiftCnt) {
-      WARN("HwGeneircAMC::ttcMMCMPhaseShift Repeating a GTH PI shift because the shift count doesn't"
+      CMSGEMOS_WARN("HwGeneircAMC::ttcMMCMPhaseShift Repeating a GTH PI shift because the shift count doesn't"
            << " match the expected value."
            << " Expected shift cnt = " << gthShiftCnt
            << ", ctp7 returned "       << tmpGthShiftCnt);
@@ -834,7 +834,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
 
       tmpMmcmShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT");
       if (mmcmShiftCnt != tmpMmcmShiftCnt)
-        WARN("HwGeneircAMC::ttcMMCMPhaseShift Reported MMCM shift count doesn't match the expected MMCM shift count."
+        CMSGEMOS_WARN("HwGeneircAMC::ttcMMCMPhaseShift Reported MMCM shift count doesn't match the expected MMCM shift count."
              << " Expected shift cnt = " << mmcmShiftCnt
              << " , ctp7 returned "      << tmpMmcmShiftCnt);
     }
@@ -852,7 +852,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
     uhal::ValWord<uint32_t> dblErrCnt  = getGEMHwInterface().getNode("GEM_AMC.TTC.STATUS.TTC_DOUBLE_ERROR_CNT").read();
     getGEMHwInterface().dispatch();
 
-    DEBUG("HwGeneircAMC::ttcMMCMPhaseShift GTH shift #" << i
+    CMSGEMOS_DEBUG("HwGeneircAMC::ttcMMCMPhaseShift GTH shift #" << i
           << ": mmcm shift cnt = "     << mmcmShiftCnt
           << ", mmcm phase counts = "  << phase
           << ", mmcm phase = "         << phaseNs
@@ -874,7 +874,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
         if (shiftOutOfLockFirst) {
           if (nBadLocks > 100) {
             firstUnlockFound = true;
-            INFO("HwGenericAMC::ttcMMCMPhaseShift 100 unlocks found after " << (i+1) << " shifts:"
+            CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift 100 unlocks found after " << (i+1) << " shifts:"
                  << " bad locks "           << nBadLocks
                  << ", good locks "         << nGoodLocks
                  << ", mmcm phase count = " << phase
@@ -882,7 +882,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
           }
         } else {
           if (reversingForLock && (nBadLocks > 0)) {
-            DEBUG("HwGenericAMC::ttcMMCMPhaseShift Bad BC0 lock found:"
+            CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift Bad BC0 lock found:"
                   << " phase count = " << phase
                   << ", phase ns = "   << phaseNs << "ns"
                   << ", returning to normal search");
@@ -894,7 +894,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
             nGoodLocks       = 0;
           } else if (nGoodLocks == 200) {
             reversingForLock = true;
-            INFO("HwGenericAMC::ttcMMCMPhaseShift 200 consecutive good BC0 locks found:"
+            CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift 200 consecutive good BC0 locks found:"
                  << " phase count = " << phase
                  << ", phase ns = "   << phaseNs << "ns"
                  << ", reversing scan direction");
@@ -903,7 +903,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
             getGEMHwInterface().dispatch();
           }
           if (reversingForLock && (nGoodLocks == 300)) {
-            INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
+            CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
                  << " phase count = " << phase
                  << ", phase ns = "   << phaseNs << "ns");
             bestLockFound    = true;
@@ -922,7 +922,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
       } else { // shift to first good BC0 locked
         if (bc0Locked == 0) {
           if (nextLockFound) {
-            DEBUG("HwGenericAMC::ttcMMCMPhaseShift Unexpected unlock after " << (i+1) << " shifts:"
+            CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift Unexpected unlock after " << (i+1) << " shifts:"
                   << " bad locks "           << nBadLocks
                   << ", good locks "         << nGoodLocks
                   << ", mmcm phase count = " << phase
@@ -932,7 +932,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
           // nGoodLocks = 0;
         } else {
           if (!nextLockFound) {
-            INFO("HwGenericAMC::ttcMMCMPhaseShift Found next lock after "  << (i+1) << " shifts:"
+            CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Found next lock after "  << (i+1) << " shifts:"
                  << " bad locks "           << nBadLocks
                  << ", good locks "         << nGoodLocks
                  << ", mmcm phase count = " << phase
@@ -943,7 +943,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
           nGoodLocks += 1;
         }
         if (nGoodLocks == 1920) {
-          INFO("HwGenericAMC::ttcMMCMPhaseShift Finished 1920 shifts after first good lock: "
+          CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Finished 1920 shifts after first good lock: "
                << "bad locks "   << nBadLocks
                << " good locks " <<  nGoodLocks);
           bestLockFound = true;
@@ -971,14 +971,14 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
         if (shiftOutOfLockFirst) {
           if (nBadLocks > 500) {
             firstUnlockFound = true;
-            DEBUG("HwGenericAMC::ttcMMCMPhaseShift 500 unlocks found after " << i+1 << " shifts:"
+            CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift 500 unlocks found after " << i+1 << " shifts:"
                   << " bad locks "           << nBadLocks
                   << ", good locks "         << nGoodLocks
                   << ", mmcm phase count = " << phase
                   << ", mmcm phase ns = "    << phaseNs << "ns");
           } else {
             if (reversingForLock && (nBadLocks > 0)) {
-              DEBUG("HwGenericAMC::ttcMMCMPhaseShift Bad BC0 lock found:"
+              CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift Bad BC0 lock found:"
                     << " phase count = " << phase
                     << ", phase ns = "   << phaseNs << "ns"
                     << ", returning to normal search");
@@ -990,7 +990,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
               nGoodLocks       = 0;
             } else if (nGoodLocks == 50) {
               reversingForLock = true;
-              INFO("HwGenericAMC::ttcMMCMPhaseShift 50 consecutive good PLL locks found:"
+              CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift 50 consecutive good PLL locks found:"
                    << " phase count = " << phase
                    << ", phase ns = "   << phaseNs << "ns"
                    << ", reversing scan direction");
@@ -999,7 +999,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
               getGEMHwInterface().dispatch();
             }
             if (reversingForLock &&(nGoodLocks == 75)) {
-              INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
+              CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
                    << " phase count = " << phase
                    << ", phase ns = "   << phaseNs << "ns.");
               bestLockFound = true;
@@ -1019,7 +1019,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
       } else { // shift to first good PLL locked
         if (pllLockCnt < PLL_LOCK_READ_ATTEMPTS) {
           if (nextLockFound) {
-            WARN("HwGenericAMC::ttcMMCMPhaseShift Unexpected unlock after " << i+1 << " shifts:"
+            CMSGEMOS_WARN("HwGenericAMC::ttcMMCMPhaseShift Unexpected unlock after " << i+1 << " shifts:"
                  << " bad locks "           << nBadLocks
                  << ", good locks "         << nGoodLocks
                  << ", mmcm phase count = " << phase
@@ -1028,7 +1028,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
             // nGoodLocks = 0;
           } else {
             if (!nextLockFound) {
-              INFO("HwGenericAMC::ttcMMCMPhaseShift Found next lock after " << i+1 << " shifts:"
+              CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Found next lock after " << i+1 << " shifts:"
                    << " bad locks "           << nBadLocks
                    << ", good locks "         << nGoodLocks
                    << ", mmcm phase count = " << phase
@@ -1039,7 +1039,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
             nGoodLocks += 1;
           }
           if (nShiftsSinceLock == 1000) {
-            INFO("HwGenericAMC::ttcMMCMPhaseShift Finished 1000 shifts after first good lock:"
+            CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Finished 1000 shifts after first good lock:"
                  << " bad locks "   << nBadLocks
                  << ", good locks " << nGoodLocks);
             bestLockFound = true;
@@ -1058,7 +1058,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
     } else {
       if (shiftOutOfLockFirst && (pllLockCnt < PLL_LOCK_READ_ATTEMPTS) && !firstUnlockFound) {
         firstUnlockFound = true;
-        WARN("HwGenericAMC::ttcMMCMPhaseShift Unlocked after " << i+1 << "shifts:"
+        CMSGEMOS_WARN("HwGenericAMC::ttcMMCMPhaseShift Unlocked after " << i+1 << "shifts:"
              << " mmcm phase count = "     << phase
              << ", mmcm phase ns = "       << phaseNs << "ns"
              << ", pllLockCnt = "          << pllLockCnt
@@ -1070,7 +1070,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
         if (!shiftOutOfLockFirst) {
           if (nGoodLocks == 50) {
             reversingForLock = true;
-            INFO("HwGenericAMC::ttcMMCMPhaseShift 200 consecutive good PLL locks found:"
+            CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift 200 consecutive good PLL locks found:"
                  << " phase count = " << phase
                  << ", phase ns = "   << phaseNs << "ns"
                  << ", reversing scan direction");
@@ -1078,7 +1078,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
             getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(1);
           }
           if (reversingForLock && (nGoodLocks == 75)) {
-            INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
+            CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
                  << " phase count = " << phase
                  << ", phase ns = "   << phaseNs << "ns.");
             bestLockFound    = true;
@@ -1095,7 +1095,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
           }
         } else if (firstUnlockFound || !shiftOutOfLockFirst) {
           if (!nextLockFound) {
-            DEBUG("HwGenericAMC::ttcMMCMPhaseShift Found next lock after " << i+1 << " shifts:"
+            CMSGEMOS_DEBUG("HwGenericAMC::ttcMMCMPhaseShift Found next lock after " << i+1 << " shifts:"
                   << " bad locks "           << nBadLocks
                   << ", good locks "         << nGoodLocks
                   << ", mmcm phase count = " << phase
@@ -1142,13 +1142,13 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
 
   if (bestLockFound) {
     ttcMMCMReset();
-    INFO("HwGeneircAMC::ttcMMCMPhaseShift Lock was found:"
+    CMSGEMOS_INFO("HwGeneircAMC::ttcMMCMPhaseShift Lock was found:"
          << " phase count " << phase
          << ", phase "      << phaseNs<< "ns");
   } else {
     std::stringstream msg;
     msg << "HwGeneircAMC::ttcMMCMPhaseShift Unable to find lock";
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::exception::MMCMLockFailed,msg);
   }
 }
@@ -1261,7 +1261,7 @@ uint32_t gem::hw::HwGenericAMC::getL1AID()
 
 uint32_t gem::hw::HwGenericAMC::getTTCSpyBuffer()
 {
-  WARN("HwGenericAMC::getTTCSpyBuffer: TTC.TTC_SPY_BUFFER is obsolete and will be removed in a future release");
+  CMSGEMOS_WARN("HwGenericAMC::getTTCSpyBuffer: TTC.TTC_SPY_BUFFER is obsolete and will be removed in a future release");
   return 0x0;
   // return readReg(getDeviceBaseNode(), "TTC.TTC_SPY_BUFFER");
 }

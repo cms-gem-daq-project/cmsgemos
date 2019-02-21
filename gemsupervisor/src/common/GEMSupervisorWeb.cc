@@ -30,7 +30,7 @@ void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output 
   throw (xgi::exception::Exception)
 {
   if (p_gemFSMApp)
-    DEBUG("GEMSupervisorWeb::current supervisor state is"
+    CMSGEMOS_DEBUG("GEMSupervisorWeb::current supervisor state is"
           << dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemFSMApp)->getCurrentState());
   *out << cgicc::script().set("type", "text/javascript")
     .set("src", "/gemdaq/gemsupervisor/html/scripts/gemsupervisor.js")
@@ -42,7 +42,7 @@ void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output 
 void gem::supervisor::GEMSupervisorWeb::controlPanel(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMSupervisor::controlPanel");
+  CMSGEMOS_DEBUG("GEMSupervisor::controlPanel");
   GEMWebApplication::controlPanel(in, out);
 
   *out << cgicc::br();
@@ -58,14 +58,14 @@ void gem::supervisor::GEMSupervisorWeb::controlPanel(xgi::Input * in, xgi::Outpu
 void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMSupervisorWeb::Rendering GEMSupervisorWeb monitorPage");
-  DEBUG("GEMSupervisorWeb::in: " << std::hex << in << " out: " << std::hex << out << std::dec);
-  DEBUG("GEMSupervisorWeb::current level is "      << level);
+  CMSGEMOS_DEBUG("GEMSupervisorWeb::Rendering GEMSupervisorWeb monitorPage");
+  CMSGEMOS_DEBUG("GEMSupervisorWeb::in: " << std::hex << in << " out: " << std::hex << out << std::dec);
+  CMSGEMOS_DEBUG("GEMSupervisorWeb::current level is "      << level);
   if (level != 5) {
   } else  {
     level = 2;
   }
-  DEBUG("GEMSupervisorWeb::current level is "      << level);
+  CMSGEMOS_DEBUG("GEMSupervisorWeb::current level is "      << level);
 
 
   *out << cgicc::section().set("style", "display:inline-block;float:left") << std::endl
@@ -87,7 +87,7 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
 void gem::supervisor::GEMSupervisorWeb::expertPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMSupervisorWeb::rendering GEMSupervisorWeb expertPage");
+  CMSGEMOS_DEBUG("GEMSupervisorWeb::rendering GEMSupervisorWeb expertPage");
   // should put all this style information into a common CSS sheet
   *out << cgicc::section().set("style", "display:inline-block;float:left") << std::endl
        << cgicc::fieldset().set("style", "style=\"display:block\";padding:5px;margin:5px;list-style-type:none;margin-bottom:5px;line-height:18px;padding:2px 5px;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;border:medium outset #CCC;")
@@ -102,7 +102,7 @@ void gem::supervisor::GEMSupervisorWeb::expertPage(xgi::Input * in, xgi::Output 
 void gem::supervisor::GEMSupervisorWeb::applicationPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMSupervisorWeb::applicationPage");
+  CMSGEMOS_DEBUG("GEMSupervisorWeb::applicationPage");
   *out << "applicationPage</br>" << std::endl;
 }
 
@@ -128,11 +128,11 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
            << cgicc::h3() ;
       // << dynamic_cast<gem::base::GEMFSMApplication*>(*managedApp)->getURN()
       std::string classname = (*managedApp)->getClassName();
-      DEBUG("GEMSupervisorWeb::managed class name is " << classname);
+      CMSGEMOS_DEBUG("GEMSupervisorWeb::managed class name is " << classname);
       *out << classname;
       *out << "(";
       unsigned int instance = (*managedApp)->getInstance();
-      DEBUG("GEMSupervisorWeb::managed class instance is " << instance);
+      CMSGEMOS_DEBUG("GEMSupervisorWeb::managed class instance is " << instance);
       *out << instance;
       *out << ")"
            << cgicc::h3() << std::endl
@@ -140,14 +140,14 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
            << "<td>"      << std::endl
            << cgicc::h3();
 
-      INFO("GEMSupervisorWeb::trying to get the FSM class object for object " << std::hex << *managedApp << std::dec);
+      CMSGEMOS_INFO("GEMSupervisorWeb::trying to get the FSM class object for object " << std::hex << *managedApp << std::dec);
       std::string appStateURN = (*managedApp)->getURN();
       // appStateURN = appStateURN.substr(appStateURN.rfind("::")+2);
       // boost::replace_all(appStateURN, ":", "-");
       std::string classstate
         = gem::base::utils::GEMInfoSpaceToolBox::getString(xdata::getInfoSpaceFactory()->get(appStateURN), "StateName");
       *out << classstate;
-      INFO("GEMSupervisorWeb::managed class FSM state is " << classstate);
+      CMSGEMOS_INFO("GEMSupervisorWeb::managed class FSM state is " << classstate);
       *out << cgicc::h3() << std::endl
            << "</td>"     << std::endl
            << "</tr>"     << std::endl;
@@ -155,10 +155,10 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
     *out << "</tbody>"  << std::endl
          << "</table>"  << std::endl;
   } catch (const xgi::exception::Exception& e) {
-    ERROR("GEMSupervisorWeb::Something went wrong displaying managed application state table(xgi): " << e.what());
+    CMSGEMOS_ERROR("GEMSupervisorWeb::Something went wrong displaying managed application state table(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
-    ERROR("GEMSupervisorWeb::Something went wrong displaying managed application state table(std): " << e.what());
+    CMSGEMOS_ERROR("GEMSupervisorWeb::Something went wrong displaying managed application state table(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }

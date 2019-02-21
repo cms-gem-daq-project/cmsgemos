@@ -369,11 +369,11 @@ void gem::hw::glib::GLIBMonitor::updateMonitorables()
   // define how to update the desired values
   // get SYSTEM monitorables
   // can this be split into two loops, one just to do a list read, the second to fill the InfoSpace with the returned values
-  DEBUG("GLIBMonitor: Updating monitorables");
+  CMSGEMOS_DEBUG("GLIBMonitor: Updating monitorables");
   for (auto monlist = m_monitorableSetsMap.begin(); monlist != m_monitorableSetsMap.end(); ++monlist) {
-    DEBUG("GLIBMonitor: Updating monitorables in set " << monlist->first);
+    CMSGEMOS_DEBUG("GLIBMonitor: Updating monitorables in set " << monlist->first);
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
-      DEBUG("GLIBMonitor: Updating monitorable " << monitem->first);
+      CMSGEMOS_DEBUG("GLIBMonitor: Updating monitorable " << monitem->first);
       std::stringstream regName;
       regName << p_glib->getDeviceBaseNode() << "." << monitem->second.regname;
       uint32_t address = p_glib->getGEMHwInterface().getNode(regName.str()).getAddress();
@@ -413,7 +413,7 @@ void gem::hw::glib::GLIBMonitor::updateMonitorables()
       } else if (monitem->second.updatetype == GEMUpdateType::NOUPDATE) {
         continue;
       } else {
-        ERROR("GLIBMonitor: Unknown update type encountered");
+        CMSGEMOS_ERROR("GLIBMonitor: Unknown update type encountered");
         continue;
       }
     } // end loop over items in list
@@ -422,9 +422,9 @@ void gem::hw::glib::GLIBMonitor::updateMonitorables()
 
 void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
 {
-  DEBUG("GLIBMonitor::buildMonitorPage");
+  CMSGEMOS_DEBUG("GLIBMonitor::buildMonitorPage");
   if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
-    WARN("Unable to find item set HWMonitoring in monitor");
+    CMSGEMOS_WARN("Unable to find item set HWMonitoring in monitor");
     return;
   }
 
@@ -440,7 +440,7 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
     } else if ((*monset).rfind("Trigger Status") != std::string::npos) {
       buildTriggerStatusTable(out);
     } else {
-      DEBUG("GLIBMonitor::buildMonitorPage building table " << *monset);
+      CMSGEMOS_DEBUG("GLIBMonitor::buildMonitorPage building table " << *monset);
       *out << "<div class=\"xdaq-tab\" title=\""  << *monset << "\" >"  << std::endl
            << "<table class=\"xdaq-table\" id=\"" << *monset << "_table\">" << std::endl
            << cgicc::thead() << std::endl
@@ -461,7 +461,7 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
              << monitem->first
              << "</td>"   << std::endl;
 
-        DEBUG("GLIBMonitor::" << monitem->first << " formatted to "
+        CMSGEMOS_DEBUG("GLIBMonitor::" << monitem->first << " formatted to "
               << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
         // this will be repeated for every GLIBMonitor in the GLIBManager..., need a better unique ID
         *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
@@ -488,25 +488,25 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
 
 void gem::hw::glib::GLIBMonitor::buildDAQStatusTable(xgi::Output* out)
 {
-  DEBUG("GLIBMonitor::buildDAQStatusTable");
+  CMSGEMOS_DEBUG("GLIBMonitor::buildDAQStatusTable");
   if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
-    WARN("Unable to find item set HWMonitoring in monitor");
+    CMSGEMOS_WARN("Unable to find item set HWMonitoring in monitor");
     return;
   }
 
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
 
   if (std::find(monsets.begin(),monsets.end(),"DAQ Status") == monsets.end()) {
-    WARN("Unable to find item set 'DAQ Status' in list of HWMonitoring monitor sets");
+    CMSGEMOS_WARN("Unable to find item set 'DAQ Status' in list of HWMonitoring monitor sets");
     return;
   }
 
   auto monset = m_monitorableSetsMap.find("DAQ Status")->second;
-  DEBUG("GLIBMonitor::buildDAQStatusTable building DAQ Status table");
+  CMSGEMOS_DEBUG("GLIBMonitor::buildDAQStatusTable building DAQ Status table");
   *out << "<div class=\"xdaq-tab\" title=\"DAQ Status\">" << std::endl
        << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
 
-  DEBUG("GLIBMonitor::buildDAQStatusTable building Common DAQ Status table");
+  CMSGEMOS_DEBUG("GLIBMonitor::buildDAQStatusTable building Common DAQ Status table");
   *out << "<div class=\"xdaq-tab\" title=\"" << "Common DAQ Status" << "\">" << std::endl
        << "<table class=\"xdaq-table\" id=\"CommonDAQStatus_table\">" << std::endl
        << cgicc::thead() << std::endl
@@ -526,7 +526,7 @@ void gem::hw::glib::GLIBMonitor::buildDAQStatusTable(xgi::Output* out)
            << monpair->first
            << "</td>"   << std::endl;
 
-      INFO("GLIBMonitor::" << monpair->first << " formatted to "
+      CMSGEMOS_INFO("GLIBMonitor::" << monpair->first << " formatted to "
             << (monpair->second.infoSpace)->getFormattedItem(monpair->first,monpair->second.format));
       // this will be repeated for every GLIBMonitor in the GLIBManager..., need a better unique ID
       *out << "<td id=\"" << monpair->second.infoSpace->name() << "-" << monpair->first << "\">" << std::endl
@@ -548,7 +548,7 @@ void gem::hw::glib::GLIBMonitor::buildDAQStatusTable(xgi::Output* out)
   *out << "</table>" << std::endl;
   *out << "</div>"   << std::endl;  // closes Common DAQ Status tab
 
-  INFO("GLIBMonitor::buildDAQStatusTable building Per-link DAQ Status table");
+  CMSGEMOS_INFO("GLIBMonitor::buildDAQStatusTable building Per-link DAQ Status table");
   *out << "<div class=\"xdaq-tab\" title=\""  << "Per-link DAQ Status" << "\" >" << std::endl
        << "<table class=\"xdaq-table\" id=\"Per-linkDAQStatus_table\">" << std::endl
        << cgicc::thead() << std::endl
@@ -564,7 +564,7 @@ void gem::hw::glib::GLIBMonitor::buildDAQStatusTable(xgi::Output* out)
        << "<tbody>" << std::endl;
   for (auto monpair = monset.begin(); monpair != monset.end(); ++monpair) {
     if (monpair->first.find("OH0_STATUS") != std::string::npos) {
-      INFO("GLIBMonitor::buildDAQStatusTable " << monpair->first << " found, building per-link structure");
+      CMSGEMOS_INFO("GLIBMonitor::buildDAQStatusTable " << monpair->first << " found, building per-link structure");
       std::array<std::string, 6> linkarray = {{"STATUS",
                                                "EVN",
                                                "EOE_TIMEOUT",
@@ -580,7 +580,7 @@ void gem::hw::glib::GLIBMonitor::buildDAQStatusTable(xgi::Output* out)
              << "</td>"   << std::endl;
 
         for (int i = 0; i < 12; ++i) {
-          INFO("GLIBMonitor::buildDAQStatusTable creating OH" << i << " table header");
+          CMSGEMOS_INFO("GLIBMonitor::buildDAQStatusTable creating OH" << i << " table header");
           std::stringstream substr;
           substr << "OH" << i;
           *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << *regname  << "\">" << std::endl
@@ -608,20 +608,20 @@ void gem::hw::glib::GLIBMonitor::buildDAQStatusTable(xgi::Output* out)
 void gem::hw::glib::GLIBMonitor::buildTriggerStatusTable(xgi::Output* out)
 {
   if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
-    WARN("Unable to find item set HWMonitoring in monitor");
+    CMSGEMOS_WARN("Unable to find item set HWMonitoring in monitor");
     return;
   }
 
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
 
   if (std::find(monsets.begin(),monsets.end(),"Trigger Status") == monsets.end()) {
-    WARN("Unable to find item set 'Trigger Status' in list of HWMonitoring monitor sets");
+    CMSGEMOS_WARN("Unable to find item set 'Trigger Status' in list of HWMonitoring monitor sets");
     return;
   }
 
   auto monset = m_monitorableSetsMap.find("Trigger Status")->second;
 
-  INFO("GLIBMonitor::buildTriggerStatusTable building Trigger Status table");
+  CMSGEMOS_INFO("GLIBMonitor::buildTriggerStatusTable building Trigger Status table");
   *out << "<div class=\"xdaq-tab\" title=\""  << "Trigger Status" << "\" >" << std::endl
        << "<table class=\"xdaq-table\" id=\"TriggerStatus_table\">" << std::endl
        << cgicc::thead() << std::endl
@@ -639,14 +639,14 @@ void gem::hw::glib::GLIBMonitor::buildTriggerStatusTable(xgi::Output* out)
     if (monpair->first.find("OH0_TRIGGER_RATE") != std::string::npos) {
       std::array<std::string, 2> linkarray = {{"TRIGGER_RATE", "TRIGGER_CNT"}};
       for (auto regname = linkarray.begin(); regname != linkarray.end(); ++regname) {
-        INFO("GLIBMonitor::buildTriggerStatusTable " << monpair->first << " found, building per-link structure");
+        CMSGEMOS_INFO("GLIBMonitor::buildTriggerStatusTable " << monpair->first << " found, building per-link structure");
         *out << "<tr>"    << std::endl
              << "<td>"    << std::endl
              << *regname
              << "</td>"   << std::endl;
 
         for (int i = 0; i < 12; ++i) {
-          INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
+          CMSGEMOS_INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
           *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << *regname << "\">" << std::endl
                << "N/A"
                << "</td>"   << std::endl;
@@ -671,7 +671,7 @@ void gem::hw::glib::GLIBMonitor::buildTriggerStatusTable(xgi::Output* out)
              << "</td>"   << std::endl;
 
         for (int i = 0; i < 12; ++i) {
-          INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
+          CMSGEMOS_INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
           *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << specregname.str() << "\">" << std::endl
                << "N/A"
                << "</td>"   << std::endl;
@@ -695,7 +695,7 @@ void gem::hw::glib::GLIBMonitor::buildTriggerStatusTable(xgi::Output* out)
              << "</td>"   << std::endl;
 
         for (int i = 0; i < 12; ++i) {
-          INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
+          CMSGEMOS_INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
           *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << specregname.str() << "\">" << std::endl
                << "N/A"
                << "</td>"   << std::endl;
@@ -719,7 +719,7 @@ void gem::hw::glib::GLIBMonitor::buildTriggerStatusTable(xgi::Output* out)
              << "</td>"   << std::endl;
 
         for (int i = 0; i < 12; ++i) {
-          INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
+          CMSGEMOS_INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
           *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << specregname.str() << "\">" << std::endl
                << "N/A"
                << "</td>"   << std::endl;
@@ -743,24 +743,24 @@ void gem::hw::glib::GLIBMonitor::buildTriggerStatusTable(xgi::Output* out)
 void gem::hw::glib::GLIBMonitor::reset()
 {
   // have to get rid of the timer
-  DEBUG("GEMMonitor::reset");
+  CMSGEMOS_DEBUG("GEMMonitor::reset");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
-    DEBUG("GLIBMonitor::reset removing " << infoSpace->first << " from p_timer");
+    CMSGEMOS_DEBUG("GLIBMonitor::reset removing " << infoSpace->first << " from p_timer");
     try {
       p_timer->remove(infoSpace->first);
     } catch (toolbox::task::exception::Exception& te) {
-      ERROR("GLIBMonitor::Caught exception while removing timer task " << infoSpace->first << " " << te.what());
+      CMSGEMOS_ERROR("GLIBMonitor::Caught exception while removing timer task " << infoSpace->first << " " << te.what());
     }
   }
   stopMonitoring();
-  DEBUG("GEMMonitor::reset removing timer " << m_timerName << " from timerFactory");
+  CMSGEMOS_DEBUG("GEMMonitor::reset removing timer " << m_timerName << " from timerFactory");
   try {
     toolbox::task::getTimerFactory()->removeTimer(m_timerName);
   } catch (toolbox::task::exception::Exception& te) {
-    ERROR("GLIBMonitor::Caught exception while removing timer " << m_timerName << " " << te.what());
+    CMSGEMOS_ERROR("GLIBMonitor::Caught exception while removing timer " << m_timerName << " " << te.what());
   }
 
-  DEBUG("GLIBMonitor::reset - clearing all maps");
+  CMSGEMOS_DEBUG("GLIBMonitor::reset - clearing all maps");
   m_infoSpaceMap.clear();
   m_infoSpaceMonitorableSetMap.clear();
   m_monitorableSetInfoSpaceMap.clear();

@@ -84,13 +84,13 @@ void gem::base::GEMWebApplication::webRedirect(xgi::Input *in, xgi::Output *out)
 void gem::base::GEMWebApplication::webDefault(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::webDefault");
+  CMSGEMOS_DEBUG("GEMWebApplication::webDefault");
   *out << cgicc::script().set("type", "text/javascript")
     .set("src", "/gemdaq/gembase/html/scripts/gemwebapp.js")
        << cgicc::script() << std::endl;
 
   if (p_gemFSMApp)
-    DEBUG("GEMWebApplication::current state is" << p_gemFSMApp->getCurrentState());
+    CMSGEMOS_DEBUG("GEMWebApplication::current state is" << p_gemFSMApp->getCurrentState());
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
 
   if (p_gemFSMApp) {
@@ -142,7 +142,7 @@ void gem::base::GEMWebApplication::webFooterGEM(xgi::Input *in, xgi::Output *out
 void gem::base::GEMWebApplication::controlPanel(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::controlPanel");
+  CMSGEMOS_DEBUG("GEMWebApplication::controlPanel");
   // maybe the control part should only be displayed if the application is not supervised?
   if (p_gemFSMApp) {
     *out << cgicc::script().set("type", "text/javascript")
@@ -156,7 +156,7 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input *in, xgi::Output *out
 
     try {
       std::string state = dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState();
-      DEBUG("GEMWebApplication::controlPanel:: current state " << state);
+      CMSGEMOS_DEBUG("GEMWebApplication::controlPanel:: current state " << state);
 
       *out << "<table class=\"xdaq-table\">" << std::endl
            << cgicc::thead() << std::endl
@@ -234,10 +234,10 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input *in, xgi::Output *out
            << "</tbody>"  << std::endl
            << "</table>"  << std::endl;
     } catch (const xgi::exception::Exception& e) {
-      ERROR("GEMWebApplication::Something went wrong displaying web control panel(xgi): " << e.what());
+      CMSGEMOS_ERROR("GEMWebApplication::Something went wrong displaying web control panel(xgi): " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     } catch (const std::exception& e) {
-      ERROR("GEMWebApplication::Something went wrong displaying web control panel(std): " << e.what());
+      CMSGEMOS_ERROR("GEMWebApplication::Something went wrong displaying web control panel(std): " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
   }  // only when the GEMFSM has been created
@@ -247,7 +247,7 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input *in, xgi::Output *out
 void gem::base::GEMWebApplication::monitorPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::monitorPage");
+  CMSGEMOS_DEBUG("GEMWebApplication::monitorPage");
   *out << "monitorPage" << std::endl
        << cgicc::br()   << std::endl;
 }
@@ -256,7 +256,7 @@ void gem::base::GEMWebApplication::monitorPage(xgi::Input *in, xgi::Output *out)
 void gem::base::GEMWebApplication::expertPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::expertPage");
+  CMSGEMOS_DEBUG("GEMWebApplication::expertPage");
   *out << "expertPage" << std::endl
        << cgicc::br()  << std::endl;
 }
@@ -265,7 +265,7 @@ void gem::base::GEMWebApplication::expertPage(xgi::Input *in, xgi::Output *out)
 void gem::base::GEMWebApplication::applicationPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::applicationPage");
+  CMSGEMOS_DEBUG("GEMWebApplication::applicationPage");
   *out << "applicationPage" << std::endl
        << cgicc::br()       << std::endl;
 }
@@ -275,13 +275,13 @@ void gem::base::GEMWebApplication::applicationPage(xgi::Input *in, xgi::Output *
 void gem::base::GEMWebApplication::jsonUpdate(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::jsonUpdate");
+  CMSGEMOS_DEBUG("GEMWebApplication::jsonUpdate");
 }
 */
 void gem::base::GEMWebApplication::jsonStateUpdate(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::jsonStateUpdate");
+  CMSGEMOS_DEBUG("GEMWebApplication::jsonStateUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " {" << std::endl;
   *out << "   \"name\":\"fsmState\"" << ",\"value\": \""
@@ -293,7 +293,7 @@ void gem::base::GEMWebApplication::jsonStateUpdate(xgi::Input *in, xgi::Output *
 void gem::base::GEMWebApplication::jsonUpdate(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::jsonUpdate");
+  CMSGEMOS_DEBUG("GEMWebApplication::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " { " << std::endl;
   auto monitor = p_gemFSMApp->p_gemMonitor;
@@ -310,25 +310,25 @@ void gem::base::GEMWebApplication::jsonUpdate(xgi::Input *in, xgi::Output *out)
 void gem::base::GEMWebApplication::webInitialize(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::webInitialize begin");
+  CMSGEMOS_DEBUG("GEMWebApplication::webInitialize begin");
   if (p_gemFSMApp) {
-    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Initialize");
     } catch( toolbox::fsm::exception::Exception& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "webInitialize failed", e);
     }
   }
-  // DEBUG("GEMWebApplication::webInitialize end");
+  // CMSGEMOS_DEBUG("GEMWebApplication::webInitialize end");
 }
 
 /*To be filled in with the startup (enable) routine*/
 void gem::base::GEMWebApplication::webEnable(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::webEnable");
+  CMSGEMOS_DEBUG("GEMWebApplication::webEnable");
   if (p_gemFSMApp) {
-    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Enable");
     } catch( toolbox::fsm::exception::Exception& e) {
@@ -341,9 +341,9 @@ void gem::base::GEMWebApplication::webEnable(xgi::Input *in, xgi::Output *out)
 void gem::base::GEMWebApplication::webConfigure(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::webConfigure");
+  CMSGEMOS_DEBUG("GEMWebApplication::webConfigure");
   if (p_gemFSMApp) {
-    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Configure");
     } catch( toolbox::fsm::exception::Exception& e) {
@@ -356,9 +356,9 @@ void gem::base::GEMWebApplication::webConfigure(xgi::Input *in, xgi::Output *out
 void gem::base::GEMWebApplication::webStart(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::webStart");
+  CMSGEMOS_DEBUG("GEMWebApplication::webStart");
   if (p_gemFSMApp) {
-    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Start");
     } catch( toolbox::fsm::exception::Exception& e) {
@@ -370,9 +370,9 @@ void gem::base::GEMWebApplication::webStart(xgi::Input *in, xgi::Output *out)
 void gem::base::GEMWebApplication::webPause(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::webPause");
+  CMSGEMOS_DEBUG("GEMWebApplication::webPause");
   if (p_gemFSMApp) {
-    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Pause");
     } catch( toolbox::fsm::exception::Exception& e) {
@@ -385,9 +385,9 @@ void gem::base::GEMWebApplication::webPause(xgi::Input *in, xgi::Output *out)
 void gem::base::GEMWebApplication::webResume(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::webResume");
+  CMSGEMOS_DEBUG("GEMWebApplication::webResume");
   if (p_gemFSMApp) {
-    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Resume");
     } catch( toolbox::fsm::exception::Exception& e) {
@@ -400,9 +400,9 @@ void gem::base::GEMWebApplication::webResume(xgi::Input *in, xgi::Output *out)
 void gem::base::GEMWebApplication::webStop(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::webStop");
+  CMSGEMOS_DEBUG("GEMWebApplication::webStop");
   if (p_gemFSMApp) {
-    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Stop");
     } catch( toolbox::fsm::exception::Exception& e) {
@@ -415,9 +415,9 @@ void gem::base::GEMWebApplication::webStop(xgi::Input *in, xgi::Output *out)
 void gem::base::GEMWebApplication::webHalt(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::webHalt");
+  CMSGEMOS_DEBUG("GEMWebApplication::webHalt");
   if (p_gemFSMApp) {
-    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Halt");
     } catch( toolbox::fsm::exception::Exception& e) {
@@ -430,9 +430,9 @@ void gem::base::GEMWebApplication::webHalt(xgi::Input *in, xgi::Output *out)
 void gem::base::GEMWebApplication::webReset(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMWebApplication::webReset");
+  CMSGEMOS_DEBUG("GEMWebApplication::webReset");
   if (p_gemFSMApp) {
-    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Reset");
     } catch( toolbox::fsm::exception::Exception& e) {

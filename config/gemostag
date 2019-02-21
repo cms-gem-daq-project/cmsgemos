@@ -6,6 +6,7 @@ use autodie;
 use Cwd;
 use Git::Wrapper;
 use Getopt::Lucid qw/:all/;
+use Term::ANSIColor;
 
 # copied from cmshcos and http://www.dagolden.com/index.php/998/how-to-script-git-with-perl-and-gitwrapper/
 @specs=(
@@ -17,6 +18,7 @@ use Getopt::Lucid qw/:all/;
     Param('--tagdiff|t')->anycase(),
     Switch('--help|h')->anycase(),
     Switch('--diff|d')->anycase(),
+    Switch('--info|i')->anycase(),
     );
 
 my $opts=Getopt::Lucid->getopt(\@specs);
@@ -58,29 +60,67 @@ if (!($wd=~/${gemosbase}$/)) {
     exit(1);
 }
 
-@gemospackages = ('all', 'base', 'calibration', 'hardware', 'HwMonitor', 'python', 'readout', 'supervisor', 'tests', 'utils');
+@gemospackages = (
+    'all',
+    'base',
+    # 'calibration',
+    'hardware',
+    'daqmonitor',
+    'HwMonitor',
+    'onlinedb',
+    'python',
+    'readout',
+    'supervisor',
+    # 'tests',
+    'utils'
+);
 
 if ($opts->get_diff) {
+    print "Looking for changes in:\n";
     foreach (@gemospackages) {
         if ( !( "all" ~~ "$_" ) ) {
-            print "Looking for changes in gem$_: ";
+            print colored(sprintf("%s"," gem$_: "), 'magenta');
             $status=$git->status("gem$_");
-            print $status->is_dirty, "\n"
+            my ($locstatus)=$status->is_dirty;
+            my ($txtcol)='red';
+            if ( $locstatus eq 0) {
+                $txtcol='green';
+            }
+            print colored(sprintf("%s\n","$locstatus"), "$txtcol");
         }
+    }
+    exit(0);
+}
+
+if ($opts->get_info) {
+    $opts->validate( {'requires' => ['package']} );
+    $packname=$opts->get_package;
+    if ($packname eq "all" ) {
+        foreach (@gemospackages) {
+            if ( !( "all" ~~ "$_" ) ) {
+                $subname=$_;
+                print "Getting current tag for gem$_: ";
+                $tag=extract_tag(${subname});
+            }
+        }
+    } else {
+        print "Getting current tag for gem$packname: ";
+        $tag=extract_tag(${packname});
     }
     exit(0);
 }
 
 if ($opts->get_tagdiff) {
     $difftag=$opts->get_tagdiff;
+    print "Looking for differences wrt $difftag in:\n";
     foreach (@gemospackages) {
         if ( !( "all" ~~ "$_" ) ) {
-            print "Looking for differences wrt $difftag in gem$_: ";
+            print colored(sprintf("%6s", "gem$_: "),  'yellow');
             $status=$git->diff("--stat", "$difftag..", "gem$_");
             if ($status) {
-                print "yes\n"
+                print colored(sprintf("%s\n",'yes'),'red')
             } else {
-                print "no\n"
+                print colored(sprintf("%s\n",'no'),'green')
             }
         }
     }
@@ -185,7 +225,6 @@ if ($packname eq "all" ) {
 } else {
     print "The tag '$uptag' is being created for gem${packname}.\n";
 }
-exit(0);
 
 # if this one of the "special" packages, make sure the sub-tags match
 # gemonlinedb
@@ -229,7 +268,7 @@ $git->tag("${uptag}");
 sub extract_tag() {
     my ($subpackage)=@_;
     print "looking for gem${subpackage}/Makefile\n";
-    $file=glob("gem${subpackage}/Makefile");
+    my ($file)=glob("gem${subpackage}/Makefile");
     open(CFG,$file);
     while (<CFG>) {
 	if (/VER_MAJOR=+([0-9]+)/) {
@@ -244,13 +283,13 @@ sub extract_tag() {
     }
     close(CFG);
     my $rel="gem${subpackage}-${major}.${minor}.${patch}";
-    print "\nFound current tag is $rel\n";
+    print " -> Found current tag is $rel\n";
     return $rel;
 }
 
 sub update_tag() {
     my ($subpackage)=@_;
-    $file=glob("gem${subpackage}/Makefile");
+    my ($file)=glob("gem${subpackage}/Makefile");
     open(MFILE,$file);
     @lines=<MFILE>;
     close(MFILE);

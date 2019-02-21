@@ -164,10 +164,10 @@ then
     
     if [ ${revision} = "0" ]
     then
-        relver=0.${relnum}.${ntags}.${prerel}
+        relver=0.${relnum}.${ntags}
         buildtag="${pretag}${ntags}"
     else
-        relver=0.${relnum}.${ntags}.${revision}.${prerel}
+        relver=0.${relnum}.${ntags}.${revision}
         buildtag="${pretag}${ntags}.dev${revision}"
     fi
 else
@@ -192,6 +192,7 @@ else
     patch=0
 fi
 
+relver=${relver}.cmsgemos_${basever##*v}
 NextMajorVer=$((major+1)).0.0
 NextMinorVer=${major}.$((minor+1)).0
 NextPatchVer=${major}.${minor}.$((patch+1))

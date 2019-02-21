@@ -25,7 +25,7 @@ gem::supervisor::GEMSupervisorMonitor::~GEMSupervisorMonitor()
 
 void gem::supervisor::GEMSupervisorMonitor::setupAppStateMonitoring()
 {
-  DEBUG("GEMSupervisorMonitor::setupAppStateMonitoring");
+  CMSGEMOS_DEBUG("GEMSupervisorMonitor::setupAppStateMonitoring");
   // create the values to be monitored in the info space
   addMonitorableSet("AppStates", "AppStateMonitoring");
 
@@ -47,7 +47,7 @@ void gem::supervisor::GEMSupervisorMonitor::setupAppStateMonitoring()
     // if (monlist && monlist)
     //   continue;
 
-    DEBUG("GEMSupervisorMonitor::setupAppStateMonitoring adding monitored app '"
+    CMSGEMOS_DEBUG("GEMSupervisorMonitor::setupAppStateMonitoring adding monitored app '"
           << appNameID.str() << "' with source URN '" << appURN.str() << "' to 'AppStates' in info space 'AppStateMonitoring'");
 
     if (appNameID.str().find("tcds")          != std::string::npos ||
@@ -73,34 +73,34 @@ void gem::supervisor::GEMSupervisorMonitor::updateMonitorables()
 
 void gem::supervisor::GEMSupervisorMonitor::updateApplicationStates()
 {
-  DEBUG("GEMSupervisorMonitor::updateApplicationStates Updating AppStates monitorables");
+  CMSGEMOS_DEBUG("GEMSupervisorMonitor::updateApplicationStates Updating AppStates monitorables");
   if (!(m_monitorableSetsMap.count("AppStates"))) {
-    WARN("GEMSupervisorMonitor::updateApplicationStates Unable to find 'AppStates' in monitor");
+    CMSGEMOS_WARN("GEMSupervisorMonitor::updateApplicationStates Unable to find 'AppStates' in monitor");
     return;
   }
   auto monlist = m_monitorableSetsMap.find("AppStates");
   if (monlist == m_monitorableSetsMap.end()) {
-    WARN("GEMSupervisorMonitor::updateApplicationStates Unable to find 'AppStates' in monitor");
+    CMSGEMOS_WARN("GEMSupervisorMonitor::updateApplicationStates Unable to find 'AppStates' in monitor");
     return;
   }
-  DEBUG("GEMSupervisorMonitor::updateApplicationStates Updating monitorables in set " << monlist->first);
+  CMSGEMOS_DEBUG("GEMSupervisorMonitor::updateApplicationStates Updating monitorables in set " << monlist->first);
   for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
-    DEBUG("GEMSupervisorMonitor::updateApplicationStates Updating monitorable " << monitem->first);
+    CMSGEMOS_DEBUG("GEMSupervisorMonitor::updateApplicationStates Updating monitorable " << monitem->first);
     std::string state;
     if (monitem->second.updatetype == GEMUpdateType::PROCESS) {
       try {
         xdata::InfoSpace* is = xdata::getInfoSpaceFactory()->get(monitem->second.regname);
-        DEBUG("GEMSupervisorMonitor::updateApplicationStates infospace: " << is->name() << " has item StateName "
+        CMSGEMOS_DEBUG("GEMSupervisorMonitor::updateApplicationStates infospace: " << is->name() << " has item StateName "
               << is->hasItem("StateName"));
         state = gem::base::utils::GEMInfoSpaceToolBox::getString(is, "StateName");
       } catch (xdata::exception::Exception const& err) {
         std::string msg = "Error trying to read from InfoSpace '" + monitem->second.regname + "' state " + state + ".";
-        ERROR("GEMSupervisorMonitor::updateApplicationStates " << msg << " " << err.what());
+        CMSGEMOS_ERROR("GEMSupervisorMonitor::updateApplicationStates " << msg << " " << err.what());
         XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
         return;
       } catch (std::exception const& err) {
         std::string msg = "Error trying to read from InfoSpace '" + monitem->second.regname + "' state " + state + ".";
-        ERROR("GEMSupervisorMonitor::updateApplicationStates " << msg << " " << err.what());
+        CMSGEMOS_ERROR("GEMSupervisorMonitor::updateApplicationStates " << msg << " " << err.what());
         XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
         return;
       }
@@ -116,35 +116,35 @@ void gem::supervisor::GEMSupervisorMonitor::updateApplicationStates()
         // appNameID << (*app)->getClassName() << ":lid:" << (*app)->getLocalId();
         if (appNameID.str().find(monitem->first) != std::string::npos) {
           try {
-            DEBUG("GEMSupervisorMonitor::updateApplicationStates trying to get application state via SOAP for application: "
+            CMSGEMOS_DEBUG("GEMSupervisorMonitor::updateApplicationStates trying to get application state via SOAP for application: "
                   << (*app)->getClassName() << " with URN "
                   << (*app)->getURN());
             state = gem::utils::soap::GEMSOAPToolBox::getApplicationState(superContext, superDesc, &(**app));
           } catch(xcept::Exception e) {
-            ERROR("GEMSupervisorMonitor::updateApplicationStates caught xcept::Exception: "
+            CMSGEMOS_ERROR("GEMSupervisorMonitor::updateApplicationStates caught xcept::Exception: "
                   << e.what());
             state = e.what();
           } catch(std::exception e) {
-            ERROR("GEMSupervisorMonitor::updateApplicationStates caught std::exception: "
+            CMSGEMOS_ERROR("GEMSupervisorMonitor::updateApplicationStates caught std::exception: "
                   << e.what());
             state = e.what();
           } catch (...) {
-            ERROR("GEMSupervisorMonitor::updateApplicationStates caught exception");
+            CMSGEMOS_ERROR("GEMSupervisorMonitor::updateApplicationStates caught exception");
             state = "SOAP update failed";
           }
         }
       }
     }
-    DEBUG("GEMSupervisorMonitor::updateApplicationStates updating "
+    CMSGEMOS_DEBUG("GEMSupervisorMonitor::updateApplicationStates updating "
           << monitem->first << " with state " << state);
     (monitem->second.infoSpace)->setString(monitem->first, state);
-    DEBUG("GEMSupervisorMonitor::updateApplicationStates updating done!");
+    CMSGEMOS_DEBUG("GEMSupervisorMonitor::updateApplicationStates updating done!");
   }
 }
 
 void gem::supervisor::GEMSupervisorMonitor::buildStateTable(xgi::Output* out)
 {
-  DEBUG("GEMSupervisorMonitor::buildStateTable");
+  CMSGEMOS_DEBUG("GEMSupervisorMonitor::buildStateTable");
   *out << "<table class=\"xdaq-table\">" << std::endl
        << cgicc::thead() << std::endl
        << cgicc::tr()    << std::endl  // open
@@ -157,7 +157,7 @@ void gem::supervisor::GEMSupervisorMonitor::buildStateTable(xgi::Output* out)
   if (m_monitorableSetsMap.count("AppStates")) {
     for (auto monitem = m_monitorableSetsMap.find("AppStates")->second.begin();
          monitem != m_monitorableSetsMap.find("AppStates")->second.end(); ++monitem) {
-      DEBUG("GEMSupervisorMonitor::buildStateTable " << monitem->first);
+      CMSGEMOS_DEBUG("GEMSupervisorMonitor::buildStateTable " << monitem->first);
       *out << "<tr>"    << std::endl;
 
       *out << "<td>"    << std::endl
@@ -166,7 +166,7 @@ void gem::supervisor::GEMSupervisorMonitor::buildStateTable(xgi::Output* out)
            << cgicc::h3()
            << "</td>"   << std::endl;
 
-      DEBUG(monitem->first << " formatted to "
+      CMSGEMOS_DEBUG(monitem->first << " formatted to "
             << (monitem->second.infoSpace)->getFormattedItem(monitem->first, monitem->second.format));
       *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
            << cgicc::h3()

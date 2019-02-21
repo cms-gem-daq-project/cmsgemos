@@ -11,7 +11,7 @@ PackageName=readout
 
 GEMREADOUT_VER_MAJOR=1
 GEMREADOUT_VER_MINOR=0
-GEMREADOUT_VER_PATCH=0
+GEMREADOUT_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk

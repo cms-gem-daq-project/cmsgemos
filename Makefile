@@ -9,6 +9,8 @@ SUBPACKAGES := \
         gemreadout \
         gemsupervisor \
         gempython \
+        gemdaqmonitor \
+        gemonlinedb \
         # gemHwMonitor \
 
 SUBPACKAGES.DEBUG    := $(patsubst %,%.debug,    ${SUBPACKAGES})
@@ -16,6 +18,9 @@ SUBPACKAGES.INSTALL  := $(patsubst %,%.install,  ${SUBPACKAGES})
 SUBPACKAGES.RPM      := $(patsubst %,%.rpm,      ${SUBPACKAGES})
 SUBPACKAGES.CLEANRPM := $(patsubst %,%.cleanrpm, ${SUBPACKAGES})
 SUBPACKAGES.CLEAN    := $(patsubst %,%.clean,    ${SUBPACKAGES})
+SUBPACKAGES.TESTS    := $(patsubst %,%.tests,    ${SUBPACKAGES})
+SUBPACKAGES.RUNTESTS := $(patsubst %,%.run-tests, ${SUBPACKAGES})
+SUBPACKAGES.RUNTESTSCI := $(patsubst %,%.run-tests-ci, ${SUBPACKAGES})
 
 #OS:=linux
 #ARCH:=x86_64
@@ -63,8 +68,9 @@ dbgprofile: $(SUBPACKAGES)
 
 doc:  $(SUBPACKAGES)
 	@echo "Generating doxygen"
-	@rm -fr ./doc/html 2> /dev/null
-	@doxygen -s ./doc/cmsgemos.cfg  > /dev/null 2>&1
+	@mkdir ./doc/build
+	@rm -fr ./doc/build/* 2> /dev/null
+	@doxygen -s ./doc/cmsgemos.cfg
 	#@git checkout gh-pages  > /dev/null 2>&1
 	#@git add -f ./doc/html  > /dev/null 2>&1
 	#@git commit -m "generating doxygen" ./doc/html  > /dev/null 2>&1
@@ -77,6 +83,12 @@ rpm: $(SUBPACKAGES) $(SUBPACKAGES.RPM)
 cleanrpm: $(SUBPACKAGES.CLEANRPM)
 
 clean: $(SUBPACKAGES.CLEAN)
+
+tests: $(SUBPACKAGES) $(SUBPACKAGES.TESTS)
+
+run-tests: $(SUBPACKAGES.RUNTESTS)
+
+run-tests-ci: $(SUBPACKAGES.RUNTESTSCI)
 
 $(LIBDIR):
 	mkdir -p $(LIBDIR)
@@ -95,6 +107,15 @@ $(SUBPACKAGES.INSTALL):
 
 $(SUBPACKAGES.CLEAN):
 	$(MAKE) -C $(patsubst %.clean,%, $@) clean
+
+$(SUBPACKAGES.TESTS): all
+	$(MAKE) -C $(patsubst %.tests,%, $@) tests
+
+$(SUBPACKAGES.RUNTESTS): tests
+	$(MAKE) -C $(patsubst %.run-tests,%, $@) run-tests
+
+$(SUBPACKAGES.RUNTESTSCI): tests
+	$(MAKE) -C $(patsubst %.run-tests-ci,%, $@) run-tests-ci
 
 .PHONY: $(SUBPACKAGES) $(SUBPACKAGES.INSTALL) $(SUBPACKAGES.CLEAN)
 
@@ -119,6 +140,8 @@ gembase: gemutils
 gemsupervisor: gemutils gembase gemhardware gemreadout
 
 gemutils:
+
+gemonlinedb: gemutils gembase
 
 gemreadout: gemutils gembase gemhwdevices
 

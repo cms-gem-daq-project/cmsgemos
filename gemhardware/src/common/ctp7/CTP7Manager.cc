@@ -69,10 +69,10 @@ gem::hw::ctp7::CTP7Manager::CTP7Manager(xdaq::ApplicationStub* stub) :
   xgi::bind(this, &CTP7Manager::dumpCTP7FIFO, "dumpCTP7FIFO");
 
   // initialize the CTP7 application objects
-  DEBUG("CTP7Manager::Connecting to the CTP7ManagerWeb interface");
+  CMSGEMOS_DEBUG("CTP7Manager::Connecting to the CTP7ManagerWeb interface");
   p_gemWebInterface = new gem::hw::ctp7::CTP7ManagerWeb(this);
   // p_gemMonitor      = new gem::hw::ctp7::CTP7HwMonitor(this);
-  DEBUG("CTP7Manager::done");
+  CMSGEMOS_DEBUG("CTP7Manager::done");
 
   // set up the info hwCfgInfoSpace
   init();
@@ -89,31 +89,31 @@ std::vector<uint32_t> gem::hw::ctp7::CTP7Manager::dumpCTP7FIFO(int const& ctp7)
 {
   std::vector<uint32_t> dump;
   if (ctp7 < 0 || ctp7 > 11) {
-    WARN("CTP7Manager::dumpCTP7FIFO Specified invalid CTP7 card " << ctp7+1);
+    CMSGEMOS_WARN("CTP7Manager::dumpCTP7FIFO Specified invalid CTP7 card " << ctp7+1);
     return dump;
   } else if (!m_ctp7s.at(ctp7)) {
-    WARN("CTP7Manager::dumpCTP7FIFO Specified CTP7 card " << ctp7+1
+    CMSGEMOS_WARN("CTP7Manager::dumpCTP7FIFO Specified CTP7 card " << ctp7+1
          << " is not connected");
     return dump;
   //} else if (!(m_ctp7s.at(ctp7)->hasTrackingData(0))) {
-  //  WARN("CTP7Manager::dumpCTP7FIFO Specified CTP7 card " << ctp7
+  //  CMSGEMOS_WARN("CTP7Manager::dumpCTP7FIFO Specified CTP7 card " << ctp7
   //       << " has no tracking data in the FIFO");
   //  return dump;
   }
 
   try {
-    INFO("CTP7Manager::dumpCTP7FIFO Dumping FIFO for specified CTP7 card " << ctp7+1);
+    CMSGEMOS_INFO("CTP7Manager::dumpCTP7FIFO Dumping FIFO for specified CTP7 card " << ctp7+1);
     return m_ctp7s.at(ctp7)->getTrackingData(0, 24);
   } catch (gem::hw::ctp7::exception::Exception const& ex) {
-    ERROR("CTP7Manager::dumpCTP7FIFO Unable to read tracking data from CTP7 " << ctp7+1
+    CMSGEMOS_ERROR("CTP7Manager::dumpCTP7FIFO Unable to read tracking data from CTP7 " << ctp7+1
           << " FIFO, caught exception " << ex.what());
     return dump;
   } catch (std::exception const& ex) {
-    ERROR("CTP7Manager::dumpCTP7FIFO Unable to read tracking data from CTP7 " << ctp7+1
+    CMSGEMOS_ERROR("CTP7Manager::dumpCTP7FIFO Unable to read tracking data from CTP7 " << ctp7+1
           << " FIFO,  caught exception " << ex.what());
     return dump;
   } catch (...) {
-    ERROR("CTP7Manager::dumpCTP7FIFO Unable to read tracking data from CTP7 " << ctp7+1
+    CMSGEMOS_ERROR("CTP7Manager::dumpCTP7FIFO Unable to read tracking data from CTP7 " << ctp7+1
           << " FIFO");
     return dump;
   }
@@ -125,16 +125,16 @@ uint16_t gem::hw::ctp7::CTP7Manager::parseAMCEnableList(std::string const& enabl
   std::vector<std::string> slots;
 
   boost::split(slots, enableList, boost::is_any_of(", "), boost::token_compress_on);
-  DEBUG("CTP7Manager::AMC input enable list is " << enableList);
+  CMSGEMOS_DEBUG("CTP7Manager::AMC input enable list is " << enableList);
   // would be great to multithread this portion
   for (auto slot = slots.begin(); slot != slots.end(); ++slot) {
-    DEBUG("CTP7Manager::slot is " << *slot);
+    CMSGEMOS_DEBUG("CTP7Manager::slot is " << *slot);
     if (slot->find('-') != std::string::npos) {  // found a possible range
-      DEBUG("CTP7Manager::found a hyphen in " << *slot);
+      CMSGEMOS_DEBUG("CTP7Manager::found a hyphen in " << *slot);
       std::vector<std::string> range;
       boost::split(range, *slot, boost::is_any_of("-"), boost::token_compress_on);
       if (range.size() > 2) {
-        WARN("CTP7Manager::parseAMCEnableList::Found poorly formatted range " << *slot);
+        CMSGEMOS_WARN("CTP7Manager::parseAMCEnableList::Found poorly formatted range " << *slot);
         continue;
       }
       if (isValidSlotNumber(range.at(0)) && isValidSlotNumber(range.at(1))) {
@@ -145,11 +145,11 @@ uint16_t gem::hw::ctp7::CTP7Manager::parseAMCEnableList(std::string const& enabl
         ss1 >> max;
 
         if (min == max) {
-          WARN("CTP7Manager::parseAMCEnableList::Found poorly formatted range " << *slot);
+          CMSGEMOS_WARN("CTP7Manager::parseAMCEnableList::Found poorly formatted range " << *slot);
           continue;
         }
         if (min > max) {  // elements in the wrong order
-          WARN("CTP7Manager::parseAMCEnableList::Found poorly formatted range " << *slot);
+          CMSGEMOS_WARN("CTP7Manager::parseAMCEnableList::Found poorly formatted range " << *slot);
           continue;
         }
 
@@ -158,14 +158,14 @@ uint16_t gem::hw::ctp7::CTP7Manager::parseAMCEnableList(std::string const& enabl
         }  //  end loop over range of list
       }  // end check on valid values
     } else {  //not a range
-      DEBUG("CTP7Manager::found no hyphen in " << *slot);
+      CMSGEMOS_DEBUG("CTP7Manager::found no hyphen in " << *slot);
       if (slot->length() > 2) {
-        WARN("CTP7Manager::parseAMCEnableList::Found longer value than expected (1-12) " << *slot);
+        CMSGEMOS_WARN("CTP7Manager::parseAMCEnableList::Found longer value than expected (1-12) " << *slot);
         continue;
       }
 
       if (!isValidSlotNumber(*slot)) {
-        WARN("CTP7Manager::parseAMCEnableList::Found invalid value " << *slot);
+        CMSGEMOS_WARN("CTP7Manager::parseAMCEnableList::Found invalid value " << *slot);
         continue;
       }
       std::stringstream ss(*slot);
@@ -174,7 +174,7 @@ uint16_t gem::hw::ctp7::CTP7Manager::parseAMCEnableList(std::string const& enabl
       slotMask |= (0x1 << (slotNum-1));
     }  // done processing single values
   }  // done looping over extracted values
-  DEBUG("CTP7Manager::parseAMCEnableList::Parsed enabled list 0x" << std::hex << slotMask << std::dec);
+  CMSGEMOS_DEBUG("CTP7Manager::parseAMCEnableList::Parsed enabled list 0x" << std::hex << slotMask << std::dec);
   return slotMask;
 }
 
@@ -184,14 +184,14 @@ bool gem::hw::ctp7::CTP7Manager::isValidSlotNumber(std::string const& s)
     int i_val;
     i_val = std::stoi(s);
     if (!(i_val > 0 && i_val < 13)) {
-      ERROR("CTP7Manager::isValidSlotNumber::Found value outside expected (1-12) " << i_val);
+      CMSGEMOS_ERROR("CTP7Manager::isValidSlotNumber::Found value outside expected (1-12) " << i_val);
       return false;
     }
   } catch (std::invalid_argument const& err) {
-    ERROR("CTP7Manager::isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
+    CMSGEMOS_ERROR("CTP7Manager::isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
     return false;
   } catch (std::out_of_range const& err) {
-    ERROR("CTP7Manager::isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
+    CMSGEMOS_ERROR("CTP7Manager::isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
     return false;
   }
   // if you get here, should be possible to parse as an integer in the range [1,12]
@@ -202,16 +202,16 @@ bool gem::hw::ctp7::CTP7Manager::isValidSlotNumber(std::string const& s)
 void gem::hw::ctp7::CTP7Manager::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    DEBUG("CTP7Manager::actionPerformed() setDefaultValues" <<
+    CMSGEMOS_DEBUG("CTP7Manager::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
     m_amcEnableMask = parseAMCEnableList(m_amcSlots.toString());
-    INFO("CTP7Manager::Parsed AMCEnableList m_amcSlots = " << m_amcSlots.toString()
+    CMSGEMOS_INFO("CTP7Manager::Parsed AMCEnableList m_amcSlots = " << m_amcSlots.toString()
          << " to slotMask 0x" << std::hex << m_amcEnableMask << std::dec);
 
     // how to handle passing in various values nested in a vector in a bag
     for (auto slot = m_ctp7Info.begin(); slot != m_ctp7Info.end(); ++slot) {
       if (slot->bag.present.value_)
-        DEBUG("CTP7Manager::Found attribute:" << slot->bag.toString());
+        CMSGEMOS_DEBUG("CTP7Manager::Found attribute:" << slot->bag.toString());
     }
     // p_gemMonitor->startMonitoring();
   }
@@ -228,13 +228,13 @@ void gem::hw::ctp7::CTP7Manager::init()
 void gem::hw::ctp7::CTP7Manager::initializeAction()
   throw (gem::hw::ctp7::exception::Exception)
 {
-  DEBUG("CTP7Manager::initializeAction begin");
+  CMSGEMOS_DEBUG("CTP7Manager::initializeAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    DEBUG("CTP7Manager::looping over slots(" << (slot+1) << ") and finding expected cards");
+    CMSGEMOS_DEBUG("CTP7Manager::looping over slots(" << (slot+1) << ") and finding expected cards");
     CTP7Info& info = m_ctp7Info[slot].bag;
     if ((m_amcEnableMask >> (slot)) & 0x1) {
-      DEBUG("CTP7Manager::info:" << info.toString());
-      DEBUG("CTP7Manager::expect a card in slot " << (slot+1));
+      CMSGEMOS_DEBUG("CTP7Manager::info:" << info.toString());
+      CMSGEMOS_DEBUG("CTP7Manager::expect a card in slot " << (slot+1));
       info.slotID  = slot+1;
       info.present = true;
       // actually check presence? this just says that we expect it to be there
@@ -253,8 +253,8 @@ void gem::hw::ctp7::CTP7Manager::initializeAction()
     if (!info.present)
       continue;
 
-    DEBUG("CTP7Manager::info:" << info.toString());
-    DEBUG("CTP7Manager::creating pointer to card in slot " << (slot+1));
+    CMSGEMOS_DEBUG("CTP7Manager::info:" << info.toString());
+    CMSGEMOS_DEBUG("CTP7Manager::creating pointer to card in slot " << (slot+1));
 
     // create the cfgInfoSpace object (qualified vs non?)
     std::string deviceName = toolbox::toString("gem.shelf%02d.ctp7%02d",
@@ -263,19 +263,19 @@ void gem::hw::ctp7::CTP7Manager::initializeAction()
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
 
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
-      DEBUG("CTP7Manager::initializeAction::infospace " << hwCfgURN.toString() << " already exists, getting");
+      CMSGEMOS_DEBUG("CTP7Manager::initializeAction::infospace " << hwCfgURN.toString() << " already exists, getting");
       is_ctp7s.at(slot) = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
                                                                                    xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
                                                                                    true));
     } else {
-      DEBUG("CTP7Manager::initializeAction::infospace " << hwCfgURN.toString() << " does not exist, creating");
+      CMSGEMOS_DEBUG("CTP7Manager::initializeAction::infospace " << hwCfgURN.toString() << " does not exist, creating");
       // is_ctp7s.at(slot) = xdata::getInfoSpaceFactory()->create(hwCfgURN.toString());
       is_ctp7s.at(slot) = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
                                                                                    hwCfgURN.toString(),
                                                                                    true));
     }
 
-    DEBUG("CTP7Manager::exporting config parameters into infospace");
+    CMSGEMOS_DEBUG("CTP7Manager::exporting config parameters into infospace");
     is_ctp7s.at(slot)->createString("ControlHubAddress", info.controlHubAddress.value_, &(info.controlHubAddress),
                                  GEMUpdateType::NOUPDATE);
     is_ctp7s.at(slot)->createString("IPBusProtocol",     info.ipBusProtocol.value_    , &(info.ipBusProtocol),
@@ -289,15 +289,15 @@ void gem::hw::ctp7::CTP7Manager::initializeAction()
     is_ctp7s.at(slot)->createUInt32("IPBusPort",         info.ipBusPort.value_        , &(info.ipBusPort),
                                  GEMUpdateType::NOUPDATE);
 
-    DEBUG("CTP7Manager::InfoSpace found item: ControlHubAddress " << is_ctp7s.at(slot)->getString("ControlHubAddress"));
-    DEBUG("CTP7Manager::InfoSpace found item: IPBusProtocol "     << is_ctp7s.at(slot)->getString("IPBusProtocol")    );
-    DEBUG("CTP7Manager::InfoSpace found item: DeviceIPAddress "   << is_ctp7s.at(slot)->getString("DeviceIPAddress")  );
-    DEBUG("CTP7Manager::InfoSpace found item: AddressTable "      << is_ctp7s.at(slot)->getString("AddressTable")     );
-    DEBUG("CTP7Manager::InfoSpace found item: ControlHubPort "    << is_ctp7s.at(slot)->getUInt32("ControlHubPort")   );
-    DEBUG("CTP7Manager::InfoSpace found item: IPBusPort "         << is_ctp7s.at(slot)->getUInt32("IPBusPort")        );
+    CMSGEMOS_DEBUG("CTP7Manager::InfoSpace found item: ControlHubAddress " << is_ctp7s.at(slot)->getString("ControlHubAddress"));
+    CMSGEMOS_DEBUG("CTP7Manager::InfoSpace found item: IPBusProtocol "     << is_ctp7s.at(slot)->getString("IPBusProtocol")    );
+    CMSGEMOS_DEBUG("CTP7Manager::InfoSpace found item: DeviceIPAddress "   << is_ctp7s.at(slot)->getString("DeviceIPAddress")  );
+    CMSGEMOS_DEBUG("CTP7Manager::InfoSpace found item: AddressTable "      << is_ctp7s.at(slot)->getString("AddressTable")     );
+    CMSGEMOS_DEBUG("CTP7Manager::InfoSpace found item: ControlHubPort "    << is_ctp7s.at(slot)->getUInt32("ControlHubPort")   );
+    CMSGEMOS_DEBUG("CTP7Manager::InfoSpace found item: IPBusPort "         << is_ctp7s.at(slot)->getUInt32("IPBusPort")        );
 
     try {
-      DEBUG("CTP7Manager::obtaining pointer to HwCTP7");
+      CMSGEMOS_DEBUG("CTP7Manager::obtaining pointer to HwCTP7");
       // m_ctp7s.at(slot) = ctp7_shared_ptr(new gem::hw::ctp7::HwCTP7(info.crateID.value_,info.slotID.value_));
       m_ctp7s.at(slot) = ctp7_shared_ptr(new gem::hw::ctp7::HwCTP7(deviceName, m_connectionFile.toString()));
       if (m_ctp7s.at(slot)->isHwConnected()) {
@@ -309,20 +309,20 @@ void gem::hw::ctp7::CTP7Manager::initializeAction()
         m_ctp7Monitors.at(slot)->setupHwMonitoring();
         m_ctp7Monitors.at(slot)->startMonitoring();
       } else {
-        ERROR("CTP7Manager:: unable to communicate with CTP7 in slot " << slot);
+        CMSGEMOS_ERROR("CTP7Manager:: unable to communicate with CTP7 in slot " << slot);
         XCEPT_RAISE(gem::hw::ctp7::exception::Exception, "initializeAction failed");
       }
     } catch (gem::hw::ctp7::exception::Exception const& ex) {
-      ERROR("CTP7Manager::caught exception " << ex.what());
+      CMSGEMOS_ERROR("CTP7Manager::caught exception " << ex.what());
       XCEPT_RAISE(gem::hw::ctp7::exception::Exception, "initializeAction failed");
     } catch (toolbox::net::exception::MalformedURN const& ex) {
-      ERROR("CTP7Manager::caught exception " << ex.what());
+      CMSGEMOS_ERROR("CTP7Manager::caught exception " << ex.what());
       XCEPT_RAISE(gem::hw::ctp7::exception::Exception, "initializeAction failed");
     } catch (std::exception const& ex) {
-      ERROR("CTP7Manager::caught exception " << ex.what());
+      CMSGEMOS_ERROR("CTP7Manager::caught exception " << ex.what());
       XCEPT_RAISE(gem::hw::ctp7::exception::Exception, "initializeAction failed");
     }
-    DEBUG("CTP7Manager::connected");
+    CMSGEMOS_DEBUG("CTP7Manager::connected");
     // set the web view to be empty or grey
     // if (!info.present.value_) continue;
     // p_gemWebInterface->ctp7InSlot(slot);
@@ -335,22 +335,22 @@ void gem::hw::ctp7::CTP7Manager::initializeAction()
       continue;
 
     if (m_ctp7s.at(slot)->isHwConnected()) {
-      DEBUG("CTP7Manager::connected a card in slot " << (slot+1));
+      CMSGEMOS_DEBUG("CTP7Manager::connected a card in slot " << (slot+1));
     } else {
-      ERROR("CTP7Manager::CTP7 in slot " << (slot+1) << " is not connected");
+      CMSGEMOS_ERROR("CTP7Manager::CTP7 in slot " << (slot+1) << " is not connected");
       fireEvent("Fail");
       // maybe raise exception so as to not continue with other cards? let's just return for the moment
       return;
     }
   }
   usleep(10000); // just for testing the timing of different applications
-  DEBUG("CTP7Manager::initializeAction end");
+  CMSGEMOS_DEBUG("CTP7Manager::initializeAction end");
 }
 
 void gem::hw::ctp7::CTP7Manager::configureAction()
   throw (gem::hw::ctp7::exception::Exception)
 {
-  DEBUG("CTP7Manager::configureAction");
+  CMSGEMOS_DEBUG("CTP7Manager::configureAction");
 
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     usleep(5000); // just for testing the timing of different applications
@@ -370,7 +370,7 @@ void gem::hw::ctp7::CTP7Manager::configureAction()
       m_ctp7s.at(slot)->setDAQLinkRunParameters(0xfaac);
 
       // should FIFOs be emptied in configure or at start?
-      DEBUG("CTP7Manager::emptying trigger/tracking data FIFOs");
+      CMSGEMOS_DEBUG("CTP7Manager::emptying trigger/tracking data FIFOs");
       for (unsigned gtx = 0; gtx < HwCTP7::N_GTX; ++gtx) {
         // m_ctp7s.at(slot)->flushTriggerFIFO(gtx);
         m_ctp7s.at(slot)->flushFIFO(gtx);
@@ -381,37 +381,37 @@ void gem::hw::ctp7::CTP7Manager::configureAction()
       // setup run mode?
       // setup DAQ mode?
     } else {
-      ERROR("CTP7Manager::CTP7 in slot " << (slot+1) << " is not connected");
+      CMSGEMOS_ERROR("CTP7Manager::CTP7 in slot " << (slot+1) << " is not connected");
       fireEvent("Fail");
       // maybe raise exception so as to not continue with other cards?
     }
   }
 
-  DEBUG("CTP7Manager::configureAction end");
+  CMSGEMOS_DEBUG("CTP7Manager::configureAction end");
 }
 
 void gem::hw::ctp7::CTP7Manager::startAction()
   throw (gem::hw::ctp7::exception::Exception)
 {
 
-  INFO("gem::hw::ctp7::CTP7Manager::startAction begin");
+  CMSGEMOS_INFO("gem::hw::ctp7::CTP7Manager::startAction begin");
   // what is required for starting the CTP7?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     usleep(500);
-    DEBUG("CTP7Manager::looping over slots(" << (slot+1) << ") and finding infospace items");
+    CMSGEMOS_DEBUG("CTP7Manager::looping over slots(" << (slot+1) << ") and finding infospace items");
     CTP7Info& info = m_ctp7Info[slot].bag;
 
     if (!info.present)
       continue;
 
     if (m_ctp7s.at(slot)->isHwConnected()) {
-      DEBUG("connected a card in slot " << (slot+1));
+      CMSGEMOS_DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
       m_ctp7s.at(slot)->enableDAQLink();
       m_ctp7s.at(slot)->setL1AInhibit(0x0);
       usleep(100); // just for testing the timing of different applications
     } else {
-      ERROR("CTP7 in slot " << (slot+1) << " is not connected");
+      CMSGEMOS_ERROR("CTP7 in slot " << (slot+1) << " is not connected");
       fireEvent("Fail");
       // maybe raise exception so as to not continue with other cards? let's just return for the moment
       return;
@@ -424,7 +424,7 @@ void gem::hw::ctp7::CTP7Manager::startAction()
     */
   }
   usleep(10000);
-  INFO("gem::hw::ctp7::CTP7Manager::startAction end");
+  CMSGEMOS_INFO("gem::hw::ctp7::CTP7Manager::startAction end");
 }
 
 void gem::hw::ctp7::CTP7Manager::pauseAction()
@@ -444,7 +444,7 @@ void gem::hw::ctp7::CTP7Manager::resumeAction()
 void gem::hw::ctp7::CTP7Manager::stopAction()
   throw (gem::hw::ctp7::exception::Exception)
 {
-  INFO("gem::hw::ctp7::CTP7Manager::stopAction begin");
+  CMSGEMOS_INFO("gem::hw::ctp7::CTP7Manager::stopAction begin");
   // what is required for stopping the CTP7?
   usleep(10000);  // just for testing the timing of different applications
 }
@@ -462,10 +462,10 @@ void gem::hw::ctp7::CTP7Manager::resetAction()
   // what is required for resetting the CTP7?
   // unregister listeners and items in info spaces
 
-  DEBUG("CTP7Manager::resetAction begin");
+  CMSGEMOS_DEBUG("CTP7Manager::resetAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     usleep(500);  // just for testing the timing of different applications
-    DEBUG("CTP7Manager::looping over slots(" << (slot+1) << ") and finding infospace items");
+    CMSGEMOS_DEBUG("CTP7Manager::looping over slots(" << (slot+1) << ") and finding infospace items");
     CTP7Info& info = m_ctp7Info[slot].bag;
 
     if (!info.present)
@@ -475,13 +475,13 @@ void gem::hw::ctp7::CTP7Manager::resetAction()
     if (m_ctp7Monitors.at(slot))
       m_ctp7Monitors.at(slot)->reset();
 
-    DEBUG("CTP7Manager::looking for hwCfgInfoSpace items for CTP7 in slot " << (slot+1));
+    CMSGEMOS_DEBUG("CTP7Manager::looking for hwCfgInfoSpace items for CTP7 in slot " << (slot+1));
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.ctp7%02d",
                                                                info.crateID.value_,
                                                                info.slotID.value_));
 
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
-      DEBUG("CTP7Manager::revoking config parameters infospace");
+      CMSGEMOS_DEBUG("CTP7Manager::revoking config parameters infospace");
 
       // reset the hw infospace toolbox
       is_ctp7s.at(slot)->reset();
@@ -505,7 +505,7 @@ void gem::hw::ctp7::CTP7Manager::resetAction()
       if (is_ctp7s.at(slot)->getInfoSpace()->hasItem("IPBusPort"))
         is_ctp7s.at(slot)->getInfoSpace()->fireItemRevoked("IPBusPort");
     } else {
-      DEBUG("CTP7Manager::resetAction::infospace " << hwCfgURN.toString() << " does not exist, no further action");
+      CMSGEMOS_DEBUG("CTP7Manager::resetAction::infospace " << hwCfgURN.toString() << " does not exist, no further action");
       continue;
     }
   }
