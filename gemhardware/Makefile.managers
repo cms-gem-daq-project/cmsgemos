@@ -9,10 +9,6 @@ LongPackage=gemhardware
 ShortPackage=hw
 PackageName=hw
 
-GEMHARDWARE_VER_MAJOR=0
-GEMHARDWARE_VER_MINOR=3
-GEMHARDWARE_VER_PATCH=1
-
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
@@ -45,7 +41,6 @@ LibraryDirs+=$(BUILD_HOME)/$(Project)/gemreadout/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(uHALROOT)/lib
 
 DependentLibraries+=cactus_amc13_tools
-# DependentLibraries+=cactus_uhal_uhal cactus_amc13_tools
 DependentLibraries+=gemutils gembase gemreadout gemhardware_devices
 
 include $(XDAQ_ROOT)/config/Makefile.rules
