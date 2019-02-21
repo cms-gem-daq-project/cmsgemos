@@ -53,6 +53,13 @@ $(info BUILD_VERSION $(BUILD_VERSION))
 # Tools
 MakeDir=mkdir -p
 
+# Testing targets (do nothing by default)
+.PHONY: run-tests run-tests-ci
+run-tests:
+run-tests-ci:
+# Clear the default goal
+.DEFAULT_GOAL :=
+
 # Debugging and profiling flags
 DEBUG_CFlags    = -O0 -g3 -fno-inline
 DEBUG_CCFlags   = ${DEBUG_CFlags}

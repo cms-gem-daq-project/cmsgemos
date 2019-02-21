@@ -1,0 +1,19 @@
+<?xml version='1.0'?>
+<xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
+
+  <xc:Context url="http://gem904daq01:5050">
+    <xc:Application class="gem::onlinedb::GEMOnlineDBManager" id="255" instance="3" network="local">
+      <properties xmlns="urn:xdaq-application:gem::onlinedb::GEMOnlineDBManager"
+        	  xsi:type="soapenc:Struct">
+      </properties>
+    </xc:Application>
+
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemutils.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemonlinedb/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemonlinedb.so</xc:Module>
+
+  </xc:Context>
+
+</xc:Partition>

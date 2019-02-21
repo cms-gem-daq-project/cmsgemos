@@ -1,0 +1,115 @@
+{
+"extension table name": "GEM_AMC_CONFIGURATION",
+"type name": "GEM AMC Conf Lookup Table",
+"kind of part": "GEM AMC",
+"part reference": "PartReferenceSN",
+"fields": [
+    {
+        "name": "DAQ_DAV_TIMEOUT"
+    }, {
+        "name": "DAQ_INPUT_ENABLE_MASK"
+    }, {
+        "name": "DAQ_OH0_EOE_TIMEOUT",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH1_EOE_TIMEOUT",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH2_EOE_TIMEOUT",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH3_EOE_TIMEOUT",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH4_EOE_TIMEOUT",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH5_EOE_TIMEOUT",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH6_EOE_TIMEOUT",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH7_EOE_TIMEOUT",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH8_EOE_TIMEOUT",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH9_EOE_TIMEOUT",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH10_EOE_TIMEOUT",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH11_EOE_TIMEOUT",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH0_VFAT_MASK",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH1_VFAT_MASK",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH2_VFAT_MASK",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH3_VFAT_MASK",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH4_VFAT_MASK",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH5_VFAT_MASK",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH6_VFAT_MASK",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH7_VFAT_MASK",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH8_VFAT_MASK",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH9_VFAT_MASK",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH10_VFAT_MASK",
+        "xsd only": true
+    }, {
+        "name": "DAQ_OH11_VFAT_MASK",
+        "xsd only": true
+    }, {
+        "name": "DAQ_ZERO_SUPPRESSION_EN"
+    }, {
+        "name": "TTC_CONFIG_CMD_BC0"
+    }, {
+        "name": "TTC_CONFIG_CMD_CALPULSE"
+    }, {
+        "name": "TTC_CONFIG_CMD_EC0"
+    }, {
+        "name": "TTC_CONFIG_CMD_HARD_RESET"
+    }, {
+        "name": "TTC_CONFIG_CMD_OC0"
+    }, {
+        "name": "TTC_CONFIG_CMD_RESYNC"
+    }, {
+        "name": "TTC_CONFIG_CMD_START"
+    }, {
+        "name": "TTC_CONFIG_CMD_STOP"
+    }, {
+        "name": "TTC_CONFIG_CMD_TEST_SYNC"
+    }, {
+        "name": "TRIGGER_OH_KILL_MASK"
+    }, {
+        "name": "USE_OH_V3B_MAPPING"
+    }, {
+        "name": "EOE_USE_OH_EC_BC"
+    }, {
+        "name": "ENABLE_INPUT_AUTOKILL"
+    }, {
+        "name": "INPUT_AUTOKILL_THRESH"
+    }
+]
+}

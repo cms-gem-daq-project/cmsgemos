@@ -1,0 +1,45 @@
+{
+"extension table name": "GEM_VFAT3_CHIP_CONF",
+"type name": "GEM VFAT3 Chip Conf Lookup Table",
+"kind of part": "GEM VFAT3",
+"part reference": "PartReferenceBarcode",
+"fields": [
+    {
+        "name": "GLB_LOGIC_CTRL"
+    }, {
+        "name": "GLB_DATA_CTRL"
+    }, {
+        "name": "GLB_FE_CTRL"
+    }, {
+        "name": "GLB_CFD_CTRL"
+    }, {
+        "name": "GLB_MON_CTRL"
+    }, {
+        "name": "GLB_IREF_CTRL"
+    }, {
+        "name": "GLB_THRESHOLD_CTRL"
+    }, {
+        "name": "GLB_HYSTERISIS_CTRL"
+    }, {
+        "name": "GLB_LATENCY_CTRL"
+    }, {
+        "name": "GLB_CAL0_CFG_CTRL"
+    }, {
+        "name": "GLB_CAL1_CFG_CTRL"
+    }, {
+        "name": "GLB_CFD_BIAS_CTRL"
+    }, {
+        "name": "GLB_PREAMP_BIAS_CTRL0"
+    }, {
+        "name": "GLB_PREAMP_BIAS_CTRL1"
+    }, {
+        "name": "GLB_SHAPER_BIAS_CTRL0"
+    }, {
+        "name": "GLB_SHAPER_BIAS_CTRL1"
+    }, {
+        "name": "GLB_SD_BIAS_CTRL"
+    }, {
+        "name": "HW_RW_REG"
+    }
+]
+}

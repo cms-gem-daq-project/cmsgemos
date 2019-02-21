@@ -1,0 +1,12 @@
+# Don't ignore definition files
+!defs/*.json
+
+# Don't ignore common xsd definitions
+!xml/schema/common.xsd
+!xml/schema/system-topology.xsd
+!xml/examples/*.xml
+!xml/*.xml
+
+# Do ignore auto-generated files
+**/*Gen.h
+**/*Gen.cc
