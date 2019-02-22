@@ -174,6 +174,7 @@ spec_update:
 	sed -i 's#__description__#$(Description)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__url__#$(Link)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__buildarch__#$(XDAQ_PLATFORM)#' $(PackagePath)/rpm/$(LongPackage).spec
+	sed -i 's#__includedirs__#$(IncludeDirs)#' $(PackagePath)/rpm/$(LongPackage).spec
 #	sed -i 's#__datadir__#$(DATA_DIR)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__username__#$(USER_NAME)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__groupname__#$(GROUP_NAME)#' $(PackagePath)/rpm/$(LongPackage).spec
