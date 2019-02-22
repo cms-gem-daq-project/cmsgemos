@@ -19,7 +19,6 @@
 namespace gem {
   namespace gemcal {
 
-    class Calibration;
 
     class Calibration : public gem::base::GEMApplication
       {
@@ -39,7 +38,7 @@ namespace gem {
 
         //void stopMonitoring();
 
-        std::string monitoringState(){return m_state;}
+        //std::string monitoringState(){return m_state;}
 
         void stopAction(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);

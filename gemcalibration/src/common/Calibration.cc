@@ -65,27 +65,28 @@ void gem::gemcal::Calibration::actionPerformed(xdata::Event& event)
 
   // item is changed, update it
   if (event.type() == "ItemChangedEvent" || event.type() == "urn:xdata-event:ItemChangedEvent") {
-    CMSGEMOS_DEBUG("gem::gemcal::ShelfMonitor::actionPerformed() ItemChangedEvent");
+    CMSGEMOS_DEBUG("gem::gemcal::Calibration:actionPerformed() ItemChangedEvent");
   }
 
   // update monitoring variables
-  gem::base::GEMApplication::actionPerformed(event);
+   gem::base::GEMApplication::actionPerformed(event);
 }
-/*
-void gem::daqmon::ShelfMonitor::init()
+
+void gem::gemcal::Calibration::init()
 {
-  v_daqmon.clear();
-  v_daqmon.reserve(NAMC);
-  for (int i = 1; i <= NAMC; ++i)
-  {
-    char t_board_name[20];
-    sprintf(t_board_name, "gem-shelf%02d-amc%02d", m_shelfID.value_, i);
-    CMSGEMOS_DEBUG("gem::daqmon::ShelfMonitor::init :  Domain name for the board " << std::dec << i << " : " << t_board_name);
-    v_daqmon.push_back(new gem::daqmon::DaqMonitor(t_board_name, this->getApplicationLogger(), this, i));
-    CMSGEMOS_DEBUG("gem::daqmon::ShelfMonitor::init : DaqMonitor pointer created");
-  }
+  /*  v_daqmon.clear();
+      v_daqmon.reserve(NAMC);
+      for (int i = 1; i <= NAMC; ++i)
+      {
+      char t_board_name[20];
+      sprintf(t_board_name, "gem-shelf%02d-amc%02d", m_shelfID.value_, i);
+      CMSGEMOS_DEBUG("gem::daqmon::ShelfMonitor::init :  Domain name for the board " << std::dec << i << " : " << t_board_name);
+      v_daqmon.push_back(new gem::daqmon::DaqMonitor(t_board_name, this->getApplicationLogger(), this, i));
+      CMSGEMOS_DEBUG("gem::daqmon::ShelfMonitor::init : DaqMonitor pointer created");
+  */
 }
-*/
+
+
 bool gem::gemcal::Calibration::isGEMApplication(const std::string& classname) const
 {
   if (classname.find("gem::") != std::string::npos)
@@ -134,7 +135,7 @@ void gem::gemcal::Calibration::stopAction(xgi::Input* in, xgi::Output* out)
 {
   CMSGEMOS_INFO("ShelfMonitor::stopAction");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  this->stopMonitoring();
+  //this->stopMonitoring();
   *out << " { \"mon_state\":\"STOPPED\"}" << std::endl;
 
 }
@@ -144,7 +145,7 @@ void gem::gemcal::Calibration::resumeAction(xgi::Input* in, xgi::Output* out)
 {
   CMSGEMOS_INFO("ShelfMonitor::startAction");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  this->startMonitoring();
+  //this->startMonitoring();
   *out << " { \"mon_state\":\"RUNNING\"}" << std::endl;
 }
 
@@ -153,6 +154,6 @@ void gem::gemcal::Calibration::pauseAction(xgi::Input* in, xgi::Output* out)
 {
   CMSGEMOS_INFO("ShelfMonitor::pauseAction");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  this->stopMonitoring();
+  //this->stopMonitoring();
   *out << " { \"mon_state\":\"PAUSED\"}" << std::endl;
 }

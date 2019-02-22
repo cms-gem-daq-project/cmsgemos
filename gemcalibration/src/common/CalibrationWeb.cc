@@ -51,8 +51,8 @@ void gem::gemcal::CalibrationWeb::expertPage(xgi::Input* in, xgi::Output* out)
   CMSGEMOS_DEBUG("CalibrationWeb::expertPage");
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
     *out << "<div align=\"center\">" << std::endl;
-    *out<< "<h1><span class=\"label label-info\" id=\"mon_state\">MONITORING STATE: "
-        << dynamic_cast<gem::gemcal::Calibration*>(p_gemApp)->monitoringState() << "</span></h1>" << std::endl; //CG
+    //*out<< "<h1><span class=\"label label-info\" id=\"mon_state\">MONITORING STATE: "
+    //    << dynamic_cast<gem::gemcal::Calibration*>(p_gemApp)->monitoringState() << "</span></h1>" << std::endl; //CG
     *out << "<button class=\"btn btn-danger\" type=\"button\" onclick=\"expert_action(this.id)\" id=\"stop\" name=\"stop\">STOP CALIBRATING </button>" << std::endl;
     *out << "<button class=\"btn btn-warning\" type=\"button\" onclick=\"expert_action(this.id)\" id=\"pause\" name=\"pause\">PAUSE CALIBRATING </button>" << std::endl;
     *out << "<button class=\"btn btn-success\" type=\"button\" onclick=\"expert_action(this.id)\" id=\"resume\" name=\"resume\">RESUME CALIBRATING </button>" << std::endl;

@@ -7,6 +7,8 @@
 
 #include "gem/base/GEMWebApplication.h"
 
+#include "gem/gemcal/Calibration.h"
+
 namespace gem {
   namespace gemcal {
 
