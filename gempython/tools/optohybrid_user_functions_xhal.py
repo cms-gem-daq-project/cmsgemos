@@ -3,6 +3,13 @@ from gempython.tools.amc_user_functions_xhal import *
 import logging
 import os, sys
 
+class OHRPCException(Exception):
+    def __init__(self, message, errors):
+        super(OHRPCException, self).__init__(message)
+
+        self.errors = errors
+        return
+
 class HwOptoHybrid(object):
     def __init__(self, cardName, link, debug=False):
         """
@@ -88,11 +95,13 @@ class HwOptoHybrid(object):
         outData = (c_uint32 * self.nVFATs)()
 
         try:
-            if 0 != self.bRead(self.link, register, mask, outData):
-                print("broadcastRead failed for device %i; reg: %s; with mask %x"%(self.link,register,mask))
-                sys.exit(os.EX_SOFTWARE)
+            rpcResp = self.bRead(self.link, register, mask, outData)
         except Exception as e:
             print e
+            pass
+
+        if 0 != rpcResp:
+            raise OHRPCException("broadcastRead failed for device %i; reg: %s; with mask %x"%(self.link,register,mask), os.EX_SOFTWARE)
 
         return outData
     
@@ -106,12 +115,12 @@ class HwOptoHybrid(object):
 
         try:
             rpcResp = self.bWrite(self.link, register, value, mask)
-
-            if 0 != rpcResp:
-                print("broadcastWrite failed for device %i; reg: %s; with mask %x"%(self.link,register,mask))
-                sys.exit(os.EX_SOFTWARE)
         except Exception as e:
             print e
+            pass
+
+        if 0 != rpcResp:
+            raise OHRPCException("broadcastWrite failed for device %i; reg: %s; with mask %x"%(self.link,register,mask), os.EX_SOFTWARE)
 
         return rpcResp
 
