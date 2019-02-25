@@ -39,6 +39,11 @@ class Field(object):
         else:
             self.childNames = []
 
+        if 'count' in json:
+            self.count = _checkedJsonGet(json, 'count', int)
+        else:
+            self.count = 1
+
         if 'cpp name' in json:
             self._cppName = _checkedJsonGet(json, 'cpp name', unicode)
         else:
@@ -54,10 +59,17 @@ class Field(object):
         Creates subElements of parent defining this field in XSD syntax
         """
         if len(self.childNames) == 0:
-            ET.SubElement(parent, 'xs:element', {
-                'name': self.name,
-                'type': 'xs:unsignedInt'
-            })
+            if self.count == 1:
+                ET.SubElement(parent, 'xs:element', {
+                    'name': self.name,
+                    'type': 'xs:unsignedInt'
+                })
+            else:
+                for i in range(self.count):
+                    ET.SubElement(parent, 'xs:element', {
+                        'name': self.name.format(i),
+                        'type': 'xs:unsignedInt'
+                    })
         else:
             # FIELD_NAME element
             element = ET.SubElement(parent, 'xs:element', {
@@ -85,6 +97,105 @@ class Field(object):
             return self._cppName[0].upper() + self._cppName[1:]
         else:
             return self._cppName
+
+    def cppType(self):
+        """
+        Returns the C++ type to use for this field
+        """
+        if self.count == 1:
+            return 'std::uint32_t'
+        else:
+            return 'std::array<std::uint32_t, {}>'''.format(self.count)
+
+    def cppField(self):
+        """
+        Returns a declaration for this field in C++
+        """
+        if self.count == 1:
+            return '''
+                {} m_{};'''.format(self.cppType(), self.cppName())
+        else:
+            # Plural form
+            return '''
+                {} m_{}s;'''.format(self.cppType(), self.cppName())
+
+    def cppGetters(self):
+        """
+        Returns the declaration of C++ get() functions for this field
+        """
+        if self.count == 1:
+            return '''
+                {2} get{1}() const {{ return m_{0}; }};'''.format(self.cppName(False),
+                                                                  self.cppName(True),
+                                                                  self.cppType())
+        else:
+            return '''
+                const {2} &get{1}s() const {{ return m_{0}s; }};
+                {2} &get{1}s() {{ return m_{0}s; }};
+                std::uint32_t get{1}(std::size_t i) const {{ return m_{0}s.at(i); }};'''.format(
+                    self.cppName(False),
+                    self.cppName(True),
+                    self.cppType())
+
+    def cppSetters(self):
+        """
+        Returns the declaration of C++ set() functions for this field
+        """
+        if self.count == 1:
+            return '''
+                void set{1}(std::uint32_t value) {{ m_{0} = value; }};'''.format(
+                    self.cppName(False),
+                    self.cppName(True))
+        else:
+            return '''
+                void set{1}s(const {2} &value) {{ m_{0}s = value; }};
+                void set{1}(std::size_t i, std::uint32_t value) {{ m_{0}s.at(i) = value; }};'''.format(
+                    self.cppName(False),
+                    self.cppName(True),
+                    self.cppType())
+
+    def cppEq(self):
+        """
+        Returns the C++ code to add for this field in operator==
+        """
+        if self.count == 1:
+            return '''
+                    && get{0}() == other.get{0}()'''.format(self.cppName(True))
+        else:
+            return '''
+                    && get{0}s() == other.get{0}s()'''.format(self.cppName(True))
+
+    def cppReadRegisterData(self):
+        """
+        Returns the C++ code to add for this field in readRegisterData()
+        """
+        if self.count == 1:
+            return '''
+                set{1}(data.at("{0}"));'''.format(self.name, self.cppName(True))
+        else:
+            code = ''
+            for i in range(self.count):
+                code += '''
+                set{1}({2}, data.at("{0}"));'''.format(self.name.format(i),
+                                                       self.cppName(True),
+                                                       i)
+            return code
+
+    def cppGetRegisterData(self):
+        """
+        Returns the C++ code to add for this field in getRegisterData()
+        """
+        if self.count == 1:
+            return '''
+                data["{0}"] = get{1}();'''.format(self.name, self.cppName(True))
+        else:
+            code = ''
+            for i in range(self.count):
+                code += '''
+                data["{0}"] = get{1}({2});'''.format(self.name.format(i),
+                                                     self.cppName(True),
+                                                     i)
+            return code
 
     def __repr__(self):
         return 'Field:{}'.format(self.name)
@@ -174,15 +285,13 @@ namespace gem {{
 
     privateMembers = ''
     for f in filter(lambda f: not f.xsdOnly, fields):
-        privateMembers += '''
-                std::int32_t m_{};'''.format(f.cppName())
+        privateMembers += f.cppField()
 
     publicMembers = ''
     for f in filter(lambda f: not f.xsdOnly, fields):
-        publicMembers += '''
-                std::int32_t get{1}() const {{ return m_{0}; }}
-                void set{1}(std::int32_t {0}) {{ m_{0} = {0}; }}
-                '''.format(f.cppName(False), f.cppName(True))
+        publicMembers += f.cppGetters()
+        publicMembers += "\n"
+        publicMembers += f.cppSetters()
 
     extTableName = _checkedJsonGet(config, 'extension table name', unicode)
     typeName = _checkedJsonGet(config, 'type name', unicode)
@@ -212,8 +321,7 @@ namespace gem {{
         namespace detail {{
             bool {baseName}Gen::operator== (const {baseName}Gen &other) const
             {{
-                return true
-{operatorEq};
+                return true{operatorEq};
             }}
 
             RegisterData {baseName}Gen::getRegisterData() const
@@ -225,8 +333,7 @@ namespace gem {{
             }}
 
             void {baseName}Gen::readRegisterData(const RegisterData &data)
-            {{
-{readRegisterData}
+            {{{readRegisterData}
             }}
         }} /* namespace detail */
     }} /* namespace onlinedb */
@@ -236,18 +343,15 @@ namespace gem {{
 
     getRegisterData = ''
     for f in filter(lambda f: not f.xsdOnly, fields):
-        getRegisterData += '''
-                data["{0}"] = get{1}();'''.format(f.name, f.cppName(True))
+        getRegisterData += f.cppGetRegisterData()
 
     readRegisterData = ''
     for f in filter(lambda f: not f.xsdOnly, fields):
-        readRegisterData += '''
-                set{1}(data.at("{0}"));'''.format(f.name, f.cppName(True))
+        readRegisterData += f.cppReadRegisterData()
 
     operatorEq = ''
     for f in filter(lambda f: not f.xsdOnly, fields):
-        operatorEq += '''
-                    && get{0}() == other.get{0}()'''.format(f.cppName(True))
+        operatorEq += f.cppEq()
 
     return template.format(baseName = className,
                            getRegisterData = getRegisterData,
