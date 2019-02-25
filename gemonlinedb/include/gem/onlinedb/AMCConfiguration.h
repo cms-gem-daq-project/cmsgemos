@@ -28,9 +28,6 @@ namespace gem {
             static const constexpr std::size_t OH_CONNECTION_COUNT = 12;
 
         private:
-            std::array<std::uint32_t, OH_CONNECTION_COUNT> m_eoeTimeouts;
-            std::array<std::uint32_t, OH_CONNECTION_COUNT> m_vfatMasks;
-
             std::array<
                 std::shared_ptr<OHv3Configuration>,
                 OH_CONNECTION_COUNT
@@ -41,82 +38,6 @@ namespace gem {
              * @brief Compares two OHv3 configurations for equality.
              */
             bool operator== (const AMCConfiguration &other) const;
-
-            ////////////////////////////////////////////////////////////////////
-
-            /**
-             * @brief Retrieves register data.
-             * Implements the @c Configuration concept.
-             */
-            detail::RegisterData getRegisterData() const;
-
-            /**
-             * @brief Modifies register data.
-             * Implements the @c Configuration concept.
-             */
-            void readRegisterData(const detail::RegisterData &data);
-
-            ////////////////////////////////////////////////////////////////////
-
-            /**
-             * @brief Retrieves the VFAT EOE timeout for the given optohybrid.
-             */
-            std::uint32_t getEOETimeout(std::size_t oh) const {
-                return m_eoeTimeouts.at(oh); };
-
-            /**
-             * @brief Retrieves the VFAT EOE timeouts.
-             */
-            auto getEOETimeouts() const -> const decltype(m_eoeTimeouts) & {
-                return m_eoeTimeouts; };
-
-            /**
-             * @brief Retrieves the VFAT EOE timeouts.
-             */
-            auto getEOETimeouts() -> decltype(m_eoeTimeouts) & {
-                return m_eoeTimeouts; };
-
-            /**
-             * @brief Modifies the VFAT EOE timeout for the given optohybrid.
-             */
-            void setEOETimeout(std::size_t oh, std::uint32_t timeout) {
-                m_eoeTimeouts.at(oh) = timeout; };
-
-            /**
-             * @brief Modifies the VFAT EOE timeouts.
-             */
-            void setEOETimeouts(const decltype(m_eoeTimeouts) &timeouts) {
-                m_eoeTimeouts = timeouts; };
-
-            ////////////////////////////////////////////////////////////////////
-
-            /**
-             * @brief Retrieves the VFAT mask for the given optohybrid.
-             */
-            std::uint32_t getVFATMask(std::size_t oh) const { return m_vfatMasks.at(oh); };
-
-            /**
-             * @brief Retrieves the S-bit mode for all HDMI ohs.
-             */
-            auto getVFATMasks() const -> const decltype(m_vfatMasks) & {
-                return m_vfatMasks; };
-
-            /**
-             * @brief Retrieves the S-bit mode for all HDMI ohs.
-             */
-            auto getVFATMasks() -> decltype(m_vfatMasks) & {
-                return m_vfatMasks; };
-
-            /**
-             * @brief Modifies the S-bit mode for an HDMI oh.
-             */
-            void setVFATMask(std::size_t oh, std::uint32_t mode) {
-                m_vfatMasks.at(oh) = mode; };
-
-            /**
-             * @brief Modifies the S-bit mode for all HDMI ohs.
-             */
-            void setVFATMasks(const decltype(m_vfatMasks) &modes) { m_vfatMasks = modes; };
 
             ////////////////////////////////////////////////////////////////////
 

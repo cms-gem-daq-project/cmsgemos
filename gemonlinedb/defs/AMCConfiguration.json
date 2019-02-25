@@ -9,77 +9,13 @@
     }, {
         "name": "DAQ_INPUT_ENABLE_MASK"
     }, {
-        "name": "DAQ_OH0_EOE_TIMEOUT",
-        "xsd only": true
+        "name": "DAQ_OH{}_EOE_TIMEOUT",
+        "cpp name": "EOETimeout",
+        "count": 12
     }, {
-        "name": "DAQ_OH1_EOE_TIMEOUT",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH2_EOE_TIMEOUT",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH3_EOE_TIMEOUT",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH4_EOE_TIMEOUT",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH5_EOE_TIMEOUT",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH6_EOE_TIMEOUT",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH7_EOE_TIMEOUT",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH8_EOE_TIMEOUT",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH9_EOE_TIMEOUT",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH10_EOE_TIMEOUT",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH11_EOE_TIMEOUT",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH0_VFAT_MASK",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH1_VFAT_MASK",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH2_VFAT_MASK",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH3_VFAT_MASK",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH4_VFAT_MASK",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH5_VFAT_MASK",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH6_VFAT_MASK",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH7_VFAT_MASK",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH8_VFAT_MASK",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH9_VFAT_MASK",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH10_VFAT_MASK",
-        "xsd only": true
-    }, {
-        "name": "DAQ_OH11_VFAT_MASK",
-        "xsd only": true
+        "name": "DAQ_OH{}_VFAT_MASK",
+        "cpp name": "VFATMask",
+        "count": 12
     }, {
         "name": "DAQ_ZERO_SUPPRESSION_EN"
     }, {
