@@ -220,17 +220,14 @@ def printSystemSCAInfo(amc,debug=False):
     print "--=======================================--"
     print
     nOHs = readRegister(amc,"GEM_AMC.GEM_SYSTEM.CONFIG.NUM_OF_OH")
-    scaRdy  = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.READY")
-    scaCErr = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.CRITICAL_ERROR")
-    scaInfo["READY"]=scaRdy
-    scaInfo["CRITICAL_ERROR"]=scaCErr
+    scaInfo["READY"]  = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.READY")
+    scaInfo["CRITICAL_ERROR"] = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.CRITICAL_ERROR")
     print("READY             %s0x%08x%s"%(colors.BLUE,scaRdy,colors.ENDC))
     print("CRITICAL_ERROR    %s0x%08x%s"%(colors.RED if scaCErr else colors.GREEN,scaCErr,colors.ENDC))
     for li in range(nOHs):
-        notRdyCnt = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.NOT_READY_CNT_OH%d"%(li))
-        scaInfo["NOT_READY_CNT"][li]=notRdyCnt
+        scaInfo["NOT_READY_CNT"][li] = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.NOT_READY_CNT_OH%d"%(li))
         print("NOT_READY_CNT_OH%02d %s0x%08x%s"%(li,
                                                  colors.GREEN,
-                                                 notRdyCnt,
+                                                 scaInfo["NOT_READY_CNT"][li],
                                                  colors.ENDC))
     return scaInfo
