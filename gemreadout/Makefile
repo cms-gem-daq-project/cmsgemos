@@ -30,11 +30,13 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
-DependentLibraries+=gemutils gembase
+UserCFlags  +=$(PYTHONCFLAGS)
+UserCCFlags +=$(PYTHONCFLAGS)
+
+DependentLibraries =gembase
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
-
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

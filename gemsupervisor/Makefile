@@ -31,16 +31,22 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemreadout/include
 IncludeDirs+=$(uHALROOT)/include
+IncludeDirs+=$(XHALROOT)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemreadout/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(uHALROOT)/lib
+DependentLibraryDirs+=$(XHALROOT)/lib
 
-LibraryDirs+=$(uHALROOT)/lib
+UserCFlags  +=$(PYTHONCFLAGS)
+UserCCFlags +=$(PYTHONCFLAGS)
 
-DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
-DependentLibraries+=gemutils gemhardware_managers gemhardware_devices gemreadout
+DependentLibraries =gemhardware_managers xdaq2rc
+
+## not building an exe
+Libraries =
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk

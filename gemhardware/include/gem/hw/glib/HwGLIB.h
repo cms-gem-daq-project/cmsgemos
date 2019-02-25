@@ -33,6 +33,12 @@ namespace gem {
           virtual ~HwGLIB();
 
           /**
+           * Connect to te RPC manager and load necessary modules
+           * @param reconnect determine if the conection should be reestablished and the modules reloaded
+           void connectRPC(bool reconnect=false) override;
+           */
+
+          /**
            * Check if one can read/write to the registers on the GLIB
            * @returns true if the GLIB is accessible
           bool isHwConnected();
@@ -270,7 +276,7 @@ namespace gem {
            *
            * XPoint1 inputs 1-4 can be routed to outputs 1-4
            * XPoint1 input 1 carries XPoint2 output 1
-           * XPoint1 input 2 carries SMA_CLK or the onboard 40MhZ oscillator
+           * XPoint1 input 2 carries SMA_CLK or the onboard 40MHz oscillator
            * XPoint1 input 3 carries TCLKA
            * XPoint1 input 4 carries FCLKA
            *
@@ -373,8 +379,8 @@ namespace gem {
           //which of these will be better and do what we want
           uint32_t getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks=1);
           //which of these will be better and do what we want
-          uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
-                                   size_t const& nBlocks=1);
+          /* uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data, */
+          /*                          size_t const& nBlocks=1); */
 
           /**
            * Empty the tracking data FIFO

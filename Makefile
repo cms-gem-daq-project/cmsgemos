@@ -13,6 +13,8 @@ SUBPACKAGES := \
         gemonlinedb \
         # gemHwMonitor \
 
+# SUBPACKAGES.DOC      := $(patsubst %,%.doc,    ${SUBPACKAGES})
+# SUBPACKAGES.CHECK    := $(patsubst %,%.check,    ${SUBPACKAGES})
 SUBPACKAGES.DEBUG    := $(patsubst %,%.debug,    ${SUBPACKAGES})
 SUBPACKAGES.INSTALL  := $(patsubst %,%.install,  ${SUBPACKAGES})
 SUBPACKAGES.RPM      := $(patsubst %,%.rpm,      ${SUBPACKAGES})
@@ -71,10 +73,10 @@ doc:  $(SUBPACKAGES)
 	@mkdir ./doc/build
 	@rm -fr ./doc/build/* 2> /dev/null
 	@doxygen -s ./doc/cmsgemos.cfg
-	#@git checkout gh-pages  > /dev/null 2>&1
-	#@git add -f ./doc/html  > /dev/null 2>&1
-	#@git commit -m "generating doxygen" ./doc/html  > /dev/null 2>&1
-	#@git tag ./doc/html  > /dev/null 2>&1
+#	@git checkout gh-pages  > /dev/null 2>&1
+#	@git add -f ./doc/html  > /dev/null 2>&1
+#	@git commit -m "generating doxygen" ./doc/html  > /dev/null 2>&1
+#	@git tag ./doc/html  > /dev/null 2>&1
 
 install: $(LIBDIR) $(SUBPACKAGES) $(SUBPACKAGES.INSTALL)
 
@@ -90,6 +92,10 @@ run-tests: $(SUBPACKAGES.RUNTESTS)
 
 run-tests-ci: $(SUBPACKAGES.RUNTESTSCI)
 
+debug: $(SUBPACKAGES.DEBUG)
+
+# check: $(SUBPACKAGES.CHECK)
+
 $(LIBDIR):
 	mkdir -p $(LIBDIR)
 
@@ -101,6 +107,12 @@ $(SUBPACKAGES.RPM):
 
 $(SUBPACKAGES.CLEANRPM):
 	$(MAKE) -C $(patsubst %.cleanrpm,%, $@) cleanrpm
+
+# $(SUBPACKAGES.CHECK):
+# 	$(MAKE) -C $(patsubst %.check,%, $@) check
+
+# $(SUBPACKAGES.DEBUG):
+# 	$(MAKE) -C $(patsubst %.debug,%, $@) debug
 
 $(SUBPACKAGES.INSTALL):
 	-find  $(patsubst %.install,%, $@)/lib -name *.so -print -exec cp {} ${LIBDIR} \;
@@ -117,7 +129,9 @@ $(SUBPACKAGES.RUNTESTS): tests
 $(SUBPACKAGES.RUNTESTSCI): tests
 	$(MAKE) -C $(patsubst %.run-tests-ci,%, $@) run-tests-ci
 
-.PHONY: $(SUBPACKAGES) $(SUBPACKAGES.INSTALL) $(SUBPACKAGES.CLEAN)
+.PHONY: $(SUBPACKAGES) $(SUBPACKAGES.INSTALL) $(SUBPACKAGES.CLEAN) $(SUBPACKAGES.CHECK) $(SUBPACKAGES.DEBUG)
+
+#$(SUBPACKAGES.CHECK) $(SUBPACKAGES.DEBUG)
 
 
 .phony: gemhwmanagers gemhwdevices
@@ -144,6 +158,8 @@ gemutils:
 gemonlinedb: gemutils gembase
 
 gemreadout: gemutils gembase gemhwdevices
+
+gemdaqmonitor: gembase gemhwdevices
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

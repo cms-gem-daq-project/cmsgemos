@@ -209,8 +209,6 @@ namespace gem {
           };
 
         private:
-	  // uint32_t parseVFATMaskList(std::string const&);
-	  //bool     isValidSlotNumber(std::string const&);
 
           void     createOptoHybridInfoSpaceItems(is_toolbox_ptr is_optohybrid, optohybrid_shared_ptr optohybrid);
 

@@ -38,6 +38,7 @@ gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo()
   cardName   = "";
   birdName   = "";
   sbitSource = 0;
+  enableZS   = true;
 }
 
 void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::glib::GLIBManager::GLIBInfo>* bag)
@@ -48,6 +49,7 @@ void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::gl
   bag->addField("CardName",   &cardName);
   bag->addField("BirdName",   &birdName);
   bag->addField("sbitSource", &sbitSource);
+  bag->addField("enableZS",   &enableZS);
 }
 
 gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
@@ -106,7 +108,7 @@ std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
     return dump;
   } else if (!m_glibs.at(glib)) {
     CMSGEMOS_WARN("GLIBManager::dumpGLIBFIFO Specified GLIB card " << glib+1
-         << " is not connected");
+                  << " is not connected");
     return dump;
     //} else if (!(m_glibs.at(glib)->hasTrackingData(0))) {
     //  CMSGEMOS_WARN("GLIBManager::dumpGLIBFIFO Specified GLIB card " << glib
@@ -142,11 +144,13 @@ std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
 void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    CMSGEMOS_DEBUG("GLIBManager::actionPerformed() setDefaultValues" <<
-          "Default configuration values have been loaded from xml profile");
-    m_amcEnableMask = gem::hw::utils::parseAMCEnableList(m_amcSlots.toString());
-    CMSGEMOS_INFO("GLIBManager::Parsed AMCEnableList m_amcSlots = " << m_amcSlots.toString()
-         << " to slotMask 0x" << std::hex << m_amcEnableMask << std::dec);
+    CMSGEMOS_DEBUG("GLIBManager::actionPerformed() setDefaultValues"
+                   << "Default configuration values have been loaded from xml profile");
+    m_amcEnableMask = gem::hw::utils::parseAMCEnableList(m_amcSlots.toString(),
+                                                         // &m_gemLogger);
+                                                         m_gemLogger);
+    CMSGEMOS_INFO("GLIBManager::actionPerformed() Parsed AMCEnableList m_amcSlots = " << m_amcSlots.toString()
+                  << " to slotMask 0x" << std::hex << m_amcEnableMask << std::dec);
 
     // how to handle passing in various values nested in a vector in a bag
     for (auto slot = m_glibInfo.begin(); slot != m_glibInfo.end(); ++slot) {
@@ -160,7 +164,8 @@ void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
     }
     // p_gemMonitor->startMonitoring();
   }
-  // update monitoring variables
+
+  // FIXME update monitoring variables?
   gem::base::GEMApplication::actionPerformed(event);
 }
 
@@ -182,13 +187,13 @@ void gem::hw::glib::GLIBManager::initializeAction()
       CMSGEMOS_DEBUG("GLIBManager::info:" << info.toString());
       CMSGEMOS_DEBUG("GLIBManager::expect a card in slot " << (slot+1));
       CMSGEMOS_DEBUG("GLIBManager::bag"
-            << "crate " << info.crateID.value_
-            << " slot " << info.slotID.value_);
+                     << "crate " << info.crateID.value_
+                     << " slot " << info.slotID.value_);
       // this maybe shouldn't be done?
       info.slotID  = slot+1;
       CMSGEMOS_DEBUG("GLIBManager::bag"
-            << "crate " << info.crateID.value_
-            << " slot " << info.slotID.value_);
+                     << "crate " << info.crateID.value_
+                     << " slot " << info.slotID.value_);
       // this maybe shouldn't be done?
       info.present = true;
       // actually check presence? this just says that we expect it to be there
@@ -213,7 +218,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     // create the cfgInfoSpace object (qualified vs non?)
     std::string deviceName = info.cardName.toString();
     if (deviceName.empty())
-      deviceName = toolbox::toString("gem.shelf%02d.amc%02d",
+      deviceName = toolbox::toString("gem-shelf%02d-amc%02d",
                                      info.crateID.value_,
                                      info.slotID.value_);
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
@@ -255,27 +260,28 @@ void gem::hw::glib::GLIBManager::initializeAction()
         CMSGEMOS_ERROR(msg.str());
         XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
       }
-    } catch (uhalException const& e) {
-      std::stringstream msg;
-      msg << "GLIBManager::initializeAction caught uHAL exception " << e.what();
-      CMSGEMOS_ERROR(msg.str());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-    } catch (gem::hw::glib::exception::Exception const& e) {
-      std::stringstream msg;
-      msg << "GLIBManager::initializeAction caught exception " << e.what();
-      CMSGEMOS_ERROR(msg.str());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-    } catch (toolbox::net::exception::MalformedURN const& e) {
-      std::stringstream msg;
-      msg << "GLIBManager::initializeAction caught exception " << e.what();
-      CMSGEMOS_ERROR(msg.str());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-    } catch (std::exception const& e) {
-      std::stringstream msg;
-      msg << "GLIBManager::initializeAction caught exception " << e.what();
-      CMSGEMOS_ERROR(msg.str());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-    }
+    } GEM_HW_TRANSITION_CATCH("GLIBManager::initializeAction",gem::hw::glib::exception::Exception);
+    // catch (uhalException const& e) {
+    //   std::stringstream msg;
+    //   msg << "GLIBManager::initializeAction caught uHAL exception " << e.what();
+    //   CMSGEMOS_ERROR(msg.str());
+    //   XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+    // } catch (gem::hw::glib::exception::Exception const& e) {
+    //   std::stringstream msg;
+    //   msg << "GLIBManager::initializeAction caught exception " << e.what();
+    //   CMSGEMOS_ERROR(msg.str());
+    //   XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+    // } catch (toolbox::net::exception::MalformedURN const& e) {
+    //   std::stringstream msg;
+    //   msg << "GLIBManager::initializeAction caught exception " << e.what();
+    //   CMSGEMOS_ERROR(msg.str());
+    //   XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+    // } catch (std::exception const& e) {
+    //   std::stringstream msg;
+    //   msg << "GLIBManager::initializeAction caught exception " << e.what();
+    //   CMSGEMOS_ERROR(msg.str());
+    //   XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+    // }
     CMSGEMOS_DEBUG("GLIBManager::connected");
     // set the web view to be empty or grey
     // if (!info.present.value_) continue;
@@ -324,42 +330,52 @@ void gem::hw::glib::GLIBManager::configureAction()
       if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->pauseMonitoring();
 
-      amc->scaHardResetEnable(false);
-      amc->resetL1ACount();
-      amc->resetCalPulseCount();
+      bool enableZS     = info.enableZS.value_;
+      bool doPhaseShift = m_uhalPhaseShift.value_;
+      uint32_t runType  = 0x0;
+      try { // FIXME if we fail, do we go to error?
+        // amc->ttcMMCMPhaseShift(m_relockPhase.value_, m_bc0LockPhaseShift.value_);
+        amc->configureDAQModule(enableZS, doPhaseShift, runType, 0xfaac, m_relockPhase.value_, m_bc0LockPhaseShift.value_);
+      } GEM_CATCH_RPC_ERROR("GLIBManager::configureAction", gem::hw::glib::exception::ConfigurationProblem);
 
-      if (m_uhalPhaseShift.value_) {
-        amc->ttcMMCMPhaseShift(m_relockPhase.value_, m_bc0LockPhaseShift.value_);
-      } else {
-        std::stringstream pashiftcmd;
-        // FIXME hard coded for now, but super hacky garbage (only works at P5)
-        pashiftcmd << "ssh -Tq texas@" << info.birdName.toString()
-                   << " \"sh -lic '/mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py";
-        if (m_bc0LockPhaseShift.value_)
-          pashiftcmd << " --useBC0";
-        if (m_relockPhase.value_)
-          pashiftcmd << " --relock";
-        pashiftcmd << "'\"";
-        CMSGEMOS_INFO("GLIBManager::configureAction executing " << pashiftcmd.str());
-        int retval = std::system(pashiftcmd.str().c_str());
-        if (retval) {
-          std::stringstream msg;
-          msg << "GLIBManager::configureAction unable to shift phases: " << retval;
-          CMSGEMOS_ERROR(msg.str());
-          // fireEvent("Fail");
-          // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-          XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
-        }
-      }
+      // amc->scaHardResetEnable(false);
+      // amc->resetL1ACount();
+      // amc->resetCalPulseCount();
 
-      // reset the DAQ (could move this to HwGenericAMC and eventually  a corresponding RPC module
-      amc->setL1AEnable(false);
-      amc->disableDAQLink();
-      amc->resetDAQLink();
-      amc->enableDAQLink(0x4);  // FIXME
-      amc->enableZeroSuppression(0x1);
-      amc->setDAQLinkRunType(0x0);
-      amc->setDAQLinkRunParameters(0xfaac);
+      // if (m_uhalPhaseShift.value_) {
+      //   CMSGEMOS_INFO("GLIBManager::configureAction uhal phase shifting disabled");
+      //   try { // if we fail, do we go to error?
+      //     amc->ttcMMCMPhaseShift(m_relockPhase.value_, m_bc0LockPhaseShift.value_);
+      //   } GEM_CATCH_RPC_ERROR("GLIBManager::configureAction", gem::hw::glib::exception::PhaseShiftError);
+      // }
+
+      // // reset the DAQ (could move this to HwGenericAMC and eventually  a corresponding RPC module
+      // try { // FIXME if we fail, do we go to error?
+      //   amc->configure(info.enableZS.value_,0x0,0xfaac);
+      //   // amc->setL1AEnable(false);
+      //   // amc->disableDAQLink();
+      //   // amc->resetDAQLink();
+      //   // amc->enableDAQLink(0x4);  // FIXME
+      //   // amc->setZS(info.enableZS.value_);
+      //   // amc->setDAQLinkRunType(0x0);
+      //   // amc->setDAQLinkRunParameters(0xfaac);
+      // } GEM_CATCH_RPC_ERROR("GLIBManager::configureAction", gem::hw::glib::exception::ConfigurationProblem);
+      // catch (xhal::utils::XHALRPCNotConnectedException const& e) {
+      //   std::stringstream errmsg;
+      //   errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
+      //   // fireEvent("Fail");
+      //   XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
+      // } catch (xhal::utils::XHALRPCException const& e) {
+      //   std::stringstream errmsg;
+      //   errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
+      //   // fireEvent("Fail");
+      //   XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
+      // } catch (gem::hw::exception::RPCMethodError const& e) {
+      //   std::stringstream errmsg;
+      //   errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
+      //   // fireEvent("Fail");
+      //   XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
+      // }
 
       if (m_scanType.value_ == 2) {
         CMSGEMOS_INFO("GLIBManager::configureAction: FIRST  " << m_scanMin.value_);
@@ -470,10 +486,12 @@ void gem::hw::glib::GLIBManager::startAction()
 
       CMSGEMOS_DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
-      amc->ttcReset();
+      // amc->enableDAQModule(info.enableZS.value_);
+
+      amc->ttcModuleReset();
       amc->enableDAQLink(0x4);  // FIXME
       amc->resetDAQLink();
-      amc->enableZeroSuppression(0x1);
+      amc->setZS(info.enableZS.value_);
       amc->setL1AEnable(true);
       usleep(10); // just for testing the timing of different applications
 
@@ -542,14 +560,14 @@ void gem::hw::glib::GLIBManager::pauseAction()
           usleep(10);
         }
         CMSGEMOS_DEBUG("GLIBManager::pauseAction AMC" << (slot+1) << " finished building events, updating run parameter "
-              << (int)updatedLatency);
+                       << (int)updatedLatency);
         amc->setDAQLinkRunParameter(0x1,updatedLatency);
       } else if (m_scanType.value_ == 3) {
         uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
         uint8_t updatedVT2 = 0; //std::max(0,(int)m_scanMax.value_);
         CMSGEMOS_INFO("GLIBManager::pauseAction ThresholdScan AMC" << (slot+1) << ""
-             << " VT1 " << (int)updatedVT1
-             << " VT2 " << (int)updatedVT2);
+                      << " VT1 " << (int)updatedVT1
+                      << " VT2 " << (int)updatedVT2);
 
         // wait for events to finish building
         while (!amc->l1aFIFOIsEmpty()) {
@@ -557,7 +575,7 @@ void gem::hw::glib::GLIBManager::pauseAction()
           usleep(10);
         }
         CMSGEMOS_DEBUG("GLIBManager::pauseAction finished AMC" << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
-              << " and VT2 " << (int)updatedVT2);
+                       << " and VT2 " << (int)updatedVT2);
 	amc->setDAQLinkRunParameter(0x2,updatedVT1);
 	amc->setDAQLinkRunParameter(0x3,updatedVT2);
       }
@@ -733,7 +751,7 @@ void gem::hw::glib::GLIBManager::resetAction()
       m_glibMonitors.at(slot)->reset();
 
     CMSGEMOS_DEBUG("GLIBManager::looking for hwCfgInfoSpace items for GLIB in slot " << (slot+1));
-    toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.amc%02d",
+    toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem-shelf%02d-amc%02d",
                                                                info.crateID.value_,
                                                                info.slotID.value_));
 
@@ -876,9 +894,9 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   for (uint8_t oh = 0; oh < glib->getSupportedOptoHybrids(); ++oh) {
     std::stringstream ohname;
     ohname << "OH" << (int)oh;
-    is_glib->createUInt32(ohname.str()+"_STATUS",               glib->getDAQLinkStatus(oh),      NULL, GEMUpdateType::HW32);
-    is_glib->createUInt32(ohname.str()+"_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(oh, 0), NULL, GEMUpdateType::HW32);
-    is_glib->createUInt32(ohname.str()+"_EVN",                  glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
+    is_glib->createUInt32(ohname.str()+"_STATUS",               glib->getLinkDAQStatus(oh),      NULL, GEMUpdateType::HW32);
+    is_glib->createUInt32(ohname.str()+"_CORRUPT_VFAT_BLK_CNT", glib->getLinkDAQCounters(oh, 0), NULL, GEMUpdateType::HW32);
+    is_glib->createUInt32(ohname.str()+"_EVN",                  glib->getLinkDAQCounters(oh, 1), NULL, GEMUpdateType::HW32);
     is_glib->createUInt32(ohname.str()+"_EOE_TIMEOUT",          glib->getDAQLinkDAVTimer(oh),    NULL, GEMUpdateType::HW32);
     is_glib->createUInt32(ohname.str()+"_MAX_EOE_TIMER",        glib->getDAQLinkDAVTimer(0),     NULL, GEMUpdateType::HW32);
     is_glib->createUInt32(ohname.str()+"_LAST_EOE_TIMER",       glib->getDAQLinkDAVTimer(1),     NULL, GEMUpdateType::HW32);
@@ -890,14 +908,14 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
       std::stringstream cluname;
       cluname << "CLUSTER_SIZE_" << cluster;
       is_glib->createUInt32(ohname.str()+"_"+cluname.str()+"_RATE",
-                            glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
+                            glib->getLinkDAQCounters(oh, 1), NULL, GEMUpdateType::HW32);
       is_glib->createUInt32(ohname.str()+"_"+cluname.str()+"_CNT",
-                            glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
+                            glib->getLinkDAQCounters(oh, 1), NULL, GEMUpdateType::HW32);
       cluname.str("");
       cluname.clear();
       cluname << "DEBUG_LAST_CLUSTER_" << cluster;
       is_glib->createUInt32(ohname.str()+"_"+cluname.str(),
-                            glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
+                            glib->getLinkDAQCounters(oh, 1), NULL, GEMUpdateType::HW32);
     }
   }
 }

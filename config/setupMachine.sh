@@ -344,11 +344,10 @@ EOF
 install_misc_rpms() {
     # Option 'm'
     echo Installing miscellaneous RPMS...
-    yum -y install tree telnet htop arp-scan screen tmux
+    yum -y install tree telnet htop arp-scan screen tmux cppcheck
 
     yum -y install libuuid-devel e2fsprogs-devel readline-devel ncurses-devel curl-devel boost-devel \
-        numactl-devel freeipmi-devel libusb libusbx libusb-devel libusbx-devel \
-        protobuf-devel protobuf-lite-devel pugixml pugixml-devel
+        numactl-devel libusb-devel libusbx-devel protobuf-devel protobuf-lite-devel pugixml-devel
 
     if [ "${osver}" = "6" ]
     then
@@ -383,7 +382,7 @@ install_sysmgr() {
     # Option 'S'
     echo Installing UW sysmgr RPMS...
     wget https://www.hep.wisc.edu/uwcms-repos/el${osver}/release/uwcms.repo -O /etc/yum.repos.d/uwcms.repo
-    yum -y install freeipmi libxml++ libxml++-devel libconfuse libconfuse-devel xinetd dnsmasq
+    yum -y install freeipmi-devel libxml++-devel libconfuse-devel xinetd dnsmasq
     yum -y install sysmgr-complete
     # yum -y install sysmgr
 
@@ -404,7 +403,7 @@ install_sysmgr() {
 install_root() {
     # Option 'r'
     echo Installing root...
-    yum -y install root root-\*
+    yum -y install root root-\* python\*-root
 }
 
 install_python() {

@@ -134,7 +134,8 @@ makerpm:
 	@tar -P -X $(XDAQ_ROOT)/config/src.exclude --exclude="*.tbz2" -jcf \
 		$(PackagePath)/rpm/RPMBUILD/SOURCES/$(Project)-$(PackageName)-$(PACKAGE_FULL_VERSION)-$(PACKAGE_FULL_RELEASE).tbz2 \
 		$(PackagePath)
-	@rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" --define  "_topdir $(PackagePath)/rpm/RPMBUILD" \
+	@rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" \
+		--define  "_topdir $(PackagePath)/rpm/RPMBUILD" \
 		$(PackagePath)/rpm/$(LongPackage).spec
 	@find  $(PackagePath)/rpm/RPMBUILD -name "*.rpm" -exec mv {} $(PackagePath)/rpm \;
 
@@ -173,6 +174,7 @@ spec_update:
 	sed -i 's#__description__#$(Description)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__url__#$(Link)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__buildarch__#$(XDAQ_PLATFORM)#' $(PackagePath)/rpm/$(LongPackage).spec
+	sed -i 's#__includedirs__#$(IncludeDirs)#' $(PackagePath)/rpm/$(LongPackage).spec
 #	sed -i 's#__datadir__#$(DATA_DIR)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__username__#$(USER_NAME)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__groupname__#$(GROUP_NAME)#' $(PackagePath)/rpm/$(LongPackage).spec

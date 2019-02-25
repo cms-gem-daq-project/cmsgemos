@@ -247,8 +247,8 @@ void gem::hw::optohybrid::OptoHybridMonitor::updateMonitorables()
       CMSGEMOS_DEBUG("OptoHybridMonitor: Updating monitorable " << monitem->first);
       std::stringstream regName;
       regName << p_optohybrid->getDeviceBaseNode() << "." << monitem->second.regname;
-      uint32_t address = p_optohybrid->getGEMHwInterface().getNode(regName.str()).getAddress();
-      uint32_t mask    = p_optohybrid->getGEMHwInterface().getNode(regName.str()).getMask();
+      uint32_t address = p_optohybrid->getNode(regName.str()).getAddress();
+      uint32_t mask    = p_optohybrid->getNode(regName.str()).getMask();
       if (monitem->second.updatetype == GEMUpdateType::HW8) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,p_optohybrid->readReg(address,mask));
       } else if (monitem->second.updatetype == GEMUpdateType::HW16) {
@@ -258,23 +258,23 @@ void gem::hw::optohybrid::OptoHybridMonitor::updateMonitorables()
       } else if (monitem->second.updatetype == GEMUpdateType::HW32) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,p_optohybrid->readReg(address,mask));
       } else if (monitem->second.updatetype == GEMUpdateType::HW64) {
-        address = p_optohybrid->getGEMHwInterface().getNode(regName.str()+".LOWER").getAddress();
-        mask    = p_optohybrid->getGEMHwInterface().getNode(regName.str()+".LOWER").getMask();
+        address = p_optohybrid->getNode(regName.str()+".LOWER").getAddress();
+        mask    = p_optohybrid->getNode(regName.str()+".LOWER").getMask();
         uint32_t lower = p_optohybrid->readReg(address,mask);
-        address = p_optohybrid->getGEMHwInterface().getNode(regName.str()+".UPPER").getAddress();
-        mask    = p_optohybrid->getGEMHwInterface().getNode(regName.str()+".UPPER").getMask();
+        address = p_optohybrid->getNode(regName.str()+".UPPER").getAddress();
+        mask    = p_optohybrid->getNode(regName.str()+".UPPER").getMask();
         uint32_t upper = p_optohybrid->readReg(address,mask);
         (monitem->second.infoSpace)->setUInt64(monitem->first, (((uint64_t)upper) << 32) + lower);
       } else if (monitem->second.updatetype == GEMUpdateType::I2CSTAT) {
         std::stringstream strobeReg;
         strobeReg << regName.str() << ".Strobe." << monitem->first;
-        address = p_optohybrid->getGEMHwInterface().getNode(strobeReg.str()).getAddress();
-        mask    = p_optohybrid->getGEMHwInterface().getNode(strobeReg.str()).getMask();
+        address = p_optohybrid->getNode(strobeReg.str()).getAddress();
+        mask    = p_optohybrid->getNode(strobeReg.str()).getMask();
         uint32_t strobe = p_optohybrid->readReg(address,mask);
         std::stringstream ackReg;
         ackReg << regName.str() << ".Ack." << monitem->first;
-        address = p_optohybrid->getGEMHwInterface().getNode(ackReg.str()).getAddress();
-        mask    = p_optohybrid->getGEMHwInterface().getNode(ackReg.str()).getMask();
+        address = p_optohybrid->getNode(ackReg.str()).getAddress();
+        mask    = p_optohybrid->getNode(ackReg.str()).getMask();
         uint32_t ack = p_optohybrid->readReg(address,mask);
         (monitem->second.infoSpace)->setUInt64(monitem->first, (((uint64_t)ack) << 32) + strobe);
       } else if (monitem->second.updatetype == GEMUpdateType::PROCESS) {

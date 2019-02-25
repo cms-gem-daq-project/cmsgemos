@@ -99,8 +99,9 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP) :
                                &gem::base::GEMFSMApplication::transitionDriver);
 
   // Stop: C/E/P -> s., stop data flow, disable links
-  p_gemfsm->addStateTransition(STATE_CONFIGURED, STATE_STOPPING, "Stop", p_gemApp,
-                               &gem::base::GEMFSMApplication::transitionDriver);
+  // FIXME: STOP from CONFIGURED??? Should ignore or throw error
+  // p_gemfsm->addStateTransition(STATE_CONFIGURED, STATE_STOPPING, "Stop", p_gemApp,
+  //                              &gem::base::GEMFSMApplication::transitionDriver);
   p_gemfsm->addStateTransition(STATE_RUNNING,    STATE_STOPPING, "Stop", p_gemApp,
                                &gem::base::GEMFSMApplication::transitionDriver);
   p_gemfsm->addStateTransition(STATE_PAUSED,     STATE_STOPPING, "Stop", p_gemApp,

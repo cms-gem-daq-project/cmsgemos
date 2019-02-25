@@ -37,7 +37,7 @@ def getSystemID(amc,debug=False):
     return system_id
 
 def getSystemFWRaw(amc,debug=False):
-    return readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.FIRMWARE")
+    return amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.FIRMWARE")
 
 def getSystemFWVer(amc,debug=False):
     fwformat = "%x"
@@ -169,16 +169,16 @@ def getBasicSystemInfo(amc,debug=False):
     print "-> sys fw date : %s%s%s"%(colors.YELLOW,getSystemFWDate(amc),colors.ENDC)
     print "-> ip_addr     : %s"%(getSystemIPAddress(amc))
     print "-> hw_addr     : %s"%(getSystemHWAddress(amc))
-    amc_slot = readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.V6_CPLD") & 0x0f
+    amc_slot = amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.V6_CPLD") & 0x0f
 
-    print "-> CPLD bus state : 0x%02x"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.V6_CPLD"))
+    print "-> CPLD bus state : 0x%02x"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.V6_CPLD"))
     print
     if ((amc_slot>0) and (amc_slot<13)):
         print "-> amc slot #        : %d"%(amc_slot)
     else:
         print "-> amc slot #        : %d [not in crate]"%(amc_slot)
     print "-> mac address (ipb) : %s"%(getSystemMACAddress(amc))
-    print "-> mac IP source     : 0x%x"%readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.MAC.IP_SOURCE")
+    print "-> mac IP source     : 0x%x"%amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.MAC.IP_SOURCE")
     pass
 
 def getExtendedSystemInfo(amc):
@@ -188,13 +188,13 @@ def getExtendedSystemInfo(amc):
     print "-> -----------------"
     #print "-> sfp    absent   rxlos   txfault"
     print getAllSFPInfo(amc)
-    print "-> ethphy interrupt  :", readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.GBE_INT")
+    print "-> ethphy interrupt  :", amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.GBE_INT")
 
     print "-> fmc presence     fmc1    fmc2"
-    print "->                  %4d     %3d"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.FMC1_PRESENT"),
-                                             readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.FMC2_PRESENT"))
-    print "-> fpga reset state  :", readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.FPGA_RESET")
-    print "-> cdce locked       :", readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.CDCE_LOCK")
+    print "->                  %4d     %3d"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.FMC1_PRESENT"),
+                                             amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.FMC2_PRESENT"))
+    print "-> fpga reset state  :", amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.FPGA_RESET")
+    print "-> cdce locked       :", amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.CDCE_LOCK")
     print
     getXpointInfo(amc)
     getSFPMonStatus(amc)
@@ -204,19 +204,19 @@ def getXpointInfo(amc):
     print "-> XPOINT SWITCH STATUS"
     print "-> --------------------"
     print
-    print "-> xpoint2 : S10 0x%x S11 0x%x"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT2.S10"),
-                                            readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT2.S11"))
-    print "-> xpoint1 : S10 0x%x S11 0x%x"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S10"),
-                                            readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S11"))
+    print "-> xpoint2 : S10 0x%x S11 0x%x"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT2.S10"),
+                                            amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT2.S11"))
+    print "-> xpoint1 : S10 0x%x S11 0x%x"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S10"),
+                                            amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S11"))
 
-    print "             S20 0x%x S11 0x%x"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S20"),
-                                            readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S21"))
+    print "             S20 0x%x S11 0x%x"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S20"),
+                                            amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S21"))
 
-    print "             S30 0x%x S31 0x%x"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S30"),
-                                            readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S31"))
+    print "             S30 0x%x S31 0x%x"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S30"),
+                                            amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S31"))
 
-    print "             S40 0x%x S41 0x%x"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S40"),
-                                            readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S41"))
+    print "             S40 0x%x S41 0x%x"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S40"),
+                                            amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.CLK_CTRL.XPOINT1.S41"))
 
     print
 
@@ -225,23 +225,23 @@ def getSFPMonStatus(amc):
     print "-> SFP MON STATUS   "
     print "-> -----------------"
     print
-    print "-> sfp_phase_mon_done  0x%x"%(  readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.SFP_PHASE_MON.DONE" ))
-    print "-> sfp_phase_mon_ok    0x%x"%(  readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.SFP_PHASE_MON.OK"   ))
-    print "-> sfp_phase_mon_ctrl  0x%08x"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.SFP_PHASE_MON.CTRL"        ))
-    print "-> sfp_phase_mon_lower 0x%08x"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.SFP_PHASE_MON.CTRL.LOWER"  ))
-    print "-> sfp_phase_mon_upper 0x%08x"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.SFP_PHASE_MON.CTRL.UPPER"  ))
-    print "-> sfp_phase_mon_stats 0x%08x"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.SFP_PHASE_MON.STATS"       ))
+    print "-> sfp_phase_mon_done  0x%x"%(  amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.SFP_PHASE_MON.DONE" ))
+    print "-> sfp_phase_mon_ok    0x%x"%(  amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.SFP_PHASE_MON.OK"   ))
+    print "-> sfp_phase_mon_ctrl  0x%08x"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.SFP_PHASE_MON.CTRL"        ))
+    print "-> sfp_phase_mon_lower 0x%08x"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.SFP_PHASE_MON.CTRL.LOWER"  ))
+    print "-> sfp_phase_mon_upper 0x%08x"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.SFP_PHASE_MON.CTRL.UPPER"  ))
+    print "-> sfp_phase_mon_stats 0x%08x"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.SFP_PHASE_MON.STATS"       ))
     print
     print "-> -----------------"
     print "-> FMC MON STATUS   "
     print "-> -----------------"
     print
-    print "-> fmc1_phase_mon_done  0x%x"%(  readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.FMC1_PHASE_MON.DONE" ))
-    print "-> fmc1_phase_mon_ok    0x%x"%(  readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.FMC1_PHASE_MON.OK"   ))
-    print "-> fmc1_phase_mon_ctrl  0x%08x"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.FMC1_PHASE_MON.CTRL"         ))
-    print "-> fmc1_phase_mon_lower 0x%08x"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.FMC1_PHASE_MON.CTRL.LOWER"   ))
-    print "-> fmc1_phase_mon_upper 0x%08x"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.FMC1_PHASE_MON.CTRL.UPPER"   ))
-    print "-> fmc1_phase_mon_stats 0x%08x"%(readRegister(amc,"GEM_AMC.GLIB_SYSTEM.SYSTEM.FMC1_PHASE_MON.STATS"        ))
+    print "-> fmc1_phase_mon_done  0x%x"%(  amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.FMC1_PHASE_MON.DONE" ))
+    print "-> fmc1_phase_mon_ok    0x%x"%(  amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.FMC1_PHASE_MON.OK"   ))
+    print "-> fmc1_phase_mon_ctrl  0x%08x"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.FMC1_PHASE_MON.CTRL"         ))
+    print "-> fmc1_phase_mon_lower 0x%08x"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.FMC1_PHASE_MON.CTRL.LOWER"   ))
+    print "-> fmc1_phase_mon_upper 0x%08x"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.FMC1_PHASE_MON.CTRL.UPPER"   ))
+    print "-> fmc1_phase_mon_stats 0x%08x"%(amc.readRegister("GEM_AMC.GLIB_SYSTEM.SYSTEM.FMC1_PHASE_MON.STATS"        ))
     print
     pass
 

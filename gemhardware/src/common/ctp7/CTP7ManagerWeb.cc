@@ -83,7 +83,7 @@ void gem::hw::ctp7::CTP7ManagerWeb::buildCardSummaryTable(xgi::Input* in, xgi::O
        << cgicc::tr()    << std::endl // open
        << cgicc::th() << "Register" << cgicc::th() << std::endl;
   // loop over all managed CTP7s and put CTP7XX as the header
-  for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
+  for (unsigned int i = 0; i < gem::base::GEMApplication::MAX_AMCS_PER_CRATE; ++i) {
     auto card = dynamic_cast<gem::hw::ctp7::CTP7Manager*>(p_gemFSMApp)->m_ctp7Monitors[i];
     if (card) {
       *out << cgicc::th() << card->getDeviceID() << cgicc::th() << std::endl;
@@ -101,7 +101,7 @@ void gem::hw::ctp7::CTP7ManagerWeb::buildCardSummaryTable(xgi::Input* in, xgi::O
        << "            </td>"        << std::endl;
 
   // loop over CTP7s to be monitored
-  for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
+  for (unsigned int i = 0; i < gem::base::GEMApplication::MAX_AMCS_PER_CRATE; ++i) {
     auto card = dynamic_cast<gem::hw::ctp7::CTP7Manager*>(p_gemFSMApp)->m_ctp7Monitors[i];
     if (card) {
       std::stringstream tdid;
@@ -124,7 +124,7 @@ void gem::hw::ctp7::CTP7ManagerWeb::cardPage(xgi::Input* in, xgi::Output* out)
   CMSGEMOS_DEBUG("CTP7ManagerWeb::cardPage");
   // fill this page with the card views for the CTP7Manager
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
-  for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
+  for (unsigned int i = 0; i < gem::base::GEMApplication::MAX_AMCS_PER_CRATE; ++i) {
     auto card = dynamic_cast<gem::hw::ctp7::CTP7Manager*>(p_gemFSMApp)->m_ctp7Monitors[i];
     if (card) {
       *out << "<div class=\"xdaq-tab\" title=\"" << card->getDeviceID() << "\" >"  << std::endl;
@@ -196,14 +196,14 @@ void gem::hw::ctp7::CTP7ManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
   CMSGEMOS_DEBUG("CTP7ManagerWeb::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " { " << std::endl;
-  for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
+  for (unsigned int i = 0; i < gem::base::GEMApplication::MAX_AMCS_PER_CRATE; ++i) {
     *out << "\"ctp7" << std::setw(2) << std::setfill('0') << (i+1) << "\"  : { " << std::endl;
     auto card = dynamic_cast<gem::hw::ctp7::CTP7Manager*>(p_gemFSMApp)->m_ctp7Monitors[i];
     if (card) {
       card->jsonUpdateItemSets(out);
     }
     // can't have a trailing comma for the last entry...
-    if (i == (gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE-1))
+    if (i == (gem::base::GEMApplication::MAX_AMCS_PER_CRATE-1))
       *out << " }" << std::endl;
     else
       *out << " }," << std::endl;
@@ -217,7 +217,7 @@ void gem::hw::ctp7::CTP7ManagerWeb::dumpCTP7FIFO(xgi::Input* in, xgi::Output* ou
   CMSGEMOS_DEBUG("CTP7ManagerWeb::dumpCTP7FIFO");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " { " << std::endl;
-  for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
+  for (unsigned int i = 0; i < gem::base::GEMApplication::MAX_AMCS_PER_CRATE; ++i) {
     std::vector<uint32_t> dump = dynamic_cast<gem::hw::ctp7::CTP7Manager*>(p_gemFSMApp)->dumpCTP7FIFO(i);
     *out << "\"ctp7" << std::setw(2) << std::setfill('0') << (i+1) << "FIFO\" : {" << std::endl;
     *out << "\"name\" : \"ctp7FIFODump\"," << std::endl
@@ -230,7 +230,7 @@ void gem::hw::ctp7::CTP7ManagerWeb::dumpCTP7FIFO(xgi::Input* in, xgi::Output* ou
     *out << "\"" << std::endl;
     *out << "]" << std::endl;
     // can't have a trailing comma for the last entry...
-    if (i == (gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE-1))
+    if (i == (gem::base::GEMApplication::MAX_AMCS_PER_CRATE-1))
       *out << " }" << std::endl;
     else
       *out << " }," << std::endl;

@@ -126,6 +126,3 @@ void gem::supervisor::GEMTestBeamSupervisor::initialize()
   appInfoSpace_->fireItemChanged("isInitialized",0);
   return;
 }
-
-
-

@@ -15,8 +15,8 @@ namespace gem {
       {
       public:
 
-        // FIXME, THIS SHOULD NOT BE HARDCODED
-        static const unsigned N_GTX = 12; ///< maximum number of GTX links on the GenericAMC
+        /* // FIXME, THIS SHOULD NOT BE HARDCODED, move out of class? */
+        /* static constexpr uint8_t N_GTX = 12; ///< maximum number of GTX links on the GenericAMC */
 
         /**
          * @struct AMCIPBusCounters
@@ -61,11 +61,16 @@ namespace gem {
          */
         /* HwGenericAMC(); */
         /* HwGenericAMC(std::string const& amcDevice); */
-        /* HwGenericAMC(std::string const& amcDevice, int const& crate, int const& slot); */
-        HwGenericAMC(std::string const& amcDevice, std::string const& connectionFile);
-        HwGenericAMC(std::string const& amcDevice, std::string const& connectionURI,
+        /* HwGenericAMC(int const& crate, int const& slot, bool uhalNative=false); */
+        HwGenericAMC(std::string const& amcDevice,
+                     std::string const& connectionFile);
+
+        HwGenericAMC(std::string const& amcDevice,
+                     std::string const& connectionURI,
                      std::string const& addressTable);
-        HwGenericAMC(std::string const& amcDevice, uhal::HwInterface& uhalDevice);
+
+        HwGenericAMC(std::string const& amcDevice,
+                     uhal::HwInterface& uhalDevice);
 
         virtual ~HwGenericAMC();
 
@@ -73,100 +78,107 @@ namespace gem {
          * Check if one can read/write to the registers on the GenericAMC
          * @returns true if the GenericAMC is accessible
          */
-        virtual bool isHwConnected();
+        virtual bool isHwConnected() override;
 
-        /**************************/
+        /****************************/
         /** GEM system information **/
-        /**************************/
+        /****************************/
         /**
          * Read the board ID registers
-         * @returns the GLIB board ID
+         * @returns the AMC board ID as a std::string
          */
         virtual std::string getBoardID();
 
         /**
          * Read the board ID registers
-         * @returns the GLIB board ID as 32 bit unsigned
+         * @returns the AMC board ID as 32 bit unsigned value
          */
         virtual uint32_t getBoardIDRaw();
 
         /**
-         * Check how many OptoHybrids the AMC can support
-         * @returns the number of supported OptoHybrid boards
+         * Check how many OptoHybrids the AMC FW can support
+         * @returns the number of OptoHybrid boards supported by the FW
          */
         uint32_t getSupportedOptoHybrids() {
           return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.NUM_OF_OH"); }
-        //return N_GTX; }
 
         /**
-         * Check if the firmware supports GBT communication
-         * @returns whether or not the firmware supports GBT communication
+         * FIXME: OBSOLETE
+         * Check if the AMC FW supports GBT communication
+         * @returns whether or not the AMC FW supports GBT communication
          */
         uint32_t supportsGBTLink() {
           return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.USE_GBT"); }
 
         /**
-         * Check if the firmware supports trigger links
-         * @returns whether or not the firmware supports trigger links
+         * Check if the AMC FW supports trigger links
+         * @returns whether or not the AMC FW supports trigger links
          */
         uint32_t supportsTriggerLink() {
           return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.USE_TRIG_LINKS"); }
 
         /**
-         * Read the system firmware register
-         * @param system determines whether to read the system or user firmware register
-         * @returns a string corresponding to firmware version
+         * Read the AMC FW register
+         * @param system determines whether to read the system (default) or user FW register
+         * @returns a string corresponding to AMC FW version
          */
         virtual std::string getFirmwareVer(bool const& system=true);
 
         /**
-         * Read the system firmware register
-         * @param system determines whether to read the system or user firmware register
-         * @returns the firmware version as a 32 bit unsigned
+         * Read the AMC FW register
+         * @param system determines whether to read the system (default) or user FW register
+         * @returns the AMC FW version as a 32 bit unsigned
          */
         virtual uint32_t getFirmwareVerRaw(bool const& system=true);
 
         /**
-         * Read the system firmware register
+         * Read the AMC FW register
+         * @param system determines whether to read the system (default) or user FW register
          * @returns a string corresponding to the build date dd-mm-yyyy
          */
         virtual std::string getFirmwareDate(bool const& system=true);
 
         /**
-         * Read the system firmware register
-         * @param system determines whether to read the system or user firmware register
+         * Read the AMC FW register
+         * @param system determines whether to read the system (default) or user FW register
          * @returns the build date as a 32 bit unsigned
          */
         virtual uint32_t getFirmwareDateRaw(bool const& system=true);
 
         //user core functionality
         /**
-         * Read the user firmware register
-         * @returns a hex number corresponding to the build date
-         * OBSOLETE in V2 firmware
+         * Read the user AMC FW register
+         * @returns the user FW build date as a 32-bit unsigned value
+         * OBSOLETE in V2 AMC FW
          */
         virtual uint32_t getUserFirmware();
 
         /**
-         * Read the user firmware register
-         * @returns a std::string corresponding to the build date
-         * OBSOLETE in V2 firmware
+         * Read the user AMC FW register
+         * @returns the user FW build date as a std::string
+         * OBSOLETE in V2 AMC FW
          */
         virtual std::string getUserFirmwareDate();
 
       private:
         /**
+         * Connect to te RPC manager and load necessary modules
+         * @param `reconnect` determine if the conection should be reestablished and the modules reloaded
+         */
+        void connectRPC(bool reconnect=false) override;
+
+        /**
          * Check if the gtx requested is known to be operational
-         * @param uint8_t gtx GTX gtx to be queried
-         * @param std::string opMsg Operation message to append to the log message
-         * @returns true if the gtx is in range and active, false otherwise
+         * @param gtx GTX to be queried
+         * @param opMsg Operation message to append to the log message
+         * @returns true if the GTX is in range and active, false otherwise
          */
         virtual bool linkCheck(uint8_t const& gtx, std::string const& opMsg);
 
       public:
         /**
          * Read the gtx status registers, store the information in a struct
-         * @param uint8_t gtx is the number of the gtx to query
+         * @param gtx is the number of the gtx to query
          * @retval _status a struct containing the status bits of the optical link
          * @throws gem::hw::exception::InvalidLink if the gtx number is outside of 0-N_GTX
          */
@@ -182,6 +194,7 @@ namespace gem {
          * bit 4 - GBT_TRK_ErrCnt         0x8
          * bit 5 - GBT_Data_Rec           0x10
          * @throws gem::hw::exception::InvalidLink if the gtx number is outside of 0-N_GTX
+         * FIXME: OBSOLETE IN V2/V3, reimplement to remove linkReset/ResetLinks duplication?
          */
         virtual void LinkReset(uint8_t const& gtx, uint8_t const& resets);
 
@@ -195,40 +208,34 @@ namespace gem {
         }
 
         /**
-         * Set the Trigger source
+         * Set the trigger source to the front end
          * @param uint8_t mode 0 from software, 1 from TTC decoder (AMC13), 2 from both
          * OBSOLETE in V2 firmware, taken care of in the OptoHybrid
+         * UNOBSOLETE? in V3 firmware?
          */
-        virtual void setTrigSource(uint8_t const& mode, uint8_t const& gtx=0x0) {
-          return;
-        }
+        virtual void setTrigSource(uint8_t const& mode, uint8_t const& gtx=0x0) { return; }
 
         /**
-         * Read the Trigger source
+         * Read the front end trigger source
          * @retval uint8_t 0 from GenericAMC, 1 from AMC13, 2 from both
          * OBSOLETE in V2 firmware, taken care of in the OptoHybrid
+         * UNOBSOLETE? in V3 firmware?
          */
-        virtual uint8_t getTrigSource(uint8_t const& gtx=0x0) {
-          return 0;
-        }
+        virtual uint8_t getTrigSource(uint8_t const& gtx=0x0) { return 0; }
 
         /**
          * Set the S-bit source
          * @param uint8_t chip
          * OBSOLETE in V2 firmware
          */
-        virtual void setSBitSource(uint8_t const& mode, uint8_t const& gtx=0x0) {
-          return;
-        }
+        virtual void setSBitSource(uint8_t const& mode, uint8_t const& gtx=0x0) { return; }
 
         /**
          * Read the S-bit source
          * @retval uint8_t which VFAT chip is sending the S-bits
          * OBSOLETE in V2 firmware
          */
-        virtual uint8_t getSBitSource(uint8_t const& gtx=0x0) {
-          return 0;
-        }
+        virtual uint8_t getSBitSource(uint8_t const& gtx=0x0) { return 0; }
 
         ///Counters
         /**
@@ -248,26 +255,22 @@ namespace gem {
         /**
          * Get the recorded number of L1A signals received from the TTC decoder
          */
-        virtual uint32_t getL1ACount() {
-          return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.L1A"); }
+        uint32_t getL1ACount() { return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.L1A"); }
 
         /**
          * Get the recorded number of CalPulse signals received from the TTC decoder
          */
-        virtual uint32_t getCalPulseCount() {
-          return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.CALPULSE"); }
+        uint32_t getCalPulseCount() { return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.CALPULSE"); }
 
         /**
          * Get the recorded number of Resync signals received from the TTC decoder
          */
-        virtual uint32_t getResyncCount() {
-          return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.RESYNC"); }
+        uint32_t getResyncCount() { return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.RESYNC"); }
 
         /**
          * Get the recorded number of BC0 signals
          */
-        virtual uint32_t getBC0Count() {
-          return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.BC0"); }
+        uint32_t getBC0Count() { return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.BC0"); }
 
         ///Counter resets
         /**
@@ -283,110 +286,78 @@ namespace gem {
          */
         virtual void resetIPBusCounters(uint8_t const& gtx, uint8_t const& mode);
 
+        /** FIXME specific counter resets from legacy, counter resets are module wide now  **/
         /**
          * Reset the recorded number of L1A signals received from the TTC decoder
          */
-        virtual void resetL1ACount() {
-          return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
+        void resetL1ACount() { return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Reset the recorded number of CalPulse signals received from the TTC decoder
          */
-        virtual void resetCalPulseCount() {
-          return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
+        void resetCalPulseCount() { return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Reset the recorded number of Resync signals received from the TTC decoder
          */
-        virtual void resetResyncCount() {
-          return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
+        void resetResyncCount() { return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Reset the recorded number of BC0 signals
          */
-        virtual void resetBC0Count() {
-          return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
+        void resetBC0Count() { return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Read the trigger data
-         * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
+         * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch counter
          */
-        virtual uint32_t readTriggerFIFO(uint8_t const& gtx);
+        uint32_t readTriggerFIFO(uint8_t const& gtx);
 
         /**
          * Empty the trigger data FIFO
          */
-        virtual void flushTriggerFIFO(uint8_t const& gtx);
-
-        ///** obsolete in generic AMC firmware **/
-        ///**
-        // * Read the tracking data FIFO occupancy in terms of raw 32bit words
-        // * @param uint8_t gtx is the number of the gtx to query
-        // * @retval uint32_t returns the number of words in the tracking data FIFO
-        // */
-        //virtual uint32_t getFIFOOccupancy(uint8_t const& gtx);
-        //
-        ///**
-        // * Read the tracking data FIFO occupancy in terms of the number of 7x32bit words
-        // * composing a single VFAT block
-        // * @param uint8_t gtx is the number of the gtx to query
-        // * @retval uint32_t returns the number of VFAT blocks in the tracking data FIFO
-        // */
-        //virtual uint32_t getFIFOVFATBlockOccupancy(uint8_t const& gtx);
-        //
-        ///**
-        // * see if there is tracking data available
-        // * @param uint8_t gtx is the number of the column of the tracking data to read
-        // * @retval bool returns true if there is tracking data in the FIFO
-        // TRK_DATA.COLX.DATA_RDY
-        //*/
-        //virtual bool hasTrackingData(uint8_t const& gtx);
-        //
-        ///**
-        // * get the tracking data, have to do this intelligently, as IPBus transactions are expensive
-        // * and need to pack all events together
-        // * @param uint8_t gtx is the number of the GTX tracking data to read
-        // * @param sizeo_t nBlocks is the number of VFAT data blocks (7*32bit words) to read
-        // * @retval std::vector<uint32_t> returns the 7*nBlocks data words in the buffer
-        // */
-        //std::vector<uint32_t> getTrackingData(uint8_t const& gtx, size_t const& nBlocks=1);
-        ////which of these will be better and do what we want
-        //virtual uint32_t getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks=1);
-        ////which of these will be better and do what we want
-        //virtual uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
-        //                         size_t const& nBlocks=1);
-        //
-        ///**
-        // * Empty the tracking data FIFO
-        // * @param uint8_t gtx is the number of the gtx to query
-        // *
-        // */
-        //virtual void flushFIFO(uint8_t const& gtx);
+        void flushTriggerFIFO(uint8_t const& gtx);
 
         /**************************/
         /** DAQ link information **/
         /**************************/
         /**
+         * @defgroup AMCDAQModule
+         */
+
+
+        /**
+         * @brief Set the enable mask and enable the DAQ link
+         * @param enableZS enable/disable zero suppression
+         * @param doPhaseScan turn on/off the phase shifting during configure
+         * @param runType parameter
+         * @param relock when doing the phase shift
+         * @param bc0LockPSMode use the BC0 locked phase shifting mode
+         */
+        void configureDAQModule(bool enableZS, bool doPhaseShift, uint32_t const& runType=0x0, uint32_t const& marker=0xfaac, bool relock=false, bool bc0LockPSMode=false);
+
+        /**
          * @brief Set the enable mask and enable the DAQ link
          * @param enableMask 32 bit word for the 24 bit enable mask
          */
-        virtual void enableDAQLink(uint32_t const& enableMask=0x1);
+        void enableDAQLink(uint32_t const& enableMask=0x1);
 
         /**
          * @brief Set the DAQ link off and disable all inputs
          */
-        virtual void disableDAQLink();
+        void disableDAQLink();
 
         /**
-         * @brief Set the zero suppression mode
+         * @brief Set the zero suppression mode (handled by the AMC)
          * @param enable true means any VFAT data packet with all 0's will be suppressed
+         * FIXME: toggle different VFAT3 modes?
          */
-        virtual void enableZeroSuppression(bool enable=true);
+        void setZS(bool enable=true);
 
         /**
          * @brief Disable zero suppression of VFAT data
          */
-        virtual void disableZeroSuppression();
+        void disableZS() { setZS(false); };
 
         /**
          * @brief reset the DAQ link and write the DAV timout
@@ -398,98 +369,103 @@ namespace gem {
          * @param davTO value to use for the DAV timeout
          * @param ttsOverride value to use for the TTS override
          */
-        virtual void resetDAQLink(uint32_t const& davTO=0x500, uint32_t const& ttsOverride=0x0);
+        void resetDAQLink(uint32_t const& davTO=0x500, uint32_t const& ttsOverride=0x0);
 
         /**
          * @returns Returns the 32 bit word corresponding to the DAQ link control register
          */
-        virtual uint32_t getDAQLinkControl();
+        uint32_t getDAQLinkControl();
 
         /**
          * @returns Returns the 32 bit word corresponding to the DAQ link status register
          */
-        virtual uint32_t getDAQLinkStatus();
+        uint32_t getDAQLinkStatus();
 
         /**
          * @returns Returns true if the DAQ link is ready
          */
-        virtual bool daqLinkReady();
+        bool daqLinkReady();
 
         /**
          * @returns Returns true if the DAQ link is clock is locked
          */
-        virtual bool daqClockLocked();
+        bool daqClockLocked();
 
         /**
          * @returns Returns true if the TTC is ready
          */
-        virtual bool daqTTCReady();
+        bool daqTTCReady();
 
         /**
          * @returns Returns the current TTS state asserted by the DAQ link firmware
          */
-        virtual uint8_t daqTTSState();
+        uint8_t daqTTSState();
 
         /**
          * @returns Returns true if the event FIFO is almost full (70%)
          */
-        virtual bool daqAlmostFull();
+        bool daqAlmostFull();
 
         /**
          * @returns Returns true if the L1A FIFO is empty (0%)
          */
-        virtual bool l1aFIFOIsEmpty();
+        bool l1aFIFOIsEmpty();
 
         /**
          * @returns Returns true if the L1A FIFO is almost full (70%)
          */
-        virtual bool l1aFIFOIsAlmostFull();
+        bool l1aFIFOIsAlmostFull();
 
         /**
          * @returns Returns true if the L1A FIFO is full (100%)
          */
-        virtual bool l1aFIFOIsFull();
+        bool l1aFIFOIsFull();
 
         /**
          * @returns Returns true if the L1A FIFO is underflos
          */
-        virtual bool l1aFIFOIsUnderflow();
+        bool l1aFIFOIsUnderflow();
 
         /**
          * @returns Returns the number of events built and sent on the DAQ link
          */
-        virtual uint32_t getDAQLinkEventsSent();
+        uint32_t getDAQLinkEventsSent();
 
         /**
          * @returns Returns the curent L1AID (number of L1As received)
          */
-        virtual uint32_t getDAQLinkL1AID();
+        uint32_t getDAQLinkL1AID();
+
+        /* /\** */
+        /*  * @returns Returns the curent L1A rate (in Hz) */
+        /*  *\/ */
+        /* uint32_t getDAQLinkL1ARate(); */
 
         /**
          * @returns Returns
          */
-        virtual uint32_t getDAQLinkDisperErrors();
+        uint32_t getDAQLinkDisperErrors();
 
         /**
          * @returns Returns
          */
-        virtual uint32_t getDAQLinkNonidentifiableErrors();
+        uint32_t getDAQLinkNonidentifiableErrors();
 
         /**
          * @returns Returns the DAQ link input enable mask
          */
-        virtual uint32_t getDAQLinkInputMask();
+        uint32_t getDAQLinkInputMask();
 
         /**
-         * @returns Returns the timeout before the event builder firmware will close the event and send the data
+         * @returns Returns the timeout used in the event builder before closing the event and sending the (potentially incomplete) data
          */
-        virtual uint32_t getDAQLinkDAVTimeout();
+        uint32_t getDAQLinkDAVTimeout();
 
         /**
          * @param max is a bool specifying whether to query the max timer or the last timer
-         * @returns Returns the timeout before the event builder firmware will close the event and send the data
+         * @returns Returns the spent building an event
          */
-        virtual uint32_t getDAQLinkDAVTimer(bool const& max);
+        uint32_t getDAQLinkDAVTimer(bool const& max);
 
         /***************************************/
         /** GTX specific DAQ link information **/
@@ -498,40 +474,43 @@ namespace gem {
          * @param gtx is the input link status to query
          * @returns Returns the the 32-bit word corresponding DAQ status for the specified link
          */
-        virtual uint32_t getDAQLinkStatus(   uint8_t const& gtx);
+        // FIXME: renamed from DAQLink to LinkDAQ
+        uint32_t getLinkDAQStatus(   uint8_t const& gtx);
 
         /**
          * @param gtx is the input link counter to query
          * @param mode specifies whether to query the corrupt VFAT count (0x0) or the event number
          * @returns Returns the link counter for the specified mode
          */
-        virtual uint32_t getDAQLinkCounters( uint8_t const& gtx, uint8_t const& mode);
+        // FIXME: renamed from DAQLink to LinkDAQ
+        uint32_t getLinkDAQCounters( uint8_t const& gtx, uint8_t const& mode);
 
         /**
          * @param gtx is the input link status to query
          * @returns Returns a block of the last 7 words received from the OH on the link specified
          */
-        virtual uint32_t getDAQLinkLastBlock(uint8_t const& gtx);
+        // FIXME: renamed from DAQLink to LinkDAQ
+        uint32_t getLinkLastDAQBlock(uint8_t const& gtx);
 
         /**
-         * @returns Returns the timeout before the event builder firmware will close the event and send the data
+         * @returns Returns the timeout before the event builder FW will close the event and send the data
          */
-        virtual uint32_t getDAQLinkInputTimeout();
+        uint32_t getDAQLinkInputTimeout();
 
         /**
          * @returns Returns the run type stored in the data stream
          */
-        virtual uint32_t getDAQLinkRunType();
+        uint32_t getDAQLinkRunType();
 
         /**
          * @returns Special run parameters 1,2,3 as a single 24 bit word
          */
-        virtual uint32_t getDAQLinkRunParameters();
+        uint32_t getDAQLinkRunParameters();
 
         /**
          * @returns Special run parameter written into data stream
          */
-        virtual uint32_t getDAQLinkRunParameter(uint8_t const& parameter);
+        uint32_t getDAQLinkRunParameter(uint8_t const& parameter);
 
 
         /**
@@ -540,69 +519,92 @@ namespace gem {
          *        last packet received from the optical link before closing an "event"
          *        (in units of 160MHz clock cycles, value/4 for 40MHz clock cycles)
          */
-        virtual void setDAQLinkInputTimeout(uint32_t const& value=0x100);
+        void setDAQLinkInputTimeout(uint32_t const& value=0x100);
 
         /**
          * @brief Special run type to be written into data stream
          * @param value is the run type
          */
-        virtual void setDAQLinkRunType(uint32_t const& value);
+        void setDAQLinkRunType(uint32_t const& value);
 
         /**
          * @returns Set special run parameter to be written into data stream
          * @param value is a 24 bit word to write into the run paramter portion of the GEM header
          */
-        virtual void setDAQLinkRunParameters(uint32_t const& value);
+        void setDAQLinkRunParameters(uint32_t const& value);
 
         /**
          * @returns Special run parameter written into data stream
          * @param parameter is the number of parameter to be written (1-3)
          * @param value is the run paramter to write into the specified parameter
          */
-        virtual void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
+        void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
 
 
         /**************************/
         /** TTC module information **/
         /**************************/
+        /**
+         * @defgroup AMCTTCModule
+         */
 
         /*** CTRL submodule ***/
         /**
          * @brief Reset the TTC module
          */
-        virtual void ttcReset();
+        void ttcModuleReset();
 
         /**
          * @brief Reset the MMCM of the TTC module
          */
-        virtual void ttcMMCMReset();
+        void ttcMMCMReset();
 
         /**
          * @brief Shift the phase of the MMCM of the TTC module
-         * @param shiftOutOfLockFirst to shift of lock before looking for a good lock
-         * @param useBC0Locked to determine the good phase region, rather than the PLL lock status
-         * @param doScan whether to roll around multiple times for monitoring purposes
+         * @param relock to shift of lock before looking for a good lock
+         * @param modeBC0 to determine the good phase region, rather than the PLL lock status
+         * @param scan whether to roll around multiple times for monitoring purposes
          */
-        void ttcMMCMPhaseShift(bool shiftOutOfLockFirst=false, bool useBC0Locked=false, bool doScan=false);
+        void ttcMMCMPhaseShift(bool relock=false, bool modeBC0=false, bool scan=false);
 
         /**
          * @brief Check the lock status of the MMCM PLL
          * @param Number of times to read the PLL lock status
          * @returns Lock count of the MMCM PLL
          */
-        int checkPllLock(int readAttempts);
+        int checkPLLLock(uint32_t readAttempts);
 
         /**
-         * @brief Check the lock status of the MMCM PLL
-         * @returns Mean value (calculated in firmware) of the MMCH phase
+         * @brief Check the phase mean of the MMCM PLL
+         * @param Number of times to read the phase mean
+         *        * 0 reads means take the mean calculated in FW
+         *        * 1+ reads means take the mean of the specified reads of the phase directly
+         * @returns Mean value of the MMCH phase
          */
-        uint32_t getMMCMPhaseMean();
+        double getMMCMPhaseMean(uint32_t readAttempts);
 
         /**
-         * @brief Check the lock status of the MMCM PLL
-         * @returns Mean value (calculated in firmware) of the GTH phase
+         * @brief Check the phase median of the MMCM PLL
+         * @param Number of times to read the phase and compute the median
+         * @returns Median value of the MMCH phase
          */
-        uint32_t getGTHPhaseMean();
+        double getMMCMPhaseMedian(uint32_t readAttempts);
+
+        /**
+         * @brief Check the phase mean of the GTH PLL
+         * @param Number of times to read the phase mean
+         *        * 0 reads means take the mean calculated in FW
+         *        * 1+ reads means take the mean of the specified reads of the phase directly
+         * @returns Mean value of the GTH phase
+         */
+        double getGTHPhaseMean(uint32_t readAttempts);
+
+        /**
+         * @brief Check the phase median of the GTH PLL
+         * @param Number of times to read the phase and compute the median
+         * @returns Median value of the MMCH phase
+         */
+        double getGTHPhaseMedian(uint32_t readAttempts);
 
         /**
          * @brief Reset the counters of the TTC module
@@ -621,15 +623,15 @@ namespace gem {
 
         /*** CONFIG submodule ***/
         /**
-         * @param AMCTTCCommand to retrieve the current configuration of
+         * @param cmd AMCTTCCommandT enum type to retrieve the current configuration of
          * @returns TTC configuration register values
          */
-        virtual uint32_t getTTCConfig(AMCTTCCommand const& cmd);
+        virtual uint32_t getTTCConfig(AMCTTCCommandT const& cmd);
 
         /**
-         * @param AMCTTCCommand to set the current configuration of
+         * @param cmd AMCTTCCommandT to set the current configuration of
          */
-        virtual void setTTCConfig(AMCTTCCommand const& cmd, uint8_t const& value);
+        virtual void setTTCConfig(AMCTTCCommandT const& cmd, uint8_t const& value);
 
         /*** STATUS submodule ***/
         /**
@@ -645,9 +647,10 @@ namespace gem {
 
         /*** CMD_COUNTERS submodule ***/
         /**
+         * @param cmd AMCTTCCommandT to get the current configuration of
          * @returns Returns the counter for the specified TTC command
          */
-        virtual uint32_t getTTCCounter(AMCTTCCommand const& cmd);
+        virtual uint32_t getTTCCounter(AMCTTCCommandT const& cmd);
 
         /**
          * @returns Returns the L1A ID received by the TTC module
@@ -655,12 +658,17 @@ namespace gem {
         virtual uint32_t getL1AID();
 
         /**
+         * @returns Returns the curent L1A rate (in Hz)
+         */
+        virtual uint32_t getL1ARate();
+
+        /**
          * @returns 32-bit word corresponding to the 8 most recent TTC commands received
          */
         virtual uint32_t getTTCSpyBuffer();
 
         /**************************/
-        /** CLOW_CONTROL module information **/
+        /** SLOW_CONTROL module information **/
         /**************************/
 
         /*** SCA submodule ***/
@@ -755,7 +763,7 @@ namespace gem {
          * @param Which counter to query
          * @returns Count of the sbits for a specified cluster size
          */
-        virtual uint32_t getOptoHybridTriggerLinkCount(uint8_t const& oh, uint8_t const& link, AMCOHLinkCount const& count);
+        virtual uint32_t getOptoHybridTriggerLinkCount(uint8_t const& oh, uint8_t const& link, AMCOHLinkCountT const& count);
 
         /****************************/
         /** DAQ moudle information **/
@@ -778,7 +786,7 @@ namespace gem {
         /**
          * @brief performs a reset of the GenericAMC GTX link counters
          */
-        virtual void resetLinkCounters();
+        virtual void linkCounterReset();
 
         /**
          * @brief performs a reset of the GenericAMC link
@@ -791,11 +799,11 @@ namespace gem {
       protected:
         //GenericAMCMonitor *monGenericAMC_;
 
-        bool b_links[N_GTX]; // have to figure out how to make this dynamic, or if we can just drop it... FIXME
+        bool b_links[gem::hw::utils::N_GTX]; // have to figure out how to make this dynamic, or if we can just drop it... FIXME
         uint32_t m_links;    ///< Connected links mask
         uint32_t m_maxLinks; ///< Maximum supported OptoHybrids as reported by the firmware
 
-        std::vector<linkStatus> v_activeLinks;
+        std::vector<linkStatus> v_activeLinks; ///< vector keeping track of the active links
 
         /**
          * @brief sets the expected board ID string to be matched when reading from the firmware
@@ -809,13 +817,13 @@ namespace gem {
         int m_slot;   ///< Slot number in the uTCA shelf the AMC is sitting in
 
       private:
-        // Do Not use default constructor. HwGenericAMC object should only be made using
-        // either connection file method or with a list of URIs and Address Tables
+        // Do not use default constructor. HwGenericAMC object should only be made using
+        // either connection file method or with a list of URIs and address tables
         HwGenericAMC();
 
         // Prevent copying of HwGenericAMC objects
-        HwGenericAMC( const HwGenericAMC& other) ; // prevents construction-copy
-        HwGenericAMC& operator=( const HwGenericAMC&) ; // prevents copying
+        HwGenericAMC(const HwGenericAMC& other);      // prevents construction-copy
+        HwGenericAMC& operator=(const HwGenericAMC&); // prevents copying
 
       };  // class HwGenericAMC
   }  // namespace gem::hw

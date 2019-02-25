@@ -54,10 +54,32 @@ class dacmode:
 class OptoHybridException(Exception):
     pass
 
-def getOHObject(slot,link,shelf=1,debug=False):
-    connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
-    manager         = uhal.ConnectionManager(connection_file )
-    ohboard         = manager.getDevice( "gem.shelf%02d.amc%02d.optohybrid%02d"%(shelf,slot,link) )
+def getOHObject(slot,link,shelf=1,ctrlhubhost=None,use_connection_file=False,debug=False):
+    """
+    Connect to a uhal OptoHybrid HwDevice either using a connection file, or creating the connection on the fly
+    """
+
+    hostname     = "gem-shelf{:02d}-amc{:02d}-optohybrid{:02d}".format(shelf,slot,link)
+
+    if use_connection_file:
+        connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
+        manager         = uhal.ConnectionManager(connection_file)
+        ohboard = manager.getDevice(hostname)
+    else:
+        addresstable = "file://${{GEM_ADDRESS_TABLE_PATH}}/uhal_gem_amc_ctp7_link{:02d}.xml".format(link)
+        if ctrlhubhost:
+            # for controlhub connection, non-CTP7 hardware
+            port         = 50001
+            ctrlhubport  = 10203
+            proto = "chtcp-2.0"
+            uri = "{}://{}:{}?target={}:{}".format(proto,ctrlhubhost,ctrlhubport,hostname,port)
+        else:
+            port  = 60002
+            proto = "ipbustcp-2.0"
+            uri   = "{}://{}:{}".format(proto,hostname,port)
+
+        ohboard = uhal.getDevice(hostname, uri, addresstable)
+
     if checkOHBoard(ohboard):
         msg = "%s: Success!"%(ohboard)
         ohlogger.info(colormsg(msg,logging.INFO))

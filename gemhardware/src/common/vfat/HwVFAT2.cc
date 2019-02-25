@@ -39,7 +39,7 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
 gem::hw::vfat::HwVFAT2::HwVFAT2(gem::hw::optohybrid::HwOptoHybrid const& ohDevice,
                                 uint8_t const& vfatDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(toolbox::toString("%s.VFAT%d",(ohDevice.getLoggerName()).c_str(),(int)vfatDevice),
-                                    ohDevice.getOptoHybridHwInterface()),
+                                    dynamic_cast<uhal::HwInterface const&>(ohDevice)),
   m_slot((int)vfatDevice)
 {
   CMSGEMOS_INFO("HwVFAT2 ctor");
@@ -182,6 +182,16 @@ void gem::hw::vfat::HwVFAT2::printDefaults(std::ofstream& SetupFile)
 // {
 //   //determine the manner in which to configure the device (XML or DB parameters)
 // }
+
+void gem::hw::vfat::HwVFAT2::connectRPC(bool reconnect)
+{
+  if (isConnected) {
+    this->loadModule("vfat3", "vfat3 v1.0.1");
+    CMSGEMOS_DEBUG("HwVFAT2::connectRPC modules loaded");
+  } else {
+    CMSGEMOS_WARN("HwVFAT2::connectRPC RPC interface failed to connect");
+  }
+}
 
 bool gem::hw::vfat::HwVFAT2::isHwConnected()
 {

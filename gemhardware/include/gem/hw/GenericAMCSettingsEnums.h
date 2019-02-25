@@ -5,6 +5,8 @@
 
 namespace gem {
   namespace hw {
+
+    // TODO: FIXME: replace these constructs with enum class/struct objects (only possible with c++11 or greater)
     class AMCLinkSettings
     {
     public:
@@ -50,7 +52,7 @@ namespace gem {
           TTC_CALPULSE,
           TTC_START,
           TTC_STOP,
-          TTC_TEST_SYNC ,
+          TTC_TEST_SYNC,
         } TTCCommand;
       };
 
@@ -66,14 +68,23 @@ namespace gem {
     };  // class AMCSettings
   }  // namespace gem::hw
 
-  //typedef the struct for access to the members via struct::VALUE
-  typedef gem::hw::AMCLinkSettings::LinkBitMasks   AMCLinkBitMasks;
-  typedef gem::hw::AMCLinkSettings::LinkBitShifts  AMCLinkBitShifts;
+  // <name>  is the enum scoped namespace for scope::VALUE access
+  // <name>T is the enum type
+  // typedef the struct for access to the members via struct::VALUE
+  typedef gem::hw::AMCLinkSettings::LinkBitMasks  AMCLinkBitMasks;
+  typedef gem::hw::AMCLinkSettings::LinkBitShifts AMCLinkBitShifts;
 
-  //typedef the enum for casting and access
-  typedef gem::hw::AMCSettings::TTCEncoding::ETTCEncoding AMCTTCEncoding;
-  typedef gem::hw::AMCSettings::TTCCommand::ETTCCommand   AMCTTCCommand;
-  typedef gem::hw::AMCSettings::OHLinkCount::EOHLinkCount AMCOHLinkCount;
+  typedef gem::hw::AMCSettings::TTCEncoding AMCTTCEncoding;
+  typedef gem::hw::AMCSettings::TTCCommand  AMCTTCCommand;
+  typedef gem::hw::AMCSettings::OHLinkCount AMCOHLinkCount;
+
+  // typedef the enum for casting and access
+  typedef gem::hw::AMCLinkSettings::LinkBitMasks::ELinkBitMasks   AMCLinkBitMasksT;
+  typedef gem::hw::AMCLinkSettings::LinkBitShifts::ELinkBitShifts AMCLinkBitShiftsT;
+
+  typedef gem::hw::AMCSettings::TTCEncoding::ETTCEncoding AMCTTCEncodingT;
+  typedef gem::hw::AMCSettings::TTCCommand::ETTCCommand   AMCTTCCommandT;
+  typedef gem::hw::AMCSettings::OHLinkCount::EOHLinkCount AMCOHLinkCountT;
 }  // namespace gem
 
 #endif  // GEM_HW_AMCSETTINGSENUMS_H

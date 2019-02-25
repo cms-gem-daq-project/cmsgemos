@@ -31,6 +31,9 @@ UserCFlags += \
 	-Wno-inline -DNDEBUG
 UserCCFlags=$(UserCFlags)
 
+UserCFlags  +=$(PYTHONCFLAGS)
+UserCCFlags +=$(PYTHONCFLAGS)
+
 # The leading undescore is meant to be there
 DynamicLibrary = _cmsgemos_gempython
 # Changing some defaults from $XDAQ_ROOT/config/mfDefs
@@ -38,26 +41,28 @@ LibraryPrefix =
 ## Not being respected, probably due to automatic calculation later in the process...
 PackageLibDir = $(PackageDir)
 
-Sources = src/common/cmsgemos_gempython.cc
+Sources = $(wildcard src/common/*.cc) $(wildcard src/common/*.cpp) $(wildcard src/common/**/*.cc) $(wildcard src/common/**/*.cpp)
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
 IncludeDirs+=$(uHALROOT)/include
+IncludeDirs+=$(XHALROOT)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(uHALROOT)/lib
+DependentLibraryDirs+=$(XHALROOT)/lib
 
 LibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(uHALROOT)/lib
+LibraryDirs+=$(XHALROOT)/lib
 
-DependentLibraries+=boost_python cactus_uhal_uhal gemhardware_devices gemutils
-### UGGH, I WANT TO BE FREE, minimal gemutils works with this, and in this order
-# remove dependencies on xdata and things will be better
-DependentLibraries+=xdata mimetic xoap
-#DependentLibraries+=xoap xdata mimetic xdaq
+DependentLibraries =gemhardware_devices
+DependentLibraries+=boost_python
+
+# UserDynamicLinkFlags+=
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfPythonRPM.mk
@@ -78,6 +83,7 @@ include $(BUILD_HOME)/$(Project)/config/mfPythonRPM.mk
 _rpmprep: _all
 	$(info "Running preprpm")
 	$(MakeDir) $(PackageDir)/core
+	# @touch $(PackageDir)/core/__init__.py
 	@cp -rf $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
 	@cp -rf gempython.md README.md
 	@cp -rf utils tools $(PackageDir)
@@ -85,6 +91,7 @@ _rpmprep: _all
 	@cp -rf tests/*.py $(ScriptDir)
 	-cp -rf README.md LICENSE CHANGELOG.md MANIFEST.in requirements.txt $(PackageDir)
 	-cp -rf README.md LICENSE CHANGELOG.md MANIFEST.in requirements.txt pkg
+	@cp -rf __init__.py $(PackageDir)/core
 	@echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > pkg/$(Namespace)/__init__.py
 #	@echo "include */*.so" > $(PackageDir)/MANIFEST.in
 
@@ -134,6 +141,7 @@ print-env:
 	@echo RANLIB         $(RANLIB)
 	@echo GCCVERSION     $(GCCVERSION)
 	@echo CLANGVERSION   $(CLANGVERSION)
+	@echo MySQLLIBS      $(MySQLLIBS)
 	@echo IncludeDirs    $(IncludeDirs)
 	@echo LibraryDirs    $(LibraryDirs)
 	@echo DependentLibraryDirs $(DependentLibraryDirs)

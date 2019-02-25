@@ -9,7 +9,6 @@
 
 #include "gem/hw/optohybrid/exception/Exception.h"
 #include "gem/hw/optohybrid/OptoHybridSettingsEnums.h"
-//#include "gem/hw/optohybrid/OptoHybridMonitor.h"
 
 namespace gem {
   namespace hw {
@@ -19,11 +18,11 @@ namespace gem {
 
     namespace optohybrid {
 
-      static const int MAX_VFATS = 24;  ///< maximum number of VFATs that can be connected to an OptoHybrid
-      static const uint32_t ALL_VFATS_BCAST_MASK = 0xff000000; ///< send broadcast I2C requests to all chips
-      static const uint32_t ALL_VFATS_DATA_MASK  = 0xffffffff; ///< mask tracking data packets from all VFATs
+      /* static constexpr uint8_t  MAX_VFATS = 24;                    ///< maximum number of VFATs that can be connected */
+      /* static constexpr uint32_t ALL_VFATS_BCAST_MASK = 0xff000000; ///< send broadcast I2C requests to all chips */
+      /* static constexpr uint32_t ALL_VFATS_DATA_MASK  = 0xffffffff; ///< mask tracking data packets from all VFATs */
 
-      //class OptoHybridMonitor;
+      // class OptoHybridMonitor;
       class HwOptoHybrid: public gem::hw::GEMHwDevice
         {
         public:
@@ -220,7 +219,13 @@ namespace gem {
 
           virtual ~HwOptoHybrid();
 
-          virtual bool isHwConnected();
+          /**
+           * Connect to te RPC manager and load necessary modules
+           * @param reconnect determine if the conection should be reestablished and the modules reloaded
+           */
+          void connectRPC(bool reconnect=false) override;
+
+          virtual bool isHwConnected() override;
 
           /** Read the board ID registers
            * @returns the OptoHybrid board ID
@@ -283,30 +288,30 @@ namespace gem {
           /**
            * @brief performs a general reset of the AMC
            */
-          virtual void generalReset();
+          virtual void generalReset() override;
 
           /**
            * @brief performs a reset of the AMC counters
            */
-          virtual void counterReset();
+          virtual void counterReset() override;
 
           /**
            * @brief performs a reset of the AMC link
            * @param link is the link to perform the reset on
            */
-          virtual void linkReset(uint8_t const& link);
+          virtual void linkReset(uint8_t const& link) override;
 
 
           /////////  Specific to the OptoHybrid board  \\\\\\\\\\\*
 
-          /**
+          /**FIXME REMOVE FOR V3
            * @brief Get the GEMHwDevice corresponding to the specified VFAT
            * @param vfat is the VFAT position
            */
-          gem::hw::vfat::HwVFAT2& getVFATDevice(uint8_t const& vfat) const {
-            // want to pass in the device name to append to it the VFAT
-            // this is almost guaranteed to leak
-            return static_cast<gem::hw::vfat::HwVFAT2&>(*(new gem::hw::vfat::HwVFAT2(*this, vfat))); };
+          /* gem::hw::vfat::HwVFAT2& getVFATDevice(uint8_t const& vfat) const { */
+          /*   // want to pass in the device name to append to it the VFAT */
+          /*   // this is almost guaranteed to leak */
+          /*   return static_cast<gem::hw::vfat::HwVFAT2&>(*(new gem::hw::vfat::HwVFAT2(*this, vfat))); }; */
 
           /**
            * Read the link status registers, store the information in a struct
@@ -1183,7 +1188,7 @@ namespace gem {
            * @returns a std::vector of uint32_t words, one response for each VFAT
            */
           std::vector<uint32_t> broadcastRead(std::string const& name,
-                                              uint32_t    const& mask=ALL_VFATS_BCAST_MASK,
+                                              uint32_t    const& mask=gem::hw::utils::ALL_VFATS_BCAST_MASK,
                                               bool               reset=false);
 
           /**
@@ -1195,7 +1200,7 @@ namespace gem {
            */
           void broadcastWrite(std::string const& name,
                               uint32_t    const& value,
-                              uint32_t    const& mask=ALL_VFATS_BCAST_MASK,
+                              uint32_t    const& mask=gem::hw::utils::ALL_VFATS_BCAST_MASK,
                               bool               reset=false);
 
 
@@ -1236,8 +1241,8 @@ namespace gem {
                                   uint32_t const& broadcastMask);
 
 
-          uhal::HwInterface& getOptoHybridHwInterface() const {
-            return getGEMHwInterface(); };
+          const uhal::HwInterface& getOptoHybridHwInterface() const {
+            return dynamic_cast<const uhal::HwInterface&>(*this); };
 
           std::vector<linkStatus> getActiveLinks() { return v_activeLinks; }
           bool isLinkActive(int i) { return b_links[i]; }

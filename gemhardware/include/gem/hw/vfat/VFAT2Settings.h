@@ -9,6 +9,7 @@
 
 #include "xdata/UnsignedShort.h"
 #include "xdata/Vector.h"
+#include "xdata/String.h"
 #include "xdata/Bag.h"
 
 namespace gem {
@@ -58,24 +59,24 @@ namespace gem {
           VFAT2Settings::PbBG::EPbBG                   padBandGap;
           VFAT2Settings::DFTestPattern::EDFTestPattern sendTestPattern;
         */
-        VFAT2RunMode   runMode;
-        VFAT2TrigMode  trigMode;
-        VFAT2MSPol     msPol;
-        VFAT2CalPol    calPol;
-        VFAT2CalibMode calibMode;
+        VFAT2RunModeT  runMode;
+        VFAT2TrigModeT trigMode;
+        VFAT2MSPolT    msPol;
+        VFAT2CalPolT   calPol;
+        VFAT2CalModeT  calibMode;
 
-        VFAT2DACMode   dacMode;
-        VFAT2ProbeMode probeMode;
-        VFAT2LVDSMode  lvdsMode;
-        VFAT2ReHitCT   reHitCT;
+        VFAT2DACModeT   dacMode;
+        VFAT2ProbeModeT probeMode;
+        VFAT2LVDSModeT  lvdsMode;
+        VFAT2ReHitCTT   reHitCT;
 
-        VFAT2HitCountMode  hitCountMode;
-        VFAT2MSPulseLength msPulseLen;
-        VFAT2DigInSel      digInSel;
+        VFAT2HitCountModeT  hitCountMode;
+        VFAT2MSPulseLengthT msPulseLen;
+        VFAT2DigInSelT      digInSel;
 
-        VFAT2TrimDACRange  trimDACRange;
-        VFAT2PadBandgap    padBandGap;
-        VFAT2DFTestPattern sendTestPattern;
+        VFAT2TrimDACRangeT  trimDACRange;
+        VFAT2PbBGT          padBandGap;
+        VFAT2DFTestPatternT sendTestPattern;
 
         //any reason not to include these too???
         uint8_t control0;
@@ -131,7 +132,7 @@ namespace gem {
         os <<ReHitCTToString.at(controlParams.reHitCT)
            <<(unsigned)(controlParams.reHitCT)
            <<":";
-        os <<LVDSPowerSaveToString.at(controlParams.lvdsMode)
+        os <<LVDSModeToString.at(controlParams.lvdsMode)
            <<(unsigned)(controlParams.lvdsMode)
            <<":";
         os <<ProbeModeToString.at(controlParams.probeMode)

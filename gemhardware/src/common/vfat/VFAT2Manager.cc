@@ -130,18 +130,18 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
   }
 
   try {
-    uhal::HwInterface hw = p_vfatDevice->getVFAT2HwInterface();
+    // uhal::HwInterface hw = p_vfatDevice->getVFAT2HwInterface();
     std::string deviceBaseNode = p_vfatDevice->getDeviceBaseNode();
     // this conflicts with setting the base node in the HwVFAT device, need to reset
     //  p_vfatDevice->setDeviceBaseNode("");
     // this doesn't fix the problem as HwVFATw or GEMHwDevice needs to be smarter
     // better to strip away the search string from these node names
-    //  std::vector<std::string> m_nodes = hw.getNodes(deviceBaseNode+".*");
-    m_nodes = hw.getNodes(deviceBaseNode+".*");
+    //  std::vector<std::string> m_nodes = p_vfatDevice->getNodes(deviceBaseNode+".*");
+    m_nodes = p_vfatDevice->getNodes(deviceBaseNode+".*");
     m_nodes.erase( std::remove(m_nodes.begin(),
-                              m_nodes.end(),
-                              deviceBaseNode),
-                  m_nodes.end());
+                               m_nodes.end(),
+                               deviceBaseNode),
+                   m_nodes.end());
 
     std::vector<std::string>::iterator cleannode  = m_nodes.begin();
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "before removal::getNodes(): " << std::endl
@@ -216,24 +216,24 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
     params.control2 = static_cast<unsigned>(m_vfatRegs["ContReg2"]);
     params.control3 = static_cast<unsigned>(m_vfatRegs["ContReg3"]);
 
-    params.runMode   = (VFAT2RunMode  )((params.control0&VFAT2ContRegBitMasks::RUNMODE ) >> VFAT2ContRegBitShifts::RUNMODE );
-    params.trigMode  = (VFAT2TrigMode )((params.control0&VFAT2ContRegBitMasks::TRIGMODE) >> VFAT2ContRegBitShifts::TRIGMODE);
-    params.msPol     = (VFAT2MSPol    )((params.control0&VFAT2ContRegBitMasks::MSPOL   ) >> VFAT2ContRegBitShifts::MSPOL   );
-    params.calPol    = (VFAT2CalPol   )((params.control0&VFAT2ContRegBitMasks::CALPOL  ) >> VFAT2ContRegBitShifts::CALPOL  );
-    params.calibMode = (VFAT2CalibMode)((params.control0&VFAT2ContRegBitMasks::CALMODE ) >> VFAT2ContRegBitShifts::CALMODE );
+    params.runMode   = (VFAT2RunModeT )((params.control0&VFAT2ContRegBitMasks::RUNMODE ) >> VFAT2ContRegBitShifts::RUNMODE );
+    params.trigMode  = (VFAT2TrigModeT)((params.control0&VFAT2ContRegBitMasks::TRIGMODE) >> VFAT2ContRegBitShifts::TRIGMODE);
+    params.msPol     = (VFAT2MSPolT   )((params.control0&VFAT2ContRegBitMasks::MSPOL   ) >> VFAT2ContRegBitShifts::MSPOL   );
+    params.calPol    = (VFAT2CalPolT  )((params.control0&VFAT2ContRegBitMasks::CALPOL  ) >> VFAT2ContRegBitShifts::CALPOL  );
+    params.calibMode = (VFAT2CalModeT )((params.control0&VFAT2ContRegBitMasks::CALMODE ) >> VFAT2ContRegBitShifts::CALMODE );
 
-    params.dacMode   = (VFAT2DACMode  )((params.control1&VFAT2ContRegBitMasks::DACMODE  ) >> VFAT2ContRegBitShifts::DACMODE  );
-    params.probeMode = (VFAT2ProbeMode)((params.control1&VFAT2ContRegBitMasks::PROBEMODE) >> VFAT2ContRegBitShifts::PROBEMODE);
-    params.lvdsMode  = (VFAT2LVDSMode )((params.control1&VFAT2ContRegBitMasks::LVDSMODE ) >> VFAT2ContRegBitShifts::LVDSMODE );
-    params.reHitCT   = (VFAT2ReHitCT  )((params.control1&VFAT2ContRegBitMasks::REHITCT  ) >> VFAT2ContRegBitShifts::REHITCT  );
+    params.dacMode   = (VFAT2DACModeT  )((params.control1&VFAT2ContRegBitMasks::DACMODE  ) >> VFAT2ContRegBitShifts::DACMODE  );
+    params.probeMode = (VFAT2ProbeModeT)((params.control1&VFAT2ContRegBitMasks::PROBEMODE) >> VFAT2ContRegBitShifts::PROBEMODE);
+    params.lvdsMode  = (VFAT2LVDSModeT )((params.control1&VFAT2ContRegBitMasks::LVDSMODE ) >> VFAT2ContRegBitShifts::LVDSMODE );
+    params.reHitCT   = (VFAT2ReHitCTT  )((params.control1&VFAT2ContRegBitMasks::REHITCT  ) >> VFAT2ContRegBitShifts::REHITCT  );
 
-    params.hitCountMode = (VFAT2HitCountMode )((params.control2&VFAT2ContRegBitMasks::HITCOUNTMODE ) >> VFAT2ContRegBitShifts::HITCOUNTMODE );
-    params.msPulseLen   = (VFAT2MSPulseLength)((params.control2&VFAT2ContRegBitMasks::MSPULSELENGTH) >> VFAT2ContRegBitShifts::MSPULSELENGTH);
-    params.digInSel     = (VFAT2DigInSel     )((params.control2&VFAT2ContRegBitMasks::DIGINSEL     ) >> VFAT2ContRegBitShifts::DIGINSEL     );
+    params.hitCountMode = (VFAT2HitCountModeT )((params.control2&VFAT2ContRegBitMasks::HITCOUNTMODE ) >> VFAT2ContRegBitShifts::HITCOUNTMODE );
+    params.msPulseLen   = (VFAT2MSPulseLengthT)((params.control2&VFAT2ContRegBitMasks::MSPULSELENGTH) >> VFAT2ContRegBitShifts::MSPULSELENGTH);
+    params.digInSel     = (VFAT2DigInSelT     )((params.control2&VFAT2ContRegBitMasks::DIGINSEL     ) >> VFAT2ContRegBitShifts::DIGINSEL     );
 
-    params.trimDACRange    = (VFAT2TrimDACRange )((params.control3&VFAT2ContRegBitMasks::TRIMDACRANGE) >> VFAT2ContRegBitShifts::TRIMDACRANGE);
-    params.padBandGap      = (VFAT2PadBandgap   )((params.control3&VFAT2ContRegBitMasks::PADBANDGAP  ) >> VFAT2ContRegBitShifts::PADBANDGAP  );
-    params.sendTestPattern = (VFAT2DFTestPattern)((params.control3&VFAT2ContRegBitMasks::DFTESTMODE  ) >> VFAT2ContRegBitShifts::DFTESTMODE  );
+    params.trimDACRange    = (VFAT2TrimDACRangeT )((params.control3&VFAT2ContRegBitMasks::TRIMDACRANGE) >> VFAT2ContRegBitShifts::TRIMDACRANGE);
+    params.padBandGap      = (VFAT2PbBGT         )((params.control3&VFAT2ContRegBitMasks::PADBANDGAP  ) >> VFAT2ContRegBitShifts::PADBANDGAP  );
+    params.sendTestPattern = (VFAT2DFTestPatternT)((params.control3&VFAT2ContRegBitMasks::DFTESTMODE  ) >> VFAT2ContRegBitShifts::DFTESTMODE  );
 
     LOG4CPLUS_DEBUG(getApplicationLogger(), "VFAT2Manager::readVFAT2Registers() --> read in current parameters");
     LOG4CPLUS_DEBUG(getApplicationLogger(), "VFAT2Manager::readVFAT2Registers()::Control Register 0");
@@ -250,7 +250,7 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
                                                        % static_cast<unsigned>(params.control1)
                                                        % gem::hw::vfat::DACModeToString.at(      params.dacMode   )
                                                        % gem::hw::vfat::ProbeModeToString.at(    params.probeMode )
-                                                       % gem::hw::vfat::LVDSPowerSaveToString.at(params.lvdsMode  )
+                                                       % gem::hw::vfat::LVDSModeToString.at(params.lvdsMode  )
                                                        % gem::hw::vfat::ReHitCTToString.at(      params.reHitCT   )));
 
     LOG4CPLUS_DEBUG(getApplicationLogger(), "VFAT2Manager::readVFAT2Registers()::Control Register 2");
@@ -570,7 +570,7 @@ void gem::hw::vfat::VFAT2Manager::getCheckedRegisters(cgicc::Cgicc cgi, std::vec
    *Address table register - checkbox name - corresponding form inputs to grab
 
    ContReg0 - CR0Set - CalMode:CalPolarity:MSPolarity:TriggerMode:RunMode
-   ContReg1 - CR1Set - ReHitCT:LVDSPowerSave:ProbeMode:DACMode
+   ContReg1 - CR1Set - ReHitCT:LVDSMode:ProbeMode:DACMode
    ContReg2 - CR2Set - DigInSel:MSPulseLength:HitCountMode
    ContReg3 - CR3Set - DFTest:PbBG:TrimDACRange
 
@@ -638,8 +638,8 @@ void gem::hw::vfat::VFAT2Manager::getCheckedRegisters(cgicc::Cgicc cgi, std::vec
                         boost::to_upper_copy(cgi["ProbeMode"]->getValue()));
         p_vfatDevice->setProbeMode(        (gem::hw::vfat::StringToProbeMode.at(boost::to_upper_copy(cgi["ProbeMode"]->getValue()))), regToSet);
         LOG4CPLUS_DEBUG(getApplicationLogger(), "Setting the lvds power save state to :"+
-                        boost::to_upper_copy(cgi["LVDSPowerSave"]->getValue()));
-        p_vfatDevice->setLVDSMode(         (gem::hw::vfat::StringToLVDSPowerSave.at(boost::to_upper_copy(cgi["LVDSPowerSave"]->getValue()))), regToSet);
+                        boost::to_upper_copy(cgi["LVDSMode"]->getValue()));
+        p_vfatDevice->setLVDSMode(         (gem::hw::vfat::StringToLVDSMode.at(boost::to_upper_copy(cgi["LVDSMode"]->getValue()))), regToSet);
         LOG4CPLUS_DEBUG(getApplicationLogger(), "Setting the hit count cycle time to :"+
                         boost::to_upper_copy(cgi["ReHitCT"]->getValue()));
         p_vfatDevice->setHitCountCycleTime((gem::hw::vfat::StringToReHitCT.at(boost::to_upper_copy(cgi["ReHitCT"]->getValue()))), regToSet);

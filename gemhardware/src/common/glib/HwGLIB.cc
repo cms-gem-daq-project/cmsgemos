@@ -2,31 +2,16 @@
 
 #include "gem/hw/glib/HwGLIB.h"
 
-// gem::hw::glib::HwGLIB::HwGLIB() :
-//   gem::hw::HwGenericAMC::HwGenericAMC("HwGLIB")
-//   // monGLIB_(0),
-// {
-//   CMSGEMOS_INFO("HwGLIB ctor");
-
-//   // use a connection file and connection manager?
-//   setDeviceID("GLIBHw");
-//   setAddressTableFileName("uhal_gem_amc_glib.xml");
-//   setDeviceBaseNode("GEM_AMC");
-//   setExpectedBoardID("GLIB");
-
-//   CMSGEMOS_INFO("HwGLIB ctor done " << isHwConnected());
-// }
-
 gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
                               std::string const& connectionFile) :
   gem::hw::HwGenericAMC::HwGenericAMC(glibDevice, connectionFile)
 {
-  CMSGEMOS_INFO("HwGLIB::trying to create HwGLIB(" << glibDevice << "," << connectionFile);
+  CMSGEMOS_INFO("HwGLIB::HwGLIB trying to create HwGLIB(" << glibDevice << "," << connectionFile);
 
-  setDeviceBaseNode("GEM_AMC");
-  setExpectedBoardID("GLIB");
+  // this->setDeviceBaseNode("GEM_AMC");
+  this->setExpectedBoardID("GLIB");
 
-  CMSGEMOS_INFO("HwGLIB ctor done " << isHwConnected());
+  CMSGEMOS_INFO("HwGLIB::HwGLIB ctor done " << isHwConnected());
 }
 
 gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
@@ -35,24 +20,24 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
   gem::hw::HwGenericAMC::HwGenericAMC(glibDevice, connectionURI, addressTable)
 
 {
-  CMSGEMOS_INFO("trying to create HwGLIB(" << glibDevice << "," << connectionURI << "," <<addressTable);
+  CMSGEMOS_INFO("HwGLIB::HwGLIB trying to create HwGLIB(" << glibDevice << "," << connectionURI << "," <<addressTable);
 
-  setDeviceBaseNode("GEM_AMC");
-  setExpectedBoardID("GLIB");
+  // this->setDeviceBaseNode("GEM_AMC");
+  this->setExpectedBoardID("GLIB");
 
-  CMSGEMOS_INFO("HwGLIB ctor done " << isHwConnected());
+  CMSGEMOS_INFO("HwGLIB::HwGLIB ctor done " << isHwConnected());
 }
 
 gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
                               uhal::HwInterface& uhalDevice) :
   gem::hw::HwGenericAMC::HwGenericAMC(glibDevice,uhalDevice)
 {
-  CMSGEMOS_INFO("HwGLIB ctor");
+  CMSGEMOS_INFO("HwGLIB::HwGLIB ctor");
 
-  setDeviceBaseNode("GEM_AMC");
-  setExpectedBoardID("GLIB");
+  // this->setDeviceBaseNode("GEM_AMC");
+  this->setExpectedBoardID("GLIB");
 
-  CMSGEMOS_INFO("HwGLIB ctor done " << isHwConnected());
+  CMSGEMOS_INFO("HwGLIB::HwGLIB ctor done " << isHwConnected());
 }
 
 // gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot) :
@@ -92,9 +77,8 @@ std::string gem::hw::glib::HwGLIB::getBoardID()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board ID consists of four characters encoded as a 32-bit unsigned int
-  std::string res = "???";
-  uint32_t val = readReg(getDeviceBaseNode(), "GLIB_SYSTEM.SYSTEM.BOARD_ID");
-  res = gem::utils::uint32ToString(val);
+  std::string res = "N/A";
+  res = gem::utils::uint32ToString(getBoardIDRaw());
   return res;
 }
 
@@ -110,9 +94,8 @@ std::string gem::hw::glib::HwGLIB::getSystemID()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The system ID consists of four characters encoded as a 32-bit unsigned int
-  std::string res = "???";
-  uint32_t val = readReg(getDeviceBaseNode(), "GLIB_SYSTEM.SYSTEM.SYSTEM_ID");
-  res = gem::utils::uint32ToString(val);
+  std::string res = "N/A";
+  res = gem::utils::uint32ToString(getSystemIDRaw());
   return res;
 }
 
@@ -128,8 +111,7 @@ std::string gem::hw::glib::HwGLIB::getIPAddress()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::string res = "N/A";
-  uint32_t val = readReg(getDeviceBaseNode(), "GLIB_SYSTEM.SYSTEM.IP_INFO");
-  res = gem::utils::uint32ToDottedQuad(val);
+  res = gem::utils::uint32ToDottedQuad(getIPAddressRaw());
   return res;
 }
 
@@ -144,9 +126,9 @@ std::string gem::hw::glib::HwGLIB::getMACAddress()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::string res = "N/A";
-  uint32_t val1 = readReg(getDeviceBaseNode(), "GLIB_SYSTEM.SYSTEM.MAC.UPPER");
-  uint32_t val2 = readReg(getDeviceBaseNode(), "GLIB_SYSTEM.SYSTEM.MAC.LOWER");
-  res = gem::utils::uint32ToGroupedHex(val1,val2);
+  uint64_t val = getMACAddressRaw();
+  res = gem::utils::uint32ToGroupedHex((val>>32)&0xffffffff,val&0xffffffff);
+  // res = gem::utils::uint64ToGroupedHex(val);
   return res;
 }
 
@@ -299,37 +281,44 @@ bool gem::hw::glib::HwGLIB::CDCELockStatus()
 /** only for compatibility with some functions, will be removed **/
 uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t const& gtx)
 {
+  // FIXME OBSOLETE!!!
   return 0x0;
 }
 
 uint32_t gem::hw::glib::HwGLIB::getFIFOVFATBlockOccupancy(uint8_t const& gtx)
 {
+  // FIXME OBSOLETE!!!
   return 0x0;
 }
 
 bool gem::hw::glib::HwGLIB::hasTrackingData(uint8_t const& gtx)
 {
+  // FIXME OBSOLETE!!!
   return false;
 }
 
 std::vector<uint32_t> gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, size_t const& nBlocks)
 {
+  // FIXME OBSOLETE!!!
   std::vector<uint32_t> res;
   return res;
 }
 
 uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks)
 {
+  // FIXME OBSOLETE!!!
   return 0x0;
 }
 
-uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
-                                                size_t const& nBlocks)
-{
-  return 0x0;
-}
+// uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
+//                                                 size_t const& nBlocks)
+// {
+//   // FIXME OBSOLETE!!!
+//   return 0x0;
+// }
 
 void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
 {
+  // FIXME OBSOLETE!!!
   return;
 }
