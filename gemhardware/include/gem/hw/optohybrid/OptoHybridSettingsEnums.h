@@ -37,24 +37,17 @@ namespace gem {
 
         struct TTCMode { //TTC mode count settings
           enum ETTCMode { //TTC mode count settings
-            GTX_TTC  = 0x0, // TTC signals coming from the 8b10b link
-            INTERNAL = 0x1, // TTC signals generated in the firmware
-            EXTERNAL = 0x2, // TTC signals coming external input (HDMI board/LEMO)
-            LOOPBACK = 0x3, // TTC signals coming from the VFATs (only s-bits)
-            SENT     = 0x4, // TTC signals sent along the GEB
-            GBT_TTC  = 0x5, // TTC signals coming from the GBT link
-            RESET    = 0x6, // RESET
+            GBT_TTC   = 0x0, // TTC signals coming from the GBT link
+            LOCAL_TTC = 0x1, // TTC signals generated at the OH
+            RESET     = 0x2, // RESET
           } TTCMode;
         };
 
         struct TriggerSource { // Trigger source settings
           enum ETriggerSource { // Trigger source settings
-            GTX_TTC  = 0x0, // L1As coming from the 8b10b link
-            INTERNAL = 0x1, // L1As generated in the firmware
-            EXTERNAL = 0x2, // L1As coming external input (HDMI board/LEMO)
-            LOOPBACK = 0x3, // L1As coming from the VFATs (only s-bits)
-            ALL      = 0x4, // OR of all sources of L1As
-            GBT_TTC  = 0x5, // L1As coming from the GBT link
+            GBT_TTC   = 0x0, // L1As coming from the GBT link
+            LOCAL_TTC = 0x1, // L1As generated in the firmware
+            ALL       = 0x2, // L1As from any source
           } TriggerSource;
         };
 

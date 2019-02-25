@@ -69,44 +69,7 @@ namespace gem {
          so it helps to retry a few times in the case of a failure
          that is recognized
       */
-      static const unsigned MAX_IPBUS_RETRIES = 5;
-
-      /** TODO: REMOVE
-       * @struct OpticalLinkStatus
-       * @brief This structure stores retrieved counters related to the optical links
-       * @var OpticalLinkStatus::GTX_TRK_Errors
-       * GTX_TRK_Errors is a counter for the number of errors on the 8b10b tracking data link
-       * @var OpticalLinkStatus::GTX_TRG_Errors
-       * GTX_TRG_Errors is a counter for the number of errors on the 8b10b trigger data link
-       * @var OpticalLinkStatus::GTX_Data_Packets
-       * GTX_Data_Packets is a counter for the number of data packets transferred on the 8b10b tracking data link
-       * @var OpticalLinkStatus::GBT_TRK_Errors
-       * GBT_TRK_Errors is a counter for the number of errors on the GBT tracking data link
-       * @var OpticalLinkStatus::GBT_Data_Packets
-       * GBT_Data_Packets is a counter for the number of data packets transferred on the GBT tracking data link
-       */
-      typedef struct OpticalLinkStatus {
-        uint32_t GTX_TRK_Errors  ;
-        uint32_t GTX_TRG_Errors  ;
-        uint32_t GTX_Data_Packets;
-        uint32_t GBT_TRK_Errors  ;
-        uint32_t GBT_Data_Packets;
-
-      OpticalLinkStatus() :
-        GTX_TRK_Errors(0),
-          GTX_TRG_Errors(0),
-          GTX_Data_Packets(0),
-          GBT_TRK_Errors(0),
-          GBT_Data_Packets(0) {};
-
-        void reset() {
-          GTX_TRK_Errors=0;
-          GTX_TRG_Errors=0;
-          GTX_Data_Packets=0;
-          GBT_TRK_Errors=0;
-          GBT_Data_Packets=0;
-          return; };
-      } OpticalLinkStatus;
+      static constexpr uint8_t MAX_IPBUS_RETRIES = 5;
 
       /** TODO: REMOVE or REDESIGN
        * @struct DeviceErrors
@@ -129,10 +92,6 @@ namespace gem {
       DeviceErrors() : BadHeader(0),ReadError(0),Timeout(0),ControlHubErr(0) {};
         void reset() { BadHeader=0; ReadError=0; Timeout=0; ControlHubErr=0; return; };
       } DeviceErrors;
-
-      // TODO: REDESIGN
-      typedef std::pair<uint8_t, OpticalLinkStatus>  linkStatus;
-      //typedef std::vector<linkStatus>                linkStatus;
 
       /**
        * @brief GEMHwDevice constructor based on hostname and connection file
@@ -187,7 +146,6 @@ namespace gem {
       */
       virtual ~GEMHwDevice();
 
-      /* FIXME REMOVE virtual bool isHwConnected() { return p_gemHW != 0; }; */
       virtual bool isHwConnected() { return true; }; /*FIXME make pure virutal, non-virtual?*/
 
       ///////////////////////////////////////////////////////////////////////////////////////
@@ -503,32 +461,19 @@ namespace gem {
       // These methods provide access to the member variables
       // specifying the `uhal` address table name and the IPbus protocol
       // version.
-      //getters
-      const std::string getControlHubIPAddress()  const { return m_controlHubIPAddress;};
-      const std::string getDeviceIPAddress()      const { return m_deviceIPAddress;    };
-      const std::string getIPBusProtocolVersion() const { return m_ipBusProtocol;      };
-      const std::string getAddressTableFileName() const { return m_addressTable;       };
-
+      /**
+         @brief getters
+      */
+      const std::string getAddressTableFileName() const { return m_addressTable;   };
       const std::string getDeviceBaseNode()       const { return m_deviceBaseNode; };
       const std::string getDeviceID()             const { return m_deviceID;       };
 
-      const uint32_t getControlHubPort() const { return m_controlHubPort;};
-      const uint32_t getIPBusPort()      const { return m_ipBusPort;     };
-
-      //setters, should maybe be private/protected? defeats the purpose?
-      void setControlHubIPAddress( std::string const& ipAddress) { m_controlHubIPAddress = ipAddress; };
-      void setIPBusProtocolVersion(std::string const& version) { m_ipBusProtocol = version; };
-      void setDeviceIPAddress(     std::string const& deviceIPAddr) { m_deviceIPAddress = deviceIPAddr; };
+      /**
+         @brief setters, should maybe be private/protected? defeats the purpose?
+      */
       void setAddressTableFileName(std::string const& name) { m_addressTable = "file://${GEM_ADDRESS_TABLE_PATH}/"+name; };
-
       void setDeviceBaseNode(std::string const& deviceBase) { m_deviceBaseNode = deviceBase; };
       void setDeviceID(      std::string const& deviceID) { m_deviceID = deviceID; };
-
-      void setControlHubPort(uint32_t const& port) { m_controlHubPort = port; };
-      void setIPBusPort(     uint32_t const& port) { m_ipBusPort = port; };
-
-      /* uhal::HwInterface& getGEMHwInterface() const; */
-
 
       ///////////////////////////////////////////////////////////////////////////////////////
       //******************* Generic properties of the GEMHwDevice object ******************//
@@ -581,7 +526,7 @@ namespace gem {
        * @brief Performs basic setup for the device
        * sets connection details (OBSOLETE)
        * sets logging level to Error
-       * Not inherited
+       * Not inherited, but calls a pure virtual function...
        **/
       void setup(std::string const& deviceName);
 
@@ -604,30 +549,15 @@ namespace gem {
        */
       virtual void connectRPC(bool reconnect=false)=0;
 
-      std::string m_controlHubIPAddress;  //!<
-      std::string m_addressTable;         //!<
-      std::string m_ipBusProtocol;        //!<
-      std::string m_deviceIPAddress;      //!<
+      std::string m_addressTable;   //!<
+      std::string m_deviceBaseNode; //!<
+      std::string m_deviceID;       //!<
 
-      std::string m_deviceBaseNode;       //!<
-      std::string m_deviceID;             //!<
-
-      uint32_t m_controlHubPort;          //!<
-      uint32_t m_ipBusPort;               //!<
-
-      /** FIXME removed when infospace was dropped
-      //infospace im(ex)portables
-      xdata::String xs_controlHubIPAddress;  //!<
-      xdata::String xs_deviceIPAddress;      //!<
-      xdata::String xs_ipBusProtocol;        //!<
-      xdata::String xs_addressTable;         //!<
-
-      xdata::UnsignedInteger32 xs_controlHubPort;  //!<
-      xdata::UnsignedInteger32 xs_ipBusPort;       //!<
-      **/
+      // All GEMHwDevice objects should have these properties
+      uint8_t m_crate;  ///< Crate number the AMC is housed in
+      uint8_t m_slot;   ///< Slot number in the uTCA shelf the AMC is sitting in
 
       bool knownErrorCode(std::string const& errCode) const;
-      //std::string registerToChar(uint32_t value) const;
     };  // class GEMHwDevice
   }  // namespace gem::hw
 }  // namespace gem

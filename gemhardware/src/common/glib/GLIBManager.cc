@@ -36,7 +36,6 @@ gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo()
   crateID    = -1;
   slotID     = -1;
   cardName   = "";
-  birdName   = "";
   sbitSource = 0;
   enableZS   = true;
 }
@@ -47,7 +46,6 @@ void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::gl
   bag->addField("slot",       &slotID);
   bag->addField("present",    &present);
   bag->addField("CardName",   &cardName);
-  bag->addField("BirdName",   &birdName);
   bag->addField("sbitSource", &sbitSource);
   bag->addField("enableZS",   &enableZS);
 }
@@ -334,48 +332,8 @@ void gem::hw::glib::GLIBManager::configureAction()
       bool doPhaseShift = m_uhalPhaseShift.value_;
       uint32_t runType  = 0x0;
       try { // FIXME if we fail, do we go to error?
-        // amc->ttcMMCMPhaseShift(m_relockPhase.value_, m_bc0LockPhaseShift.value_);
         amc->configureDAQModule(enableZS, doPhaseShift, runType, 0xfaac, m_relockPhase.value_, m_bc0LockPhaseShift.value_);
       } GEM_CATCH_RPC_ERROR("GLIBManager::configureAction", gem::hw::glib::exception::ConfigurationProblem);
-
-      // amc->scaHardResetEnable(false);
-      // amc->resetL1ACount();
-      // amc->resetCalPulseCount();
-
-      // if (m_uhalPhaseShift.value_) {
-      //   CMSGEMOS_INFO("GLIBManager::configureAction uhal phase shifting disabled");
-      //   try { // if we fail, do we go to error?
-      //     amc->ttcMMCMPhaseShift(m_relockPhase.value_, m_bc0LockPhaseShift.value_);
-      //   } GEM_CATCH_RPC_ERROR("GLIBManager::configureAction", gem::hw::glib::exception::PhaseShiftError);
-      // }
-
-      // // reset the DAQ (could move this to HwGenericAMC and eventually  a corresponding RPC module
-      // try { // FIXME if we fail, do we go to error?
-      //   amc->configure(info.enableZS.value_,0x0,0xfaac);
-      //   // amc->setL1AEnable(false);
-      //   // amc->disableDAQLink();
-      //   // amc->resetDAQLink();
-      //   // amc->enableDAQLink(0x4);  // FIXME
-      //   // amc->setZS(info.enableZS.value_);
-      //   // amc->setDAQLinkRunType(0x0);
-      //   // amc->setDAQLinkRunParameters(0xfaac);
-      // } GEM_CATCH_RPC_ERROR("GLIBManager::configureAction", gem::hw::glib::exception::ConfigurationProblem);
-      // catch (xhal::utils::XHALRPCNotConnectedException const& e) {
-      //   std::stringstream errmsg;
-      //   errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
-      //   // fireEvent("Fail");
-      //   XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
-      // } catch (xhal::utils::XHALRPCException const& e) {
-      //   std::stringstream errmsg;
-      //   errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
-      //   // fireEvent("Fail");
-      //   XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
-      // } catch (gem::hw::exception::RPCMethodError const& e) {
-      //   std::stringstream errmsg;
-      //   errmsg << "GLIBManager::configureAction unable to configure: " << e.what();
-      //   // fireEvent("Fail");
-      //   XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, errmsg.str());
-      // }
 
       if (m_scanType.value_ == 2) {
         CMSGEMOS_INFO("GLIBManager::configureAction: FIRST  " << m_scanMin.value_);
@@ -403,43 +361,6 @@ void gem::hw::glib::GLIBManager::configureAction()
       // reset counters?
       // setup run mode?
       // setup DAQ mode?
-
-      // temp workaround, call confAllChambers python script?
-      // if P5 config?
-      // if (m_setupLocation.toString().rfind("P5") != std::string::npos) {
-      CMSGEMOS_INFO("GLIBManager::configureAction running confAllChambers for P5 setup");
-      std::stringstream confcmd;
-      // FIXME hard coded for now, but super hacky garbage
-      confcmd << "confAllChambers.py -s" << (slot+1)
-              << " --shelf="   << info.crateID.toString()
-              << " --ztrim="   << 4.0
-              << " --vt1bump=" << 10
-              << " --config --run";
-      CMSGEMOS_INFO("GLIBManager::configureAction executing " << confcmd.str());
-      int retval = std::system(confcmd.str().c_str());
-      if (retval) {
-        std::stringstream msg;
-        msg << "GLIBManager::configureAction unable to configure chambers: " << retval;
-        CMSGEMOS_WARN(msg.str());
-        // fireEvent("Fail");
-        // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-        // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
-      }
-      // }
-      std::stringstream statuscmd;
-      // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1)
-                << " --shelf="           << info.crateID.toString();
-      CMSGEMOS_INFO("GLIBManager::configureAction running " << statuscmd.str() << " after configuring");
-      retval = std::system(statuscmd.str().c_str());
-      if (retval) {
-        std::stringstream msg;
-        msg << "GLIBManager::configureAction unable to check AMC status: " << retval;
-        CMSGEMOS_WARN(msg.str());
-        // fireEvent("Fail");
-        // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-        // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
-      }
 
       if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->resumeMonitoring();
@@ -494,21 +415,6 @@ void gem::hw::glib::GLIBManager::startAction()
       amc->setZS(info.enableZS.value_);
       amc->setL1AEnable(true);
       usleep(10); // just for testing the timing of different applications
-
-      std::stringstream statuscmd;
-      // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1)
-                << " --shelf="           << info.crateID.toString();
-      CMSGEMOS_INFO("GLIBManager::startAction running " << statuscmd.str() << " after starting");
-      int retval = std::system(statuscmd.str().c_str());
-      if (retval) {
-        std::stringstream msg;
-        msg << "GLIBManager::startAction unable to check AMC status: " << retval;
-        CMSGEMOS_WARN(msg.str());
-        // fireEvent("Fail");
-        // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-        // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
-      }
 
       if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->resumeMonitoring();
@@ -637,21 +543,6 @@ void gem::hw::glib::GLIBManager::stopAction()
       amc->disableDAQLink();
       amc->resetDAQLink();
 
-      std::stringstream statuscmd;
-      // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1)
-                << " --shelf="           << info.crateID.toString();
-      CMSGEMOS_INFO("GLIBManager::stopAction running " << statuscmd.str() << " after configuration");
-      int retval = std::system(statuscmd.str().c_str());
-      if (retval) {
-        std::stringstream msg;
-        msg << "GLIBManager::stopAction unable to check AMC status: " << retval;
-        CMSGEMOS_WARN(msg.str());
-        // fireEvent("Fail");
-        // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-        // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
-      }
-
       if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->resumeMonitoring();
     }
@@ -682,21 +573,6 @@ void gem::hw::glib::GLIBManager::haltAction()
       // FIXME temporarily inhibit triggers at the GLIB
       amc->setL1AEnable(false);
       amc->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
-
-      std::stringstream statuscmd;
-      // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1)
-                << " --shelf="           << info.crateID.toString();
-      CMSGEMOS_INFO("GLIBManager::haltAction running " << statuscmd.str() << " after halting");
-      int retval = std::system(statuscmd.str().c_str());
-      if (retval) {
-        std::stringstream msg;
-        msg << "GLIBManager::haltAction unable to check AMC status: " << retval;
-        CMSGEMOS_WARN(msg.str());
-        // fireEvent("Fail");
-        // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-        // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
-      }
 
       if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->resumeMonitoring();
@@ -730,21 +606,6 @@ void gem::hw::glib::GLIBManager::resetAction()
       // FIXME temporarily inhibit triggers at the GLIB
       amc->setL1AEnable(false);
       amc->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
-
-      std::stringstream statuscmd;
-      // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1)
-                << " --shelf="           << info.crateID.toString();
-      CMSGEMOS_INFO("GLIBManager::resetAction running " << statuscmd.str() << " after resetting");
-      int retval = std::system(statuscmd.str().c_str());
-      if (retval) {
-        std::stringstream msg;
-        msg << "GLIBManager::resetAction unable to check AMC status: " << retval;
-        CMSGEMOS_WARN(msg.str());
-        // fireEvent("Fail");
-        // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-        // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
-      }
     }
     // reset the hw monitor
     if (m_glibMonitors.at(slot))
@@ -788,12 +649,14 @@ void gem::hw::glib::GLIBManager::resetAction(toolbox::Event::Reference e)
 void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib, glib_shared_ptr glib)
 {
   // system registers
-  is_glib->createUInt32("BOARD_ID",      glib->getBoardIDRaw(),           NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
-  is_glib->createUInt32("SYSTEM_ID",     glib->getSystemIDRaw(),          NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
-  is_glib->createUInt32("FIRMWARE_VERSION",glib->getFirmwareVerRaw(),     NULL, GEMUpdateType::PROCESS,  "docstring", "fwver");
-  is_glib->createUInt32("FIRMWARE_DATE", glib->getFirmwareDateRaw(),      NULL, GEMUpdateType::PROCESS,  "docstring", "date");
-  is_glib->createUInt32("AMC_FIRMWARE_VERSION",glib->getFirmwareVerRaw(), NULL, GEMUpdateType::PROCESS,  "docstring", "fwverglib");
-  is_glib->createUInt32("AMC_FIRMWARE_DATE", glib->getFirmwareDateRaw(),  NULL, GEMUpdateType::PROCESS,  "docstring", "dateoh");
+  is_glib->createUInt32("BOARD_ID",             glib->getBoardIDRaw(),      NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
+  is_glib->createUInt32("SYSTEM_ID",            glib->getSystemIDRaw(),     NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
+  is_glib->createUInt32("FIRMWARE_VERSION",     glib->getFirmwareVerRaw(),  NULL, GEMUpdateType::PROCESS,  "docstring", "fwver");
+  is_glib->createUInt32("FIRMWARE_DATE",        glib->getFirmwareDateRaw(), NULL, GEMUpdateType::PROCESS,  "docstring", "date");
+  is_glib->createUInt32("AMC_FIRMWARE_VERSION", glib->getFirmwareVerRaw(),  NULL, GEMUpdateType::PROCESS,  "docstring", "fwverglib");
+  is_glib->createUInt32("AMC_FIRMWARE_DATE",    glib->getFirmwareDateRaw(), NULL, GEMUpdateType::PROCESS,  "docstring", "dateoh");
+
+  // FIXME GLIB ONLY? OBSOLETE?
   is_glib->createUInt32("IP_ADDRESS",    glib->getIPAddressRaw(),    NULL, GEMUpdateType::NOUPDATE, "docstring", "ip");
   is_glib->createUInt64("MAC_ADDRESS",   glib->getMACAddressRaw(),   NULL, GEMUpdateType::NOUPDATE, "docstring", "mac");
   is_glib->createUInt32("SFP1_STATUS",   glib->SFPStatus(1),         NULL, GEMUpdateType::HW32);
@@ -807,11 +670,6 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("V6_CPLD",       glib->V6CPLDStatus(),       NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("CPLD_LOCK",     glib->CDCELockStatus(),     NULL, GEMUpdateType::HW32);
 
-  // ttc registers
-  // is_glib->createUInt32("L1A",      glib->getL1ACount(),      NULL, GEMUpdateType::HW32);
-  // is_glib->createUInt32("CalPulse", glib->getCalPulseCount(), NULL, GEMUpdateType::HW32);
-  // is_glib->createUInt32("Resync",   glib->getResyncCount(),   NULL, GEMUpdateType::HW32);
-  // is_glib->createUInt32("BC0",      glib->getBC0Count(),      NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("L1A"       , glib->getTTCCounter(AMCTTCCommand::TTC_L1A),        NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("BC0"       , glib->getTTCCounter(AMCTTCCommand::TTC_BC0),        NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("EC0"       , glib->getTTCCounter(AMCTTCCommand::TTC_EC0),        NULL, GEMUpdateType::HW32);
@@ -846,37 +704,37 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("DAQ_WORD_RATE",          glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
 
   // TTC registers
-  // is_glib->createUInt32("TTC_CONTROL", glib->getTTCControl(),   NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("TTC_CONTROL", glib->getTTCControl(),   NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("TTC_SPY"            , glib->getTTCSpyBuffer(), NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("MMCM_LOCKED"        , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("BC0_LOCKED"         , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("PHASE_LOCKED"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("SYNC_DONE"          , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("PHASE_LOCKED"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("SYNC_DONE"          , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("L1A_RATE"           , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("MMCM_UNLOCK_CNT"    , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("BC0_UNLOCK_CNT"     , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("PHASE_UNLOCK_CNT"   , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("PHASE_UNLOCK_TIME"  , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("SYNC_DONE_TIME"     , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("PHASE_UNLOCK_CNT"   , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("PHASE_UNLOCK_TIME"  , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("SYNC_DONE_TIME"     , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("BC0_OVERFLOW_CNT"   , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("BC0_UNDERFLOW_CNT"  , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("PA_PLL_LOCK_WINDOW" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("PA_PHASE_SHIFT_CNT" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("PA_PLL_LOCK_CLOCKS" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("PA_FSM_STATE"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("TTC_PM_PHASE"           , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("TTC_PM_PHASE_MEAN"      , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("TTC_PM_PHASE_MIN"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("TTC_PM_PHASE_MAX"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("TTC_PM_PHASE_JUMP_CNT"  , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("TTC_PM_PHASE_JUMP_SIZE" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("TTC_PM_PHASE_JUMP_TIME" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTH_PM_PHASE"           , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTH_PM_PHASE_MEAN"      , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTH_PM_PHASE_MIN"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTH_PM_PHASE_MAX"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTH_PM_PHASE_JUMP_CNT"  , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTH_PM_PHASE_JUMP_SIZE" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("PA_PLL_LOCK_WINDOW" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("PA_PHASE_SHIFT_CNT" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("PA_PLL_LOCK_CLOCKS" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("PA_FSM_STATE"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("TTC_PM_PHASE"           , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("TTC_PM_PHASE_MEAN"      , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("TTC_PM_PHASE_MIN"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("TTC_PM_PHASE_MAX"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("TTC_PM_PHASE_JUMP_CNT"  , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("TTC_PM_PHASE_JUMP_SIZE" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("TTC_PM_PHASE_JUMP_TIME" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("GTH_PM_PHASE"           , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("GTH_PM_PHASE_MEAN"      , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("GTH_PM_PHASE_MIN"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("GTH_PM_PHASE_MAX"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("GTH_PM_PHASE_JUMP_CNT"  , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  // FIXME NOT YET PRESENT // is_glib->createUInt32("GTH_PM_PHASE_JUMP_SIZE" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("GTH_PM_PHASE_JUMP_TIME" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
 
   // B-GO command words
@@ -911,11 +769,11 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
                             glib->getLinkDAQCounters(oh, 1), NULL, GEMUpdateType::HW32);
       is_glib->createUInt32(ohname.str()+"_"+cluname.str()+"_CNT",
                             glib->getLinkDAQCounters(oh, 1), NULL, GEMUpdateType::HW32);
-      cluname.str("");
-      cluname.clear();
-      cluname << "DEBUG_LAST_CLUSTER_" << cluster;
-      is_glib->createUInt32(ohname.str()+"_"+cluname.str(),
-                            glib->getLinkDAQCounters(oh, 1), NULL, GEMUpdateType::HW32);
+      // cluname.str("");
+      // cluname.clear();
+      // cluname << "DEBUG_LAST_CLUSTER_" << cluster;
+      // is_glib->createUInt32(ohname.str()+"_"+cluname.str(),
+      //                       glib->getLinkDAQCounters(oh, 1), NULL, GEMUpdateType::HW32);
     }
   }
 }

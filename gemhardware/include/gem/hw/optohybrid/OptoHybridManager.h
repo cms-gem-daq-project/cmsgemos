@@ -61,79 +61,6 @@ namespace gem {
             throw (toolbox::fsm::exception::Exception);
 
         protected:
-          class SBitConfig
-          {
-          public:
-            SBitConfig();
-            void registerFields(xdata::Bag<OptoHybridManager::SBitConfig>* bag);
-
-            // configuration parameters
-            xdata::UnsignedShort Mode;
-            xdata::Vector<xdata::UnsignedShort> Outputs;
-            xdata::UnsignedShort Output0Src;
-            xdata::UnsignedShort Output1Src;
-            xdata::UnsignedShort Output2Src;
-            xdata::UnsignedShort Output3Src;
-            xdata::UnsignedShort Output4Src;
-            xdata::UnsignedShort Output5Src;
-
-            inline std::string toString() {
-              // write obj to stream
-              std::stringstream os;
-              os << "Mode      :" << Mode.toString()       << std::endl
-                 << "Output0Src:" << Output0Src.toString() << std::endl
-                 << "Output1Src:" << Output1Src.toString() << std::endl
-                 << "Output2Src:" << Output2Src.toString() << std::endl
-                 << "Output3Src:" << Output3Src.toString() << std::endl
-                 << "Output4Src:" << Output4Src.toString() << std::endl
-                 << "Output5Src:" << Output5Src.toString() << std::endl
-                 << std::endl;
-              return os.str();
-            };
-          };
-
-          class CommonVFATSettings
-          {
-          public:
-            CommonVFATSettings();
-            void registerFields(xdata::Bag<OptoHybridManager::CommonVFATSettings>* bag);
-
-            // configuration parameters
-            xdata::UnsignedShort ContReg0   ;
-            xdata::UnsignedShort ContReg1   ;
-            xdata::UnsignedShort ContReg2   ;
-            xdata::UnsignedShort ContReg3   ;
-            xdata::UnsignedShort IPreampIn  ;
-            xdata::UnsignedShort IPreampFeed;
-            xdata::UnsignedShort IPreampOut ;
-            xdata::UnsignedShort IShaper    ;
-            xdata::UnsignedShort IShaperFeed;
-            xdata::UnsignedShort IComp      ;
-            xdata::UnsignedShort Latency    ;
-            xdata::UnsignedShort VThreshold1;
-            xdata::UnsignedShort VThreshold2;
-
-            inline std::string toString() {
-              // write obj to stream
-              std::stringstream os;
-              os << "ContReg0   :" << ContReg0.toString()    << std::endl
-                 << "ContReg1   :" << ContReg1.toString()    << std::endl
-                 << "ContReg2   :" << ContReg2.toString()    << std::endl
-                 << "ContReg3   :" << ContReg3.toString()    << std::endl
-                 << "IPreampIn  :" << IPreampIn.toString()   << std::endl
-                 << "IPreampFeed:" << IPreampFeed.toString() << std::endl
-                 << "IPreampOut :" << IPreampOut.toString()  << std::endl
-                 << "IShaper    :" << IShaper.toString()     << std::endl
-                 << "IShaperFeed:" << IShaperFeed.toString() << std::endl
-                 << "IComp      :" << IComp.toString()       << std::endl
-                 << "Latency    :" << Latency.toString()     << std::endl
-                 << "VThreshold1:" << VThreshold1.toString() << std::endl
-                 << "VThreshold2:" << VThreshold2.toString() << std::endl
-                 << std::endl;
-              return os.str();
-            };
-          };
-
           class OptoHybridInfo
           {
           public:
@@ -144,33 +71,28 @@ namespace gem {
             xdata::Integer crateID;
             xdata::Integer slotID;
             xdata::Integer linkID;
-            xdata::String  cardName;
+            xdata::String  cardName; // FIXME OBSOLETE/UPDATE?
 
-            // configuration parameters
-            xdata::String controlHubAddress;
-            xdata::String deviceIPAddress;
-            xdata::String ipBusProtocol;
-            xdata::String addressTable;
+            /* // configuration parameters */
+            /* xdata::String controlHubAddress; */
+            /* xdata::String deviceIPAddress; */
+            /* xdata::String ipBusProtocol; */
+            /* xdata::String addressTable; */
+            /* xdata::UnsignedInteger32 controlHubPort; */
+            /* xdata::UnsignedInteger32 ipBusPort; */
 
-            xdata::UnsignedInteger32 controlHubPort;
-            xdata::UnsignedInteger32 ipBusPort;
+            xdata::String            vfatBroadcastList; // FIXME OBSOLETE/UPDATE?
+            xdata::UnsignedInteger32 vfatBroadcastMask; // FIXME OBSOLETE/UPDATE?
 
-            xdata::String            vfatBroadcastList;
-            xdata::UnsignedInteger32 vfatBroadcastMask;
-
-            xdata::String            vfatSBitList;
-            xdata::UnsignedInteger32 vfatSBitMask;
+            xdata::String            vfatSBitList; // FIXME OBSOLETE/UPDATE?
+            xdata::UnsignedInteger32 vfatSBitMask; // FIXME OBSOLETE/UPDATE?
 
             // registers to set
-            xdata::Integer triggerSource;
-            // xdata::Integer sbitSource;
-            xdata::Integer refClkSrc;
-            // xdata::Integer vfatClkSrc;
-            // xdata::Integer cdceClkSrc;
+            xdata::Integer triggerSource;  // FIXME OBSOLETE/UPDATE?
+            xdata::Integer refClkSrc;      // FIXME OBSOLETE/UPDATE?
 
-            xdata::Bag<SBitConfig> sbitConfig;
-
-            xdata::Bag<CommonVFATSettings> commonVFATSettings;
+            /* xdata::Bag<SBitConfig> sbitConfig; // USE DB CONFIG OBJECT */
+            /* xdata::Bag<CommonVFATSettings> commonVFATSettings; // USE DB CONFIG OBJECT */
 
             inline std::string toString() {
               // write obj to stream
@@ -181,28 +103,21 @@ namespace gem {
                  << "linkID:"  << linkID.toString()  << std::endl
                  << "cardName:" << cardName.toString() << std::endl
 
-                 << "controlHubAddress:" << controlHubAddress.toString() << std::endl
-                 << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
-                 << "ipBusProtocol:"     << ipBusProtocol.toString()     << std::endl
-                 << "addressTable:"      << addressTable.toString()      << std::endl
-                 << "controlHubPort:"    << controlHubPort.value_    << std::endl
-                 << "ipBusPort:"         << ipBusPort.value_         << std::endl
+                 /* << "controlHubAddress:" << controlHubAddress.toString() << std::endl */
+                 /* << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl */
+                 /* << "ipBusProtocol:"     << ipBusProtocol.toString()     << std::endl */
+                 /* << "addressTable:"      << addressTable.toString()      << std::endl */
+                 /* << "controlHubPort:"    << controlHubPort.value_    << std::endl */
+                 /* << "ipBusPort:"         << ipBusPort.value_         << std::endl */
 
                  << "vfatBroadcastList:"   << vfatBroadcastList.toString() << std::endl
                  << "vfatBroadcastMask:0x" << std::hex << vfatBroadcastMask.value_ << std::dec << std::endl
-                 << "vfatSBitList:"        << vfatSBitList.toString() << std::endl
-                 << "vfatSBitMask:0x"      << std::hex << vfatSBitMask.value_ << std::dec << std::endl
 
                  << "vfatSBitList:"   << vfatSBitList.toString() << std::endl
                  << "vfatSBitMask:0x" << std::hex << vfatSBitMask.value_ << std::dec << std::endl
 
                  << "triggerSource:0x" << std::hex << triggerSource.value_ << std::dec << std::endl
-                // << "sbitSource:0x"    << std::hex << sbitSource.value_    << std::dec << std::endl
                  << "refClkSrc:0x"     << std::hex << refClkSrc.value_     << std::dec << std::endl
-                 // << "vfatClkSrc:0x"    << std::hex << vfatClkSrc.value_    << std::dec << std::endl
-                 // << "cdceClkSrc:0x"    << std::hex << cdceClkSrc.value_    << std::dec << std::endl
-                 << "sbitConfig"         << sbitConfig.bag.toString()         << std::endl
-                 << "commonVFATSettings" << commonVFATSettings.bag.toString() << std::endl
                  << std::endl;
               return os.str();
             };

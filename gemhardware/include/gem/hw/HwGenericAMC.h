@@ -15,9 +15,6 @@ namespace gem {
       {
       public:
 
-        /* // FIXME, THIS SHOULD NOT BE HARDCODED, move out of class? */
-        /* static constexpr uint8_t N_GTX = 12; ///< maximum number of GTX links on the GenericAMC */
-
         /**
          * @struct AMCIPBusCounters
          * @brief This structure stores retrieved counters related to the GenericAMC IPBus transactions
@@ -177,37 +174,6 @@ namespace gem {
 
       public:
         /**
-         * Read the gtx status registers, store the information in a struct
-         * @param gtx is the number of the gtx to query
-         * @retval _status a struct containing the status bits of the optical link
-         * @throws gem::hw::exception::InvalidLink if the gtx number is outside of 0-N_GTX
-         */
-        virtual GEMHwDevice::OpticalLinkStatus LinkStatus(uint8_t const& gtx);
-
-        /**
-         * Reset the gtx status registers
-         * @param uint8_t gtx is the number of the gtx to query
-         * @param uint8_t resets control which bits to reset
-         * bit 1 - GTX_TRK_ErrCnt         0x1
-         * bit 2 - GTX_TRG_ErrCnt         0x2
-         * bit 3 - GTX_Data_Rec           0x4
-         * bit 4 - GBT_TRK_ErrCnt         0x8
-         * bit 5 - GBT_Data_Rec           0x10
-         * @throws gem::hw::exception::InvalidLink if the gtx number is outside of 0-N_GTX
-         * FIXME: OBSOLETE IN V2/V3, reimplement to remove linkReset/ResetLinks duplication?
-         */
-        virtual void LinkReset(uint8_t const& gtx, uint8_t const& resets);
-
-        /**
-         * Reset the all gtx status registers
-         * @param uint8_t resets control which bits to reset
-         */
-        virtual void ResetLinks(uint8_t const& resets) {
-          for (auto gtx = v_activeLinks.begin(); gtx != v_activeLinks.end(); ++gtx)
-            LinkReset(gtx->first,resets);
-        }
-
-        /**
          * Set the trigger source to the front end
          * @param uint8_t mode 0 from software, 1 from TTC decoder (AMC13), 2 from both
          * OBSOLETE in V2 firmware, taken care of in the OptoHybrid
@@ -239,20 +205,6 @@ namespace gem {
 
         ///Counters
         /**
-         * Get the recorded number of IPBus signals sent/received by the GenericAMC
-         * @param uint8_t gtx which GTX
-         * @param uint8_t mode which counter
-         * bit 1 OptoHybridStrobe
-         * bit 2 OptoHybridAck
-         * bit 3 TrackingStrobe
-         * bit 4 TrackingAck
-         * bit 5 CounterStrobe
-         * bit 6 CounterAck
-         * @returns AMCIPBusCounters struct, with updated values for the ones specified in the mask
-         */
-        virtual AMCIPBusCounters getIPBusCounters(uint8_t const& gtx, uint8_t const& mode);
-
-        /**
          * Get the recorded number of L1A signals received from the TTC decoder
          */
         uint32_t getL1ACount() { return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.L1A"); }
@@ -273,18 +225,6 @@ namespace gem {
         uint32_t getBC0Count() { return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.BC0"); }
 
         ///Counter resets
-        /**
-         * Get the recorded number of IPBus signals sent/received by the GenericAMC
-         * @param uint8_t gtx which GTX
-         * @param uint8_t mode which counter
-         * bit 0 OptoHybridStrobe
-         * bit 1 OptoHybridAck
-         * bit 2 TrackingStrobe
-         * bit 3 TrackingAck
-         * bit 4 CounterStrobe
-         * bit 5 CounterAck
-         */
-        virtual void resetIPBusCounters(uint8_t const& gtx, uint8_t const& mode);
 
         /** FIXME specific counter resets from legacy, counter resets are module wide now  **/
         /**
@@ -475,7 +415,7 @@ namespace gem {
          * @returns Returns the the 32-bit word corresponding DAQ status for the specified link
          */
         // FIXME: renamed from DAQLink to LinkDAQ
-        uint32_t getLinkDAQStatus(   uint8_t const& gtx);
+        uint32_t getLinkDAQStatus(uint8_t const& gtx);
 
         /**
          * @param gtx is the input link counter to query
@@ -483,7 +423,7 @@ namespace gem {
          * @returns Returns the link counter for the specified mode
          */
         // FIXME: renamed from DAQLink to LinkDAQ
-        uint32_t getLinkDAQCounters( uint8_t const& gtx, uint8_t const& mode);
+        uint32_t getLinkDAQCounters(uint8_t const& gtx, uint8_t const& mode);
 
         /**
          * @param gtx is the input link status to query
@@ -803,7 +743,7 @@ namespace gem {
         uint32_t m_links;    ///< Connected links mask
         uint32_t m_maxLinks; ///< Maximum supported OptoHybrids as reported by the firmware
 
-        std::vector<linkStatus> v_activeLinks; ///< vector keeping track of the active links
+        /* std::vector<linkStatus> v_activeLinks; ///< vector keeping track of the active links */
 
         /**
          * @brief sets the expected board ID string to be matched when reading from the firmware
@@ -812,9 +752,6 @@ namespace gem {
         void setExpectedBoardID(std::string const& boardID) { m_boardID = boardID; }
 
         std::string m_boardID;  ///< expected boardID in the firmware
-
-        int m_crate;  ///< Crate number the AMC is housed in
-        int m_slot;   ///< Slot number in the uTCA shelf the AMC is sitting in
 
       private:
         // Do not use default constructor. HwGenericAMC object should only be made using

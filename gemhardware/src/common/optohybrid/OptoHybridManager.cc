@@ -56,80 +56,20 @@ void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdat
   bag->addField("slot",     &slotID);
   bag->addField("link",     &linkID);
   bag->addField("present",  &present);
-  bag->addField("CardName", &cardName);
 
-  bag->addField("VFATBroadcastList", &vfatBroadcastList);
-  bag->addField("VFATBroadcastMask", &vfatBroadcastMask);
+  bag->addField("CardName", &cardName); // FIXME OBSOLETE/UPDATE?
 
-  bag->addField("VFATSBitList", &vfatSBitList);
-  bag->addField("VFATSBitMask", &vfatSBitMask);
+  bag->addField("VFATBroadcastList", &vfatBroadcastList); // FIXME OBSOLETE/UPDATE?
+  bag->addField("VFATBroadcastMask", &vfatBroadcastMask); // FIXME OBSOLETE/UPDATE?
 
-  bag->addField("triggerSource", &triggerSource);
-  // bag->addField("sbitSource",    &sbitSource);
-  bag->addField("refClkSrc",     &refClkSrc);
-  // bag->addField("vfatClkSrc",    &vfatClkSrc);
-  // bag->addField("cdceClkSrc",    &cdceClkSrc);
+  bag->addField("VFATSBitList", &vfatSBitList); // FIXME OBSOLETE/UPDATE?
+  bag->addField("VFATSBitMask", &vfatSBitMask); // FIXME OBSOLETE/UPDATE?
 
-  bag->addField("SBitConfig",         &sbitConfig);
-  bag->addField("CommonVFATSettings", &commonVFATSettings);
-}
+  bag->addField("triggerSource", &triggerSource); // FIXME OBSOLETE/UPDATE?
+  bag->addField("refClkSrc",     &refClkSrc);     // FIXME OBSOLETE/UPDATE?
 
-gem::hw::optohybrid::OptoHybridManager::SBitConfig::SBitConfig() {
-  Mode       = 0;
-  Output0Src = 0;
-  Output1Src = 1;
-  Output2Src = 2;
-  Output3Src = 3;
-  Output4Src = 4;
-  Output5Src = 5;
-  Outputs.setSize(6);
-  Outputs.at(0) = Output0Src.value_;
-  Outputs.at(1) = Output1Src.value_;
-  Outputs.at(2) = Output2Src.value_;
-  Outputs.at(3) = Output3Src.value_;
-  Outputs.at(4) = Output4Src.value_;
-  Outputs.at(5) = Output5Src.value_;
-}
-
-void gem::hw::optohybrid::OptoHybridManager::SBitConfig::registerFields(xdata::Bag<gem::hw::optohybrid::OptoHybridManager::SBitConfig>* bag) {
-  bag->addField("Mode",       &Mode      );
-  bag->addField("Output0Src", &Output0Src);
-  bag->addField("Output1Src", &Output1Src);
-  bag->addField("Output2Src", &Output2Src);
-  bag->addField("Output3Src", &Output3Src);
-  bag->addField("Output4Src", &Output4Src);
-  bag->addField("Output5Src", &Output5Src);
-  bag->addField("Outputs",    &Outputs);
-}
-
-gem::hw::optohybrid::OptoHybridManager::CommonVFATSettings::CommonVFATSettings() {
-  ContReg0    = 0x36;
-  ContReg2    = 0x30;
-  IPreampIn   =  168;
-  IPreampFeed =   80;
-  IPreampOut  =  150;
-  IShaper     =  150;
-  IShaperFeed =  100;
-  IComp       =   75;
-  Latency     =  157;
-  VThreshold1 =   50;
-  VThreshold2 =    0;
-}
-
-void gem::hw::optohybrid::OptoHybridManager::CommonVFATSettings::registerFields(xdata::Bag<gem::hw::optohybrid::OptoHybridManager::CommonVFATSettings>* bag) {
-  bag->addField("ContReg0",          &ContReg0   );
-  bag->addField("ContReg1",          &ContReg1   );
-  bag->addField("ContReg2",          &ContReg2   );
-  bag->addField("ContReg3",          &ContReg3   );
-  bag->addField("IPreampIn",         &IPreampIn  );
-  bag->addField("IPreampFeed",       &IPreampFeed);
-  bag->addField("IPreampOut",        &IPreampOut );
-  bag->addField("IShaper",           &IShaper    );
-  bag->addField("IShaperFeed",       &IShaperFeed);
-  bag->addField("IComp",             &IComp      );
-  bag->addField("Latency",           &Latency    );
-  bag->addField("VThreshold1",       &VThreshold1);
-  bag->addField("VThreshold2",       &VThreshold2);
+  // bag->addField("SBitConfig",         &sbitConfig); // FIXME OBSOLETE  USE DB CONFIG OBJECT
+  // bag->addField("CommonVFATSettings", &commonVFATSettings); // FIXME OBSOLETE USE DB CONFIG OBJECT
 }
 
 gem::hw::optohybrid::OptoHybridManager::OptoHybridManager(xdaq::ApplicationStub* stub) :
@@ -368,68 +308,46 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
       if (optohybrid->isHwConnected()) {
         hwMapping[slot+1].insert(link);
 
-        CMSGEMOS_DEBUG("OptoHybridManager::configureAction::setting trigger source to 0x"
-             << std::hex << info.triggerSource.value_ << std::dec);
-        optohybrid->setTrigSource(info.triggerSource.value_);
-
+        // FIXME UPDATE
         // CMSGEMOS_DEBUG("OptoHybridManager::configureAction::setting sbit source to 0x"
-        //      << std::hex << info.sbitSource.value_ << std::dec);
+        //                << std::hex << info.sbitSource.value_ << std::dec);
         // optohybrid->setSBitSource(info.sbitSource.value_);
-        CMSGEMOS_DEBUG("OptoHybridManager::setting reference clock source to 0x"
-             << std::hex << info.refClkSrc.value_ << std::dec);
-        optohybrid->setReferenceClock(info.refClkSrc.value_);
+        // CMSGEMOS_DEBUG("OptoHybridManager::setting reference clock source to 0x"
+        //                << std::hex << info.refClkSrc.value_ << std::dec);
+        // optohybrid->setReferenceClock(info.refClkSrc.value_);
 
-        /*
-        CMSGEMOS_DEBUG("OptoHybridManager::setting vfat clock source to 0x" << std::hex << info.vfatClkSrc.value_ << std::dec);
-        optohybrid->setVFATClock(info.vfatClkSrc.value_,);
-        CMSGEMOS_DEBUG("OptoHybridManager::setting cdce clock source to 0x" << std::hex << info.cdceClkSrc.value_ << std::dec);
-        optohybrid->setSBitSource(info.cdceClkSrc.value_);
-        */
-        /*
-        for (unsigned olink = 0; olink < HwAMC::N_GTX; ++olink) {
-        }
-        */
+        // CMSGEMOS_DEBUG("OptoHybridManager::setting vfat clock source to 0x" << std::hex << info.vfatClkSrc.value_ << std::dec);
+        // optohybrid->setVFATClock(info.vfatClkSrc.value_,);
+        // CMSGEMOS_DEBUG("OptoHybridManager::setting cdce clock source to 0x" << std::hex << info.cdceClkSrc.value_ << std::dec);
+        // optohybrid->setSBitSource(info.cdceClkSrc.value_);
+        // for (unsigned olink = 0; olink < HwAMC::N_GTX; ++olink) {
+        // }
 
-        CMSGEMOS_DEBUG("OptoHybridManager::configureAction Setting output s-bit configuration parameters");
-        optohybrid->setHDMISBitMode(info.sbitConfig.bag.Mode.value_);
+        // FIXME UPDATE
+        // CMSGEMOS_DEBUG("OptoHybridManager::configureAction Setting output s-bit configuration parameters");
+        // optohybrid->setHDMISBitMode(info.sbitConfig.bag.Mode.value_);
 
-        std::array<uint8_t, 6> sbitSources = {{
-            static_cast<uint8_t>(info.sbitConfig.bag.Output0Src.value_ & 0x1f),
-            static_cast<uint8_t>(info.sbitConfig.bag.Output1Src.value_ & 0x1f),
-            static_cast<uint8_t>(info.sbitConfig.bag.Output2Src.value_ & 0x1f),
-            static_cast<uint8_t>(info.sbitConfig.bag.Output3Src.value_ & 0x1f),
-            static_cast<uint8_t>(info.sbitConfig.bag.Output4Src.value_ & 0x1f),
-            static_cast<uint8_t>(info.sbitConfig.bag.Output5Src.value_ & 0x1f),
+        std::array<uint8_t, 8> sbitSources = {{
           }};
 
         optohybrid->setHDMISBitSource(sbitSources);
 
-        std::vector<std::pair<uint8_t,uint32_t> > chipIDs = optohybrid->getConnectedVFATs();
+        std::vector<std::pair<uint8_t, uint32_t> > chipIDs = optohybrid->getConnectedVFATs();
 
-        for (auto chip = chipIDs.begin(); chip != chipIDs.end(); ++chip)
-          if (chip->second)
-            CMSGEMOS_INFO("VFAT found in GEB slot " << std::setw(2) << (int)chip->first << " has ChipID "
-                 << "0x" << std::hex << std::setw(4) << chip->second << std::dec);
-          else
-            CMSGEMOS_INFO("No VFAT found in GEB slot " << std::setw(2) << (int)chip->first);
+        for (auto chip = chipIDs.begin(); chip != chipIDs.end(); ++chip) {
+          if (chip->second) {
+            CMSGEMOS_INFO("VFAT found in GEB slot " << std::setw(2) << static_cast<uint32_t>(chip->first) << " has ChipID "
+                          << "0x" << std::hex << std::setw(4) << chip->second << std::dec);
+          } else {
+            CMSGEMOS_INFO("No VFAT found in GEB slot " << std::setw(2) << static_cast<uint32_t>(chip->first));
+          }
+        }
 
         uint32_t vfatMask = m_broadcastList.at(slot).at(link);
         CMSGEMOS_INFO("Setting VFAT parameters with broadcast write using mask " << std::hex << vfatMask << std::dec);
 
-        std::map<std::string, uint8_t > vfatSettings;
-        vfatSettings["ContReg0"   ] = (uint8_t)(info.commonVFATSettings.bag.ContReg0.value_);
-        vfatSettings["ContReg1"   ] = (uint8_t)(info.commonVFATSettings.bag.ContReg1.value_);
-        vfatSettings["ContReg2"   ] = (uint8_t)(info.commonVFATSettings.bag.ContReg2.value_);
-        vfatSettings["ContReg3"   ] = (uint8_t)(info.commonVFATSettings.bag.ContReg3.value_);
-        vfatSettings["IPreampIn"  ] = (uint8_t)(info.commonVFATSettings.bag.IPreampIn.value_);
-        vfatSettings["IPreampFeed"] = (uint8_t)(info.commonVFATSettings.bag.IPreampFeed.value_);
-        vfatSettings["IPreampOut" ] = (uint8_t)(info.commonVFATSettings.bag.IPreampOut.value_);
-        vfatSettings["IShaper"    ] = (uint8_t)(info.commonVFATSettings.bag.IShaper.value_);
-        vfatSettings["IShaperFeed"] = (uint8_t)(info.commonVFATSettings.bag.IShaperFeed.value_);
-        vfatSettings["IComp"      ] = (uint8_t)(info.commonVFATSettings.bag.IComp.value_);
-        vfatSettings["VThreshold1"] = (uint8_t)(info.commonVFATSettings.bag.VThreshold1.value_);
-        vfatSettings["VThreshold2"] = (uint8_t)(info.commonVFATSettings.bag.VThreshold2.value_);
-        vfatSettings["Latency"    ] = (uint8_t)(info.commonVFATSettings.bag.Latency.value_);
+        // FIXME OBSOLETE/UPDATE?
+        std::map<std::string, uint8_t> vfatSettings;
 
         if (m_scanType.value_ == 2) {
           CMSGEMOS_INFO("OptoHybridManager::configureAction configureAction: FIRST Latency  " << m_scanMin.value_);
@@ -702,20 +620,8 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
         optohybrid->broadcastWrite("ContReg0", 0x36, vfatMask);
         // what resets to do
 
+        // FIXME OBSOLETE/UPDATE?
         std::map<std::string, uint8_t > vfatSettings;
-        vfatSettings["ContReg0"   ] = (uint8_t)(info.commonVFATSettings.bag.ContReg0.value_);
-        vfatSettings["ContReg1"   ] = (uint8_t)(info.commonVFATSettings.bag.ContReg1.value_);
-        vfatSettings["ContReg2"   ] = (uint8_t)(info.commonVFATSettings.bag.ContReg2.value_);
-        vfatSettings["ContReg3"   ] = (uint8_t)(info.commonVFATSettings.bag.ContReg3.value_);
-        vfatSettings["IPreampIn"  ] = (uint8_t)(info.commonVFATSettings.bag.IPreampIn.value_);
-        vfatSettings["IPreampFeed"] = (uint8_t)(info.commonVFATSettings.bag.IPreampFeed.value_);
-        vfatSettings["IPreampOut" ] = (uint8_t)(info.commonVFATSettings.bag.IPreampOut.value_);
-        vfatSettings["IShaper"    ] = (uint8_t)(info.commonVFATSettings.bag.IShaper.value_);
-        vfatSettings["IShaperFeed"] = (uint8_t)(info.commonVFATSettings.bag.IShaperFeed.value_);
-        vfatSettings["IComp"      ] = (uint8_t)(info.commonVFATSettings.bag.IComp.value_);
-        vfatSettings["VThreshold1"] = (uint8_t)(info.commonVFATSettings.bag.VThreshold1.value_);
-        vfatSettings["VThreshold2"] = (uint8_t)(info.commonVFATSettings.bag.VThreshold2.value_);
-        vfatSettings["Latency"    ] = (uint8_t)(info.commonVFATSettings.bag.Latency.value_);
 
 	if (m_scanType.value_ == 2) {
 	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
@@ -826,80 +732,28 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
   // system registers
   is_optohybrid->createUInt32("VFAT_Mask",    optohybrid->getVFATMask(),        NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("SBit_Mask",    optohybrid->getSBitMask(),        NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("Drop Bad CRC", optohybrid->getTrigSource(),      NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("TrgSource",    optohybrid->getTrigSource(),      NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("SBitLoopback", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("TrgThrottle",  optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  // probably want this to be a set of 6
-  is_optohybrid->createUInt32("HDMI SBitsOut", optohybrid->getHDMISBitSource(),  NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("HDMI SBitMode", optohybrid->getHDMISBitMode(),    NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("ZS",            optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("REF_CLK",       optohybrid->getReferenceClock(),  NULL, GEMUpdateType::HW32);
+  // probably want this to be a set of 8?
+  // is_optohybrid->createUInt32("HDMI SBitsOut", optohybrid->getHDMISBitSource(),  NULL, GEMUpdateType::HW32);
+  // is_optohybrid->createUInt32("HDMI SBitMode", optohybrid->getHDMISBitMode(),    NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("CLK_STATUS",       optohybrid->getClockStatus(),  NULL, GEMUpdateType::HW32);
 
   is_optohybrid->createUInt32("FIRMWARE_DATE", optohybrid->getFirmwareDate(),
                               NULL, GEMUpdateType::PROCESS, "docstring", "fwdateoh");
   is_optohybrid->createUInt32("FIRMWARE_VERSION", optohybrid->getFirmwareVersion(),
                               NULL, GEMUpdateType::PROCESS, "docstring", "fwveroh");
-  is_optohybrid->createUInt32("FPGA_PLL_IS_LOCKED",      optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("EXT_PLL_IS_LOCKED",       optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("CDCE_IS_LOCKED",          optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("GTX_IS_LOCKED",           optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("QPLL_IS_LOCKED",          optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("QPLL_FPGA_PLL_IS_LOCKED", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
 
-  std::array<std::string, 5> wbMasters = {{"GTX","GBT","ExtI2C","Scan","DAC"}};
-  for (auto master = wbMasters.begin(); master != wbMasters.end(); ++master) {
-    is_optohybrid->createUInt32("Master:"+(*master)+"Strobe", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-    is_optohybrid->createUInt32("Master:"+(*master)+"Ack",    optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
+  std::array<std::string, 2> ttcsources = {{"GBT_TTC","LOCAL_TTC"}};
+  for (auto const& ttcsrc : ttcsources) {
+    is_optohybrid->createUInt32((ttcsrc)+"L1A",    optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
+    is_optohybrid->createUInt32((ttcsrc)+"Resync", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
+    is_optohybrid->createUInt32((ttcsrc)+"BC0",    optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
+    is_optohybrid->createUInt32((ttcsrc)+"BXN",    optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
   }
 
-  for (int i2c = 0; i2c < 6; ++i2c) {
-    std::stringstream ss;
-    ss << "I2C" << i2c;
-    is_optohybrid->createUInt32("Slave:"+ss.str()+"Strobe", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-    is_optohybrid->createUInt32("Slave:"+ss.str()+"Ack",    optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  }
-
-  std::array<std::string, 8> wbSlaves = {{"ExtI2C","Scan","T1","DAC","ADC","Clocking","Counters","System"}};
-  for (auto slave = wbSlaves.begin(); slave != wbSlaves.end(); ++slave) {
-    is_optohybrid->createUInt32("Slave:"+(*slave)+"Strobe", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-    is_optohybrid->createUInt32("Slave:"+(*slave)+"Ack",    optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  }
-
-  for (int vfat = 0; vfat < 24; ++vfat) {
-    std::stringstream ss;
-    ss << "VFAT" << vfat;
-    is_optohybrid->createUInt32(ss.str()+"_Incorrect", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-    is_optohybrid->createUInt32(ss.str()+"_Valid",     optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  }
-
-  std::array<std::string, 6> t1sources = {{"SENT","GBT_TTC","GTX_TTC","INTERNAL","EXTERNAL","LOOPBACK"}};
-  for (auto t1src = t1sources.begin(); t1src != t1sources.end(); ++t1src) {
-    is_optohybrid->createUInt32((*t1src)+"L1A",      optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-    is_optohybrid->createUInt32((*t1src)+"CalPulse", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-    is_optohybrid->createUInt32((*t1src)+"Resync",   optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-    is_optohybrid->createUInt32((*t1src)+"BC0",      optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  }
-
+  // FIXME UPDATE REMOVE?
   is_optohybrid->createUInt32("GTX_TrackingLinkErrors", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("GTX_TriggerLinkErrors",  optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("GTX_DataPackets",        optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("GBT_TrackingLinkErrors", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("GBT_DataPackets",        optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("QPLL_LOCK",              optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("QPLL_FPGA_PLL_LOCK",     optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-
-  /** Firmware based scan routines **/
-  std::array<std::string, 3> scans = {{"Single VFAT Threshold/Latency/SCurve", "Ultra VFATs Threshold/Latency/SCurve","DAC"}};
-  std::array<std::string, 8> scanregs = {{"MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
-  for (auto scan = scans.begin(); scan != scans.end(); ++scan) {
-    for (auto scanreg = scanregs.begin(); scanreg != scanregs.end(); ++scanreg) {
-      if ((*scan) == "DAC" && (*scanreg) == "CHAN")
-        continue;
-      if (scan->rfind("Ultra") != std::string::npos && (*scanreg) == "CHIP")
-        is_optohybrid->createUInt32((*scan)+"MASK", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-      else
-        is_optohybrid->createUInt32((*scan)+(*scanreg), optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-    }
-  }
 }

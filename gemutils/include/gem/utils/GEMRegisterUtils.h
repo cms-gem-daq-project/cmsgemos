@@ -7,6 +7,8 @@
 #include <string>
 #include <iomanip>
 
+#include <boost/algorithm/string.hpp>
+
 #include <gem/utils/exception/Exception.h>
 
 namespace gem {
@@ -88,6 +90,21 @@ namespace gem {
       return res.str();
       };
 
+    static uint8_t extractDeviceID(std::string const& deviceName, uint8_t const& index)
+    {
+      // deviceName should be of the format: gem-shelfXX-amcYY
+      // optionally including -optohybridZZ
+      std::vector<std::string> subs;
+      boost::split(subs, deviceName, boost::is_any_of("-"));
+      if (index < subs.size()) {
+        return stoull(subs[index].substr(subs[index].find_first_of("0123456789"),2),nullptr,10);
+      } else {
+        std::stringstream errmsg;
+        errmsg << "Unable to extract parameter " << static_cast<int>(index)
+               << " value from provided device name: " << deviceName;
+        XCEPT_RAISE(gem::utils::exception::DeviceNameParseError, errmsg.str());
+      }
+    }
   }  // namespace gem::utils
 }  // namespace gem
 
