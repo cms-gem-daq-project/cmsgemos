@@ -11,24 +11,6 @@ namespace gem {
         {
             auto data = OHv3ConfigurationGen::getRegisterData();
 
-            for (std::size_t wire = 0; wire < getHDMISBitModes().size(); ++wire) {
-                std::stringstream ss;
-                ss << "HDMI_SBIT_MODE" << wire;
-                data[ss.str()] = getHDMISBitModes()[wire];
-            }
-
-            for (std::size_t wire = 0; wire < getHDMISBitSel().size(); ++wire) {
-                std::stringstream ss;
-                ss << "HDMI_SBIT_SEL" << wire;
-                data[ss.str()] = getHDMISBitSel()[wire];
-            }
-
-            for (std::size_t vfat = 0; vfat < getSotTapDelays().size(); ++vfat) {
-                std::stringstream ss;
-                ss << "SOT_TAP_DELAY_VFAT" << vfat;
-                data[ss.str()] = getSotTapDelays()[vfat];
-            }
-
             for (std::size_t vfat = 0; vfat < getTrigTapDelays().size(); ++vfat) {
                 for (std::size_t i = 0; i < getTrigTapDelays(vfat).size(); ++i) {
                     std::stringstream ss;
@@ -44,24 +26,6 @@ namespace gem {
         {
             OHv3ConfigurationGen::readRegisterData(data);
 
-            for (std::size_t wire = 0; wire < getHDMISBitModes().size(); ++wire) {
-                std::stringstream ss;
-                ss << "HDMI_SBIT_MODE" << wire;
-                setHDMISBitMode(wire, data.at(ss.str()));
-            }
-
-            for (std::size_t wire = 0; wire < getHDMISBitSel().size(); ++wire) {
-                std::stringstream ss;
-                ss << "HDMI_SBIT_SEL" << wire;
-                setHDMISBitSel(wire, data.at(ss.str()));
-            }
-
-            for (std::size_t vfat = 0; vfat < getSotTapDelays().size(); ++vfat) {
-                std::stringstream ss;
-                ss << "SOT_TAP_DELAY_VFAT" << vfat;
-                setSotTapDelay(vfat, data.at(ss.str()));
-            }
-
             for (std::size_t vfat = 0; vfat < getTrigTapDelays().size(); ++vfat) {
                 for (std::size_t i = 0; i < getTrigTapDelays(vfat).size(); ++i) {
                     std::stringstream ss;
@@ -74,9 +38,6 @@ namespace gem {
         bool OHv3Configuration::operator== (const OHv3Configuration &other) const
         {
             return OHv3ConfigurationGen::operator== (other)
-                && getHDMISBitModes() == other.getHDMISBitModes()
-                && getHDMISBitSel() == other.getHDMISBitSel()
-                && getSotTapDelays() == other.getSotTapDelays()
                 && getTrigTapDelays() == other.getTrigTapDelays()
                 && getVFATConfigs() == other.getVFATConfigs();
         }

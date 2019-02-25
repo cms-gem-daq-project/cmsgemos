@@ -7,125 +7,17 @@
     {
         "name": "BXN_OFFSET"
     }, {
-        "name": "HDMI_SBIT_MODE0",
-        "xsd only": true
+        "name": "HDMI_SBIT_MODE{}",
+        "cpp name": "hdmiSBitMode",
+        "count": 8
     }, {
-        "name": "HDMI_SBIT_MODE1",
-        "xsd only": true
+        "name": "HDMI_SBIT_SEL{}",
+        "cpp name": "hdmiSBitSel",
+        "count": 8
     }, {
-        "name": "HDMI_SBIT_MODE2",
-        "xsd only": true
-    }, {
-        "name": "HDMI_SBIT_MODE3",
-        "xsd only": true
-    }, {
-        "name": "HDMI_SBIT_MODE4",
-        "xsd only": true
-    }, {
-        "name": "HDMI_SBIT_MODE5",
-        "xsd only": true
-    }, {
-        "name": "HDMI_SBIT_MODE6",
-        "xsd only": true
-    }, {
-        "name": "HDMI_SBIT_MODE7",
-        "xsd only": true
-    }, {
-        "name": "HDMI_SBIT_SEL0",
-        "xsd only": true
-    }, {
-        "name": "HDMI_SBIT_SEL1",
-        "xsd only": true
-    }, {
-        "name": "HDMI_SBIT_SEL2",
-        "xsd only": true
-    }, {
-        "name": "HDMI_SBIT_SEL3",
-        "xsd only": true
-    }, {
-        "name": "HDMI_SBIT_SEL4",
-        "xsd only": true
-    }, {
-        "name": "HDMI_SBIT_SEL5",
-        "xsd only": true
-    }, {
-        "name": "HDMI_SBIT_SEL6",
-        "xsd only": true
-    }, {
-        "name": "HDMI_SBIT_SEL7",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT0",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT1",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT2",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT3",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT4",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT5",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT6",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT7",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT8",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT9",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT10",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT11",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT12",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT13",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT14",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT15",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT16",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT17",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT18",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT19",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT20",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT21",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT22",
-        "xsd only": true
-    }, {
-        "name": "SOT_TAP_DELAY_VFAT23",
-        "xsd only": true
+        "name": "SOT_TAP_DELAY_VFAT{}",
+        "cpp name": "sotTapDelay",
+        "count": 24
     }, {
         "name": "TRIG_CTRL_VFAT_MASK"
     }, {
