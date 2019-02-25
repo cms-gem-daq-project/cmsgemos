@@ -11,7 +11,8 @@
 namespace gem {
     namespace onlinedb {
 
-        // Forward declaration
+        // Forward declarations
+        class GBTXConfiguration;
         class VFAT3ChipConfiguration;
 
         /**
@@ -23,9 +24,9 @@ namespace gem {
         {
         public:
             /**
-             * @brief The number of wires in an HDMI cable.
+             * @brief The number of GBTX on an OH.
              */
-            static const constexpr std::size_t HDMI_WIRE_COUNT = 8;
+            static const constexpr std::size_t GBTX_COUNT = 3;
 
             /**
              * @brief The number of VFATs connected to an OH.
@@ -46,6 +47,7 @@ namespace gem {
             std::array<TrigTapDelayBits, VFAT_COUNT>   m_trigTapDelays;
 
             std::array<std::shared_ptr<VFAT3ChipConfiguration>, VFAT_COUNT> m_vfatConfigs;
+            std::array<std::shared_ptr<GBTXConfiguration>, GBTX_COUNT> m_gbtxConfigs;
 
         public:
             /**
@@ -215,6 +217,96 @@ namespace gem {
              *        @c config.
              */
             void createAllVFATConfigs(const VFAT3ChipConfiguration &config);
+
+            /**
+             * @}
+             */
+
+            ////////////////////////////////////////////////////////////////////
+
+            /**
+             * @name Child GBTX configuration
+             * @{
+             */
+            /**
+             * @brief Retrieves the configuration of the given GBTX, if set.
+             */
+            const std::shared_ptr<GBTXConfiguration> getGBTXConfig(
+                std::size_t vfat) const {
+                return m_gbtxConfigs.at(vfat); };
+
+            /**
+             * @brief Retrieves the configuration of the given GBTX, if set.
+             */
+            std::shared_ptr<GBTXConfiguration> getGBTXConfig(std::size_t vfat) {
+                return m_gbtxConfigs.at(vfat); };
+
+            /**
+             * @brief Retrieves the configuration of all GBTXs.
+             */
+            auto getGBTXConfigs() const -> const decltype(m_gbtxConfigs) & {
+                return m_gbtxConfigs; };
+
+            /**
+             * @brief Retrieves the configuration of all GBTXs.
+             */
+            auto getGBTXConfigs() -> decltype(m_gbtxConfigs) & { return m_gbtxConfigs; };
+
+            /**
+             * @brief Modifies the configuration of the given GBTX.
+             */
+            void setGBTXConfig(std::size_t vfat,
+                               const std::shared_ptr<GBTXConfiguration> &config) {
+                m_gbtxConfigs.at(vfat) = config; };
+
+            /**
+             * @brief Modifies the configuration of all GBTXs.
+             */
+            void setGBTXConfigs(const decltype(m_gbtxConfigs) &configs) {
+                m_gbtxConfigs = configs; };
+
+            /**
+             * @brief Unsets the configuration of the given GBTX.
+             */
+            void unsetGBTXConfig(std::size_t vfat) { setGBTXConfig(vfat, nullptr); };
+
+            /**
+             * @brief Unsets all GBTX configurations.
+             */
+            void unsetGBTXConfigs() {
+                for (auto &config : m_gbtxConfigs) {
+                    config = nullptr;
+                }
+            };
+
+            /**
+             * @brief Checks that all GBTX configurations are set.
+             */
+            bool hasAllGBTXConfigs() const {
+                return 0 == std::count(getGBTXConfigs().begin(),
+                                       getGBTXConfigs().end(),
+                                       nullptr);
+            };
+
+            /**
+             * @brief Checks that no GBTX configurations is set.
+             */
+            bool hasNoGBTXConfig() const {
+                return GBTX_COUNT == std::count(getGBTXConfigs().begin(),
+                                                getGBTXConfigs().end(),
+                                                nullptr);
+            };
+
+            /**
+             * @brief Default-constructs all GBTX configurations.
+             */
+            void createAllGBTXConfigs();
+
+            /**
+             * @brief Initializes all GBTX configurations with copies of
+             *        @c config.
+             */
+            void createAllGBTXConfigs(const GBTXConfiguration &config);
 
             /**
              * @}

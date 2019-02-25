@@ -2,6 +2,7 @@
 
 #include <sstream>
 
+#include "gem/onlinedb/GBTXConfiguration.h"
 #include "gem/onlinedb/VFAT3ChipConfiguration.h"
 
 namespace gem {
@@ -54,6 +55,20 @@ namespace gem {
         {
             for (auto &c : getVFATConfigs()) {
                 c = std::make_shared<VFAT3ChipConfiguration>(config);
+            }
+        }
+
+        void OHv3Configuration::createAllGBTXConfigs()
+        {
+            for (auto &c : getGBTXConfigs()) {
+                c = std::make_shared<GBTXConfiguration>();
+            }
+        }
+
+        void OHv3Configuration::createAllGBTXConfigs(const GBTXConfiguration &config)
+        {
+            for (auto &c : getGBTXConfigs()) {
+                c = std::make_shared<GBTXConfiguration>(config);
             }
         }
 
