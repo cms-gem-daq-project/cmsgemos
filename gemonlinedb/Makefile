@@ -107,6 +107,7 @@ run-tests-xsd:
 	xmllint --noout --schema xml/schema/VFAT3ChannelConfiguration.xsd xml/examples/VFAT3_Channel_Configuration.xml
 	xmllint --noout --schema xml/schema/OHv3Configuration.xsd xml/examples/OHv3_Configuration.xml
 	xmllint --noout --schema xml/schema/AMCConfiguration.xsd xml/examples/AMC_Configuration.xml
+	xmllint --noout --schema xml/schema/GBTXConfiguration.xsd xml/examples/GBTX_Configuration.xml
 	xmllint --noout --schema xml/schema/system-topology.xsd xml/examples/system-topology.xml
 
 TEST_ENV = LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/
