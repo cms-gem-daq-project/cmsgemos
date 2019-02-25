@@ -18,13 +18,23 @@
         </xs:complexType>
     </xs:element>
 
+    <!-- GBTX -->
+    <xs:element name="gbtx">
+        <xs:complexType>
+            <xs:attribute ref="gem:serial-number" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
     <!-- OHv3 -->
     <xs:element name="ohv3">
         <xs:complexType>
-            <xs:choice minOccurs="24" maxOccurs="24">
-                <xs:element ref="gem:vfat3"/>
-                <xs:element ref="gem:empty-slot"/>
-            </xs:choice>
+            <xs:sequence>
+                <xs:element ref="gem:gbtx" minOccurs="3" maxOccurs="3"/>
+                <xs:choice minOccurs="24" maxOccurs="24">
+                    <xs:element ref="gem:vfat3"/>
+                    <xs:element ref="gem:empty-slot"/>
+                </xs:choice>
+            </xs:sequence>
             <xs:attribute ref="gem:serial-number" use="required"/>
         </xs:complexType>
     </xs:element>
@@ -59,7 +69,7 @@
                         <xs:all>
                             <xs:element name="vfat3-channel-file" type="xs:string"/>
                             <xs:element name="vfat3-chip-file" type="xs:string"/>
-                            <xs:element name="gbt-file" type="xs:string"/>
+                            <xs:element name="gbtx-file" type="xs:string"/>
                             <xs:element name="ohv3-file" type="xs:string"/>
                             <xs:element name="amc-file" type="xs:string"/>
                             <xs:element name="amc13-file" type="xs:string"/>

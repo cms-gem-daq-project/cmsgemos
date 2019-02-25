@@ -80,19 +80,31 @@ namespace gem {
         {
             populatePart(reference, el);
 
-            auto vfatEl = el->getFirstElementChild();
+            auto childEl = el->getFirstElementChild();
+            // GBTX (mandatory)
+            for (std::size_t i = 0; i < gbtx.size(); ++i) {
+                gbtx[i].reset(new GBTXNode);
+                gbtx[i]->populate(childEl);
+                childEl = childEl->getNextElementSibling();
+            }
+            // VFAT (or empty slots)
             for (std::size_t i = 0; i < vfat.size(); ++i) {
-                if (detail::transcode(vfatEl->getTagName()) == "gem:empty-slot") {
+                if (detail::transcode(childEl->getTagName()) == "gem:empty-slot") {
                     vfat[i].reset();
                 } else {
                     vfat[i].reset(new VFAT3Node);
-                    vfat[i]->populate(vfatEl);
+                    vfat[i]->populate(childEl);
                 }
-                vfatEl = vfatEl->getNextElementSibling();
+                childEl = childEl->getNextElementSibling();
             }
         }
 
         void SystemTopology::VFAT3Node::populate(const DOMElement *el)
+        {
+            populatePart(reference, el);
+        }
+
+        void SystemTopology::GBTXNode::populate(const DOMElement *el)
         {
             populatePart(reference, el);
         }

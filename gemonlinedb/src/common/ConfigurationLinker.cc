@@ -19,6 +19,16 @@ namespace gem {
                 return result;
             }
 
+            /// @brief Links a GBTX.
+            std::shared_ptr<GBTXConfiguration> linkGBTX(
+                const std::shared_ptr<ConfigurationProvider> &provider,
+                const SystemTopology::GBTXNode &node)
+            {
+                // Fetch and copy the configuration from the provider
+                return std::make_shared<GBTXConfiguration>(
+                    *provider->getGBTXConfiguration(node.reference));
+            }
+
             /// @brief Links an OH and all child objects.
             std::shared_ptr<OHv3Configuration> linkOHv3(
                 const std::shared_ptr<ConfigurationProvider> &provider,
@@ -28,6 +38,15 @@ namespace gem {
                 auto result = std::make_shared<OHv3Configuration>(
                     *provider->getOHv3Configuration(node.reference));
                 result->unsetVFATConfigs();
+
+                // Handle child GBTXs
+                for (std::size_t i = 0; i < node.gbtx.size(); ++i) {
+                    if (node.gbtx[i] == nullptr) {
+                        // GBTX not present
+                        continue;
+                    }
+                    result->setGBTXConfig(i, linkGBTX(provider, *node.gbtx[i]));
+                }
 
                 // Handle child VFATs
                 for (std::size_t i = 0; i < node.vfat.size(); ++i) {

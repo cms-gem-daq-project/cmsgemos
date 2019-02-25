@@ -17,6 +17,7 @@ namespace gem {
         {
             std::map<std::string, std::shared_ptr<AMC13Configuration>> m_amc13Config;
             std::map<std::string, std::shared_ptr<AMCConfiguration>> m_amcConfig;
+            std::map<std::string, std::shared_ptr<GBTXConfiguration>> m_gbtxConfig;
             std::map<std::string, std::shared_ptr<OHv3Configuration>> m_ohv3Config;
             std::map<std::string, std::shared_ptr<VFAT3ChipConfiguration>> m_vfat3ChipConfig;
             std::map<std::string, std::shared_ptr<VFAT3ChannelConfiguration>> m_vfat3ChannelConfig;
@@ -74,6 +75,16 @@ namespace gem {
             void loadAMC(const std::string &filename);
 
             /**
+             * @brief Loads GBTX configurations from an XML file.
+             *
+             * The configurations found in the file are made available using
+             * retrieval functions.
+             *
+             * The file is searched for in the base path (see @ref setSearchPath).
+             */
+            void loadGBTX(const std::string &filename);
+
+            /**
              * @brief Loads OHv3 configurations from an XML file.
              *
              * The configurations found in the file are made available using
@@ -110,6 +121,9 @@ namespace gem {
 
             std::shared_ptr<AMCConfiguration> getAMCConfiguration(
                 const ConfigurationTraits<AMCConfiguration>::PartType &reference) const override;
+
+            std::shared_ptr<GBTXConfiguration> getGBTXConfiguration(
+                const ConfigurationTraits<GBTXConfiguration>::PartType &reference) const override;
 
             std::shared_ptr<OHv3Configuration> getOHv3Configuration(
                 const ConfigurationTraits<OHv3Configuration>::PartType &reference) const override;
