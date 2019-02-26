@@ -522,7 +522,7 @@ class HwOptoHybrid(object):
             print("Only implemented for v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
 
-        return self.parentAMC.writeRegister("GEM_AMC.OH.OH%i.TRIG.CTRL.VFAT_MASK"%(self.link),sbitMask)
+        return self.parentAMC.writeRegister("GEM_AMC.OH.OH{0}.FPGA.TRIG.CTRL.VFAT_MASK".format(self.link),sbitMask)
 
     def setTriggerSource(self,source):
         """
