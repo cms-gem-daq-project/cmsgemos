@@ -222,8 +222,8 @@ def printSystemSCAInfo(amc,debug=False):
     nOHs = readRegister(amc,"GEM_AMC.GEM_SYSTEM.CONFIG.NUM_OF_OH")
     scaInfo["READY"]  = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.READY")
     scaInfo["CRITICAL_ERROR"] = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.CRITICAL_ERROR")
-    print("READY             %s0x%08x%s"%(colors.BLUE,scaRdy,colors.ENDC))
-    print("CRITICAL_ERROR    %s0x%08x%s"%(colors.RED if scaCErr else colors.GREEN,scaCErr,colors.ENDC))
+    print("READY             %s0x%08x%s"%(colors.BLUE,scaInfo["READY"],colors.ENDC))
+    print("CRITICAL_ERROR    %s0x%08x%s"%(colors.RED if scaInfo["CRITICAL_ERROR"] else colors.GREEN,scaInfo["CRITICAL_ERROR"],colors.ENDC))
     for li in range(nOHs):
         scaInfo["NOT_READY_CNT"][li] = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.NOT_READY_CNT_OH%d"%(li))
         print("NOT_READY_CNT_OH%02d %s0x%08x%s"%(li,
