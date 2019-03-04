@@ -22,8 +22,8 @@
 # Packages to be built
 #
 
-include $(XDAQ_ROOT)/config/mfAutoconf.rules
-include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/mfAutoconf.rules
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/mfDefs.$(XDAQ_OS)
 
 PackageName=hcal904
 Project=daq
@@ -67,4 +67,4 @@ clean:
 	-rm -f conf/hcal.release
 	-rm -rf $(BUILD_HOME)/${Project}/setup
 
-include $(XDAQ_ROOT)/config/mfSetupRPM.rules
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/mfSetupRPM.rules

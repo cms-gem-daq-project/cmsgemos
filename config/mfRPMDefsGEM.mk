@@ -14,7 +14,7 @@ GROUP_NAME = gempro
 USER_NAME = $(GROUP_NAME)
 GID = 1050
 UID = $(GID)
-ProjectPath  = $(BUILD_HOME)/$(Project)
+ProjectPath  = $(BUILD_HOME)
 PackagePath  = $(ProjectPath)/$(LongPackage)
 PWD          = $(shell pwd)
 GITREV       = $(shell git rev-parse --short HEAD)
@@ -53,7 +53,7 @@ PACKAGE_REQUIRED_PACKAGE_LIST :=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongP
 endif
 
 ifndef PACKAGE_RELEASE
-include  $(XDAQ_ROOT)/config/mfRPM.release
+include  $(XDAQ_ROOT)/$(BUILD_SUPPORT)/mfRPM.release
 endif
 
 ifndef BUILD_COMPILER
@@ -62,7 +62,7 @@ BUILD_COMPILER :=$(CC)$(shell $(CC) -dumpversion | sed -e 's/\./_/g')
 endif
 
 ifndef BUILD_DISTRIBUTION
-BUILD_DISTRIBUTION := $(shell $(XDAQ_ROOT)/config/checkos.sh)
+BUILD_DISTRIBUTION := $(shell $(XDAQ_ROOT)/$(BUILD_SUPPORT)/checkos.sh)
 endif
 
 ifndef PACKAGE_FULL_RELEASE
@@ -131,7 +131,7 @@ makerpm:
 	@echo BUILD_DISTRIBUTION $(BUILD_DISTRIBUTION)
 	@echo BUILD_COMPILER $(BUILD_COMPILER)
 	@echo PackagePath $(PackagePath)
-	@tar -P -X $(XDAQ_ROOT)/config/src.exclude --exclude="*.tbz2" -jcf \
+	@tar -P -X $(XDAQ_ROOT)/$(BUILD_SUPPORT)/src.exclude --exclude="*.tbz2" -jcf \
 		$(PackagePath)/rpm/RPMBUILD/SOURCES/$(Project)-$(PackageName)-$(PACKAGE_FULL_VERSION)-$(PACKAGE_FULL_RELEASE).tbz2 \
 		$(PackagePath)
 	@rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" \
@@ -150,8 +150,8 @@ spec_update:
 		echo $(ProjectPath)/config found cmsgemos.spec.template; \
 		cp $(ProjectPath)/config/build/cmsgemos.spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
 	else \
-		echo $(XDAQ_ROOT)/config found spec.template; \
-		cp $(XDAQ_ROOT)/config/spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
+		echo $(XDAQ_ROOT)/$(BUILD_SUPPORT) found spec.template; \
+		cp $(XDAQ_ROOT)/$(BUILD_SUPPORT)/spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
 	fi
 
 	sed -i 's#__gitrev__#$(GITREV)#' $(PackagePath)/rpm/$(LongPackage).spec

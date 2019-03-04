@@ -1,6 +1,7 @@
 #
 # Global Makefile for GEM
 #
+BUILD_HOME:=$(shell pwd)
 
 SUBPACKAGES := \
         gemutils \
@@ -137,10 +138,10 @@ $(SUBPACKAGES.RUNTESTSCI): tests
 .phony: gemhwmanagers gemhwdevices
 
 gemhwdevices: gemutils
-	$(MAKE) -C $(BUILD_HOME)/cmsgemos/gemhardware -f Makefile devices
+	$(MAKE) -C $(BUILD_HOME)/gemhardware -f Makefile devices
 
 gemhwmanagers: gemutils gembase gemreadout gemhwdevices
-	$(MAKE) -C $(BUILD_HOME)/cmsgemos/gemhardware -f Makefile managers
+	$(MAKE) -C $(BUILD_HOME)/gemhardware -f Makefile managers
 
 gemhardware: gemhwdevices gemhwmanagers
 

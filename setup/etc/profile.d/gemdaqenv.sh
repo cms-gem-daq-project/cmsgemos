@@ -74,7 +74,7 @@ else
     elif [[ $(uname -m) = "Macintosh" ]]; then
         XDAQ_PLATFORM=ppc
     fi
-    XDAQ_PLATFORM=${XDAQ_PLATFORM}_$(source $XDAQ_ROOT/config/checkos.sh)
+    XDAQ_PLATFORM=${XDAQ_PLATFORM}_$(source $XDAQ_ROOT/build/checkos.sh)
     if [ -z ${SSH_TTY+x} ]; then echo XDAQ_PLATFORM $XDAQ_PLATFORM; fi
     export XDAQ_PLATFORM
 fi

@@ -2,7 +2,17 @@
 # Makefile for gemHwMonitor package
 #
 
-Project=cmsgemos
+BUILD_HOME:=$(shell pwd)/..
+
+ifndef BUILD_SUPPORT
+BUILD_SUPPORT=build
+endif
+
+ifndef PROJECT_NAME
+PROJECT_NAME=cmsgemos
+endif
+
+Project=$(PROJECT_NAME)
 ShortProject=gem
 Package=gemHwMonitor
 LongPackage=gemHwMonitor
@@ -13,37 +23,37 @@ GEMHWMONITOR_VER_MAJOR=1
 GEMHWMONITOR_VER_MINOR=0
 GEMHWMONITOR_VER_PATCH=0
 
-include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/config/mfDefsGEM.mk
 
 Sources =version.cc
 Sources+=gemHwMonitorWeb.cc gemHwMonitorBase.cc
 
 DynamicLibrary=gemhwMonitor
 
-IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
+IncludeDirs+=$(BUILD_HOME)/$(Package)/include
+IncludeDirs+=$(BUILD_HOME)/gemutils/include
+IncludeDirs+=$(BUILD_HOME)/gembase/include
+IncludeDirs+=$(BUILD_HOME)/gemhardware/include
 IncludeDirs+=$(AMC13_STANDALONE_ROOT)/amc13/include
 IncludeDirs+=$(uHALROOT)/include
 
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(AMC13_STANDALONE_ROOT)/amc13/lib
 DependentLibraryDirs+=$(uHALROOT)/lib
 
-LibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-LibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-LibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+LibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+LibraryDirs+=$(BUILD_HOME)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+LibraryDirs+=$(BUILD_HOME)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(AMC13_STANDALONE_ROOT)/amc13/lib
 LibraryDirs+=$(uHALROOT)/lib
 
 DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
 DependentLibraries+=gemutils gembase gemhardware
 
-include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
+include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
 
 
 print-env:

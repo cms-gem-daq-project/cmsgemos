@@ -2,8 +2,17 @@
 # Makefile for gemdaqmonitor package
 #
 
-#Project=gem
-Project=cmsgemos
+BUILD_HOME:=$(shell pwd)/..
+
+ifndef BUILD_SUPPORT
+BUILD_SUPPORT=build
+endif
+
+ifndef PROJECT_NAME
+PROJECT_NAME=cmsgemos
+endif
+
+Project=$(PROJECT_NAME)
 ShortProject=gem
 Package=gemdaqmonitor
 LongPackage=gemdaqmonitor
@@ -14,23 +23,23 @@ GEMDAQMONITOR_VER_MAJOR=1
 GEMDAQMONITOR_VER_MINOR=0
 GEMDAQMONITOR_VER_PATCH=0
 
-include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
+include $(BUILD_HOME)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
 Sources+=DaqMonitor.cc ShelfMonitor.cc ShelfMonitorWeb.cc
 
 DynamicLibrary=gemdaqmonitor
 
-IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
+IncludeDirs+=$(BUILD_HOME)/$(Package)/include
+IncludeDirs+=$(BUILD_HOME)/gembase/include
+IncludeDirs+=$(BUILD_HOME)/gemutils/include
+IncludeDirs+=$(BUILD_HOME)/gemhardware/include
 IncludeDirs+=$(XHAL_ROOT)/include
 
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(XHAL_ROOT)/lib
 
 UserCFlags  +=$(PYTHONCFLAGS)
@@ -40,8 +49,8 @@ DependentLibraries =gembase
 DependentLibraries+=gemhardware_devices xhal
 DependentLibraries+=boost_iostreams
 
-include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
+include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
 
 # DependentLibraryList+=$(MySQLLIBS)
 # DependentLibraryList+=$(PYTHONLIBS)

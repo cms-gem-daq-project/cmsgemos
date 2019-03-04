@@ -2,7 +2,17 @@
 # Makefile for gemhardware package
 #
 
-Project=cmsgemos
+BUILD_HOME:=$(shell pwd)/..
+
+ifndef BUILD_SUPPORT
+BUILD_SUPPORT=build
+endif
+
+ifndef PROJECT_NAME
+PROJECT_NAME=cmsgemos
+endif
+
+Project=$(PROJECT_NAME)
 ShortProject=gem
 Package=gemhardware
 LongPackage=gemhardware
@@ -13,11 +23,11 @@ GEMHARDWARE_VER_MAJOR=1
 GEMHARDWARE_VER_MINOR=0
 GEMHARDWARE_VER_PATCH=1
 
-include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
+include $(BUILD_HOME)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
-include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
+include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
 
 .PHONY: devices managers _hackery
 

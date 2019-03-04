@@ -25,7 +25,7 @@ GROUP_NAME = gempro
 USER_NAME = $(GROUP_NAME)
 GID = 1050
 UID = $(GID)
-ProjectPath  = $(BUILD_HOME)/$(Project)
+ProjectPath  = $(BUILD_HOME)
 PackagePath  = $(ProjectPath)/$(LongPackage)
 PWD          = $(shell pwd)
 GITREV       = $(shell git rev-parse --short HEAD)
@@ -75,7 +75,7 @@ PACKAGE_VER_PATCH:=$($(LongPackageLoc)_VER_PATCH)
 endif
 
 ifndef PACKAGE_RELEASE
-include  $(XDAQ_ROOT)/config/mfRPM.release
+include  $(XDAQ_ROOT)/$(BUILD_SUPPORT)/mfRPM.release
 endif
 
 ifndef BUILD_VERSION
@@ -88,7 +88,7 @@ BUILD_COMPILER :=$(CC)$(shell $(CC) -dumpversion | sed -e 's/\./_/g')
 endif
 
 ifndef BUILD_DISTRIBUTION
-BUILD_DISTRIBUTION := $(shell $(XDAQ_ROOT)/config/checkos.sh)
+BUILD_DISTRIBUTION := $(shell $(XDAQ_ROOT)/$(BUILD_SUPPORT)/checkos.sh)
 endif
 
 VER_EXISTS=no

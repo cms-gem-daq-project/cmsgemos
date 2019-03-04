@@ -1,11 +1,11 @@
-include $(XDAQ_ROOT)/config/mfAutoconf.rules
-include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/mfAutoconf.rules
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/mfDefs.$(XDAQ_OS)
 
-BUILD_HOME := $(shell cd $(BUILD_HOME); pwd)
+BUILD_HOME:= $(shell pwd)/..
 
 GIT_VERSION  := $(shell git describe --dirty --always --tags)
 GEMDEVELOPER := $(shell id --user --name)
-BUILD_VERSION:= $(shell $(BUILD_HOME)/cmsgemos/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[4];}' | awk '{split($$0,b,":"); print b[2];}')
+BUILD_VERSION:= $(shell $(BUILD_HOME)/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[4];}' | awk '{split($$0,b,":"); print b[2];}')
 
 Project=cmsgemos
 ShortProject=gem
@@ -198,8 +198,8 @@ Libraries =
 #UserExecutableLinkFlags+=-lboost_regex -lboost_system -lcactus_extern_pugixml
 #UserExecutableLinkFlags+=-lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
-#include $(XDAQ_ROOT)/config/Makefile.rules
-#include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+#include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
+#include $(BUILD_HOME)/config/mfRPM_gem.rules
 
 ## Choose the version of GCC that we want to use
 #GCC_VERSION = 6.1.0

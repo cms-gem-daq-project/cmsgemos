@@ -2,7 +2,17 @@
 # Makefile for gemsupervisor package
 #
 
-Project=cmsgemos
+BUILD_HOME:=$(shell pwd)/..
+
+ifndef BUILD_SUPPORT
+BUILD_SUPPORT=build
+endif
+
+ifndef PROJECT_NAME
+PROJECT_NAME=cmsgemos
+endif
+
+Project=$(PROJECT_NAME)
 ShortProject=gem
 Package=gemsupervisor
 LongPackage=gemsupervisor
@@ -13,8 +23,8 @@ GEMSUPERVISOR_VER_MAJOR=1
 GEMSUPERVISOR_VER_MINOR=0
 GEMSUPERVISOR_VER_PATCH=1
 
-include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
+include $(BUILD_HOME)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
 Sources+=tbutils/VFAT2XMLParser.cc
@@ -25,18 +35,18 @@ Sources+=GEMSupervisor.cc GEMSupervisorWeb.cc GEMSupervisorMonitor.cc GEMGlobalS
 
 DynamicLibrary=gemsupervisor
 
-IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gemreadout/include
+IncludeDirs+=$(BUILD_HOME)/$(Package)/include
+IncludeDirs+=$(BUILD_HOME)/gembase/include
+IncludeDirs+=$(BUILD_HOME)/gemutils/include
+IncludeDirs+=$(BUILD_HOME)/gemhardware/include
+IncludeDirs+=$(BUILD_HOME)/gemreadout/include
 IncludeDirs+=$(uHALROOT)/include
 IncludeDirs+=$(XHAL_ROOT)/include
 
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemreadout/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemreadout/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(uHALROOT)/lib
 DependentLibraryDirs+=$(XHAL_ROOT)/lib
 
@@ -48,8 +58,8 @@ DependentLibraries =gemhardware_managers xdaq2rc
 ## not building an exe
 Libraries =
 
-include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
+include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
 
 
 print-env:

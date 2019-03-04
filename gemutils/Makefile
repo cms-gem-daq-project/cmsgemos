@@ -2,7 +2,17 @@
 # Makefile for gemutils package
 #
 
-Project=cmsgemos
+BUILD_HOME:=$(shell pwd)/..
+
+ifndef BUILD_SUPPORT
+BUILD_SUPPORT=build
+endif
+
+ifndef PROJECT_NAME
+PROJECT_NAME=cmsgemos
+endif
+
+Project=$(PROJECT_NAME)
 ShortProject=gem
 Package=gemutils
 LongPackage=gemutils
@@ -13,8 +23,8 @@ GEMUTILS_VER_MAJOR=1
 GEMUTILS_VER_MINOR=0
 GEMUTILS_VER_PATCH=1
 
-include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
+include $(BUILD_HOME)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
 Sources+=Lock.cc
@@ -26,7 +36,7 @@ Sources+=soap/GEMSOAPToolBox.cc
 DynamicLibrary=gemutils
 
 IncludeDirs =$(XDAQ_ROOT)/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
+IncludeDirs+=$(BUILD_HOME)/$(Package)/include
 
 UserCFlags  +=$(MySQLCFLAGS)
 UserCCFlags +=$(MySQLCFLAGS)
@@ -40,8 +50,8 @@ DependentLibraries+=asyncresolv uuid cgicc mimetic
 
 # UserDynamicLinkFlags+=
 
-include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
+include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
 
 ## hack to get the linking correctly done, *LibraryList is parsed in Makefile.rules
 DependentLibraryList+=$(MySQLLIBS)

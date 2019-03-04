@@ -22,8 +22,8 @@
 #
 BUILD_HOME:=$(shell pwd)/../../../..
 
-include $(XDAQ_ROOT)/config/mfAutoconf.rules
-include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/mfAutoconf.rules
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/mfDefs.$(XDAQ_OS)
 
 Project:=cmsgemos
 PackageName=$(shell pwd | awk -F"/" '{split($$0,a,"/");  print a[NF-1]}')
@@ -81,4 +81,4 @@ clean:
 	-rm -f ./etc/profile.d/*.sh
 	-rm -f ./etc/tcds/*.txt
 
-include $(XDAQ_ROOT)/config/mfSetupRPM.rules
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/mfSetupRPM.rules
