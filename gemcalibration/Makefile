@@ -1,47 +1,36 @@
 #
-# Makefile for gemhardware package
+# Makefile for gemcalibration package
 #
 
 Project=cmsgemos
 ShortProject=gem
-Package=gemhardware
-LongPackage=gemhardware
-ShortPackage=hw
-PackageName=hw
+Package=gemcalibration
+LongPackage=gemcalibration
+
+ShortPackage=gemcal
+PackageName=gemcalibration
+
+GEMCALIBRATION_VER_MAJOR=0
+GEMCALIBRATION_VER_MINOR=2
+GEMCALIBRATION_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
-Sources =utils/GEMCrateUtils.cc
-Sources+=GEMHwDevice.cc HwGenericAMC.cc
-#Sources+=vfat/HwVFAT2.cc
-Sources+=glib/HwGLIB.cc
-# Sources+=ctp7/HwCTP7.cc
-Sources+=optohybrid/HwOptoHybrid.cc
+Sources =CalibrationWeb.cc Calibration.cc
 
-DynamicLibrary=gemhardware_devices
+Sources +=version.cc
+DynamicLibrary=gemcalibration
 
-IncludeDirs =$(XDAQ_ROOT)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
+IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
-IncludeDirs+=$(uHALROOT)/include
-IncludeDirs+=$(XHAL_ROOT)/include
+IncludeDirs+=/opt/xhal/include
 
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(uHALROOT)/lib
-DependentLibraryDirs+=$(XHAL_ROOT)/lib
+DependentLibraryDirs+=/opt/xhal/lib
+DependentLibraries+=xhal
+DependentLibraries+=boost_iostreams
 
-LibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-LibraryDirs+=$(uHALROOT)/lib
-LibraryDirs+=$(XHAL_ROOT)/lib
-
-DependentLibraries =cactus_uhal_uhal xhal
-DependentLibraries+=gemutils
-
-UserCFlags+=-O0 -g3 -fno-inline
-UserCCFlags+=-O0 -g3 -fno-inline
-CFlags+=-O0 -g3 -fno-inline
-CCFlags+=-O0 -g3 -fno-inline
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk

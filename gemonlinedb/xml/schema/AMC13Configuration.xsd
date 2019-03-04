@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:redefine schemaLocation="common.xsd">
+    <xs:simpleType name="ExtensionTableName">
+      <xs:restriction base="ExtensionTableName">
+        <xs:enumeration value="GEM_AMC13_CONFIGURATION"/>
+      </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="KindOfPart">
+      <xs:restriction base="KindOfPart">
+        <xs:enumeration value="GEM AMC13"/>
+      </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="Data">
+      <xs:complexContent>
+        <xs:extension base="Data">
+          <xs:all>
+            <xs:element name="FED_ID" type="xs:unsignedInt"/>
+            <xs:element name="ENABLE_LOCALTTC" type="xs:unsignedShort"/>
+            <xs:element name="HOSTNAME" type="xs:string"/>
+          </xs:all>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:redefine>
+</xs:schema>

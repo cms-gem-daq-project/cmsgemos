@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "VFAT3ChannelConfiguration.h"
-#include "detail/VFAT3ChipConfigurationGen.h"
+#include "gem/onlinedb/VFAT3ChannelConfiguration.h"
+#include "gem/onlinedb/detail/VFAT3ChipConfigurationGen.h"
 
 namespace gem {
     namespace onlinedb {

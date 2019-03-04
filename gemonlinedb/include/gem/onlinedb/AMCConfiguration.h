@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <memory>
 
-#include "detail/AMCConfigurationGen.h"
+#include "gem/onlinedb/detail/AMCConfigurationGen.h"
 
 namespace gem {
     namespace onlinedb {
