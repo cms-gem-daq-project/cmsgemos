@@ -1,17 +1,25 @@
+XDAQ_ROOT?=/opt/xdaq
+XHAL_ROOT?=/opt/xhal
+uHALROOT?=/opt/cactus
+
+ifndef BUILD_SUPPORT
+BUILD_SUPPORT=build
+endif
+
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/mfAutoconf.rules
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/mfDefs.$(XDAQ_OS)
 
-BUILD_HOME:= $(shell pwd)/..
+BUILD_HOME?= $(shell pwd)/..
 
 GIT_VERSION  := $(shell git describe --dirty --always --tags)
 GEMDEVELOPER := $(shell id --user --name)
 BUILD_VERSION:= $(shell $(BUILD_HOME)/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[4];}' | awk '{split($$0,b,":"); print b[2];}')
 
-Project=cmsgemos
-ShortProject=gem
+Project?=cmsgemos
+ShortProject?=gem
 
 ## Version variables from Makefile and LongPackage
-LongPackageLoc=$(shell echo "$(LongPackage)" | tr '[:lower:]' '[:upper:]')
+LongPackageLoc=$(shell echo "$(ShortProject)$(PackageName)" | tr '[:lower:]' '[:upper:]')
 
 ifndef PACKAGE_VER_MAJOR
 PACKAGE_VER_MAJOR := $($(LongPackageLoc)_VER_MAJOR)

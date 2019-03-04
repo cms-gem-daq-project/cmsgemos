@@ -29,26 +29,26 @@ PackageName=$(shell awk -F'"' 'BEGIN{IGNORECASE=1} /package[ \t\r\f\v]*=/ {print
 endif
 
 # convert long package name to all upper case
-LongPackageLoc = $(shell echo "$(LongPackage)" | tr '[:lower:]' '[:upper:]')
-#LongPackageLoc=$(shell echo "$(LongPackage)" | awk '{print toupper($0)}') ## not working... why not?
+LongPackageLoc = $(shell echo "$(ShortProject)$(PackageName)" | tr '[:lower:]' '[:upper:]')
+#LongPackageLoc=$(shell echo "$(ShortProject)$(PackageName)" | awk '{print toupper($0)}') ## not working... why not?
 
 ifndef PACKAGE_VER_MAJOR
-PACKAGE_VER_MAJOR := $(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MAJOR/ {print $$3;}' \
+PACKAGE_VER_MAJOR := $(shell awk 'BEGIN{IGNORECASE=1} /define $(ShortProject)$(PackageName)_VERSION_MAJOR/ {print $$3;}' \
 	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
 
 ifndef PACKAGE_VER_MINOR
-PACKAGE_VER_MINOR := $(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MINOR/ {print $$3;}' \
+PACKAGE_VER_MINOR := $(shell awk 'BEGIN{IGNORECASE=1} /define $(ShortProject)$(PackageName)_VERSION_MINOR/ {print $$3;}' \
 	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
 
 ifndef PACKAGE_VER_PATCH
-PACKAGE_VER_PATCH := $(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_PATCH/ {print $$3;}' \
+PACKAGE_VER_PATCH := $(shell awk 'BEGIN{IGNORECASE=1} /define $(ShortProject)$(PackageName)_VERSION_PATCH/ {print $$3;}' \
 	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
 
 ifndef PACKAGE_REQUIRED_PACKAGE_LIST
-PACKAGE_REQUIRED_PACKAGE_LIST :=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_REQUIRED_PACKAGE_LIST/ {print $$3;}' \
+PACKAGE_REQUIRED_PACKAGE_LIST :=$(shell awk 'BEGIN{IGNORECASE=1} /define $(ShortProject)$(PackageName)_REQUIRED_PACKAGE_LIST/ {print $$3;}' \
 	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
 
@@ -118,7 +118,7 @@ endif
 endif
 
 # 	rpmbuild  -bb -bl --target $(XDAQ_PLATFORM) --define  "_topdir $(PackagePath)/rpm/RPMBUILD" \
-	$(PackagePath)/rpm/$(LongPackage).spec
+	$(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
 
 
 .PHONY: makerpm
@@ -136,7 +136,7 @@ makerpm:
 		$(PackagePath)
 	@rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" \
 		--define  "_topdir $(PackagePath)/rpm/RPMBUILD" \
-		$(PackagePath)/rpm/$(LongPackage).spec
+		$(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
 	@find  $(PackagePath)/rpm/RPMBUILD -name "*.rpm" -exec mv {} $(PackagePath)/rpm \;
 
 .PHONY: spec_update
@@ -145,41 +145,41 @@ spec_update:
 	@mkdir -p $(PackagePath)/rpm
 	if [ -e $(PackagePath)/spec.template ]; then \
 		echo $(PackagePath) found spec.template; \
-		cp $(PackagePath)/spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
+		cp $(PackagePath)/spec.template $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec; \
 	elif [ -e $(ProjectPath)/config/build/cmsgemos.spec.template ]; then \
 		echo $(ProjectPath)/config found cmsgemos.spec.template; \
-		cp $(ProjectPath)/config/build/cmsgemos.spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
+		cp $(ProjectPath)/config/build/cmsgemos.spec.template $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec; \
 	else \
 		echo $(XDAQ_ROOT)/$(BUILD_SUPPORT) found spec.template; \
-		cp $(XDAQ_ROOT)/$(BUILD_SUPPORT)/spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
+		cp $(XDAQ_ROOT)/$(BUILD_SUPPORT)/spec.template $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec; \
 	fi
 
-	sed -i 's#__gitrev__#$(GITREV)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__builddate__#$(BUILD_DATE)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__release__#$(PACKAGE_FULL_RELEASE)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__version__#$(PACKAGE_FULL_VERSION)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__prefix__#$(INSTALL_PATH)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__xdaqprefix__#$(XDAQ_ROOT)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__package__#$(Package)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__packagedir__#$(PackagePath)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__packagename__#$(PackageName)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__longpackage__#$(LongPackage)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__longpackagedir__#$(PackagePath)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__longpackagename__#$(LongPackage)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__os__#$(XDAQ_OS)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__platform__#$(XDAQ_PLATFORM)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__project__#$(Project)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__author__#$(Authors)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__summary__#$(Summary)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__description__#$(Description)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__url__#$(Link)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__buildarch__#$(XDAQ_PLATFORM)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__includedirs__#$(IncludeDirs)#' $(PackagePath)/rpm/$(LongPackage).spec
-#	sed -i 's#__datadir__#$(DATA_DIR)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__username__#$(USER_NAME)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__groupname__#$(GROUP_NAME)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__uid__#$(UID)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__gid__#$(GID)#' $(PackagePath)/rpm/$(LongPackage).spec
+	sed -i 's#__gitrev__#$(GITREV)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__builddate__#$(BUILD_DATE)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__release__#$(PACKAGE_FULL_RELEASE)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__version__#$(PACKAGE_FULL_VERSION)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__prefix__#$(INSTALL_PATH)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__xdaqprefix__#$(XDAQ_ROOT)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__package__#$(Package)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__packagedir__#$(PackagePath)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__packagename__#$(PackageName)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__longpackage__#$(LongPackage)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__longpackagedir__#$(PackagePath)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__longpackagename__#$(LongPackage)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__os__#$(XDAQ_OS)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__platform__#$(XDAQ_PLATFORM)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__project__#$(Project)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__author__#$(Authors)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__summary__#$(Summary)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__description__#$(Description)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__url__#$(Link)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__buildarch__#$(XDAQ_PLATFORM)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__includedirs__#$(IncludeDirs)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+#	sed -i 's#__datadir__#$(DATA_DIR)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__username__#$(USER_NAME)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__groupname__#$(GROUP_NAME)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__uid__#$(UID)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__gid__#$(GID)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
 
 .PHONY: _cleanrpmall
 _cleanrpmall:

@@ -6,7 +6,9 @@ BUILD_HOME:=$(shell pwd)
 SUBPACKAGES := \
         gemutils \
         gembase \
-        gemhardware \
+        gemhardware/utils \
+        gemhardware/devices \
+        gemhardware/managers \
         gemreadout \
         gemsupervisor \
         gempython \
@@ -133,22 +135,20 @@ $(SUBPACKAGES.RUNTESTSCI): tests
 .PHONY: $(SUBPACKAGES) $(SUBPACKAGES.INSTALL) $(SUBPACKAGES.CLEAN) $(SUBPACKAGES.CHECK) $(SUBPACKAGES.DEBUG)
 
 #$(SUBPACKAGES.CHECK) $(SUBPACKAGES.DEBUG)
+.PHONY: gemhardware
 
+gemhardware: gemhardware/utils gemhardware/devices gemhardware/managers
 
-.phony: gemhwmanagers gemhwdevices
+gemhardware/utils: gemutils
 
-gemhwdevices: gemutils
-	$(MAKE) -C $(BUILD_HOME)/gemhardware -f Makefile devices
+gemhardware/devices: gemutils gemhardware/utils
 
-gemhwmanagers: gemutils gembase gemreadout gemhwdevices
-	$(MAKE) -C $(BUILD_HOME)/gemhardware -f Makefile managers
-
-gemhardware: gemhwdevices gemhwmanagers
+gemhardware/managers: gemutils gembase gemreadout gemhardware/devices
 
 gemHwMonitor: gemutils gembase gemhwdevices
 
 ## only gemhardware.devices... how to fix this?
-gempython: gemhwdevices
+gempython: gemhardware/devices
 
 gembase: gemutils
 
@@ -158,7 +158,7 @@ gemutils:
 
 gemonlinedb: gemutils gembase
 
-gemreadout: gemutils gembase gemhwdevices
+gemreadout: gemutils gembase gemhardware/devices
 
 gemdaqmonitor: gembase gemhwdevices
 
