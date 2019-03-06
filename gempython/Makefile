@@ -47,17 +47,17 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
 IncludeDirs+=$(uHALROOT)/include
-IncludeDirs+=$(XHALROOT)/include
+IncludeDirs+=$(XHAL_ROOT)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(uHALROOT)/lib
-DependentLibraryDirs+=$(XHALROOT)/lib
+DependentLibraryDirs+=$(XHAL_ROOT)/lib
 
 LibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(uHALROOT)/lib
-LibraryDirs+=$(XHALROOT)/lib
+LibraryDirs+=$(XHAL_ROOT)/lib
 
 DependentLibraries =gemhardware_devices
 DependentLibraries+=boost_python
