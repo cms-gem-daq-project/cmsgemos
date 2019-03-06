@@ -26,12 +26,12 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
-IncludeDirs+=$(XHALROOT)/include
+IncludeDirs+=$(XHAL_ROOT)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(XHALROOT)/lib
+DependentLibraryDirs+=$(XHAL_ROOT)/lib
 
 UserCFlags  +=$(PYTHONCFLAGS)
 UserCCFlags +=$(PYTHONCFLAGS)
