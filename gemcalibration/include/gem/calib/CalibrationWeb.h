@@ -7,10 +7,10 @@
 
 #include "gem/base/GEMWebApplication.h"
 
-#include "gem/gemcal/Calibration.h"
+#include "gem/calib/Calibration.h"
 
 namespace gem {
-  namespace gemcal {
+  namespace calib {
 
     class Calibration;
 
@@ -42,8 +42,8 @@ namespace gem {
         virtual void applicationPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 //
-//        virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
-//          throw (xgi::exception::Exception);
+        virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
+          throw (xgi::exception::Exception);
 
 //
 //        void displayManagedStateTable(xgi::Input *in, xgi::Output *out)
@@ -53,8 +53,8 @@ namespace gem {
         size_t level;
         // GEMSupervisor *gemSupervisorP__;
         // GEMSupervisorWeb(GEMSupervisorWeb const&);
-      };  // class gem::gemcal::CalibrationWeb
-  }  // namespace gem::gemcal
+      };  // class gem::calib::CalibrationWeb
+  }  // namespace gem::calib
 }  // namespace gem
 
 #endif  // GEM_GEMCAL_CALIBRATIONWEB_H
