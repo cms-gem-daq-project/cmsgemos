@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <memory>
 
-#include "detail/OHv3ConfigurationGen.h"
+#include "gem/onlinedb/detail/OHv3ConfigurationGen.h"
 
 namespace gem {
     namespace onlinedb {

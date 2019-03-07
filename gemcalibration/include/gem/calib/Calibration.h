@@ -18,7 +18,7 @@
 #define NSHELF 2
 
 namespace gem {
-  namespace gemcal {
+  namespace calib {
 
 
     class Calibration : public gem::base::GEMApplication
@@ -66,7 +66,7 @@ namespace gem {
         log4cplus::Logger m_logger; //FIXME should be removed!
         std::string m_state;
       };
-  }  // namespace gem::gemcal
+  }  // namespace gem::calib
 }  // namespace gem
 
 #endif  // GEM_GEMCAL_CALIBRATION_H

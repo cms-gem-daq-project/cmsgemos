@@ -3,7 +3,7 @@
               xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
               xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-  <xc:Context url="http://gem904daq01:20500">
+  <xc:Context url="http://gem904daq02:20500">
     <xc:Application class="gem::daqmon::ShelfMonitor" id="30" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ShelfMonitor"
                   xsi:type="soapenc:Struct">
@@ -16,6 +16,7 @@
 
     <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemutils.so</xc:Module>
     <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardware_managers.so</xc:Module>
     <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemdaqmonitor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemdaqmonitor.so</xc:Module>
 
 <!--    <xc:Module>${CMSGEMOS_ROOT}/lib/libgemutils.so</xc:Module>
