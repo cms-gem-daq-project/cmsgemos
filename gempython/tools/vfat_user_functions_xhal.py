@@ -36,6 +36,11 @@ class HwVFAT(object):
         self.getChannelRegistersVFAT3.argTypes = [ c_uint, c_uint, POINTER(c_uint32) ]
         self.getChannelRegistersVFAT3.restype = c_uint
 
+        # Get VFAT ChipID
+        self.getVFAT3ChipIDs = self.parentOH.parentAMC.lib.getVFAT3ChipIDs
+        self.getVFAT3ChipIDs.argTypes = [ POINTER(c_uint32), c_uint, c_uint, c_bool ]
+        self.getVFAT3ChipIDs.restype = c_uint
+
         # Turn off calpulses
         self.stopCalPulses2AllChannels = self.parentOH.parentAMC.lib.stopCalPulse2AllChannels
         self.stopCalPulses2AllChannels.argTypes = [ c_uint, c_uint, c_uint, c_uint ]
@@ -104,8 +109,21 @@ class HwVFAT(object):
 
         return self.confDacMonitor(self.parentOH.link, mask, dacSelect)
 
-    def getAllChipIDs(self, mask=0x0):
-        return self.readAllVFATs("HW_CHIP_ID",mask)
+    def getAllChipIDs(self, mask=0x0, rawID=False):
+        """
+        Returns the chipIDs for all VFATs not in mask.
+
+        mask - vfatMask, 24 bit number, 1 in the N^th bit means skip this VFAT
+        rawID - If true returns the rawID and does not apply the Reed-Muller decoding
+        """
+
+        chipIDData = (c_uint32 * 24)()
+        
+        rpcResp = self.getVFAT3ChipIDs(chipIDData, self.parentOH.link, mask, rawID)
+        if rpcResp != 0:
+            raise Exception("RPC response was non-zero, failed to get chipID data for OH{0}".format(self.parentOH.link))
+        
+        return chipIDData
 
     def getAllChannelRegisters(self, mask=0x0):
         chanRegData = (c_uint32 * 3072)()
