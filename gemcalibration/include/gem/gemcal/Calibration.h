@@ -15,6 +15,7 @@
 //#include "gem/daqmon/DaqMonitor.h"
 
 #define NAMC 12
+#define NSHELF 2
 
 namespace gem {
   namespace gemcal {
