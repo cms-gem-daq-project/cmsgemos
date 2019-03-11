@@ -1,5 +1,5 @@
 from ctypes import *
-from gempython.utils.gemlogger import colors, printYellow
+from gempython.utils.gemlogger import colors, printRed, printYellow
 
 from reg_utils.reg_interface.common.reg_base_ops import rpc_connect, rReg, writeReg
 from reg_utils.reg_interface.common.reg_xml_parser import getNode, parseInt, parseXML
@@ -105,6 +105,16 @@ class HwAMC(object):
 
         # Store HW info
         self.name = cardName
+        if (("gem" in cardName) and ("shelf" in cardName) and ("amc" in cardName)):
+            # Geographic addressing used, extract HW Info
+            hwInfo      = cardName.split("-")
+            self.shelf  = int(hwInfo[1].strip("shelf"))
+            self.slot   = int(hwInfo[2].strip("amc"))
+            if debug:
+                printYellow("Initializing shelf{0}:slot{1}".format(self.shelf,self.slot))
+        else:
+            self.slot   = 0
+            self.shelf  = 0 
 
         # Open the foreign function library
         self.lib = CDLL("librpcman.so")
@@ -325,7 +335,7 @@ class HwAMC(object):
         for the Optohybrid ohN
         """
         if self.fwVersion < 3:
-            print("HwAMC::getLinkVFATMask() - No support in v2b FW")
+            printRed("HwAMC::getLinkVFATMask() - No support in v2b FW")
             return os.EX_USAGE
 
         mask = self.getOHVFATMask(ohN)
@@ -346,7 +356,7 @@ class HwAMC(object):
         """
 
         if self.fwVersion < 3:
-            print("HwAMC::getLinkVFATMask() - No support in v2b FW")
+            printRed("HwAMC::getLinkVFATMask() - No support in v2b FW")
             return os.EX_USAGE
 
         vfatMaskArray = (c_uint32 * 12)()
@@ -361,6 +371,12 @@ class HwAMC(object):
         #place holder
         printYellow("HwAMC::getOHLinkStatus() not yet implemented")
         return
+
+    def getShelf(self):
+        return self.shelf
+    
+    def getSlot(self):
+        return self.slot
 
     def getTTCStatus(self, ohN, display=False):
         running = 0xdeaddead
@@ -447,25 +463,25 @@ class HwAMC(object):
 
         # Check we are v3 electronics
         if self.fwVersion < 3:
-            print("HwAMC::performDacScanMultiLink(): No support for v2b electronics")
+            printRed("HwAMC::performDacScanMultiLink(): No support for v2b electronics")
             exit(os.EX_USAGE)
 
         # Check if dacSelect is valid
         if dacSelect not in maxVfat3DACSize.keys():
-            print("HwAMC::performDacScanMultiLink(): Invalid dacSelect {0} value.  Valid values are:".format(dacScan))
-            print(maxVfat3DACSize.keys())
+            printRed("HwAMC::performDacScanMultiLink(): Invalid dacSelect {0} value.  Valid values are:".format(dacScan))
+            printYellow(maxVfat3DACSize.keys())
             exit(os.EX_USAGE)
 
         # Check number of nonzero bits doesn't exceed NOH's
         nUnmaskedOHs = bin(ohMask).count("1")
         if nUnmaskedOHs > self.nOHs:
-            print("HwAMC::performDacScanMultiLink(): Number of unmasked OH's {0} exceeds max number of OH's {1}".format(nUnmaskedOHs,self.nOHs))
+            printRed("HwAMC::performDacScanMultiLink(): Number of unmasked OH's {0} exceeds max number of OH's {1}".format(nUnmaskedOHs,self.nOHs))
             exit(os.EX_USAGE)
 
         # Check length of results container
         lenExpected = self.nOHs * (maxVfat3DACSize[dacSelect][0] - 0+1)*24 / dacStep
         if (len(dacDataAll) != lenExpected):
-            print("HwAMC::performDacScanMultiLink(): I expected container of length {0} but provided 'dacDataAll' has length {1}",format(lenExpected, len(dacDataAll)))
+            printRed("HwAMC::performDacScanMultiLink(): I expected container of length {0} but provided 'dacDataAll' has length {1}",format(lenExpected, len(dacDataAll)))
             exit(os.EX_USAGE)
 
         return self.dacScanMulti(ohMask, self.nOHs, dacSelect, dacStep, useExtRefADC, dacDataAll)
@@ -583,6 +599,14 @@ class HwAMC(object):
             raise Exception("RPC response was non-zero, reading SCA Monitoring Data from OH's in ohMask = {0} failed".format(str(hex(args.ohMask)).strip('L')))
 
         return scaMonData
+
+    def setShelf(self,shelf):
+        self.shelf = shelf
+        return
+
+    def setSlot(self,slot):
+        self.slot = slot
+        return
 
     def sysmonMonitorMultiLink(self, NOH=12, ohMask=0xfff, doReset=False):
         """
