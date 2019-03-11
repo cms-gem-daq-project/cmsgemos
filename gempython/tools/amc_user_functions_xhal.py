@@ -6,8 +6,7 @@ from reg_utils.reg_interface.common.reg_xml_parser import getNode, parseInt, par
 
 from xhal.reg_interface_gem.core.reg_extra_ops import rBlock
 
-import logging
-import os
+import logging, os
 
 gMAX_RETRIES = 5
 gRetries = 5
@@ -174,13 +173,17 @@ class HwAMC(object):
         self.ttcGenConf.argtypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_bool]
 
         self.ttcGenToggle = self.lib.ttcGenToggle
+        self.ttcGenToggle.argTypes = [c_uint, c_bool]
         self.ttcGenToggle.restype = c_uint
-        self.ttcGenToggle.argtypes = [c_uint, c_bool]
 
-        # Define SBIT Local Readout
+        # Define SBIT Functionality
         self.readSBits = self.lib.sbitReadOut
+        self.readSBits.argTypes = [c_uint, c_uint, c_char_p]
         self.readSBits.restype = c_uint
-        self.readSBits.argtypes = [c_uint, c_uint, c_char_p]
+
+        self.sbitRateScanMulti = self.lib.sbitRateScan
+        self.sbitRateScanMulti.argTypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_char_p, POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32)]
+        self.sbitRateScanMulti.restype = c_uint
 
         # Parse XML
         parseXML()
@@ -562,6 +565,59 @@ class HwAMC(object):
             exit(os.EX_USAGE)
 
         return self.dacScanMulti(ohMask, self.nOHs, dacSelect, dacStep, useExtRefADC, dacDataAll)
+
+    def performSBITRateScanMultiLink(self, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, chan=128, dacMin=0, dacMax=254, dacStep=1, ohMask=0x3ff, scanReg="THR_ARM_DAC"):
+        """
+        Measures the rate of sbits sent by all unmasked optobybrids on this AMC
+
+        V3 electronics only.
+        
+        outDataDacVal           - Array of type c_uint32, array size must be:
+                                  (12 * (dacMax - dacMin + 1) / stepSize)
+                                  The i^th position here is the DAC value that
+                                  the i^th rate in outDataTrigRate was obtained at
+        outDataTrigRate         - As outDataDacVal but for trigger rate
+        outDataTrigRatePerVFAT  - As outDataTrigRate but for each VFAT, array size
+                                  must be:
+                                  (24 * (12 * (dacMax - dacMin + 1) / stepSize))
+        chan                    - VFAT channel to be considered, for all channels
+                                  set to 128
+        dacMin                  - Starting dac value of the scan
+        dacMax                  - Ending dac value of the scan
+        dacStep                 - Step size for moving from dacMin to dacMax
+        ohMask - Mask which defines which OH's to query; 12 bit number where
+                 having a 1 in the N^th bit means to query the N^th optohybrid
+        scanReg                 - Name of register to be scanned.
+        """
+
+        # Check we are v3 electronics
+        if self.fwVersion < 3:
+            printRed("HwAMC::performSBITRateScanMultiLink(): No support for v2b electronics")
+            exit(os.EX_USAGE)
+
+        # Check number of nonzero bits doesn't exceed NOH's
+        nUnmaskedOHs = bin(ohMask).count("1")
+        if nUnmaskedOHs > self.nOHs:
+            printRed("HwAMC::performSBITRateScanMultiLink(): Number of unmasked OH's {0} exceeds max number of OH's {1}".format(nUnmaskedOHs,self.nOHs))
+            exit(os.EX_USAGE)
+
+        # Check length of results container - outDataDacVal
+        lenExpected = self.nOHs * (dacMax - dacMin + 1) / dacStep
+        if (len(outDataDacVal) != lenExpected):
+            printRed("HwAMC::performSBITRateScanMultiLink(): I expected container of length {0} but provided 'outDataDacVal' has length {1}".format(lenExpected, len(outDataDacVal)))
+            exit(os.EX_USAGE)
+
+        # Check length of results container - outDataTrigRate
+        if (len(outDataTrigRate) != lenExpected):
+            printRed("HwAMC::performSBITRateScanMultiLink(): I expected container of length {0} but provided 'outDataTrigRate' has length {1}".format(lenExpected, len(outDataTrigRate)))
+            exit(os.EX_USAGE)
+
+        # Check length of results container - outDataTrigRatePerVFAT
+        if (len(outDataTrigRatePerVFAT) != (24*lenExpected)):
+            printRed("HwAMC::performSBITRateScanMultiLink(): I expected container of length {0} but provided 'outDataTrigRatePerVFAT' has length {1}".format(24*lenExpected, len(outDataTrigRatePerVFAT)))
+            exit(os.EX_USAGE)
+
+        return self.sbitRateScanMulti(ohMask, dacMin, dacMax, dacStep, chan, scanReg, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT)
 
     def readADCsMultiLink(self, adcDataAll, useExtRefADC=False, ohMask=0xFFF, debug=False):
         """
