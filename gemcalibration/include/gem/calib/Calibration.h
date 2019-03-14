@@ -49,9 +49,15 @@ namespace gem {
 
         void pauseAction(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
+	
+	void applyAction(xgi::Input *in, xgi::Output *out)
+          throw (xgi::exception::Exception);
 
 
         std::vector<Calibration*> v_gemcal;
+
+        int PulseDelay;
+	
       protected:
         /* virtual bool calibrationAction(toolbox::task::WorkLoop *wl); */
         /* virtual bool calibrationSequencer(toolbox::task::WorkLoop *wl); */

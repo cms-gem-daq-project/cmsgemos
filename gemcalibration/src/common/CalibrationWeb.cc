@@ -27,6 +27,11 @@ gem::calib::CalibrationWeb::~CalibrationWeb()
 void gem::calib::CalibrationWeb::webDefault(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
+
+  *out << cgicc::script().set("type", "text/javascript")
+    .set("src", "/gemdaq/gemcalibration/html/scripts/shelfMonitor.js") //let it be here for the moment, update with the relevant scripts later
+       << cgicc::script() << std::endl;
+  
   *out << "<link  rel=\"stylesheet\" href=\"/gemdaq/gemcalibration/html/css/bootstrap.css\" type=\"text/css\">" << std::endl;
   *out << "<link  rel=\"stylesheet\" href=\"/gemdaq/gemcalibration/html/css/bootstrap.min.css\" type=\"text/css\">" << std::endl;
   *out << "<script src=\"/gemdaq/gemdcalibration/html/scripts/bootstrap.min.js\"></script>" << std::endl; //CG
@@ -114,7 +119,7 @@ void gem::calib::CalibrationWeb::expertPage(xgi::Input* in, xgi::Output* out)
 
   *out<<"<br>"<< std::endl;
   *out<<"<div align=\"right\">"<<std::endl;
-  *out<<"<button class=\"btn btn-info\" type=\"button\" onclick=\"expert_action(this.id)\" id=\"applyall\" name=\"allpyall\">APPLY TO ALL</button>"<<std::endl;
+  *out<<"<button class=\"btn btn-info\" type=\"button\" onclick=\"expert_action(this.id)\" id=\"apply\" name=\"allpyall\">APPLY</button>"<<std::endl;
   *out<< "</div>"<<std::endl;
   *out<< "<br><br>"<<std::endl;
   
@@ -170,14 +175,19 @@ void gem::calib::CalibrationWeb::expertPage(xgi::Input* in, xgi::Output* out)
  
  *out<<"</div>"<<std::endl;
  *out<<"</div>"<<std::endl;
+
  
-/*
+ *out << "<button class=\"btn btn-warning\" type=\"button\" onclick=\"expert_action(this.id)\" id=\"pause\" name=\"pause\">PAUSE MONITORING</button>" << std::endl; //CG
+ 
  std::string updateLink = "/" + p_gemApp->m_urn + "/";
+
+ std::cout <<"********* updateLink "<<  updateLink <<std::endl;
  *out<<"<script type=\"text/javascript\">"           <<std::endl
      <<"store_actionURL(\""<<updateLink<<"\");"<<std::endl
      <<"</script>"<<std::endl;
 
-*/
+ 
+ std::cout<< "CalibrationWeb.cc PulseDelay " << std::endl; 
 }
 
 void gem::calib::CalibrationWeb::monitorPage(xgi::Input* in, xgi::Output* out)

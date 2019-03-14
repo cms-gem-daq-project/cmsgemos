@@ -44,6 +44,8 @@ gem::calib::Calibration::Calibration(xdaq::ApplicationStub* stub) :
   xgi::bind(this, &Calibration::pauseAction, "pauseAction");
   //init();
   //*/
+  xgi::bind(this, &Calibration::pauseAction, "pauseAction");
+  xgi::bind(this, &Calibration::applyAction, "applyAction");
 }
 
 gem::calib::Calibration::~Calibration()
@@ -125,10 +127,24 @@ void gem::calib::Calibration::resumeAction(xgi::Input* in, xgi::Output* out)
 void gem::calib::Calibration::pauseAction(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-/*
-  CMSGEMOS_INFO("ShelfMonitor::pauseAction");
+  
+  CMSGEMOS_INFO("Calibration::pauseAction");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   //this->stopMonitoring();
   *out << " { \"mon_state\":\"PAUSED\"}" << std::endl;
-*/
+  std::cout << "ciao! " << std::endl;
+}
+
+void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+
+  CMSGEMOS_INFO("Calibration::applyAction");
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+  //this->stopMonitoring();
+  //*out << " { \"cal_scurve\":\"APPLIED\"}" << std::endl;
+  std::cout << "ciao2" << std::endl;
+  PulseDelay=*out->getHTTPResponseHeader().getElementById("PulseDelay").value;
+  std::cout<< "Calibration.cc PulseDelay " << PulseDelay <<std::endl;
+  
 }
