@@ -138,13 +138,11 @@ void gem::calib::Calibration::pauseAction(xgi::Input* in, xgi::Output* out)
 void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-
+  cgicc::Cgicc cgi(in);
+  //std::cout << "in \n" << in <<std::endl;
+  int NSamples = cgi["NSamples"]->getIntegerValue();
   CMSGEMOS_INFO("Calibration::applyAction");
-  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  //this->stopMonitoring();
-  //*out << " { \"cal_scurve\":\"APPLIED\"}" << std::endl;
-  std::cout << "ciao2" << std::endl;
-  PulseDelay=*out->getHTTPResponseHeader().getElementById("PulseDelay").value;
-  std::cout<< "Calibration.cc PulseDelay " << PulseDelay <<std::endl;
+ 
+  std::cout<< "Calibration.cc NSamples " << NSamples <<std::endl;
   
 }

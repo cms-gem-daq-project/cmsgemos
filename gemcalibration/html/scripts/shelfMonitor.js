@@ -57,8 +57,22 @@ function startUpdate( jsonurl )
 {
   // here has to be optohybrid web specific
   var interval;
-  interval = setInterval( "sendrequest( \"" + jsonurl + "\" )" , 1000 );
+  //interval = setInterval( "sendrequest( \"" + jsonurl + "\" )" , 1000 );
 };
+
+$("#newpageform").submit(function(event){
+    alert("submitting")
+    event.preventDefault();
+    apply_action();
+});
+
+function apply_action()
+{
+    if (window.jQuery) {
+	$.post(actionURL+"applyAction")
+	    .done(alert("Applied"))
+    }
+}
 
 function expert_action(id)
 { 

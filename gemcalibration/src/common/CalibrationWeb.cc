@@ -37,8 +37,10 @@ void gem::calib::CalibrationWeb::webDefault(xgi::Input * in, xgi::Output * out)
   *out << "<script src=\"/gemdaq/gemdcalibration/html/scripts/bootstrap.min.js\"></script>" << std::endl; //CG
   *out << "<script src=\"/gemdaq/gemcalibration/html/scripts/bootstrap.js\"></script>" << std::endl; //CG
   *out << "<script src=\"/gemdaq/gemcalibration/html/scripts/jquery.min.js\"></script>" << std::endl; //CG
-  
 
+  *out<<" <div class=\"xdaq-tab\" title=\"newPage\">" <<std::endl;
+  this->newPage(in, out);
+  *out<<" </div>" <<std::endl;
   GEMWebApplication::webDefault(in, out);
 }
 
@@ -48,6 +50,22 @@ void gem::calib::CalibrationWeb::applicationPage(xgi::Input* in, xgi::Output* ou
   CMSGEMOS_DEBUG("CalibrationWeb::applicationPage : Do nothing for the moment, will be eventually filled later");
   //*out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   //*out << "</div>" << std::endl;
+}
+
+
+void gem::calib::CalibrationWeb::newPage(xgi::Input* in, xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+ CMSGEMOS_DEBUG("CalibrationWeb::newPage");
+ *out<<"<div class=\"xdaq-tab-wrapper\">" << std::endl;
+ *out<<"<form id=\"newpageform\" method=\"post\">"<< std::endl;
+ *out<<"<label for=\"NSamples\">Number of samples:</label>"<<std::endl;
+ *out<<"<input type=\"text\" placeholder=\"100\" class=\"form-control\" id=\"NSamples\" name=\"NSamples\">"<<std::endl;
+ *out<<"<button class=\"btn btn-info\" type=\"submit\"  id=\"applystuff\" name=\"allpyall\">APPLY</button>"<<std::endl;
+
+  //*out<<"<button class=\"btn btn-info\" type=\"submit\" onclick=\"apply_action()\" id=\"apply\" name=\"allpyall\">APPLY</button>"<<std::endl;
+ *out<<"</form>"<< std::endl;
+ *out<<"</div>" << std::endl;
 }
 
 void gem::calib::CalibrationWeb::expertPage(xgi::Input* in, xgi::Output* out)

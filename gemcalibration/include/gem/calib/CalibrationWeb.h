@@ -39,6 +39,9 @@ namespace gem {
         virtual void expertPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 	
+	virtual void newPage(xgi::Input *in, xgi::Output *out)
+          throw (xgi::exception::Exception);
+	
 	//        virtual void LatencyScanPage(xgi::Input *in, xgi::Output *out)
         //  throw (xgi::exception::Exception);
 //
