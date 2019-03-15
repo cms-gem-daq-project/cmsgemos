@@ -32,6 +32,9 @@ namespace gem {
         void latencyInterface(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
+        void thresholdInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
         void scurveInterface(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
@@ -94,8 +97,9 @@ namespace gem {
         virtual void expertPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 	
-//        virtual void LatencyScanPage(xgi::Input *in, xgi::Output *out)
-        //  throw (xgi::exception::Exception);
+//
+	/* virtual void LatencyScanPage(xgi::Input *in, xgi::Output *out) */
+	/*   throw (xgi::exception::Exception); */
 //
         virtual void applicationPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);

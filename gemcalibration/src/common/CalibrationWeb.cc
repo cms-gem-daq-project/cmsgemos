@@ -66,6 +66,7 @@ void gem::calib::CalibrationWeb::calibrationPage(xgi::Input* in, xgi::Output* ou
                         *out << "<option>Latency Scan</option>" << std::endl;
                         *out << "<option>S-curve Scan</option>" << std::endl;
                         *out << "<option>S-bit Rate Scan</option>" << std::endl;
+			*out << "<option>Threshold DAC Scan</option>" << std::endl;
                         *out << "<option disabled value>Whatever else...</option>" << std::endl;
                     *out << "</select>" << std::endl;
                     *out << "</div>" << std::endl; //<div class=\"col-md-6\">
@@ -100,7 +101,7 @@ void gem::calib::CalibrationWeb::latencyInterface(xgi::Output* out)
 {
     *out << "<div id=\"cal_interface\">" << std::endl;
 	*out <<"<div align=\"center\">" << std::endl;
-	*out<<"<h3><span class=\"label label-danger\" id=\"cal_type\" name=\"cal_type\">To run the routine select the cards, the optohybrids, the VFATs and links, indicate the number of events"<<"<br>"<<"for each position, the throttle, the  pulse stratch configuration, the minimum and maximum scan values, and the v2 threshold."<< "</span></h3>" << std::endl; 
+	*out<<"<h3><span class=\"label label-danger\" id=\"cal_type\" name=\"cal_type\">To run the routine select the cards, the optohybrids, the VFATs and links, indicate the number of events"<<"<br>"<<"for each position, the throttle, the  pulse stetch configuration, the minimum and maximum scan values, and the v2 threshold."<< "</span></h3>" << std::endl; 
         *out << "</div>" << std::endl;
         *out << "<div class=\"row\">" << std::endl;
             *out << "<div class=\"col-md-6\">" << std::endl;
@@ -110,7 +111,8 @@ void gem::calib::CalibrationWeb::latencyInterface(xgi::Output* out)
 		*out<<"</div>"<<std::endl;
 		this->nSamplesSelector(out);
                 this->L1AtimeSelector(out);
-		this->MSPLSelector(out);
+		this->latencySelector(out);// CG
+		this->pulseDelaySelector(out);// CG
 		this->CalPhaseSelector(out);
 		this->vfatChMinSelector(out);
 		this->vfatChMaxSelector(out);
@@ -118,6 +120,46 @@ void gem::calib::CalibrationWeb::latencyInterface(xgi::Output* out)
 		this->scanMaxSelector(out);
             	this->throttleSelector(out);
 		this->V2ThresholdSelector(out);
+		this->MSPLSelector(out);
+             *out<< "</div>" << std::endl;
+	     *out<< "<div class=\"col-md-6\">" << std::endl;
+	        *out<< "<br><br><br>" << std::endl;
+                this->slotsAndMasksSelector(out);
+		*out<< "<br><br><br><br><br><br><br><br>" << std::endl;
+		*out<< "<div align=\"center\">" << std::endl;
+		    *out<<"<button class=\"btn btn-lg btn-info\" type=\"button\" onclick=\"apply_action()\" id=\"apply\" name=\"apply_all\">APPLY SETTINGS</button>"<<std::endl;
+		    *out << "<button class=\"btn btn-lg btn-success\" onclick=\"run_scan()\" id=\"run_button\" name=\"run_button\" disabled>RUN</button>"<<std::endl;
+		*out << "</div>"<< std::endl;	
+	     *out << "</div>" << std::endl;
+	
+    *out << "</div>" << std::endl;
+}
+
+void gem::calib::CalibrationWeb::thresholdInterface(xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+    *out << "<div id=\"cal_interface\">" << std::endl;
+	*out <<"<div align=\"center\">" << std::endl;
+	*out<<"<h3><span class=\"label label-danger\" id=\"cal_type\" name=\"cal_type\">To run the routine select the cards, the optohybrids, the VFATs and links, indicate the number of events"<<"<br>"<<"for each position, the minimum and maximum scan values, and the v2 threshold."<< "</span></h3>" << std::endl; 
+        *out << "</div>" << std::endl;
+        *out << "<div class=\"row\">" << std::endl;
+            *out << "<div class=\"col-md-6\">" << std::endl;
+                this->triggerSelector(out);
+	        *out<<"<div align=\"center\">"<< std::endl;
+		    *out<<"<h2><span class=\"label label-primary\">SETTINGS"<< "</span></h2>"<<std::endl; 
+		*out<<"</div>"<<std::endl;
+		this->nSamplesSelector(out);
+                this->L1AtimeSelector(out);// CG
+		this->latencySelector(out);// CG
+		this->pulseDelaySelector(out);// CG
+		this->CalPhaseSelector(out);// CG
+		this->vfatChMinSelector(out);
+		this->vfatChMaxSelector(out);
+		this->scanMinSelector(out);// CG
+		this->scanMaxSelector(out);// CG
+            	this->throttleSelector(out);// CG
+       		this->V2ThresholdSelector(out);//CG
+		this->MSPLSelector(out);//CG
              *out<< "</div>" << std::endl;
 	     *out<< "<div class=\"col-md-6\">" << std::endl;
 	        *out<< "<br><br><br>" << std::endl;
@@ -295,7 +337,7 @@ void gem::calib::CalibrationWeb::MSPLSelector(xgi::Output* out)
 {
     *out<<"<form id=\"mspl_select\">"<< std::endl;
     *out << "<div class=\"form-group row\">"
-        <<"<h2><span class=\"label label-success col-md-6\">MSPL"<< "</span></h2>"
+        <<"<h2><span class=\"label label-success col-md-6\">Calpulse stretch"<< "</span></h2>"
         << "<div class=\"col-md-6\">"
             << "<input type=\"text\" value=\"4\" class=\"form-control\" name=\"mspl\">"
         << "</div>"
@@ -383,6 +425,11 @@ void gem::calib::CalibrationWeb::scurveInterface(xgi::Output* out)
 		this->CalPhaseSelector(out);
 		this->vfatChMinSelector(out);
 		this->vfatChMaxSelector(out);
+		this->scanMinSelector(out);// CG
+		this->scanMaxSelector(out);// CG
+            	this->throttleSelector(out);// CG
+       		this->V2ThresholdSelector(out);//CG
+		this->MSPLSelector(out);//CG
              *out<< "</div>" << std::endl;
 	     *out<< "<div class=\"col-md-6\">" << std::endl;
 	        *out<< "<br><br><br>" << std::endl;
