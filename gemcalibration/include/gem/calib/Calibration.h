@@ -83,7 +83,7 @@ namespace gem {
             {"S-curve Scan"     , SCURVE},
             {"S-bit Rate Scan"  , SBITRATE},
         };
-        int n_samples, trig_type;
+        int n_samples, trig_type, L1A_time, latency, pulseDelay, CalPhase, vfatChMin, vfatChMax;
 
       };
   }  // namespace gem::calib

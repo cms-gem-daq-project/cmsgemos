@@ -44,6 +44,24 @@ namespace gem {
         void nSamplesSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
+        void L1AtimeSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void latencySelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void pulseDelaySelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void CalPhaseSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void vfatChMinSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void vfatChMaxSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
         void slotsAndMasksSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 

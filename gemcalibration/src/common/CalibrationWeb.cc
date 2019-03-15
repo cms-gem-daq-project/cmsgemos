@@ -133,6 +133,83 @@ void gem::calib::CalibrationWeb::nSamplesSelector(xgi::Output* out)
     *out<<"</form>"<< std::endl;
 }
 
+void gem::calib::CalibrationWeb::L1AtimeSelector(xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+    *out<<"<form id=\"L1A_time_select\">"<< std::endl;
+    *out << "<div class=\"form-group row\">"
+        <<"<h2><span class=\"label label-success col-md-6\">L1A time"<< "</span></h2>"
+        << "<div class=\"col-md-6\">"
+            << "<input type=\"text\" value=\"250\" class=\"form-control\" name=\"L1A_time\">"
+        << "</div>"
+    << "</div>" << std::endl;    
+    *out<<"</form>"<< std::endl;
+}
+
+void gem::calib::CalibrationWeb::latencySelector(xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+    *out<<"<form id=\"latency_select\">"<< std::endl;
+    *out << "<div class=\"form-group row\">"
+        <<"<h2><span class=\"label label-success col-md-6\">Latency"<< "</span></h2>"
+        << "<div class=\"col-md-6\">"
+            << "<input type=\"text\" value=\"33\" class=\"form-control\" name=\"latency\">"
+        << "</div>"
+    << "</div>" << std::endl;    
+    *out<<"</form>"<< std::endl;
+}
+
+void gem::calib::CalibrationWeb::pulseDelaySelector(xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+    *out<<"<form id=\"pulseDelay_select\">"<< std::endl;
+    *out << "<div class=\"form-group row\">"
+        <<"<h2><span class=\"label label-success col-md-6\">Pulse Delay"<< "</span></h2>"
+        << "<div class=\"col-md-6\">"
+            << "<input type=\"text\" value=\"40\" class=\"form-control\" name=\"pulseDelay\">"
+        << "</div>"
+    << "</div>" << std::endl;    
+    *out<<"</form>"<< std::endl;
+}
+void gem::calib::CalibrationWeb::CalPhaseSelector(xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+    *out<<"<form id=\"CalPhase_select\">"<< std::endl;
+    *out << "<div class=\"form-group row\">"
+        <<"<h2><span class=\"label label-success col-md-6\">Calpulse phase"<< "</span></h2>"
+        << "<div class=\"col-md-6\">"
+            << "<input type=\"text\" value=\"0\" class=\"form-control\" name=\"CalPhase\">"
+        << "</div>"
+    << "</div>" << std::endl;    
+    *out<<"</form>"<< std::endl;
+}
+
+void gem::calib::CalibrationWeb::vfatChMinSelector(xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+    *out<<"<form id=\"vfatChMin_select\">"<< std::endl;
+    *out << "<div class=\"form-group row\">"
+        <<"<h2><span class=\"label label-success col-md-6\">VFAT channel Min"<< "</span></h2>"
+        << "<div class=\"col-md-6\">"
+            << "<input type=\"text\" value=\"0\" class=\"form-control\" name=\"vfatChMin\">"
+        << "</div>"
+    << "</div>" << std::endl;    
+    *out<<"</form>"<< std::endl;
+}
+
+void gem::calib::CalibrationWeb::vfatChMaxSelector(xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+    *out<<"<form id=\"vfatChMax_select\">"<< std::endl;
+    *out << "<div class=\"form-group row\">"
+        <<"<h2><span class=\"label label-success col-md-6\">VFAT channel Max"<< "</span></h2>"
+        << "<div class=\"col-md-6\">"
+            << "<input type=\"text\" value=\"127\" class=\"form-control\" name=\"vfatChMax\">"
+        << "</div>"
+    << "</div>" << std::endl;    
+    *out<<"</form>"<< std::endl;
+}
+
 void gem::calib::CalibrationWeb::slotsAndMasksSelector(xgi::Output* out)
   throw (xgi::exception::Exception)
 {
@@ -204,16 +281,31 @@ void gem::calib::CalibrationWeb::scurveInterface(xgi::Output* out)
         *out << "<div class=\"row\">" << std::endl;
             *out << "<div class=\"col-md-6\">" << std::endl;
                 this->triggerSelector(out);
-                this->nSamplesSelector(out);
-            *out<< "</div>" << std::endl;
-            *out << "<div class=\"col-md-6\">" << std::endl;
+	        *out<<"<div align=\"center\">"<< std::endl;
+		    *out<<"<h2><span class=\"label label-primary\">SETTINGS"<< "</span></h2>"<<std::endl; 
+		*out<<"</div>"<<std::endl;
+		this->nSamplesSelector(out);
+                this->L1AtimeSelector(out);
+		this->latencySelector(out);
+		this->pulseDelaySelector(out);
+		this->CalPhaseSelector(out);
+		this->vfatChMinSelector(out);
+		this->vfatChMaxSelector(out);
+             *out<< "</div>" << std::endl;
+	     *out<< "<div class=\"col-md-6\">" << std::endl;
                 this->slotsAndMasksSelector(out);
-            *out << "</div>" << std::endl;
+		*out<< "<br><br><br><br><br><br><br><br>" << std::endl;
+		*out<< "<div align=\"center\">" << std::endl;
+		    *out<<"<button class=\"btn btn-lg btn-info\" type=\"button\" onclick=\"apply_action()\" id=\"apply\" name=\"apply_all\">APPLY SETTINGS</button>"<<std::endl;
+		    *out << "<button class=\"btn btn-lg btn-success\" onclick=\"run_scan()\" id=\"run_button\" name=\"run_button\" disabled>RUN</button>"<<std::endl;
+		*out << "</div>"<< std::endl;	
+	     *out << "</div>" << std::endl;
+	/*     
         *out<< "</div>" << std::endl;
         *out<< "<form id=\"scurve_input_params\">"<<std::endl;
         *out<<"<div align=\"center\">"<< std::endl;
             *out<<"<h2><span class=\"label label-primary\">SETTINGS"<< "</span></h2>"<<std::endl; 
-        *out<<"</div>"<<std::endl;
+	*out<<"</div>"<<std::endl;
         *out << "<div class=\"form-group row\">"
             << "<div class=\"col-md-4\">"
                 << "<label for=\"L1Atime\">L1Atime:</label>"
@@ -248,7 +340,7 @@ void gem::calib::CalibrationWeb::scurveInterface(xgi::Output* out)
             *out<<"<button class=\"btn btn-lg btn-info\" type=\"button\" onclick=\"apply_action()\" id=\"apply\" name=\"apply_all\">APPLY SETTINGS</button>"<<std::endl;
             *out << "<button class=\"btn btn-lg btn-success\" onclick=\"run_scan()\" id=\"run_button\" name=\"run_button\" disabled>RUN</button>"<<std::endl;
         *out << "</div>"<< std::endl;
-        
+        */
     *out << "</div>" << std::endl;
 }
 
