@@ -143,7 +143,20 @@ void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
   cgicc::Cgicc cgi(in);
   n_samples = cgi["n_samples"]->getIntegerValue();
   trig_type = cgi["trig_radio"]->getIntegerValue();
-  CMSGEMOS_INFO("Calibration::applyAction : n_samples = " << n_samples << ", trigger source: "<< trig_type);
+  L1A_time = cgi["L1A_time"]->getIntegerValue();
+  latency = cgi["latency"]->getIntegerValue();
+  pulseDelay = cgi["pulseDelay"]->getIntegerValue();
+  CalPhase = cgi["CalPhase"]->getIntegerValue();
+  vfatChMax = cgi["vfatChMax"]->getIntegerValue();
+  vfatChMin = cgi["vfatChMin"]->getIntegerValue();
+
+  scanMin = cgi["scanMin"]->getIntegerValue();
+  scanMax = cgi["scanMax"]->getIntegerValue();
+  throttle = cgi["throttle"]->getIntegerValue();
+  vt2 = cgi["vt2"]->getIntegerValue();
+  mspl = cgi["mspl"]->getIntegerValue();
+  
+  CMSGEMOS_INFO("Calibration::applyAction : n_samples = " << n_samples << ", trigger source: "<< trig_type<< ", latency: " << latency << ", pulseDelay: "<< pulseDelay<< ", CalPhase: "<< CalPhase << ", vfatChMin: "<< vfatChMin << ", vfatChMax: "<< vfatChMax << ", scanMin: " << scanMin << ", scanMax: " << scanMax << ", throttle: " << throttle << ", vt2:" << vt2 << ", mspl: " << mspl );
   //CMSGEMOS_INFO("Calibration::applyAction : n_samples = " << n_samples);
 }
 
