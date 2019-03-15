@@ -149,7 +149,14 @@ void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
   CalPhase = cgi["CalPhase"]->getIntegerValue();
   vfatChMax = cgi["vfatChMax"]->getIntegerValue();
   vfatChMin = cgi["vfatChMin"]->getIntegerValue();
-  CMSGEMOS_INFO("Calibration::applyAction : n_samples = " << n_samples << ", trigger source: "<< trig_type<< ", latency: " << latency << ", pulseDelay "<< pulseDelay<< ", CalPhase "<< CalPhase << ", vfatChMin "<< vfatChMin << ", vfatChMx "<< vfatChMax );
+
+  scanMin = cgi["scanMin"]->getIntegerValue();
+  scanMax = cgi["scanMax"]->getIntegerValue();
+  throttle = cgi["throttle"]->getIntegerValue();
+  vt2 = cgi["vt2"]->getIntegerValue();
+  mspl = cgi["mspl"]->getIntegerValue();
+  
+  CMSGEMOS_INFO("Calibration::applyAction : n_samples = " << n_samples << ", trigger source: "<< trig_type<< ", latency: " << latency << ", pulseDelay "<< pulseDelay<< ", CalPhase "<< CalPhase << ", vfatChMin "<< vfatChMin << ", vfatChMx "<< vfatChMax << " scanMin" << scanMin << " scanMax " << scanMax << " throttle " << throttle << " vt2" << vt2 );
   //CMSGEMOS_INFO("Calibration::applyAction : n_samples = " << n_samples);
 }
 
