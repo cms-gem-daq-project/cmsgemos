@@ -23,14 +23,11 @@ function selectCalType()
     });
 };
 
-function apply_action(id)
+function apply_action()
 {
 	console.log("apply_action(): sending AJAX");
-    var forms = $('#trigger_select', '#n_samples_select', 'slot_and_masks_select', 'scurve_input_params').serialize();
-    console.log(forms);
     $.ajax({
         url: actionURL+"applyAction",
-        //data: forms,
         data: $('form').serialize(),
         type:  'POST',
         success: function(data) {
