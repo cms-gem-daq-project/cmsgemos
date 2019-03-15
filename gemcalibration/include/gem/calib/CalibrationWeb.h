@@ -21,28 +21,47 @@ namespace gem {
         // friend class gem::base::GEMFSMApplication;
 
       public:
-	CalibrationWeb(Calibration *CalibrationApp);
-	//CalibrationWeb();
+        CalibrationWeb(Calibration *CalibrationApp);
+        //CalibrationWeb();
 
         virtual ~CalibrationWeb();
+//
+        void phaseInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void latencyInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void scurveInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void sbitRateInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void triggerSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void nSamplesSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void slotsAndMasksSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+
 
       protected:
         virtual void webDefault(  xgi::Input *in, xgi::Output *out )
           throw (xgi::exception::Exception);
 
-//        virtual void controlPanel(  xgi::Input *in, xgi::Output *out )
-//          throw (xgi::exception::Exception);
-//
+        virtual void calibrationPage(  xgi::Input *in, xgi::Output *out )
+          throw (xgi::exception::Exception);
+
        virtual void monitorPage(xgi::Input *in, xgi::Output *out)
          throw (xgi::exception::Exception);
 //
         virtual void expertPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 	
-	virtual void newPage(xgi::Input *in, xgi::Output *out)
-          throw (xgi::exception::Exception);
-	
-	//        virtual void LatencyScanPage(xgi::Input *in, xgi::Output *out)
+//        virtual void LatencyScanPage(xgi::Input *in, xgi::Output *out)
         //  throw (xgi::exception::Exception);
 //
         virtual void applicationPage(xgi::Input *in, xgi::Output *out)
@@ -50,10 +69,6 @@ namespace gem {
 //
         virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
-
-//
-//        void displayManagedStateTable(xgi::Input *in, xgi::Output *out)
-//          throw (xgi::exception::Exception);
 
       private:
         size_t level;

@@ -33,6 +33,7 @@ gem::calib::Calibration::Calibration(xdaq::ApplicationStub* stub) :
 {
   CMSGEMOS_DEBUG("gem::calib::Calibration : Creating the CalibrationWeb interface");
   p_gemWebInterface = new gem::calib::CalibrationWeb(this);
+  m_calType = NDEF;
   CMSGEMOS_DEBUG("gem::calib::Calibration : Retrieving configuration");
   //p_appInfoSpace->fireItemAvailable("shelfID",     &m_shelfID);
   //p_appInfoSpace->addItemRetrieveListener("shelfID", this);
@@ -46,6 +47,7 @@ gem::calib::Calibration::Calibration(xdaq::ApplicationStub* stub) :
   //*/
   xgi::bind(this, &Calibration::pauseAction, "pauseAction");
   xgi::bind(this, &Calibration::applyAction, "applyAction");
+  xgi::bind(this, &Calibration::setCalType, "setCalType");
 }
 
 gem::calib::Calibration::~Calibration()
@@ -139,10 +141,39 @@ void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
   cgicc::Cgicc cgi(in);
-  //std::cout << "in \n" << in <<std::endl;
-  int NSamples = cgi["NSamples"]->getIntegerValue();
-  CMSGEMOS_INFO("Calibration::applyAction");
- 
-  std::cout<< "Calibration.cc NSamples " << NSamples <<std::endl;
-  
+  n_samples = cgi["n_samples"]->getIntegerValue();
+  trig_type = cgi["trig_radio"]->getIntegerValue();
+  CMSGEMOS_INFO("Calibration::applyAction : n_samples = " << n_samples << ", trigger source: "<< trig_type);
+  //CMSGEMOS_INFO("Calibration::applyAction : n_samples = " << n_samples);
 }
+
+void gem::calib::Calibration::setCalType(xgi::Input* in, xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+    CMSGEMOS_INFO("Calibration::setCalType");
+    out->getHTTPResponseHeader().addHeader("Content-Type", "text/html");
+    cgicc::Cgicc cgi(in);
+    m_calType = m_calTypeSelector.find(cgi["cal_type_select"]->getValue())->second;
+    switch (m_calType) {
+        case NDEF: 
+            CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: NDEF");
+            break;
+        case PHASE: 
+            CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: PHASE");
+            dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->phaseInterface(out); 
+            break;
+        case LATENCY: 
+            CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: LATENCY");
+            dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->latencyInterface(out);
+            break;
+        case SCURVE: 
+            CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: SCURVE");
+            dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->scurveInterface(out); 
+            break;
+        case SBITRATE: 
+            CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: SBITRATE");
+            dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->sbitRateInterface(out); 
+            break;
+    }
+}
+

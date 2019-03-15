@@ -20,6 +20,8 @@
 namespace gem {
   namespace calib {
 
+    enum calType {NDEF, PHASE, LATENCY, SCURVE, SBITRATE}; 
+    typedef enum calType calType_t;
 
     class Calibration : public gem::base::GEMApplication
       {
@@ -44,15 +46,18 @@ namespace gem {
         void stopAction(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 
-	void resumeAction(xgi::Input *in, xgi::Output *out)
+        void resumeAction(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 
         void pauseAction(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 	
-	void applyAction(xgi::Input *in, xgi::Output *out)
+        void applyAction(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 
+//
+        void setCalType(xgi::Input *in, xgi::Output *out)
+          throw (xgi::exception::Exception);
 
         std::vector<Calibration*> v_gemcal;
 
@@ -71,6 +76,15 @@ namespace gem {
         xdata::Integer m_shelfID;
         log4cplus::Logger m_logger; //FIXME should be removed!
         std::string m_state;
+        calType_t m_calType;
+        const std::map<std::string, calType_t> m_calTypeSelector{
+            {"Phase Scan"       , PHASE},
+            {"Latency Scan"     , LATENCY},
+            {"S-curve Scan"     , SCURVE},
+            {"S-bit Rate Scan"  , SBITRATE},
+        };
+        int n_samples, trig_type;
+
       };
   }  // namespace gem::calib
 }  // namespace gem
