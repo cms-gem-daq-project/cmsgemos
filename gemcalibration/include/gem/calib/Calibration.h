@@ -20,7 +20,7 @@
 namespace gem {
   namespace calib {
 
-    enum calType {NDEF, PHASE, LATENCY, SCURVE, SBITRATE, THRESHOLD}; 
+    enum calType {NDEF, PHASE, LATENCY, SCURVE, SBITRATE, THRESHOLD, TRIMDAC}; 
     typedef enum calType calType_t;
 
     class Calibration : public gem::base::GEMApplication
@@ -82,7 +82,8 @@ namespace gem {
             {"Latency Scan"     , LATENCY},
             {"S-curve Scan"     , SCURVE},
             {"S-bit Rate Scan"  , SBITRATE},
-            {"Threshold Scan"   , THRESHOLD},
+            {"Threshold DAC Scan"   , THRESHOLD},
+            {"DAC trimming"        , TRIMDAC},
         };
         int n_samples, trig_type, L1A_time, latency, pulseDelay, CalPhase, vfatChMin, vfatChMax; 
 	int scanMin, scanMax, throttle, vt2, mspl;

@@ -41,6 +41,9 @@ namespace gem {
         void sbitRateInterface(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
+        void trimDACInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//	
         void triggerSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //

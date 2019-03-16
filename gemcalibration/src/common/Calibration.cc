@@ -192,6 +192,10 @@ void gem::calib::Calibration::setCalType(xgi::Input* in, xgi::Output* out)
             CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: THRESHOLD");
             dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->thresholdInterface(out); 
             break;
+        case TRIMDAC: 
+            CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: TRIMDAC");
+            dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->trimDACInterface(out); 
+            break;
     }
 }
 
