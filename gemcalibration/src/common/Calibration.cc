@@ -156,8 +156,10 @@ void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
   throttle = cgi["throttle"]->getIntegerValue();
   vt2 = cgi["vt2"]->getIntegerValue();
   mspl = cgi["mspl"]->getIntegerValue();
-  
-  CMSGEMOS_INFO("Calibration::applyAction : n_samples = " << n_samples << ", trigger source: "<< trig_type<< ", latency: " << latency << ", pulseDelay: "<< pulseDelay<< ", CalPhase: "<< CalPhase << ", vfatChMin: "<< vfatChMin << ", vfatChMax: "<< vfatChMax << ", scanMin: " << scanMin << ", scanMax: " << scanMax << ", throttle: " << throttle << ", vt2: " << vt2 << ", mspl: " << mspl );
+  comparator_type = cgi["comparator_radio"]->getIntegerValue();
+  timeInterval = cgi["timeInterval"]->getIntegerValue();
+ 
+  CMSGEMOS_INFO("Calibration::applyAction : n_samples = " << n_samples << ", trigger source: "<< trig_type<< ", latency: " << latency << ", pulseDelay: "<< pulseDelay<< ", CalPhase: "<< CalPhase << ", vfatChMin: "<< vfatChMin << ", vfatChMax: "<< vfatChMax << ", scanMin: " << scanMin << ", scanMax: " << scanMax << ", throttle: " << throttle << ", vt2: " << vt2 << ", mspl: " << mspl <<", comparator: " << comparator_type );
   //CMSGEMOS_INFO("Calibration::applyAction : n_samples = " << n_samples);
 }
 
@@ -195,6 +197,22 @@ void gem::calib::Calibration::setCalType(xgi::Input* in, xgi::Output* out)
         case TRIMDAC: 
             CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: TRIMDAC");
             dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->trimDACInterface(out); 
+            break;
+        case DACSCANV3: 
+            CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: DACSCANV3");
+            dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->scanDACInterface(out); 
+            break;
+        case TEMPERATURE: 
+            CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: TEMPERATURE");
+            dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->temperatureInterface(out); 
+            break;
+        case SBITREADOUT: 
+            CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: SBITREADOUT");
+            dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->sbitReadOutInterface(out); 
+            break;
+        case SBITMAPANDRATE: 
+            CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: SBITMAPANDRATE");
+            dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->sbitMapAndRateInterface(out); 
             break;
     }
 }

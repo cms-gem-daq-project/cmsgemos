@@ -41,7 +41,19 @@ namespace gem {
         void sbitRateInterface(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
+        void sbitReadOutInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void sbitMapAndRateInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
         void trimDACInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void scanDACInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//	
+        void temperatureInterface(xgi::Output *out)
           throw (xgi::exception::Exception);
 //	
         void triggerSelector(xgi::Output *out)
@@ -84,6 +96,21 @@ namespace gem {
           throw (xgi::exception::Exception);
 //
         void slotsAndMasksSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void comparatorSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void timeIntervalSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void timeAcquisitionSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void timemsSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void rateArraySelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 
 
