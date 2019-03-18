@@ -39,13 +39,20 @@ function apply_action()
 
 function select_links()
 {
-    if (window.jQuery) {
-        //alert("Well... This is still work in progress... But it should launch!");
-        var checkboxes = $('form#slot_and_masks_select').find(':checkbox');
-        checkboxes.attr('checked', 'checked');
-        var masks = $('form#slot_and_masks_select').find(':input');
-        masks.attr('value','0x3FF');
-    }
+    console.log("select_links");
+    var checkboxes = $('form#slot_and_masks_select').find(':checkbox');
+    checkboxes.prop('checked', true);
+    var masks = $('form#slot_and_masks_select').find(':input');
+    masks.attr('value','0x3FF');
+};
+
+function deselect_links()
+{
+    console.log("deselect_links");
+    var checkboxes = $('form#slot_and_masks_select').find(':checkbox');
+    checkboxes.prop('checked', false);
+    var masks = $('form#slot_and_masks_select').find(':input');
+    masks.attr('value','0x000');
 };
 
 function run_scan()

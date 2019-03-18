@@ -83,8 +83,33 @@ namespace gem {
             {"S-curve Scan"     , SCURVE},
             {"S-bit Rate Scan"  , SBITRATE},
         };
-        int n_samples, trig_type, L1A_time, latency, pulseDelay, CalPhase, vfatChMin, vfatChMax; 
-	int scanMin, scanMax, throttle, vt2, mspl;
+        std::map<calType_t, std::map<std::string, uint32_t>> m_scanParams{
+        {PHASE  ,{{"n_samples",0},{"trig_type", 0},}},
+        {LATENCY,{
+            {"nSamples"  , 0},
+            {"trigType"  , 0},
+            {"l1aTime"   , 0},
+            {"calPhase"  , 0},
+            {"mspl"      , 0},
+            {"scanMin"   , 0},
+            {"scanMax"   , 0},
+            {"vfatChMin" , 0},
+            {"vfatChMax" , 0},
+            {"vt2"       , 0},
+            }},
+        {SCURVE,{
+            {"nSamples"  , 0},
+            {"trigType"  , 0},
+            {"l1aTime"   , 0},
+            {"pulseDelay", 0},
+            {"latency"   , 0},
+            {"vfatChMin" , 0},
+            {"vfatChMax" , 0},
+            {"calPhase"  , 0},
+            }},
+         };
+        //int nSamples, trigType, l1aTime, latency, pulseDelay, calPhase, vfatChMin, vfatChMax; 
+	    //int scanMin, scanMax, throttle, vt2, mspl;
 	  
       };
   }  // namespace gem::calib
