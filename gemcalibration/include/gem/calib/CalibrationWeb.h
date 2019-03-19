@@ -32,12 +32,30 @@ namespace gem {
         void latencyInterface(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
+        void thresholdInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
         void scurveInterface(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
         void sbitRateInterface(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
+        void sbitReadOutInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void sbitMapAndRateInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void trimDACInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void scanDACInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//	
+        void temperatureInterface(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//	
         void triggerSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
@@ -79,6 +97,21 @@ namespace gem {
 //
         void slotsAndMasksSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
+//
+        void comparatorSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void timeIntervalSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void timeAcquisitionSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void timemsSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void rateArraySelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
 
 
       protected:
@@ -94,8 +127,9 @@ namespace gem {
         virtual void expertPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 	
-//        virtual void LatencyScanPage(xgi::Input *in, xgi::Output *out)
-        //  throw (xgi::exception::Exception);
+//
+	/* virtual void LatencyScanPage(xgi::Input *in, xgi::Output *out) */
+	/*   throw (xgi::exception::Exception); */
 //
         virtual void applicationPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);

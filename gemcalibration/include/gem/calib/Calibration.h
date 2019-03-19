@@ -20,7 +20,7 @@
 namespace gem {
   namespace calib {
 
-    enum calType {NDEF, PHASE, LATENCY, SCURVE, SBITRATE}; 
+    enum calType {NDEF, PHASE, LATENCY, SCURVE, SBITRATE, THRESHOLD, TRIMDAC, DACSCANV3, TEMPERATURE, SBITREADOUT, SBITMAPANDRATE}; 
     typedef enum calType calType_t;
 
     class Calibration : public gem::base::GEMApplication
@@ -78,10 +78,17 @@ namespace gem {
         std::string m_state;
         calType_t m_calType;
         const std::map<std::string, calType_t> m_calTypeSelector{
-            {"Phase Scan"       , PHASE},
-            {"Latency Scan"     , LATENCY},
-            {"S-curve Scan"     , SCURVE},
-            {"S-bit Rate Scan"  , SBITRATE},
+            {"Phase Scan"                , PHASE},
+            {"Latency Scan"              , LATENCY},
+            {"S-curve Scan"              , SCURVE},
+            {"S-bit Rate Scan"           , SBITRATE},
+            {"Threshold DAC Scan"        , THRESHOLD},
+            {"DAC trimming"              , TRIMDAC},
+            {"DAC Scan on VFAT3"         , DACSCANV3},
+            {"Temperature Scan"          , TEMPERATURE},
+            {"SbitReadOut Scan"          , SBITREADOUT},
+            {"Sbit Map And Rate Scan"    , SBITMAPANDRATE},
+	    
         };
         std::map<calType_t, std::map<std::string, uint32_t>> m_scanParams{
         {PHASE  ,{{"n_samples",0},{"trig_type", 0},}},
@@ -107,10 +114,20 @@ namespace gem {
             {"vfatChMax" , 0},
             {"calPhase"  , 0},
             }},
+        {SBITRATE  ,{{"n_samples",0},{"trig_type", 0},}},
+        {THRESHOLD  ,{{"n_samples",0},{"trig_type", 0},}},
+        {TRIMDAC  ,{{"n_samples",0},{"trig_type", 0},}},
+        {DACSCANV3  ,{{"n_samples",0},{"trig_type", 0},}},
+        {TEMPERATURE  ,{{"n_samples",0},{"trig_type", 0},}},
+        {SBITREADOUT  ,{{"n_samples",0},{"trig_type", 0},}},
+        {SBITMAPANDRATE  ,{{"n_samples",0},{"trig_type", 0},}},
          };
         //int nSamples, trigType, l1aTime, latency, pulseDelay, calPhase, vfatChMin, vfatChMax; 
 	    //int scanMin, scanMax, throttle, vt2, mspl;
 	  
+	    //int comparator_type;
+	    //int timeInterval, acquireTime, timemsInterval;
+	    //std::string rateArray;
       };
   }  // namespace gem::calib
 }  // namespace gem
