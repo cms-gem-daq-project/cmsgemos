@@ -62,7 +62,7 @@ namespace gem {
         void nSamplesSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
-        void L1AtimeSelector(xgi::Output *out)
+        void l1aTimeSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
         void latencySelector(xgi::Output *out)
@@ -71,7 +71,7 @@ namespace gem {
         void pulseDelaySelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
-        void CalPhaseSelector(xgi::Output *out)
+        void calPhaseSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
         void vfatChMinSelector(xgi::Output *out)
@@ -89,10 +89,10 @@ namespace gem {
         void throttleSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
-        void V2ThresholdSelector(xgi::Output *out)
+        void vt2ThresholdSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
-        void MSPLSelector(xgi::Output *out)
+        void msplSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
         void slotsAndMasksSelector(xgi::Output *out)

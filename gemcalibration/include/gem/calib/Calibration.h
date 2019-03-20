@@ -78,23 +78,56 @@ namespace gem {
         std::string m_state;
         calType_t m_calType;
         const std::map<std::string, calType_t> m_calTypeSelector{
-            {"Phase Scan"       , PHASE},
-            {"Latency Scan"     , LATENCY},
-            {"S-curve Scan"     , SCURVE},
-            {"S-bit Rate Scan"  , SBITRATE},
-            {"Threshold DAC Scan"  , THRESHOLD},
-            {"DAC trimming"        , TRIMDAC},
-            {"DAC Scan on VFAT3"   , DACSCANV3},
-            {"Temperature Scan"    , TEMPERATURE},
-            {"SbitReadOut Scan"    , SBITREADOUT},
+            {"Phase Scan"                , PHASE},
+            {"Latency Scan"              , LATENCY},
+            {"S-curve Scan"              , SCURVE},
+            {"S-bit Rate Scan"           , SBITRATE},
+            {"Threshold DAC Scan"        , THRESHOLD},
+            {"DAC trimming"              , TRIMDAC},
+            {"DAC Scan on VFAT3"         , DACSCANV3},
+            {"Temperature Scan"          , TEMPERATURE},
+            {"SbitReadOut Scan"          , SBITREADOUT},
             {"Sbit Map And Rate Scan"    , SBITMAPANDRATE},
 	    
         };
-        int n_samples, trig_type, L1A_time, latency, pulseDelay, CalPhase, vfatChMin, vfatChMax; 
-	int scanMin, scanMax, throttle, vt2, mspl;
-	int comparator_type;
-	int timeInterval, acquireTime, timemsInterval;
-	std::string rateArray;
+        std::map<calType_t, std::map<std::string, uint32_t>> m_scanParams{
+        {PHASE  ,{{"n_samples",0},{"trig_type", 0},}},
+        {LATENCY,{
+            {"nSamples"  , 0},
+            {"trigType"  , 0},
+            {"l1aTime"   , 0},
+            {"calPhase"  , 0},
+            {"mspl"      , 0},
+            {"scanMin"   , 0},
+            {"scanMax"   , 0},
+            {"vfatChMin" , 0},
+            {"vfatChMax" , 0},
+            {"vt2"       , 0},
+            }},
+        {SCURVE,{
+            {"nSamples"  , 0},
+            {"trigType"  , 0},
+            {"l1aTime"   , 0},
+            {"pulseDelay", 0},
+            {"latency"   , 0},
+            {"vfatChMin" , 0},
+            {"vfatChMax" , 0},
+            {"calPhase"  , 0},
+            }},
+        {SBITRATE  ,{{"n_samples",0},{"trig_type", 0},}},
+        {THRESHOLD  ,{{"n_samples",0},{"trig_type", 0},}},
+        {TRIMDAC  ,{{"n_samples",0},{"trig_type", 0},}},
+        {DACSCANV3  ,{{"n_samples",0},{"trig_type", 0},}},
+        {TEMPERATURE  ,{{"n_samples",0},{"trig_type", 0},}},
+        {SBITREADOUT  ,{{"n_samples",0},{"trig_type", 0},}},
+        {SBITMAPANDRATE  ,{{"n_samples",0},{"trig_type", 0},}},
+         };
+        //int nSamples, trigType, l1aTime, latency, pulseDelay, calPhase, vfatChMin, vfatChMax; 
+	    //int scanMin, scanMax, throttle, vt2, mspl;
+	  
+	    //int comparator_type;
+	    //int timeInterval, acquireTime, timemsInterval;
+	    //std::string rateArray;
       };
   }  // namespace gem::calib
 }  // namespace gem
