@@ -26,91 +26,19 @@ namespace gem {
 
         virtual ~CalibrationWeb();
 //
-        void phaseInterface(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void latencyInterface(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void thresholdInterface(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void scurveInterface(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void sbitRateInterface(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void sbitReadOutInterface(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void sbitMapAndRateInterface(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void trimDACInterface(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void scanDACInterface(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//	
-        void temperatureInterface(xgi::Output *out)
+        void settingsInterface(calType_t m_calType, xgi::Output *out)
           throw (xgi::exception::Exception);
 //	
         void triggerSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
-        void nSamplesSelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void l1aTimeSelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void latencySelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void pulseDelaySelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void calPhaseSelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void vfatChMinSelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void vfatChMaxSelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void scanMinSelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void scanMaxSelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void throttleSelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void vt2ThresholdSelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void msplSelector(xgi::Output *out)
+        void comparatorSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
         void slotsAndMasksSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
-        void comparatorSelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void timeIntervalSelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void timeAcquisitionSelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void timemsSelector(xgi::Output *out)
-          throw (xgi::exception::Exception);
-//
-        void rateArraySelector(xgi::Output *out)
+        void genericParamSelector(std::string paramName, int defaultValue, xgi::Output *out)
           throw (xgi::exception::Exception);
 
 
@@ -126,10 +54,6 @@ namespace gem {
 //
         virtual void expertPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
-	
-//
-	/* virtual void LatencyScanPage(xgi::Input *in, xgi::Output *out) */
-	/*   throw (xgi::exception::Exception); */
 //
         virtual void applicationPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
@@ -139,6 +63,21 @@ namespace gem {
 
       private:
         size_t level;
+        const std::map<calType_t, std::string> alertMap {
+            {PHASE,"HELLO WORLD! I'm not yet implemented..."},
+            {LATENCY,"To run the routine select the cards, the optohybrids, the VFATs and links, indicate the number of events \
+               for each position, the throttle, the  pulse length configuration, the minimum and maximum scan values, and the v2 threshold."},
+            {SCURVE,"To run the routine select the cards, the optohybrids, the VFATs and links. \
+                Indicate the number of events for each position and the latency and pulse stretch configuration."},
+            {SBITRATE,"To run the routine select the cards, the optohybrids, the VFATs and links."},
+            {THRESHOLD,"To run the routine select the cards, the optohybrids, the VFATs and links, indicate the number of events \
+                for each position, the minimum and maximum scan values, and the v2 threshold."},
+            {TRIMDAC,"To run the routine select the cards, the optohybrids."},
+            {DACSCANV3,"To run the routine select the cards, and the optohybrids. Really?? //TODO: clarify!!"},
+            {TEMPERATURE,"To run the routine select the cards, the optohybrids, and the update frequency."},
+            {SBITREADOUT,"To run the routine select the cards, the optohybrids, and the acquisition time in second to acquire sbits for."},
+            {SBITMAPANDRATE,"To run the routine select the cards, the optohybrids and the acquisition time in millisecond to acquire sbits for."},
+        };
         // GEMSupervisor *gemSupervisorP__;
         // GEMSupervisorWeb(GEMSupervisorWeb const&);
       };  // class gem::calib::CalibrationWeb
