@@ -60,9 +60,7 @@ namespace gem {                                                      \
 }  /* namespace gem */
 
 // The gem::onlinedb exceptions.
-GEM_ONLINEDB_DEFINE_EXCEPTION(Exception)
 GEM_ONLINEDB_DEFINE_EXCEPTION(SoftwareProblem)
-GEM_ONLINEDB_DEFINE_EXCEPTION(ValueError)
 GEM_ONLINEDB_DEFINE_EXCEPTION(DBConnectionError)
 GEM_ONLINEDB_DEFINE_EXCEPTION(ParseError)
 GEM_ONLINEDB_DEFINE_EXCEPTION(ReferenceError)
