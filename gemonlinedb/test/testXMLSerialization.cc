@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(MakeDOMXsdValidation)
     auto builder = createTestXMLSerializationData();
     auto dom = builder.makeDOM();
 
-    try {
+    detail::xercesExceptionsToStd([&]{
         // In principle, DOM 3 has an API to validate documents. One should
         // modify the configuration of the document (getDOMConfig) and call
         // normalizeDocument().
@@ -117,21 +117,7 @@ BOOST_AUTO_TEST_CASE(MakeDOMXsdValidation)
 
         // Validate
         parser.parse(source);
-
-    } catch (DOMException &e) {
-        throw std::runtime_error(detail::transcode(e.getMessage()));
-    } catch (XMLException &e) {
-        throw std::runtime_error(detail::transcode(e.getMessage()));
-    } catch (SAXParseException &e) {
-        auto column = e.getColumnNumber();
-        auto line = e.getLineNumber();
-        throw std::runtime_error(
-            std::to_string(line) + ":" +
-            std::to_string(column) + ": " +
-            detail::transcode(e.getMessage()));
-    } catch (SAXException &e) {
-        throw std::runtime_error(detail::transcode(e.getMessage()));
-    }
+    });
 }
 
 BOOST_AUTO_TEST_CASE(MakeDOMReadDOM)
@@ -141,28 +127,13 @@ BOOST_AUTO_TEST_CASE(MakeDOMReadDOM)
     auto data = createTestXMLSerializationData();
     auto dom = data.makeDOM();
 
-    try {
-
+    detail::xercesExceptionsToStd([&]{
         auto data2 = XMLSerializationData<VFAT3ChipConfiguration>();
         data2.readDOM(dom);
 
         BOOST_REQUIRE(data.getRun() == data2.getRun());
         BOOST_REQUIRE(data.getDataSets() == data2.getDataSets());
-
-    } catch (DOMException &e) {
-        throw std::runtime_error(detail::transcode(e.getMessage()));
-    } catch (XMLException &e) {
-        throw std::runtime_error(detail::transcode(e.getMessage()));
-    } catch (SAXParseException &e) {
-        auto column = e.getColumnNumber();
-        auto line = e.getLineNumber();
-        throw std::runtime_error(
-            std::to_string(line) + ":" +
-            std::to_string(column) + ": " +
-            detail::transcode(e.getMessage()));
-    } catch (SAXException &e) {
-        throw std::runtime_error(detail::transcode(e.getMessage()));
-    }
+    });
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(LoadFromSysConfig)
 {
     XERCES_CPP_NAMESPACE_USE
 
-    try {
+    detail::xercesExceptionsToStd([]{
         // Get an implementation
         auto impl = DOMImplementationRegistry::getDOMImplementation("LS"_xml);
         BOOST_REQUIRE(impl != nullptr);
@@ -62,21 +62,7 @@ BOOST_AUTO_TEST_CASE(LoadFromSysConfig)
         // Link
         auto linker = ConfigurationLinker(provider);
         auto config = linker.link(topology);
-
-    } catch (DOMException &e) {
-        throw std::runtime_error(detail::transcode(e.getMessage()));
-    } catch (XMLException &e) {
-        throw std::runtime_error(detail::transcode(e.getMessage()));
-    } catch (SAXParseException &e) {
-        auto column = e.getColumnNumber();
-        auto line = e.getLineNumber();
-        throw std::runtime_error(
-            std::to_string(line) + ":" +
-            std::to_string(column) + ": " +
-            detail::transcode(e.getMessage()));
-    } catch (SAXException &e) {
-        throw std::runtime_error(detail::transcode(e.getMessage()));
-    }
+    });
 }
 
 BOOST_AUTO_TEST_SUITE_END()

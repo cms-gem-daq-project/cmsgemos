@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(Populate)
 {
     XERCES_CPP_NAMESPACE_USE
 
-    try {
+    detail::xercesExceptionsToStd([]{
         // Load example document
 
         // Get an implementation
@@ -57,21 +57,7 @@ BOOST_AUTO_TEST_CASE(Populate)
 
         // The example system topology has 2 AMC 13's
         BOOST_CHECK(topo.roots().size() == 2);
-
-    } catch (DOMException &e) {
-        throw std::runtime_error(detail::transcode(e.getMessage()));
-    } catch (XMLException &e) {
-        throw std::runtime_error(detail::transcode(e.getMessage()));
-    } catch (SAXParseException &e) {
-        auto column = e.getColumnNumber();
-        auto line = e.getLineNumber();
-        throw std::runtime_error(
-            std::to_string(line) + ":" +
-            std::to_string(column) + ": " +
-            detail::transcode(e.getMessage()));
-    } catch (SAXException &e) {
-        throw std::runtime_error(detail::transcode(e.getMessage()));
-    }
+    });
 }
 
 BOOST_AUTO_TEST_SUITE_END()
