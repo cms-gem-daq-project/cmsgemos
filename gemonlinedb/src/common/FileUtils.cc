@@ -18,7 +18,7 @@ namespace gem {
                     boost::filesystem::path path = dir;
                     path /= filename;
                     if (boost::filesystem::exists(path)) {
-                        return path.string();
+                        return boost::filesystem::absolute(path).string();
                     }
                 }
                 throw boost::filesystem::filesystem_error(
