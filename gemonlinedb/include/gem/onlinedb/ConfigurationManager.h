@@ -4,6 +4,9 @@
 #include <memory>
 #include <vector>
 
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
+
 namespace gem {
     namespace onlinedb {
 
@@ -24,8 +27,21 @@ namespace gem {
                 XML, ///< \brief Load configuration objects from XML files.
             };
 
+            /**
+             * \brief Enables thread-safe read-only access to the shared
+             *        configuration.
+             */
+            using ReadLock = typename boost::shared_lock<boost::shared_mutex>;
+
+            /**
+             * \brief Enables thread-safe read-write access to the shared
+             *        configuration.
+             */
+            using EditLock = typename boost::unique_lock<boost::shared_mutex>;
+
         private:
             static std::unique_ptr<ConfigurationManager> s_instance;
+            static boost::shared_mutex s_mutex;
 
             std::vector<std::unique_ptr<AMC13Configuration>> m_config;
 
@@ -36,25 +52,51 @@ namespace gem {
             explicit ConfigurationManager(Source objectSource, Source topologySource);
 
             /**
+             * \brief Creates a lock guarding the shared configuration for
+             *        reading.
+             *
+             * The returned lock isn't locked.
+             */
+            static ReadLock makeReadLock();
+
+            /**
+             * \brief Creates a lock guarding the shared configuration for
+             *        writing.
+             *
+             * The returned lock is locked immediately.
+             */
+            static EditLock makeEditLock();
+
+            /**
              * \brief Obtains a reference to the system-wide configuration
              *        object.
              *
-             * The reference should not be stored. If storage of the returned
-             * objects outside of the scope of the calling function is needed,
-             * they should be copied.
+             * Calls to this function and manipulation of the resulting data
+             * must be guarded using a \c ReadLock. Typical usage is as follows:
              *
-             * @warning This function is not thread-safe..
+             *     auto lock = ConfigurationManager::makeReadLock();
+             *     auto &config = ConfigurationManager::getConfiguration(lock);
+             *     // Do something with config...
+             *     // The lock is released automatically when going out of scope
              */
             static const std::vector<std::unique_ptr<AMC13Configuration>> &
-            getConfiguration();
+            getConfiguration(ReadLock &lock);
 
             /**
              * \brief Gets a reference to the system-wide configuration object.
              *
-             * @warning This function is not thread-safe.
+             * Calls to this function and manipulation of the resulting data
+             * must be guarded using an \c EditLock. Typical usage is as
+             * follows:
+             *
+             *     auto readLock = ConfigurationManager::makeReadLock();
+             *     auto editLock = ConfigurationManager::makeEditLock(readLock);
+             *     auto &config = ConfigurationManager::getConfiguration(editLock);
+             *     // Modify the configuration...
+             *     // The locks are released automatically when going out of scope
              */
             static std::vector<std::unique_ptr<AMC13Configuration>> &
-            getEditableConfiguration();
+            getConfiguration(EditLock &lock);
         };
 
     } // namespace onlinedb

@@ -65,6 +65,8 @@ namespace gem {
         std::unique_ptr<ConfigurationManager>
         ConfigurationManager::s_instance = nullptr;
 
+        boost::shared_mutex ConfigurationManager::s_mutex;
+
         ConfigurationManager::ConfigurationManager(Source objectSource,
                                                    Source topologySource)
         {
@@ -106,16 +108,47 @@ namespace gem {
             m_config = std::move(linker.link(topology));
         }
 
-        const std::vector<std::unique_ptr<AMC13Configuration>> &
-        ConfigurationManager::getConfiguration()
+        ConfigurationManager::ReadLock ConfigurationManager::makeReadLock()
         {
-            // Just making it const
-            return getEditableConfiguration();
+            return ReadLock(s_mutex, boost::defer_lock);
+        }
+
+        ConfigurationManager::EditLock ConfigurationManager::makeEditLock()
+        {
+            return EditLock(s_mutex, boost::defer_lock);
+        }
+
+        const std::vector<std::unique_ptr<AMC13Configuration>> &
+        ConfigurationManager::getConfiguration(ConfigurationManager::ReadLock &lock)
+        {
+            // Get read-only access if needed
+            if (!lock.owns_lock()) {
+                lock.lock();
+            }
+            if (s_instance == nullptr) {
+                // Revoke read access
+                lock.unlock();
+                {
+                    // Need write access to create the config
+                    auto uniqueLock = makeEditLock();
+                    getConfiguration(uniqueLock);
+                }
+                // Get back read access once the unique lock is released
+
+                // Note that another thread may have modified the config, so we
+                // cannot rely on the result of getConfiguration(uniqueLock)
+                lock.lock();
+            }
+            return s_instance->m_config;
         }
 
         std::vector<std::unique_ptr<AMC13Configuration>> &
-        ConfigurationManager::getEditableConfiguration()
+        ConfigurationManager::getConfiguration(ConfigurationManager::EditLock &lock)
         {
+            // Get read-write access if needed
+            if (!lock.owns_lock()) {
+                lock.lock();
+            }
             if (s_instance == nullptr) {
                 // TODO Only XML is supported for now
                 s_instance.reset(

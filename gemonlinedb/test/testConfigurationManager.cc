@@ -1,5 +1,8 @@
+#include <chrono>
 #include <stdlib.h> // setenv
+#include <thread>
 #include <memory>
+#include <vector>
 
 #include "gem/onlinedb/ConfigurationManager.h"
 #include "gem/onlinedb/detail/XMLUtils.h"
@@ -28,10 +31,99 @@ BOOST_AUTO_TEST_CASE(GetConfiguration)
     try {
         setenv("CMSGEMOS_CONFIG_PATH", "xml/examples", 1);
 
-        auto &config = ConfigurationManager::getEditableConfiguration();
+        auto lock = ConfigurationManager::makeReadLock();
+        auto &config = ConfigurationManager::getConfiguration(lock);
 
         // The example system topology has 2 AMC 13's
         BOOST_CHECK(config.size() == 2);
+
+    } catch (DOMException &e) {
+        throw std::runtime_error(detail::transcode(e.getMessage()));
+    } catch (XMLException &e) {
+        throw std::runtime_error(detail::transcode(e.getMessage()));
+    } catch (SAXParseException &e) {
+        auto column = e.getColumnNumber();
+        auto line = e.getLineNumber();
+        throw std::runtime_error(
+            std::to_string(line) + ":" +
+            std::to_string(column) + ": " +
+            detail::transcode(e.getMessage()));
+    } catch (SAXException &e) {
+        throw std::runtime_error(detail::transcode(e.getMessage()));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(SharedRead)
+{
+    // Tests that reading can be done concurrently: create 10 threads locking
+    // for 100ms each. The total time must be well under 1s.
+
+    XERCES_CPP_NAMESPACE_USE
+
+    try {
+        setenv("CMSGEMOS_CONFIG_PATH", "xml/examples", 1);
+
+        auto start = std::chrono::system_clock::now();
+
+        std::vector<std::thread> threads;
+        for (int i = 0; i < 10; ++i) {
+            threads.emplace_back([] {
+                auto lock = ConfigurationManager::makeReadLock();
+                ConfigurationManager::getConfiguration(lock); // Locks
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            });
+        }
+        for (auto &t : threads) {
+            t.join();
+        }
+
+        auto duration = std::chrono::system_clock::now() - start;
+        BOOST_CHECK(duration < std::chrono::milliseconds(500));
+
+    } catch (DOMException &e) {
+        throw std::runtime_error(detail::transcode(e.getMessage()));
+    } catch (XMLException &e) {
+        throw std::runtime_error(detail::transcode(e.getMessage()));
+    } catch (SAXParseException &e) {
+        auto column = e.getColumnNumber();
+        auto line = e.getLineNumber();
+        throw std::runtime_error(
+            std::to_string(line) + ":" +
+            std::to_string(column) + ": " +
+            detail::transcode(e.getMessage()));
+    } catch (SAXException &e) {
+        throw std::runtime_error(detail::transcode(e.getMessage()));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(WriteBlockRead)
+{
+    // Tests that writing blocks reading: create a thread that locks for writing
+    // for 100ms and another locking for reading for 100ms. The total time must
+    // be over 200ms.
+
+    XERCES_CPP_NAMESPACE_USE
+
+    try {
+        setenv("CMSGEMOS_CONFIG_PATH", "xml/examples", 1);
+
+        auto start = std::chrono::system_clock::now();
+
+        std::thread writer([] {
+            auto lock = ConfigurationManager::makeEditLock();
+            ConfigurationManager::getConfiguration(lock); // Locks
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        });
+        std::thread reader([] {
+            auto lock = ConfigurationManager::makeReadLock();
+            ConfigurationManager::getConfiguration(lock); // Locks
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        });
+        writer.join();
+        reader.join();
+
+        auto duration = std::chrono::system_clock::now() - start;
+        BOOST_CHECK(duration > std::chrono::milliseconds(200));
 
     } catch (DOMException &e) {
         throw std::runtime_error(detail::transcode(e.getMessage()));
