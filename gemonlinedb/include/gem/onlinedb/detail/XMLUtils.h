@@ -2,6 +2,7 @@
 #define GEM_ONLINEDB_DETAIL_XMLUTILS_H
 
 #include <memory>
+#include <mutex>
 #include <string>
 
 #include <xercesc/dom/DOM.hpp>
@@ -115,6 +116,8 @@ namespace gem {
              */
             class XercesGuard
             {
+                static std::recursive_mutex s_mutex;
+
             public:
                 /**
                  * @brief Initializes Xerces.
