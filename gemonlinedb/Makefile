@@ -22,6 +22,7 @@ Sources = \
     AMCConfiguration.cc \
     AMCConfigurationGen.cc \
     ConfigurationLinker.cc \
+    ConfigurationManager.cc \
     DBInterface.cc \
     FileUtils.cc \
     OHv3Configuration.cc \
@@ -42,6 +43,7 @@ DynamicLibrary=gemonlinedb
 SimpleTestExecutables = \
     test/testAMC13Configuration.cc \
     test/testConfigurationLinker.cc \
+    test/testConfigurationManager.cc \
     test/testFileUtils.cc \
     test/testSystemTopology.cc \
     test/testVFAT3ChannelConfiguration.cc \
