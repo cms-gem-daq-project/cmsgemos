@@ -70,50 +70,56 @@ namespace gem {
         ConfigurationManager::ConfigurationManager(Source objectSource,
                                                    Source topologySource)
         {
-            // Deduce the search path for XML files
-            std::string path = "/etc/opt/cmsgemos"; // FHS 3.0 standard location
-            if (auto envPath = std::getenv("CMSGEMOS_CONFIG_PATH")) {
-                path = envPath;
+            try {
+                detail::xercesExceptionsToXcept([&]{
+                    // Deduce the search path for XML files
+                    std::string path = "/etc/opt/cmsgemos"; // FHS 3.0 standard location
+                    if (auto envPath = std::getenv("CMSGEMOS_CONFIG_PATH")) {
+                        path = envPath;
+                    }
+
+                    ConfigurationLinker linker;
+
+                    // Configuration objects
+                    switch (objectSource) {
+                    case Source::DB:
+                        // TODO Not supported yet
+                        break;
+
+                    case Source::XML:
+                        auto provider = std::make_shared<XMLConfigurationProvider>();
+                        provider->setSearchPath(path);
+                        provider->load(loadXMLTopologyFile(path));
+                        linker.setProvider(provider);
+                        break;
+                    }
+
+                    // Topology
+                    auto topology = std::make_shared<SystemTopology>();
+
+                    switch (topologySource) {
+                    case Source::DB:
+                        // TODO Not supported yet
+                        break;
+
+                    case Source::XML:
+                        topology->populate(loadXMLTopologyFile(path));
+                        break;
+                    }
+
+                    m_config = std::move(linker.link(topology));
+                });
+            } catch (std::exception &e) {
+                XCEPT_RAISE(exception::SoftwareProblem, e.what());
             }
-
-            ConfigurationLinker linker;
-
-            // Configuration objects
-            switch (objectSource) {
-            case Source::DB:
-                // TODO Not supported yet
-                break;
-
-            case Source::XML:
-                auto provider = std::make_shared<XMLConfigurationProvider>();
-                provider->setSearchPath(path);
-                provider->load(loadXMLTopologyFile(path));
-                linker.setProvider(provider);
-                break;
-            }
-
-            // Topology
-            auto topology = std::make_shared<SystemTopology>();
-
-            switch (topologySource) {
-            case Source::DB:
-                // TODO Not supported yet
-                break;
-
-            case Source::XML:
-                topology->populate(loadXMLTopologyFile(path));
-                break;
-            }
-
-            m_config = std::move(linker.link(topology));
         }
 
-        ConfigurationManager::ReadLock ConfigurationManager::makeReadLock()
+        ConfigurationManager::ReadLock ConfigurationManager::makeReadLock() noexcept
         {
             return ReadLock(s_mutex, boost::defer_lock);
         }
 
-        ConfigurationManager::EditLock ConfigurationManager::makeEditLock()
+        ConfigurationManager::EditLock ConfigurationManager::makeEditLock() noexcept
         {
             return EditLock(s_mutex, boost::defer_lock);
         }

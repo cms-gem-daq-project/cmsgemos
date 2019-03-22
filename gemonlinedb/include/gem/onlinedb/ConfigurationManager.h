@@ -57,7 +57,7 @@ namespace gem {
              *
              * The returned lock isn't locked.
              */
-            static ReadLock makeReadLock();
+            static ReadLock makeReadLock() noexcept;
 
             /**
              * \brief Creates a lock guarding the shared configuration for
@@ -65,7 +65,7 @@ namespace gem {
              *
              * The returned lock is locked immediately.
              */
-            static EditLock makeEditLock();
+            static EditLock makeEditLock() noexcept;
 
             /**
              * \brief Obtains a reference to the system-wide configuration
@@ -78,6 +78,9 @@ namespace gem {
              *     auto &config = ConfigurationManager::getConfiguration(lock);
              *     // Do something with config...
              *     // The lock is released automatically when going out of scope
+             *
+             * @throws xcept::Exception
+             *         This function only throws Xcept exceptions
              */
             static const std::vector<std::unique_ptr<AMC13Configuration>> &
             getConfiguration(ReadLock &lock);
@@ -89,11 +92,13 @@ namespace gem {
              * must be guarded using an \c EditLock. Typical usage is as
              * follows:
              *
-             *     auto readLock = ConfigurationManager::makeReadLock();
-             *     auto editLock = ConfigurationManager::makeEditLock(readLock);
-             *     auto &config = ConfigurationManager::getConfiguration(editLock);
+             *     auto lock = ConfigurationManager::makeEditLock();
+             *     auto &config = ConfigurationManager::getConfiguration(lock);
              *     // Modify the configuration...
              *     // The locks are released automatically when going out of scope
+             *
+             * @throws xcept::Exception
+             *         This function only throws Xcept exceptions
              */
             static std::vector<std::unique_ptr<AMC13Configuration>> &
             getConfiguration(EditLock &lock);
