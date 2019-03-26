@@ -131,10 +131,48 @@ void gem::calib::Calibration::pauseAction(xgi::Input* in, xgi::Output* out)
 void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
+    bool t_errorsOccured = false;
     cgicc::Cgicc cgi(in);
     for (auto it: m_scanParams.find(m_calType)->second){
         it.second = cgi[it.first]->getIntegerValue();
-        CMSGEMOS_INFO("Calibration::applyAction : " << it.first << " = " << it.second);
+        CMSGEMOS_DEBUG("Calibration::applyAction : " << it.first << " = " << it.second);
+    }
+    std::stringstream t_stream;
+    t_stream.clear();
+    t_stream.str(std::string());
+    for (unsigned int i = 0; i < NSHELF; ++i) {
+        t_stream.clear();
+        t_stream.str(std::string());
+        t_stream << "shelf"<< std::setfill('0') << std::setw(2) << i+1;
+        bool checked = false;
+        checked = cgi.queryCheckbox(t_stream.str());
+        if (checked) {
+            for (unsigned int j = 0; j < NAMC; ++j) { //SHELF.AMC
+                t_stream.clear();
+                t_stream.str(std::string());
+                t_stream << "shelf"<< std::setfill('0') << std::setw(2) << i+1 << ".amc" << std::setfill('0') << std::setw(2) << j+1;
+                checked = cgi.queryCheckbox(t_stream.str());
+                if (checked) {
+                    std::string amc_id = t_stream.str();
+                    amc_optical_links.emplace(amc_id, 0);
+                    t_stream << ".ohMask";
+                    uint32_t ohMask = std::stoul(cgi[t_stream.str()]->getValue(), 0, 16);
+                    if (ohMask > 0x3ff) {
+                        t_errorsOccured = true;
+                        CMSGEMOS_ERROR("Calibration::applyAction : OH mask for " << t_stream.str() << " is out of allowed boundaries! Ignoring it");
+                    } else{
+                        amc_optical_links.find(amc_id)->second = ohMask;
+                    }
+                } // end if checked for amc
+            } // end loop over NAMC 
+        } // end if checked for shelf
+    } //end loop over shelves
+    //TODO: should we check if at least one link is selected??
+    out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+    if (t_errorsOccured) {
+        *out << "{\"status\":1,\"alert\":\"There was an error in the parameters retrieval. Please check the XDAQ log for more information\"}";
+    } else {
+        *out << "{\"status\":0,\"alert\":\"Parameters successfully applied. Now you can run the scan.\"}";
     }
 }
 

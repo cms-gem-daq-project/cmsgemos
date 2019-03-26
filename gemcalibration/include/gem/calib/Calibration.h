@@ -95,6 +95,8 @@ namespace gem {
             {SBITMAPANDRATE  ,{{"nSamples",0},{"trigType", 0},}},
         };
 
+        std::map<std::string, uint32_t> amc_optical_links;
+
       protected:
         /* virtual bool calibrationAction(toolbox::task::WorkLoop *wl); */
         /* virtual bool calibrationSequencer(toolbox::task::WorkLoop *wl); */
@@ -121,12 +123,6 @@ namespace gem {
             {"Sbit Map And Rate Scan"    , SBITMAPANDRATE},
 	    
         };
-                //int nSamples, trigType, l1aTime, latency, pulseDelay, calPhase, vfatChMin, vfatChMax; 
-	    //int scanMin, scanMax, throttle, vt2, mspl;
-	  
-	    //int comparator_type;
-	    //int timeInterval, acquireTime, timemsInterval;
-	    //std::string rateArray;
       };
   }  // namespace gem::calib
 }  // namespace gem
