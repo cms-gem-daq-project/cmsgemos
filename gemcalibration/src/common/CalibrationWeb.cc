@@ -24,9 +24,9 @@ void gem::calib::CalibrationWeb::webDefault(xgi::Input * in, xgi::Output * out)
     .set("src", "/gemdaq/gemcalibration/html/scripts/cal_routines.js") 
        << cgicc::script() << std::endl;
   
-  *out << "<link  rel=\"stylesheet\" href=\"/gemdaq/gemcalibration/html/css/bootstrap.css\" type=\"text/css\">" << std::endl;
-  *out << "<link  rel=\"stylesheet\" href=\"/gemdaq/gemcalibration/html/css/bootstrap.min.css\" type=\"text/css\">" << std::endl;
-  *out << "<script src=\"/gemdaq/gemcalibration/html/scripts/bootstrap.js\"></script>" << std::endl;
+  *out << "<link  rel=\"stylesheet\" href=\"/gemdaq/gembase/html/css/bootstrap.css\" type=\"text/css\">" << std::endl;
+  *out << "<link  rel=\"stylesheet\" href=\"/gemdaq/gembase/html/css/bootstrap.min.css\" type=\"text/css\">" << std::endl;
+  *out << "<script src=\"/gemdaq/gembase/html/scripts/bootstrap.js\"></script>" << std::endl;
   *out << "<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js\"></script>" << std::endl;
 
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
