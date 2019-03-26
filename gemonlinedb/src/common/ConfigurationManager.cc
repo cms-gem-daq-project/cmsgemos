@@ -73,7 +73,7 @@ namespace gem {
             try {
                 detail::xercesExceptionsToXcept([&]{
                     // Deduce the search path for XML files
-                    std::string path = "/etc/opt/cmsgemos"; // FHS 3.0 standard location
+                    std::string path = "/opt/cmsgemos/etc"; // Following xDAQ's "standards"
                     if (auto envPath = std::getenv("CMSGEMOS_CONFIG_PATH")) {
                         path = envPath;
                     }
