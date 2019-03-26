@@ -37,7 +37,7 @@ namespace gem {
 
         virtual void actionPerformed(xdata::Event& event);
 
-	// void startMonitoring();
+	    // void startMonitoring();
 
         //void stopMonitoring();
 
@@ -54,15 +54,47 @@ namespace gem {
 	
         void applyAction(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
-
-//
+        //
         void setCalType(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 
         std::vector<Calibration*> v_gemcal;
 
-        int PulseDelay;
+        calType_t m_calType;
 	
+        std::map<calType_t, std::map<std::string, uint32_t>> m_scanParams{
+            {PHASE  ,{{"nSamples",0},{"trigType", 0},}},
+            {LATENCY,{
+                {"nSamples"  , 100},
+                {"trigType"  , 0},
+                {"l1aTime"   , 250},
+                {"calPhase"  , 0},
+                {"mspl"      , 4},
+                {"scanMin"   , 0},
+                {"scanMax"   , 255},
+                {"vfatChMin" , 0},
+                {"vfatChMax" , 0},
+                {"vt2"       , 0},
+                }},
+            {SCURVE,{
+                {"nSamples"  , 100},
+                {"trigType"  , 0},
+                {"l1aTime"   , 250},
+                {"pulseDelay", 40},
+                {"latency"   , 33},
+                {"vfatChMin" , 0},
+                {"vfatChMax" , 127},
+                {"calPhase"  , 0},
+                }},
+            {SBITRATE  ,{{"nSamples",0},{"trigType", 0},}},
+            {THRESHOLD  ,{{"nSamples",0},{"trigType", 0},}},
+            {TRIMDAC  ,{{"nSamples",0},{"trigType", 0},}},
+            {DACSCANV3  ,{{"nSamples",0},{"trigType", 0},}},
+            {TEMPERATURE  ,{{"nSamples",0},{"trigType", 0},}},
+            {SBITREADOUT  ,{{"acquisitionTime",0},{"trigType", 0},}},
+            {SBITMAPANDRATE  ,{{"nSamples",0},{"trigType", 0},}},
+        };
+
       protected:
         /* virtual bool calibrationAction(toolbox::task::WorkLoop *wl); */
         /* virtual bool calibrationSequencer(toolbox::task::WorkLoop *wl); */
@@ -76,7 +108,6 @@ namespace gem {
         xdata::Integer m_shelfID;
         log4cplus::Logger m_logger; //FIXME should be removed!
         std::string m_state;
-        calType_t m_calType;
         const std::map<std::string, calType_t> m_calTypeSelector{
             {"Phase Scan"                , PHASE},
             {"Latency Scan"              , LATENCY},
@@ -90,39 +121,7 @@ namespace gem {
             {"Sbit Map And Rate Scan"    , SBITMAPANDRATE},
 	    
         };
-        std::map<calType_t, std::map<std::string, uint32_t>> m_scanParams{
-        {PHASE  ,{{"n_samples",0},{"trig_type", 0},}},
-        {LATENCY,{
-            {"nSamples"  , 0},
-            {"trigType"  , 0},
-            {"l1aTime"   , 0},
-            {"calPhase"  , 0},
-            {"mspl"      , 0},
-            {"scanMin"   , 0},
-            {"scanMax"   , 0},
-            {"vfatChMin" , 0},
-            {"vfatChMax" , 0},
-            {"vt2"       , 0},
-            }},
-        {SCURVE,{
-            {"nSamples"  , 0},
-            {"trigType"  , 0},
-            {"l1aTime"   , 0},
-            {"pulseDelay", 0},
-            {"latency"   , 0},
-            {"vfatChMin" , 0},
-            {"vfatChMax" , 0},
-            {"calPhase"  , 0},
-            }},
-        {SBITRATE  ,{{"n_samples",0},{"trig_type", 0},}},
-        {THRESHOLD  ,{{"n_samples",0},{"trig_type", 0},}},
-        {TRIMDAC  ,{{"n_samples",0},{"trig_type", 0},}},
-        {DACSCANV3  ,{{"n_samples",0},{"trig_type", 0},}},
-        {TEMPERATURE  ,{{"n_samples",0},{"trig_type", 0},}},
-        {SBITREADOUT  ,{{"n_samples",0},{"trig_type", 0},}},
-        {SBITMAPANDRATE  ,{{"n_samples",0},{"trig_type", 0},}},
-         };
-        //int nSamples, trigType, l1aTime, latency, pulseDelay, calPhase, vfatChMin, vfatChMax; 
+                //int nSamples, trigType, l1aTime, latency, pulseDelay, calPhase, vfatChMin, vfatChMax; 
 	    //int scanMin, scanMax, throttle, vt2, mspl;
 	  
 	    //int comparator_type;

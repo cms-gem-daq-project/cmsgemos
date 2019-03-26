@@ -97,8 +97,8 @@ void gem::calib::CalibrationWeb::triggerSelector(xgi::Output* out)
     *out << "<h2><span class=\"label label-warning col-md-6\">TRIGGER SOURCE"<< "</span></h2>"
     << "<div class=\"col-md-6\">"
         << "<div class=\"form-check\">"
-            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_0\" value=0>TTC</label></div>"
-            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_1\" value=1 checked>Loopback</label></div>"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_0\" value=0 checked>TTC</label></div>"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_1\" value=1>Loopback</label></div>"
             << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_2\" value=2>Lemo/T3</label></div>"
         << "</div>"
     << "</div>" << std::endl;
@@ -116,145 +116,12 @@ void gem::calib::CalibrationWeb::comparatorSelector(xgi::Output* out)
     << "</div>" << std::endl;    
 }
 
-void gem::calib::CalibrationWeb::nSamplesSelector(xgi::Output* out)
+void gem::calib::CalibrationWeb::genericParamSelector(std::string paramName, int defaultValue, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-    *out << "<h2><span class=\"label label-success col-md-6\">Number of samples"<< "</span></h2>"
+    *out << "<h2><span class=\"label label-success col-md-6\">" << paramName << "</span></h2>"
     << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"100\" class=\"form-control\" name=\"nSamples\">"
-    << "</div>" << std::endl;
-}
-
-void gem::calib::CalibrationWeb::l1aTimeSelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">L1A time"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"250\" class=\"form-control\" name=\"l1aTime\">"
-    << "</div>" << std::endl;
-}
-
-void gem::calib::CalibrationWeb::latencySelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">Latency"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"33\" class=\"form-control\" name=\"latency\">"
-    << "</div>" << std::endl;    
-}
-
-void gem::calib::CalibrationWeb::pulseDelaySelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">Pulse Delay"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"40\" class=\"form-control\" name=\"pulseDelay\">"
-    << "</div>" << std::endl;    
-}
-void gem::calib::CalibrationWeb::calPhaseSelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">Calpulse phase"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"0\" class=\"form-control\" name=\"calPhase\">"
-    << "</div>" << std::endl;    
-}
-
-void gem::calib::CalibrationWeb::vfatChMinSelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">VFAT channel Min"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"0\" class=\"form-control\" name=\"vfatChMin\">"
-    << "</div>" << std::endl;    
-}
-
-void gem::calib::CalibrationWeb::vfatChMaxSelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">VFAT channel Max"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"127\" class=\"form-control\" name=\"vfatChMax\">"
-    << "</div>" << std::endl;    
-}
-
-void gem::calib::CalibrationWeb::scanMinSelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">Scan Min"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"153\" class=\"form-control\" name=\"scanMin\">"
-    << "</div>" << std::endl;    
-}
-
-void gem::calib::CalibrationWeb::scanMaxSelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">Scan Max"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"172\" class=\"form-control\" name=\"scanMax\">"
-    << "</div>" << std::endl;    
-}
-void gem::calib::CalibrationWeb::throttleSelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">Throttle"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"100\" class=\"form-control\" name=\"throttle\">"
-    << "</div>" << std::endl;    
-}
-
-void gem::calib::CalibrationWeb::vt2ThresholdSelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">V2 Threshold"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"0\" class=\"form-control\" name=\"vt2\">"
-    << "</div>" << std::endl;    
-}
-
-void gem::calib::CalibrationWeb::msplSelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">MSPL"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"4\" class=\"form-control\" name=\"mspl\">"
-    << "</div>" << std::endl;    
-}
-
-void gem::calib::CalibrationWeb::timeIntervalSelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">Time interval"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"0\" class=\"form-control\" name=\"timeInterval\">"
-    << "</div>" << std::endl;
-}
-
-void gem::calib::CalibrationWeb::timeAcquisitionSelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">Acquire time"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"60\" class=\"form-control\" name=\"acquireTime\">"
-    << "</div>" << std::endl;
-}
-
-void gem::calib::CalibrationWeb::timemsSelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">Time interval(ms)"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"1\" class=\"form-control\" name=\"timemsInterval\">"
-    << "</div>" << std::endl;    
-}
-
-void gem::calib::CalibrationWeb::rateArraySelector(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<h2><span class=\"label label-success col-md-6\">Rates"<< "</span></h2>"
-    << "<div class=\"col-md-6\">"
-        << "<input type=\"text\" value=\"10,2\" class=\"form-control\" name=\"rateArray\">"
+        << "<input type=\"text\" value=\"" << defaultValue << "\" class=\"form-control\" name=\"" << paramName << "\">"
     << "</div>" << std::endl;    
 }
 
@@ -319,168 +186,31 @@ void gem::calib::CalibrationWeb::slotsAndMasksSelector(xgi::Output* out)
     *out << "</div>" << std::endl; // end panel
 }
 
-void gem::calib::CalibrationWeb::phaseInterface(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<div id=\"cal_interface\">" << std::endl;
-        *out << "<h1><span class=\"label label-danger\">PHASE SCAN INTERFACE... TBI"<< "</span></h1>"<< std::endl; 
-    *out << "</div>" << std::endl;
-}
-
-void gem::calib::CalibrationWeb::latencyInterface(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<div id=\"cal_interface\">" << std::endl;
-	    *out << "<div align=\"center\">" << std::endl;
-            *out << "<div class=\"alert alert-warning\">"
-                << "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>"
-                << "To run the routine select the cards, the optohybrids, the VFATs and links, indicate the number of events " 
-                << "for each position, the throttle, the  pulse length configuration, the minimum and maximum scan values, and the v2 threshold." 
-            << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-        *out << "<div class=\"row\">" << std::endl;
-            *out << "<form id=\"settings_select\">" << std::endl;
-                *out << "<div class=\"col-md-6\">" << std::endl;
-                    this->triggerSelector(out);
-	                *out << "<br><br><br>" << std::endl;
-		            this->nSamplesSelector(out);
-                    this->l1aTimeSelector(out);
-		            this->msplSelector(out);
-		            this->calPhaseSelector(out);
-		            this->vfatChMinSelector(out);
-		            this->vfatChMaxSelector(out);
-                    this->scanMinSelector(out);
-		            this->scanMaxSelector(out);
-                    this->throttleSelector(out);
-		            this->vt2ThresholdSelector(out);
-                *out << "</div>" << std::endl;
-            *out << "</form>"<< std::endl;
-            *out << "<div class=\"col-md-6\">" << std::endl;
-	            *out << "<br>" << std::endl;
-                this->slotsAndMasksSelector(out);
-		        *out << "<br><br><br>" << std::endl;
-		        *out << "<div align=\"center\">" << std::endl;
-		            *out << "<button class=\"btn btn-lg btn-info\" type=\"button\" onclick=\"apply_action()\" id=\"apply\" name=\"apply_all\">APPLY SETTINGS</button>"<< std::endl;
-		            *out << "<button class=\"btn btn-lg btn-success\" onclick=\"run_scan()\" id=\"run_button\" name=\"run_button\" disabled>RUN</button>"<< std::endl;
-		        *out << "</div>"<< std::endl;	
-            *out << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-    *out << "</div>" << std::endl;
-    *out << "<br>" << std::endl;
-}
-
-void gem::calib::CalibrationWeb::thresholdInterface(xgi::Output* out)
+void gem::calib::CalibrationWeb::settingsInterface(calType_t m_calType, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
     *out << "<div id=\"cal_interface\">" << std::endl;
         *out << "<div align=\"center\">" << std::endl;
             *out << "<div class=\"alert alert-warning\">"
                 << "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>"
-                << "To run the routine select the cards, the optohybrids, the VFATs and links, indicate the number of events"
-                << "for each position, the minimum and maximum scan values, and the v2 threshold."
+                << alertMap.find(m_calType)->second
             << "</div>" << std::endl;
         *out << "</div>" << std::endl;
         *out << "<div class=\"row\">" << std::endl;
             *out << "<form id=\"settings_select\">" << std::endl;
                 *out << "<div class=\"col-md-6\">" << std::endl;
-                    this->triggerSelector(out);
-	                *out << "<br><br><br>" << std::endl;
-                    this->nSamplesSelector(out);
-                    this->l1aTimeSelector(out);// TODO: need to be removed
-                    this->latencySelector(out);// TODO: need to be removed
-                    this->pulseDelaySelector(out);// TODO: need to be removed
-                    this->calPhaseSelector(out);// TODO: need to be removed
-                    this->vfatChMinSelector(out);
-                    this->vfatChMaxSelector(out);
-                    this->scanMinSelector(out);// TODO: need to be removed
-                    this->scanMaxSelector(out);// TODO: need to be removed
-                    this->throttleSelector(out);// TODO: need to be removed
-                    this->vt2ThresholdSelector(out);//TODO: need to be removed
-                    this->msplSelector(out);//TODO: need to be removed
-		            this->timeIntervalSelector(out);// TODO: need to be removed
-                *out << "</div>" << std::endl;
-            *out << "</form>"<< std::endl;
-            *out << "<div class=\"col-md-6\">" << std::endl;
-	            *out << "<br>" << std::endl;
-                this->slotsAndMasksSelector(out);
-                *out << "<br><br><br>" << std::endl;
-                *out << "<div align=\"center\">" << std::endl;
-                    *out << "<button class=\"btn btn-lg btn-info\" type=\"button\" onclick=\"apply_action()\" id=\"apply\" name=\"apply_all\">APPLY SETTINGS</button>"<< std::endl;
-                    *out << "<button class=\"btn btn-lg btn-success\" onclick=\"run_scan()\" id=\"run_button\" name=\"run_button\" disabled>RUN</button>"<< std::endl;
-                *out << "</div>"<< std::endl;   
-            *out << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-    *out << "</div>" << std::endl;
-    *out << "<br>" << std::endl;
-}
-
-void gem::calib::CalibrationWeb::trimDACInterface(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<div id=\"cal_interface\">" << std::endl;
-        *out << "<div align=\"center\">" << std::endl;
-            *out << "<div class=\"alert alert-warning\">"
-                << "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>"
-                << "To run the routine select the cards, the optohybrids."
-            << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-        *out << "<div class=\"row\">" << std::endl;
-            *out << "<form id=\"settings_select\">" << std::endl;
-                *out << "<div class=\"col-md-6\">" << std::endl;
-                    this->triggerSelector(out);
-                    *out << "<br><br><br>" << std::endl;
-                    this->nSamplesSelector(out);
-                    this->l1aTimeSelector(out);// TODO: need to be removed
-                    this->latencySelector(out);// TODO: need to be removed
-                    this->pulseDelaySelector(out);// TODO: need to be removed
-                    this->calPhaseSelector(out);// TODO: need to be removed
-                    this->vfatChMinSelector(out);
-                    this->vfatChMaxSelector(out);
-                    this->scanMinSelector(out);// TODO: need to be removed
-                    this->scanMaxSelector(out);// TODO: need to be removed
-                    this->throttleSelector(out);// TODO: need to be removed
-                    this->vt2ThresholdSelector(out);//TODO: need to be removed
-                    this->msplSelector(out);//TODO: need to be removed
-                    this->timeIntervalSelector(out);// TODO: need to be removed
-                *out << "</div>" << std::endl;
-            *out << "</form>"<< std::endl;
-            *out << "<div class=\"col-md-6\">" << std::endl;
-                 *out << "<br>" << std::endl;
-                 this->slotsAndMasksSelector(out);
-                 *out << "<br><br><br>" << std::endl;
-                 *out << "<div align=\"center\">" << std::endl;
-                     *out << "<button class=\"btn btn-lg btn-info\" type=\"button\" onclick=\"apply_action()\" id=\"apply\" name=\"apply_all\">APPLY SETTINGS</button>"<< std::endl;
-                     *out << "<button class=\"btn btn-lg btn-success\" onclick=\"run_scan()\" id=\"run_button\" name=\"run_button\" disabled>RUN</button>"<< std::endl;
-                *out << "</div>"<< std::endl;    
-            *out << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-    *out << "</div>" << std::endl;     
-    *out << "<br>" << std::endl;
-}
-
-void gem::calib::CalibrationWeb::scurveInterface(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<div id=\"cal_interface\">" << std::endl;
-        *out << "<div align=\"center\">" << std::endl;
-            *out << "<div class=\"alert alert-warning\">"
-                << "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>"
-                << " To run the routine select the cards, the optohybrids, the VFATs and links."
-                << " Indicate the number of events for each position and the latency and pulse stratch configuration."
-            << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-        *out << "<div class=\"row\">" << std::endl;
-            *out << "<form id=\"settings_select\">" << std::endl;
-                *out << "<div class=\"col-md-6\">" << std::endl;
-                    this->triggerSelector(out);
-	                *out << "<br><br><br>" << std::endl;
-                    this->nSamplesSelector(out);
-                    this->l1aTimeSelector(out);
-		            this->latencySelector(out);
-		            this->pulseDelaySelector(out);
-		            this->calPhaseSelector(out);
-		            this->vfatChMinSelector(out);
-		            this->vfatChMaxSelector(out);
+                    // create a temporary parameters map,
+                    // check whether requested calibration type needs a trigger selector
+                    // if it is, create it and pop out the trigger setting
+                    std::map<std::string, uint32_t> t_parameters = dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_scanParams.find(m_calType)->second;
+                    if (t_parameters.count("trigType") == 1){
+                        this->triggerSelector(out);
+	                    *out << "<br><br><br>" << std::endl;
+                        t_parameters.erase("trigType");
+                    }
+                    for (auto parameter: t_parameters) {
+                        this->genericParamSelector(parameter.first, parameter.second, out);
+                    }
                 *out << "</div>" << std::endl;
             *out << "</form>"<< std::endl;
             *out << "<div class=\"col-md-6\">" << std::endl;
@@ -494,190 +224,6 @@ void gem::calib::CalibrationWeb::scurveInterface(xgi::Output* out)
 	        *out << "</div>" << std::endl;
 	    *out << "</div>" << std::endl;
     *out << "</div>" << std::endl;
-    *out << "<br>" << std::endl;
-}
-
-void gem::calib::CalibrationWeb::sbitRateInterface(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-    *out << "<div class=\"container col-md-12\" id=\"cal_interface\">" << std::endl;
-        *out << "<div align=\"center\">" << std::endl;
-            *out << "<div class=\"alert alert-warning\">"
-                << "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>"
-                << "To run the routine select the cards, the optohybrids, the VFATs and links."
-            << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-        *out << "<div class=\"row\">" << std::endl;
-            *out << "<form id=\"settings_select\">" << std::endl;
-                *out << "<div class=\"col-md-6\">" << std::endl;
-                    this->triggerSelector(out);
-                    *out << "<br><br><br>" << std::endl;
-                    this->nSamplesSelector(out);// TODO: need to be removed
-                    this->l1aTimeSelector(out);// TODO: need to be removed
-                    this->latencySelector(out);// TODO: need to be removed
-                    this->pulseDelaySelector(out);// TODO: need to be removed
-                    this->calPhaseSelector(out);// TODO: need to be removed
-                    this->vfatChMinSelector(out);
-                    this->vfatChMaxSelector(out);
-                    this->scanMinSelector(out);// TODO: need to be removed
-                    this->scanMaxSelector(out);// TODO: need to be removed, taken from default 
-                    this->throttleSelector(out);// TODO: need to be removed
-                    this->vt2ThresholdSelector(out);//TODO: need to be removed
-                    this->msplSelector(out);//TODO: need to be removed, taken from default
-                    this->timeAcquisitionSelector(out);//TODO: need to be removed
-                    this->timeIntervalSelector(out);// TODO: need to be removed
-                *out << "</div>" << std::endl;
-            *out << "</form>"<< std::endl;
-            *out << "<div class=\"col-md-6\">" << std::endl;
-                *out << "<br>" << std::endl;	
-                this->comparatorSelector(out);
-                this->slotsAndMasksSelector(out);
-                *out << "<br><br><br>" << std::endl;
-                *out << "<div align=\"center\">" << std::endl;
-                    *out << "<button class=\"btn btn-lg btn-info\" type=\"button\" onclick=\"apply_action()\" id=\"apply\" name=\"apply_all\">APPLY SETTINGS</button>"<< std::endl;
-                    *out << "<button class=\"btn btn-lg btn-success\" onclick=\"run_scan()\" id=\"run_button\" name=\"run_button\" disabled>RUN</button>"<< std::endl;
-                *out << "</div>"<< std::endl;   
-             *out << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-    *out << "</div>" << std::endl;     
-    *out << "<br>" << std::endl;
-}
-
-void gem::calib::CalibrationWeb::scanDACInterface(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{ 
-    *out << "<div class=\"container col-md-12\" id=\"cal_interface\">" << std::endl;
-        *out << "<div align=\"center\">" << std::endl;
-            *out << "<div class=\"alert alert-warning\">"
-                << "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>"
-                << "To run the routine select the cards, and the optohybrids. Really??"//TODO: clarify!!
-            << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-        *out << "<div class=\"row\">" << std::endl;
-            *out << "<form id=\"settings_select\">" << std::endl;
-                *out << "<div class=\"col-md-6\">" << std::endl;
-                    this->triggerSelector(out);
-                    *out << "<br><br><br>" << std::endl;
-                    this->nSamplesSelector(out);// TODO: need to be removed
-                    this->l1aTimeSelector(out);// TODO: need to be removed
-                    this->latencySelector(out);// TODO: need to be removed
-                    this->pulseDelaySelector(out);// TODO: need to be removed
-                    this->calPhaseSelector(out);// TODO: need to be removed
-                    this->vfatChMinSelector(out);// TODO: need to be removed
-                    this->vfatChMaxSelector(out);// TODO: need to be removed
-                    this->scanMinSelector(out);// TODO: need to be removed
-                    this->scanMaxSelector(out);// TODO: need to be removed
-                    this->throttleSelector(out);// TODO: need to be removed
-                    this->vt2ThresholdSelector(out);//TODO: need to be removed
-                    this->msplSelector(out);//TODO: need to be removed
-                    this->timeAcquisitionSelector(out);//TODO: need to be removed
-                    this->timeIntervalSelector(out);// TODO: need to be removed
-                *out << "</div>" << std::endl;
-            *out << "</form>"<< std::endl;
-            *out << "<div class=\"col-md-6\">" << std::endl;
-                *out << "<br>" << std::endl;	
-                this->slotsAndMasksSelector(out);
-                *out << "<br><br><br>" << std::endl;
-                *out << "<div align=\"center\">" << std::endl;
-                    *out << "<button class=\"btn btn-lg btn-info\" type=\"button\" onclick=\"apply_action()\" id=\"apply\" name=\"apply_all\">APPLY SETTINGS</button>"<< std::endl;
-                    *out << "<button class=\"btn btn-lg btn-success\" onclick=\"run_scan()\" id=\"run_button\" name=\"run_button\" disabled>RUN</button>"<< std::endl;
-                *out << "</div>"<< std::endl;   
-            *out << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-    *out << "</div>" << std::endl;         
-    *out << "<br>" << std::endl;
-}
-
-void gem::calib::CalibrationWeb::temperatureInterface(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{ 
-    *out << "<div class=\"container col-md-12\" id=\"cal_interface\">" << std::endl;
-        *out << "<div align=\"center\">" << std::endl;
-            *out << "<div class=\"alert alert-warning\">"
-                << "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>"
-                << "To run the routine select the cards, the optohybrids, the VFATs, and the update frequency."
-            << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-        *out << "<div class=\"row\">" << std::endl;
-            *out << "<form id=\"settings_select\">" << std::endl;
-                *out << "<div class=\"col-md-6\">" << std::endl;
-                    this->timeIntervalSelector(out);// TODO: need to be removed
-                *out << "</div>" << std::endl;
-            *out << "</form>"<< std::endl;
-            *out << "<div class=\"col-md-6\">" << std::endl;
-                *out << "<br>" << std::endl;	
-                this->slotsAndMasksSelector(out);
-                *out << "<br><br><br>" << std::endl;
-                *out << "<div align=\"center\">" << std::endl;
-                    *out << "<button class=\"btn btn-lg btn-info\" type=\"button\" onclick=\"apply_action()\" id=\"apply\" name=\"apply_all\">APPLY SETTINGS</button>"<< std::endl;
-                    *out << "<button class=\"btn btn-lg btn-success\" onclick=\"run_scan()\" id=\"run_button\" name=\"run_button\" disabled>RUN</button>"<< std::endl;
-                *out << "</div>"<< std::endl;   
-            *out << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-    *out << "</div>" << std::endl;         
-    *out << "<br>" << std::endl;
-}
-
-void gem::calib::CalibrationWeb::sbitReadOutInterface(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{ 
-    *out << "<div class=\"container col-md-12\" id=\"cal_interface\">" << std::endl;
-        *out << "<div align=\"center\">" << std::endl;
-            *out << "<div class=\"alert alert-warning\">"
-                << "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>"
-                << "To run the routine select the cards, the optohybrids, and the acquisition time in second to acquire sbits for."
-            << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-        *out << "<div class=\"row\">" << std::endl;
-            *out << "<form id=\"settings_select\">" << std::endl;
-                *out << "<div class=\"col-md-6\">" << std::endl;
-                    this->timeAcquisitionSelector(out);
-                *out << "</div>" << std::endl;
-            *out << "</form>"<< std::endl;
-            *out << "<div class=\"col-md-6\">" << std::endl;
-                *out << "<br>" << std::endl;	
-                this->slotsAndMasksSelector(out);
-                *out << "<br><br><br>" << std::endl;
-                *out << "<div align=\"center\">" << std::endl;
-                    *out << "<button class=\"btn btn-lg btn-info\" type=\"button\" onclick=\"apply_action()\" id=\"apply\" name=\"apply_all\">APPLY SETTINGS</button>"<< std::endl;
-                    *out << "<button class=\"btn btn-lg btn-success\" onclick=\"run_scan()\" id=\"run_button\" name=\"run_button\" disabled>RUN</button>"<< std::endl;
-                *out << "</div>"<< std::endl;   
-             *out << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-    *out << "</div>" << std::endl;         
-    *out << "<br>" << std::endl;
-}
-
-void gem::calib::CalibrationWeb::sbitMapAndRateInterface(xgi::Output* out)
-  throw (xgi::exception::Exception)
-{ 
-    *out << "<div class=\"container col-md-12\" id=\"cal_interface\">" << std::endl;
-        *out << "<div align=\"center\">" << std::endl;
-            *out << "<div class=\"alert alert-warning\">"
-                << "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>"
-                << "To run the routine select the cards, the optohybrids and the acquisition time in millisecond to acquire sbits for."
-            << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-        *out << "<div class=\"row\">" << std::endl;
-            *out << "<form id=\"settings_select\">" << std::endl;
-                *out << "<div class=\"col-md-6\">" << std::endl;
-                    this->triggerSelector(out);
-	                *out << "<br><br><br>" << std::endl;
-                    this->timemsSelector(out);
-                    this->rateArraySelector(out);
-                *out << "</div>" << std::endl;
-            *out << "</form>"<< std::endl;
-            *out << "<div class=\"col-md-6\">" << std::endl;
-                *out << "<br>" << std::endl;	
-                this->slotsAndMasksSelector(out);
-                *out << "<br><br><br>" << std::endl;
-                *out << "<div align=\"center\">" << std::endl;
-                    *out << "<button class=\"btn btn-lg btn-info\" type=\"button\" onclick=\"apply_action()\" id=\"apply\" name=\"apply_all\">APPLY SETTINGS</button>"<< std::endl;
-                    *out << "<button class=\"btn btn-lg btn-success\" onclick=\"run_scan()\" id=\"run_button\" name=\"run_button\" disabled>RUN</button>"<< std::endl;
-                *out << "</div>"<< std::endl;   
-            *out << "</div>" << std::endl;
-        *out << "</div>" << std::endl;
-    *out << "</div>" << std::endl;         
     *out << "<br>" << std::endl;
 }
 
