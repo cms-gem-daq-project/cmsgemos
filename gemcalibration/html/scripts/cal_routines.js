@@ -1,13 +1,12 @@
 var actionURL = "";
 var cal_type = "";
-function store_actionURL(t_str) 
+function store_actionURL(t_str)
 {
   actionURL = t_str;
 };
 
 function selectCalType()
 {
-	console.log("selectCalType: sending AJAX");
     $.ajax({
         url: actionURL+"setCalType",
         data: $('form#cal_select').serialize(),
@@ -15,9 +14,7 @@ function selectCalType()
         dataType: 'html',
         success: function(response)
         {
-	        console.log("selectCalType: request succeeded, response below");
             var result = $('<div />').append(response).find("#cal_interface").html();
-            console.log(result);
             $('#cal_interface').html(result);
         }
     });
@@ -25,33 +22,34 @@ function selectCalType()
 
 function apply_action()
 {
-	console.log("apply_action(): sending AJAX");
     $.ajax({
         url: actionURL+"applyAction",
         data: $('form').serialize(),
         type:  'POST',
         success: function(data) {
-            alert("Parameters applied. Now you can run the scan."); 
-            $('#run_button').removeAttr('disabled');
+            if (data["status"] == 0) {
+                alert(data["alert"]);
+                $('#run_button').removeAttr('disabled');
+            } else {
+                alert(data["alert"]);
+            }
         }
     });
 };
 
 function select_links()
 {
-    console.log("select_links");
     var checkboxes = $('form#slot_and_masks_select').find(':checkbox');
     checkboxes.prop('checked', true);
-    var masks = $('form#slot_and_masks_select').find(':input');
+    var masks = $('form#slot_and_masks_select').find(':input[type=text]');
     masks.attr('value','0x3FF');
 };
 
 function deselect_links()
 {
-    console.log("deselect_links");
     var checkboxes = $('form#slot_and_masks_select').find(':checkbox');
     checkboxes.prop('checked', false);
-    var masks = $('form#slot_and_masks_select').find(':input');
+    var masks = $('form#slot_and_masks_select').find(':input[type=text]')
     masks.attr('value','0x000');
 };
 

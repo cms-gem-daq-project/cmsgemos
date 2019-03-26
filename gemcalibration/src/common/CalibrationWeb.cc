@@ -128,6 +128,10 @@ void gem::calib::CalibrationWeb::genericParamSelector(std::string paramName, int
 void gem::calib::CalibrationWeb::slotsAndMasksSelector(xgi::Output* out)
   throw (xgi::exception::Exception)
 {
+    std::stringstream t_stream;
+    t_stream.clear();
+    t_stream.str(std::string());
+
     *out << "<div class=\"panel panel-default\">"
         << "<div class=\"panel-heading\">"
             << "<div class=\"row\">"
@@ -143,12 +147,15 @@ void gem::calib::CalibrationWeb::slotsAndMasksSelector(xgi::Output* out)
         *out << "<form id=\"slot_and_masks_select\">" << std::endl;
             *out << "<div class=\"container\" id=\"links_selection\">" << std::endl;
                 for (unsigned int i = 0; i < NSHELF; ++i) {
+                    t_stream.clear();
+                    t_stream.str(std::string());
+                    t_stream << "shelf"<< std::setfill('0') << std::setw(2) << i+1;
                     *out << "<div class=\"row\">"
                         << "<div class=\"col-md-3\">"
                             << "<div class=\"checkbox\">" 
-                                << "<label> <input type=\"checkbox\" class=\"check\" id=\"SHELF"
-                                << std::setfill('0') << std::setw(2) << i+1 << "\">  SHELF " 
-                                << std::setfill('0') << std::setw(2) << i+1 << " </label>"
+                                << "<label> <input type=\"checkbox\" class=\"check\" name=\""
+                                <<  t_stream.str() << "\" id=\"" << t_stream.str() 
+                                << "\">" << t_stream.str() << "</label>"
                             << " </div>"
                         << "</div>"
                         << "<div class=\"col-md-9\">"
@@ -156,18 +163,22 @@ void gem::calib::CalibrationWeb::slotsAndMasksSelector(xgi::Output* out)
                                 << "<button id=\"amc_dropdown_button\" class=\"btn btn-lg btn-outline dropdown-toggle\" data-toggle=\"dropdown\">Select AMC and OH</button>"
                                 << "<div class=\"dropdown-menu pre-scrollable\">" << std::endl;
                                     for (unsigned int j = 0; j < NAMC; ++j) { //SHELF.AMC
+                                        t_stream.clear();
+                                        t_stream.str(std::string());
+                                        t_stream << "shelf"<< std::setfill('0') << std::setw(2) << i+1 << ".amc" << std::setfill('0') << std::setw(2) << j+1;
                                         *out << "<span class =\"dropdown-item-text\">"
                                             << "<div class=\"row\">"
                                                 << "<div class=\"col-md-3\">"
-                                                    << "<div class=\"checkbox\"><label><input type=\"checkbox\" class=\"check\" id=\"AMC"
-                                                    << std::setfill('0') << std::setw(2) << i+1 << "." << std::setfill('0') << std::setw(2) << j+1 << "\">  AMC"
+                                                    << "<div class=\"checkbox\"><label><input type=\"checkbox\" class=\"check\" name=\""
+                                                    << t_stream.str() << "\" id=\"" << t_stream.str() << "\">  AMC"
                                                     << std::setfill('0') << std::setw(2) << j+1 << " </label> </div>"
                                                 << "</div>"
                                                 << "<div class=\"col-md-1\">"
                                                 << "</div>"
-                                                << "<div class=\"col-md-8\">"
-                                                    << "<input type=\"text\" value=\"0x000\" size=\"4\" id=\"ohMask"
-                                                    << std::setfill('0') << std::setw(2) << i+1 << "." << std::setfill('0') << std::setw(2) << j+1<< "\">OH mask </input>"
+                                                << "<div class=\"col-md-8\">" << std::endl;
+                                                    t_stream << ".ohMask";
+                                                    *out << "<input type=\"text\" value=\"0x000\" size=\"4\" name=\""
+                                                    << t_stream.str() << "\" id =\"" << t_stream.str() << "\">OH mask </input>"
                                                 << "</div>"
                                             << "</div>"
                                         << "</span>" << std::endl;
