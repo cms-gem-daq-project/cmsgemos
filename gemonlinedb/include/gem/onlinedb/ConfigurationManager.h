@@ -13,28 +13,28 @@ namespace gem {
         class AMC13Configuration;
 
         /**
-         * \brief Main entry point to create and manage configuration objects.
+         * @brief Main entry point to create and manage configuration objects.
          */
         class ConfigurationManager
         {
         public:
             /**
-             * \brief Used to control the source of configuration data objects.
+             * @brief Used to control the source of configuration data objects.
              */
             enum class Source
             {
-                DB,  ///< \brief Load configuration objects from the database.
-                XML, ///< \brief Load configuration objects from XML files.
+                DB,  ///< Load configuration objects from the database.
+                XML, ///< Load configuration objects from XML files.
             };
 
             /**
-             * \brief Enables thread-safe read-only access to the shared
+             * @brief Enables thread-safe read-only access to the shared
              *        configuration.
              */
             using ReadLock = typename boost::shared_lock<boost::shared_mutex>;
 
             /**
-             * \brief Enables thread-safe read-write access to the shared
+             * @brief Enables thread-safe read-write access to the shared
              *        configuration.
              */
             using EditLock = typename boost::unique_lock<boost::shared_mutex>;
@@ -47,12 +47,12 @@ namespace gem {
 
         public:
             /**
-             * \brief Constructor.
+             * @brief Constructor.
              */
             explicit ConfigurationManager(Source objectSource, Source topologySource);
 
             /**
-             * \brief Creates a lock guarding the shared configuration for
+             * @brief Creates a lock guarding the shared configuration for
              *        reading.
              *
              * The returned lock isn't locked.
@@ -60,7 +60,7 @@ namespace gem {
             static ReadLock makeReadLock() noexcept;
 
             /**
-             * \brief Creates a lock guarding the shared configuration for
+             * @brief Creates a lock guarding the shared configuration for
              *        writing.
              *
              * The returned lock is locked immediately.
@@ -68,11 +68,11 @@ namespace gem {
             static EditLock makeEditLock() noexcept;
 
             /**
-             * \brief Obtains a reference to the system-wide configuration
+             * @brief Obtains a reference to the system-wide configuration
              *        object.
              *
              * Calls to this function and manipulation of the resulting data
-             * must be guarded using a \c ReadLock. Typical usage is as follows:
+             * must be guarded using a @c ReadLock. Typical usage is as follows:
              *
              *     auto lock = ConfigurationManager::makeReadLock();
              *     auto &config = ConfigurationManager::getConfiguration(lock);
@@ -86,10 +86,10 @@ namespace gem {
             getConfiguration(ReadLock &lock);
 
             /**
-             * \brief Gets a reference to the system-wide configuration object.
+             * @brief Gets a reference to the system-wide configuration object.
              *
              * Calls to this function and manipulation of the resulting data
-             * must be guarded using an \c EditLock. Typical usage is as
+             * must be guarded using an @c EditLock. Typical usage is as
              * follows:
              *
              *     auto lock = ConfigurationManager::makeEditLock();

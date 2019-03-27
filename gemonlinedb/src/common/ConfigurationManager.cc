@@ -16,7 +16,7 @@ namespace gem {
         namespace /* anonymous */ {
 
             /**
-             * \brief Loads a system-topology.xml file
+             * @brief Loads a system-topology.xml file
              */
             DOMDocumentPtr loadXMLTopologyFile(const std::string &path)
             {
