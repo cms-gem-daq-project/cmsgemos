@@ -44,6 +44,8 @@ namespace gem {
 
                 XercesDOMParser parser;
                 parser.setErrorHandler(errorHandler.get());
+                // FIXME Change the ns URL to the documentation website
+                // (don't forget to change the schema and example)
                 parser.setExternalSchemaLocation(
                     ("https://github.com/cms-gem-daq-project/cmsgemos/tree/master/gemonlinedb/xml/schema/system-topology.xsd "
                     + schemaPath).c_str());
