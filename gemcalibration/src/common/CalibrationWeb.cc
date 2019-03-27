@@ -56,20 +56,22 @@ void gem::calib::CalibrationWeb::calibrationPage(xgi::Input* in, xgi::Output* ou
     *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
         *out << "<div align=\"center\">" << std::endl;
             *out << "<form id=\"cal_select\">"<< std::endl; *out << "<div class=\"form-group row\">" << std::endl;
-                    *out << "<h2><span class=\"label label-info col-md-3\" id=\"cal_scurve\">Select calibration type:" << "</span></h2>" << std::endl; 
+                    //*out << "<h2><span class=\"label label-info col-md-3\" id=\"cal_scurve\">Select calibration type:" << "</span></h2>" << std::endl;
+		    *out << "<h2><span class=\"label label-info col-md-3\" id=\"cal_calibration\">Select calibration type:" << "</span></h2>" << std::endl; 
                     *out << "<div class=\"col-md-3\">" << std::endl;
                     *out << "<select class=\"form-control form-control-lg\" id=\"cal_type_select\" name=\"cal_type_select\" onChange=\"selectCalType()\">" << std::endl;
                         *out << "<option disabled selected value> -- select an option -- </option>" << std::endl;
-                        *out << "<option>Phase Scan</option>" << std::endl;
+                        *out << "<option>GBT Phase Scan</option>" << std::endl;
                         *out << "<option>Latency Scan</option>" << std::endl;
                         *out << "<option>S-curve Scan</option>" << std::endl;
-                        *out << "<option>S-bit Rate Scan</option>" << std::endl;
-			*out << "<option>Threshold DAC Scan</option>" << std::endl;
-			*out << "<option>DAC trimming</option>" << std::endl;
+                        *out << "<option>S-bit ARM DAC Scan</option>" << std::endl;
+			*out << "<option>ARM DAC Scan</option>" << std::endl;
+			*out << "<option>Derive DAC Trim Registers</option>" << std::endl;
 			*out << "<option>DAC Scan on VFAT3</option>" << std::endl;
-			*out << "<option>Temperature Scan</option>" << std::endl;
-			*out << "<option>SbitReadOut Scan</option>" << std::endl;
-			*out << "<option>Sbit Map And Rate Scan</option>" << std::endl;
+			*out << "<option>Temperature Monitoring</option>" << std::endl;
+			*out << "<option>Readout S-bit</option>" << std::endl;
+			*out << "<option>Check S-bit Mapping and rate calulation</option>" << std::endl;
+			*out << "<option>Calibrate CFG_THR_ARM_DAC</option>" << std::endl;
                         *out << "<option disabled value>Whatever else...</option>" << std::endl;
                     *out << "</select>" << std::endl;
                     *out << "</div>" << std::endl; //<div class=\"col-md-6\">
@@ -97,9 +99,10 @@ void gem::calib::CalibrationWeb::triggerSelector(xgi::Output* out)
     *out << "<h2><span class=\"label label-warning col-md-6\">TRIGGER SOURCE"<< "</span></h2>"
     << "<div class=\"col-md-6\">"
         << "<div class=\"form-check\">"
-            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_0\" value=0 checked>TTC</label></div>"
-            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_1\" value=1>Loopback</label></div>"
-            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_2\" value=2>Lemo/T3</label></div>"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_0\" value=0 checked>TTC local</label></div>"
+	    << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_0\" value=1>TTC optical input</label></div>"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_1\" value=2>Loopback</label></div>"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_2\" value=3>Lemo/T3</label></div>"
         << "</div>"
     << "</div>" << std::endl;
 }
@@ -110,16 +113,77 @@ void gem::calib::CalibrationWeb::comparatorSelector(xgi::Output* out)
     *out << "<h2><span class=\"label label-warning col-md-6\">COMPARATOR TYPE"<< "</span></h2>"
     << "<div class=\"col-md-6\">"
         << "<div class=\"form-check\">"
-            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"comparator_radio\" id=\"comparator_radio_0\" value=0>Arming comparator</label></div>"
-            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"comparator_radio\" id=\"comparator_radio_1\" value=1 checked>CFD</label></div>"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"comparatorType\" id=\"comparator_radio_0\" value=0>Arming comparator</label></div>"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"comparatorType\" id=\"comparator_radio_1\" value=1 checked>CFD</label></div>"
         << "</div>"
     << "</div>" << std::endl;    
 }
 
-void gem::calib::CalibrationWeb::genericParamSelector(std::string paramName, int defaultValue, xgi::Output* out)
+void gem::calib::CalibrationWeb::signalSourceSelector(xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-    *out << "<h2><span class=\"label label-success col-md-6\">" << paramName << "</span></h2>"
+    *out << "<h2><span class=\"label label-warning col-md-6\">SIGNAL SOURCE"<< "</span></h2>"
+    << "<div class=\"col-md-6\">"
+        << "<div class=\"form-check\">"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"signalSourceType\" id=\"signalSource_radio_0\" value=0>Particle</label></div>"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"signalSourceType\" id=\"signalSource_radio_1\" value=1 checked>Calibration pulse</label></div>"
+        << "</div>"
+    << "</div>" << std::endl;    
+}
+
+void gem::calib::CalibrationWeb::dataTypeSelector(xgi::Output* out)//TODO should be set for Sbit Rate scan 
+  throw (xgi::exception::Exception)
+{
+    *out << "<h2><span class=\"label label-warning col-md-6\">DATA TYPE"<< "</span></h2>"
+    << "<div class=\"col-md-6\">"
+        << "<div class=\"form-check\">"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"dataType\" id=\"dataType_radio_0\" value=0 checked>Tracking</label></div>"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"dataType\" id=\"dataType_radio_1\" value=1>Trigger</label></div>"
+        << "</div>"
+    << "</div>" << std::endl;    
+}
+
+void gem::calib::CalibrationWeb::perChannelTypeSelector(xgi::Output* out)//TODO should be set for Sbit Rate scan 
+  throw (xgi::exception::Exception)
+{
+    *out << "<h2><span class=\"label label-warning col-md-6\">SCAN PER-CHANNEL"<< "</span></h2>"
+    << "<div class=\"col-md-6\">"
+        << "<div class=\"form-check\">"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"perChannelType\" id=\"perChannel_radio_0\" value=0 checked>False</label></div>"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"perChannelType\" id=\"perChannel_radio_1\" value=1>True</label></div>"
+        << "</div>"
+    << "</div>" << std::endl;    
+}
+
+void gem::calib::CalibrationWeb::adcTypeSelector(xgi::Output* out)//TODO should be set for Sbit Rate scan 
+  throw (xgi::exception::Exception)
+{
+    *out << "<h2><span class=\"label label-warning col-md-6\">VFAT ADC reference"<< "</span></h2>"
+    << "<div class=\"col-md-6\">"
+        << "<div class=\"form-check\">"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"adcType\" id=\"adc_radio_0\" value=0 checked>Internal</label></div>"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"adcType\" id=\"adc_radio_1\" value=1>External</label></div>"
+        << "</div>"
+    << "</div>" << std::endl;    
+}
+
+void gem::calib::CalibrationWeb::tempSensorTypeSelector(xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+    *out << "<h2><span class=\"label label-warning col-md-6\">VFAT3 Temp sensor"<< "</span></h2>"
+    << "<div class=\"col-md-6\">"
+        << "<div class=\"form-check\">"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"tempSensorType\" id=\"tempSens_radio_0\" value=0 checked>Internal</label></div>"
+            << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"tempSensorType\" id=\"tempSens_radio_1\" value=1>External PT100</label></div>"
+        << "</div>"
+    << "</div>" << std::endl;
+}
+
+
+void gem::calib::CalibrationWeb::genericParamSelector(std::string labelName, std::string paramName, int defaultValue, xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+    *out << "<h2><span class=\"label label-success col-md-6\">" << labelName << "</span></h2>"
     << "<div class=\"col-md-6\">"
         << "<input type=\"text\" value=\"" << defaultValue << "\" class=\"form-control\" name=\"" << paramName << "\">"
     << "</div>" << std::endl;    
@@ -219,8 +283,38 @@ void gem::calib::CalibrationWeb::settingsInterface(calType_t m_calType, xgi::Out
 	                    *out << "<br><br><br>" << std::endl;
                         t_parameters.erase("trigType");
                     }
+		    if (t_parameters.count("signalSourceType") == 1){
+                        this->signalSourceSelector(out);
+	                    *out << "<br><br>" << std::endl;
+                        t_parameters.erase("signalSourceType");
+                    }
+		    if (t_parameters.count("comparatorType") == 1){
+                        this->comparatorSelector(out);
+	                    *out << "<br>" << std::endl;
+                        t_parameters.erase("comparatorType");
+                    }
+		    if (t_parameters.count("dataType") == 1){
+                        this->dataTypeSelector(out);
+	                    *out << "<br>" << std::endl;
+                        t_parameters.erase("dataType");
+                    }
+		    if (t_parameters.count("perChannelType") == 1){
+                        this->perChannelTypeSelector(out);
+	                    *out << "<br>" << std::endl;
+                        t_parameters.erase("perChannelType");
+                    }
+		    if (t_parameters.count("adcType") == 1){
+                        this->adcTypeSelector(out);
+	                    *out << "<br>" << std::endl;
+                        t_parameters.erase("adcType");
+                    }
+		    if (t_parameters.count("tempSensorType") == 1){
+                        this->tempSensorTypeSelector(out);
+	                    *out << "<br>" << std::endl;
+                        t_parameters.erase("tempSensorType");
+                    }
                     for (auto parameter: t_parameters) {
-                        this->genericParamSelector(parameter.first, parameter.second, out);
+		      this->genericParamSelector( dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_scanParamsLabels.find(parameter.first)->second, parameter.first, parameter.second, out);
                     }
                 *out << "</div>" << std::endl;
             *out << "</form>"<< std::endl;

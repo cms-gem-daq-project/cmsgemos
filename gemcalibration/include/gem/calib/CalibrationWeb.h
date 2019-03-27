@@ -35,10 +35,25 @@ namespace gem {
         void comparatorSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
+        void signalSourceSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void dataTypeSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void perChannelTypeSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void adcTypeSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
+        void tempSensorTypeSelector(xgi::Output *out)
+          throw (xgi::exception::Exception);
+//
         void slotsAndMasksSelector(xgi::Output *out)
           throw (xgi::exception::Exception);
 //
-        void genericParamSelector(std::string paramName, int defaultValue, xgi::Output *out)
+        void genericParamSelector(std::string labelName, std::string paramName, int defaultValue, xgi::Output *out)
           throw (xgi::exception::Exception);
 
 
@@ -66,17 +81,20 @@ namespace gem {
         const std::map<calType_t, std::string> alertMap {
             {PHASE,"HELLO WORLD! I'm not yet implemented..."},
             {LATENCY,"To run the routine select the cards, the optohybrids, the VFATs and links, indicate the number of events \
-               for each position, the throttle, the  pulse length configuration, the minimum and maximum scan values, and the v2 threshold."},
+               for each position, the throttle, the  pulse stretch configuration, the minimum and maximum scan values, and the CFG_THR_ARM_DAC."},
             {SCURVE,"To run the routine select the cards, the optohybrids, the VFATs and links. \
                 Indicate the number of events for each position and the latency and pulse stretch configuration."},
             {SBITRATE,"To run the routine select the cards, the optohybrids, the VFATs and links."},
             {THRESHOLD,"To run the routine select the cards, the optohybrids, the VFATs and links, indicate the number of events \
-                for each position, the minimum and maximum scan values, and the v2 threshold."},
+                for each position, the minimum and maximum scan values, and the CFG_THR_ARM_DAC."},
             {TRIMDAC,"To run the routine select the cards, the optohybrids."},
             {DACSCANV3,"To run the routine select the cards, and the optohybrids. Really?? //TODO: clarify!!"},
-            {TEMPERATURE,"To run the routine select the cards, the optohybrids, and the update frequency."},
+	      {TEMPERATURE,"To run the routine select the cards, the optohybrids, and the interval of time between the measurements."}, //TODO: SHOULD BE MOVED TO MONITORING
             {SBITREADOUT,"To run the routine select the cards, the optohybrids, and the acquisition time in second to acquire sbits for."},
             {SBITMAPANDRATE,"To run the routine select the cards, the optohybrids and the acquisition time in millisecond to acquire sbits for."},
+	    {CALIBRATEARMDAC,"To run the routine select the cards, the optohybrids. \
+                Indicate the number of events for each position and the latency and pulse stretch configuration."},
+        
         };
         // GEMSupervisor *gemSupervisorP__;
         // GEMSupervisorWeb(GEMSupervisorWeb const&);
