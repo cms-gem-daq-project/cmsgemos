@@ -25,8 +25,11 @@ namespace gem {
                 return transcoded;
             }
 
+            std::recursive_mutex XercesGuard::s_mutex;
+
             XercesGuard::XercesGuard()
             {
+                std::lock_guard<std::recursive_mutex> guard(s_mutex);
                 try {
                     // Initialize Xerces
                     xercesc::XMLPlatformUtils::Initialize();
@@ -39,6 +42,7 @@ namespace gem {
 
             XercesGuard::~XercesGuard()
             {
+                std::lock_guard<std::recursive_mutex> guard(s_mutex);
                 xercesc::XMLPlatformUtils::Terminate();
             }
 

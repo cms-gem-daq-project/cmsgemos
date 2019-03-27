@@ -2,12 +2,15 @@
 #define GEM_ONLINEDB_DETAIL_XMLUTILS_H
 
 #include <memory>
+#include <mutex>
 #include <string>
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/util/XMLString.hpp>
+
+#include "gem/onlinedb/exception/Exception.h"
 
 /**
  * @file
@@ -113,6 +116,8 @@ namespace gem {
              */
             class XercesGuard
             {
+                static std::recursive_mutex s_mutex;
+
             public:
                 /**
                  * @brief Initializes Xerces.
@@ -143,6 +148,50 @@ namespace gem {
                 void resetErrors() override {};
             };
 
+            /**
+             * @brief Turns Xerces exceptions thrown by a function or functor
+             *        object into @ref ParseError.
+             */
+            template<class F, class... Args>
+            auto xercesExceptionsToXcept(F f, Args... args) ->
+                decltype(f(std::forward<Args>(args)...))
+            {
+                XERCES_CPP_NAMESPACE_USE
+                using exception::ParseError;
+
+                XercesGuard guard;
+                try {
+                    return f(std::forward<Args>(args)...);
+                } catch(DOMException &e) {
+                    XCEPT_RAISE(ParseError, transcode(e.getMessage()));
+                } catch (XMLException &e) {
+                    XCEPT_RAISE(ParseError, transcode(e.getMessage()));
+                } catch (SAXParseException &e) {
+                    XCEPT_RAISE(ParseError,
+                        transcode(e.getPublicId()) + ": " +
+                        std::to_string(e.getLineNumber()) + ":" +
+                        std::to_string(e.getColumnNumber()) + ": " +
+                        transcode(e.getMessage()));
+                } catch (SAXException &e) {
+                    XCEPT_RAISE(ParseError, transcode(e.getMessage()));
+                }
+            }
+
+            /**
+             * @brief Turns Xerces exceptions thrown by a function or functor
+             *        object into @ref std::runtime_error.
+             */
+            template<class F, class... Args>
+            auto xercesExceptionsToStd(F f, Args... args) ->
+                decltype(f(std::forward<Args>(args)...))
+            {
+                try {
+                    return xercesExceptionsToXcept(f, std::forward<Args>(args)...);
+                } catch(xcept::Exception &e) {
+                    // Use the opportunity to convert all Xcept exceptions
+                    throw std::runtime_error(e.message());
+                }
+            }
 
             /**
              * @brief Appends a child element to @c parent with tag name

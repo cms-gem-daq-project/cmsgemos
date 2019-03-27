@@ -22,6 +22,7 @@ Sources = \
     AMCConfiguration.cc \
     AMCConfigurationGen.cc \
     ConfigurationLinker.cc \
+    ConfigurationManager.cc \
     DBInterface.cc \
     FileUtils.cc \
     OHv3Configuration.cc \
@@ -42,6 +43,7 @@ DynamicLibrary=gemonlinedb
 SimpleTestExecutables = \
     test/testAMC13Configuration.cc \
     test/testConfigurationLinker.cc \
+    test/testConfigurationManager.cc \
     test/testFileUtils.cc \
     test/testSystemTopology.cc \
     test/testVFAT3ChannelConfiguration.cc \
@@ -64,7 +66,7 @@ DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLA
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
 DependentLibraries=gembase gemutils xdaq cgicc xgi peer xdata mimetic xoap xerces-c xcept toolbox logudpappender logxmlappender log4cplus config cgicc
-DependentLibraries += boost_filesystem boost_regex boost_system
+DependentLibraries += boost_filesystem boost_regex boost_system boost_thread
 
 # DependentLibraries+=$(StandardLibraries)
 

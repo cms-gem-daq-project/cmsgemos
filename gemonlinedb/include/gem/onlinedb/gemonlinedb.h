@@ -17,6 +17,10 @@
 #include "gem/onlinedb/Run.h"
 #include "gem/onlinedb/XMLSerializationData.h"
 
+#include "gem/onlinedb/ConfigurationLinker.h"
+#include "gem/onlinedb/ConfigurationManager.h"
+#include "gem/onlinedb/ConfigurationProvider.h"
+
 /**
  * @namespace gem::onlinedb
  * @brief Online database support library.
@@ -34,6 +38,33 @@
  * - @ref OHv3Configuration
  * - @ref AMCConfiguration
  * - @ref AMC13Configuration
+ *
+ * The main entry point to get your hands on configuration objects is
+ * @ref ConfigurationManager. This class maintains the settings that should be
+ * used when configuring detectors. Read-only access is provided through
+ * @ref ConfigurationManager::getConfiguration, which is typically used as
+ * follows:
+ *
+ *    auto lock = ConfigurationManager::makeReadLock();
+ *    auto &config = ConfigurationManager::getConfiguration(lock);
+ *    // Do something with the config...
+ *    // The lock is released automatically when going out of scope
+ *
+ * The lock prevents any modification of the data while it is being used, so you
+ * should restrict its lifetime to the strict minimum.
+ *
+ * ## Exceptions
+ *
+ * Unless otherwise stated, all functions in this module can throw exceptions
+ * that inherit @c std::exception. In addition, functions that manipulate XML
+ * data may throw a set of Xerces-specific exceptions, but you shouldn't need to
+ * use them directly.
+ *
+ * ## Thread safety
+ *
+ * All object methods in this module are reentrant (can be called on different
+ * objects from different threads). However, most method are <b>not</b>
+ * thread-safe (can be called on the same object from different threads).
  *
  * ## XML serialization
  *
