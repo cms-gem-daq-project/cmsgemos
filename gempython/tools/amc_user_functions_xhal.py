@@ -410,9 +410,12 @@ class HwAMC(object):
         """
         Gets the trigger link status for each unmasked OH.
         If printSummary is set to True a summary table for the status of each unmasked OH is printed.
-        If checkCSCTrigLink is True the function first confirms that the ohMask is suitable (and not running on an odd numbered bit), 
-         then it will not only check the link for the OH in the mask but also the next subsquent link, i.e. the CSC trigger link.
-        It returns the sum of all OH tested via the mask; therefore if all are OK and return 0 then this function also returns 0.
+        ohMask is a 12 bit number, see checkCSCTrigLink for how each bits are interpreted.
+        If checkCSCTrigLink is False the ohMask will define which OH's to query, a 1 in the N^th bit means to query the N^th optohybrid.
+        If checkCSCTrigLink is True, the ohMask is expected to have all odd bits set to 0. Only even bits may be nonzero.
+         If the N^th even bit is nonzero the trigger link status for that OHN and OHN+1 will be queried.
+         It is expected that the GEM trigger link from the physical optohybrid is going to the OHN fiber slot on this AMC and the
+         CSC Trigger Link from the physical optohybrid is going to the OHN+1 fiber slot on this AMC.
         """
         linkStatus=0
         arraySize=8*int(self.nOHs)
