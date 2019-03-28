@@ -20,7 +20,7 @@
 namespace gem {
   namespace calib {
 
-    enum calType {NDEF, PHASE, LATENCY, SCURVE, SBITRATE, THRESHOLD, TRIMDAC, DACSCANV3, TEMPERATURE, SBITREADOUT, SBITMAPANDRATE, CALIBRATEARMDAC}; 
+    enum calType {NDEF, GBTPHASE, LATENCY, SCURVE, SBITARMDACSCAN, ARMDACSCAN, TRIMDAC, DACSCANV3, SBITREADOUT, SBITMAPANDRATE, CALIBRATEARMDAC}; 
     typedef enum calType calType_t;
 
     class Calibration : public gem::base::GEMApplication
@@ -54,7 +54,7 @@ namespace gem {
 	
         void applyAction(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
-        //
+        
         void setCalType(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 
@@ -63,7 +63,7 @@ namespace gem {
         calType_t m_calType;
 	
         std::map<calType_t, std::map<std::string, uint32_t>> m_scanParams{
-            {PHASE  ,{{"nSamples",0},{"trigType", 0},}},
+            {GBTPHASE  ,{{"nSamples",0},{"trigType", 0},}},
             {LATENCY,{
                 {"nSamples"  , 100},
                 {"trigType"  , 0},
@@ -75,7 +75,7 @@ namespace gem {
                 {"vfatChMin" , 0},
                 {"vfatChMax" , 0},
                 {"vt2"       , 0},
-		{"throttle"  ,100},
+		{"trigThrottle"  ,100},
                 {"signalSourceType"       , 0},
                 }},
             {SCURVE,{
@@ -88,17 +88,16 @@ namespace gem {
                 {"vfatChMax" , 127},
                 {"calPhase"  , 0},
                 }},
-	    {SBITRATE  ,{
+	    {SBITARMDACSCAN  ,{
 		{"nSamples",0},
 		{"comparatorType",0},
 		{"perChannelType",0},
 		{"vfatChMin" , 0},
                 {"vfatChMax" , 0},
 		}},
-	    {THRESHOLD  ,{
-		{"nSamples"  ,0},
+	    {ARMDACSCAN  ,{
+		{"nSamples"  , 0},
 		{"trigType"  , 0},
-		{"dataType"  , 0},
 		{"vfatChMin" , 0},
 		{"vfatChMax" , 0},
 		{"vt2"       , 0},
@@ -118,11 +117,6 @@ namespace gem {
 	       {"nSamples",0},
 	       {"adcType",0}
 	      }},// TODO: drop down with DACs to select to scan on, and a select all button
-	    {TEMPERATURE  ,{// TODO: Move to monitor page
-	       {"nSamples"      ,0},
-	       {"tempSensorType",0},
-	       {"timeInterval"  ,0},
-	      }},
             {SBITREADOUT  ,{{"acquisitionTime",60},}},
 	    {SBITMAPANDRATE  ,{
 	       {"timeIntRate",1},
@@ -149,7 +143,7 @@ namespace gem {
           {"vfatChMin" , "VFAT Ch min"},
           {"vfatChMax" , "VAT Ch max"},
           {"vt2"       , "CFG_THR_ARM_DAC"},
-          {"throttle"  , "Throttle (int)"},
+          {"trigThrottle"  , "Trigger throttle (int)"},
 	  {"pulseDelay", "Pulse delay (BX)"},
 	  {"latency"   , "Latency (BX)"},
 	  {"timeInterval", "Interval bw measur. (s)"},
@@ -175,14 +169,13 @@ namespace gem {
         log4cplus::Logger m_logger; //FIXME should be removed!
         std::string m_state;
         const std::map<std::string, calType_t> m_calTypeSelector{
-	    {"GBT Phase Scan"                , PHASE},
+	    {"GBT Phase Scan"                , GBTPHASE},
 	    {"Latency Scan"                  , LATENCY},
 	    {"S-curve Scan"                  , SCURVE},
-            {"S-bit ARM DAC Scan"            , SBITRATE},
-            {"ARM DAC Scan"                  , THRESHOLD},
+            {"S-bit ARM DAC Scan"            , SBITARMDACSCAN},
+            {"ARM DAC Scan"                  , ARMDACSCAN},
             {"Derive DAC Trim Registers"     , TRIMDAC},
             {"DAC Scan on VFAT3"             , DACSCANV3},
-            {"Temperature Monitoring"        , TEMPERATURE},
             {"Readout S-bit"                 , SBITREADOUT},
             {"Check S-bit Mapping and rate calulation"    , SBITMAPANDRATE},
 	    {"Calibrate CFG_THR_ARM_DAC"     , CALIBRATEARMDAC},
