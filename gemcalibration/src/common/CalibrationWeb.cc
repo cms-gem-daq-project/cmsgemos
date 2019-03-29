@@ -68,8 +68,6 @@ void gem::calib::CalibrationWeb::calibrationPage(xgi::Input* in, xgi::Output* ou
 			*out << "<option>ARM DAC Scan</option>" << std::endl;
 			*out << "<option>Derive DAC Trim Registers</option>" << std::endl;
 			*out << "<option>DAC Scan on VFAT3</option>" << std::endl;
-			*out << "<option>Readout S-bit</option>" << std::endl;
-			*out << "<option>Check S-bit Mapping and rate calulation</option>" << std::endl;
 			*out << "<option>Calibrate CFG_THR_ARM_DAC</option>" << std::endl;
                         *out << "<option disabled value>Whatever else...</option>" << std::endl;
                     *out << "</select>" << std::endl;

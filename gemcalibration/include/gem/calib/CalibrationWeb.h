@@ -83,8 +83,6 @@ namespace gem {
                 for each position, the minimum and maximum scan values, and the CFG_THR_ARM_DAC."},
             {TRIMDAC,"To run the routine select the cards, the optohybrids."},
             {DACSCANV3,"To run the routine select the cards, and the optohybrids. Really?? //TODO: clarify!!"},
-            {SBITREADOUT,"To run the routine select the cards, the optohybrids, and the acquisition time in second to acquire sbits for."},
-            {SBITMAPANDRATE,"To run the routine select the cards, the optohybrids and the acquisition time in millisecond to acquire sbits for."},
 	    {CALIBRATEARMDAC,"To run the routine select the cards, the optohybrids. \
                 Indicate the number of events for each position and the latency and pulse stretch configuration."},
         

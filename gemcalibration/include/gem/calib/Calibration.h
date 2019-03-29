@@ -20,7 +20,7 @@
 namespace gem {
   namespace calib {
 
-    enum calType {NDEF, GBTPHASE, LATENCY, SCURVE, SBITARMDACSCAN, ARMDACSCAN, TRIMDAC, DACSCANV3, SBITREADOUT, SBITMAPANDRATE, CALIBRATEARMDAC}; 
+    enum calType {NDEF, GBTPHASE, LATENCY, SCURVE, SBITARMDACSCAN, ARMDACSCAN, TRIMDAC, DACSCANV3, CALIBRATEARMDAC}; 
     typedef enum calType calType_t;
 
     class Calibration : public gem::base::GEMApplication
@@ -117,11 +117,6 @@ namespace gem {
 	       {"nSamples",0},
 	       {"adcType",0}
 	      }},// TODO: drop down with DACs to select to scan on, and a select all button
-            {SBITREADOUT  ,{{"acquisitionTime",60},}},
-	    {SBITMAPANDRATE  ,{
-	       {"timeIntRate",1},
-	       {"rates", 1000},// TODO: need to be implemented properly as taking array of numbers 
-	       }},
 	    {CALIBRATEARMDAC,{
 	       {"nSamples"  , 100},
 	       {"trigType"  , 0}, // TODO: TTC local should be only possible one
@@ -147,8 +142,6 @@ namespace gem {
 	  {"pulseDelay", "Pulse delay (BX)"},
 	  {"latency"   , "Latency (BX)"},
 	  {"timeInterval", "Interval bw measur. (s)"},
-	  {"acquisitionTime","Acq. time interval (s)"},
-	  {"timeIntRate", "Time interval (ms)"},
 	  {"rates", "Rates (Hz)"} , // TODO: need to be implemented properly as taking array of numbers
 	  {"armDacList", "List of ARM DAC settings to scan"}, // TODO: need to be implemented properly as taking array of numbers
 	  {"trimValues", "Points in DAC range"}, // TODO: need to be implemented properly as taking array of numbers
@@ -176,9 +169,7 @@ namespace gem {
             {"ARM DAC Scan"                  , ARMDACSCAN},
             {"Derive DAC Trim Registers"     , TRIMDAC},
             {"DAC Scan on VFAT3"             , DACSCANV3},
-            {"Readout S-bit"                 , SBITREADOUT},
-            {"Check S-bit Mapping and rate calulation"    , SBITMAPANDRATE},
-	    {"Calibrate CFG_THR_ARM_DAC"     , CALIBRATEARMDAC},
+            {"Calibrate CFG_THR_ARM_DAC"     , CALIBRATEARMDAC},
 	    
         };
       };
