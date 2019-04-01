@@ -69,13 +69,6 @@ class HwOptoHybrid(object):
         self.dacScan.restype = c_uint
         self.dacScan.argtypes = [ c_uint, c_uint, c_uint, c_uint, c_bool, POINTER(c_uint32) ]
 
-        # Define the trigger rate scan module
-        self.sbitRateScan = self.parentAMC.lib.sbitRateScan
-        self.sbitRateScan.restype = c_uint
-        self.sbitRateScan.argtypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_bool,
-                                      c_char_p, c_uint, POINTER(c_uint32), POINTER(c_uint32),
-                                      POINTER(c_uint32), c_bool]
-
         # Define the known V2b electronics scan registers
         self.KnownV2bElScanRegs = [
                     "Latency",
@@ -470,41 +463,6 @@ class HwOptoHybrid(object):
             exit(os.EX_USAGE)
 
         return self.dacScan(self.link, dacSelect, dacStep, mask, useExtRefADC, outData)
-
-    def performSBitRateScan(self, maskOh, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT,
-                            dacMin=0, dacMax=254, stepSize=2, chan=128, scanReg="THR_ARM_DAC", time=1000,
-                            invertVFATPos=False, isParallel=True):
-        """
-        Measures the rate of sbits sent by unmasked VFATs in maskOh
-        
-        chan                    - VFAT channel to be considered, for all channels
-                                  set to 128
-        scanReg                 - Name of register to be scanned.
-        outDataDacVal           - Array of type c_uint32, array size must be:
-                                  ((dacMax - dacMin + 1) / stepSize)
-                                  The i^th position here is the DAC value that
-                                  the i^th rate in outDataTrigRate was obtained at
-        outDataTrigRate         - As outDataDacVal but for trigger rate
-        outDataTrigRatePerVFAT  - As outDataTrigRate but for each VFAT, array size
-                                  must be:
-                                  24*((dacMax - dacMin + 1) / stepSize)
-        dacMin                  - Starting dac value of the scan
-        dacMax                  - Ending dac value of the scan
-        stepSize                - Step size for moving from dacMin to dacMax
-        time                    - Time to wait for each point in milliseconds
-        invertVFATPos           - Invert VFAT position, e.g. if maskOh corresponds to VFAT0,
-                                  it will be treated as VFAT23, VFAT1 as VFAT22, etc...
-        isParallel              - If true all VFATs are scanned in parallel
-        """
-
-        if self.parentAMC.fwVersion < 3:
-            print("Parent AMC Major FW Version: %i"%(self.parentAMC.fwVersion))
-            print("Only implemented for v3 electronics, exiting")
-            sys.exit(os.EX_USAGE)
-
-        return self.sbitRateScan(self.link, dacMin, dacMax, stepSize, chan, maskOh,
-                                 invertVFATPos, scanReg, time, outDataDacVal, outDataTrigRate,
-                                 outDataTrigRatePerVFAT, isParallel)
 
     def setDebug(self, debug):
         self.debug = debug
