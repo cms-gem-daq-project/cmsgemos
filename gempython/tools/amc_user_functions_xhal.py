@@ -411,7 +411,9 @@ class HwAMC(object):
 
     def getTriggerLinkStatus(self,printSummary=False, checkCSCTrigLink=False, ohMask=0xfff):
         """
-        Gets the trigger link status for each unmasked OH.
+        Gets the trigger link status for each unmasked OH and returns the sum of all trigger link status
+        counters from all unmasked OH's
+
         If printSummary is set to True a summary table for the status of each unmasked OH is printed.
         ohMask is a 12 bit number, see checkCSCTrigLink for how each bits are interpreted.
         If checkCSCTrigLink is False the ohMask will define which OH's to query, a 1 in the N^th bit means to query the N^th optohybrid.
@@ -422,7 +424,7 @@ class HwAMC(object):
         """
         linkStatus=0
         arraySize=8*int(self.nOHs)
-        linkResult = linkResult=(c_uint32 * arraySize)()
+        linkResult = (c_uint32 * arraySize)()
         self.getmonTRIGGEROHmain(linkResult, self.nOHs, ohMask)
 
         #Add check for checkCSCTrigLink=True: that the input mask is even otherwise quits
@@ -439,46 +441,44 @@ class HwAMC(object):
             print("")
             pass
         	
+        linkStatus=0
         for ohN in range(self.nOHs):
             # Skip Masked OH's
             if (not ((ohMask >> ohN) & 0x1)):
                 continue
-            index=(int(ohN)*8)
-            ohBeingChecked=ohN
+
             if(printSummary):
-                print("----------OH{0}----------".format(ohBeingChecked))
-                print("LINK0_MISSED_COMMA_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index] > 0) else colors.GREEN,linkResult[index],colors.ENDC))
-                print("LINK1_MISSED_COMMA_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index+1] > 0) else colors.GREEN,linkResult[index+1],colors.ENDC))
-                print("LINK0_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index+2] > 0) else colors.GREEN,linkResult[index+2],colors.ENDC))
-                print("LINK1_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index+3] > 0) else colors.GREEN,linkResult[index+3],colors.ENDC))
-                print("LINK0_UNDERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index+4] > 0) else colors.GREEN,linkResult[index+4],colors.ENDC))
-                print("LINK1_UNDERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index+5] > 0) else colors.GREEN,linkResult[index+5],colors.ENDC))
-                print("LINK0_SBIT_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index+6] > 0) else colors.GREEN,linkResult[index+6],colors.ENDC))
-                print("LINK1_SBIT_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index+7] > 0) else colors.GREEN,linkResult[index+7],colors.ENDC))
+                print("----------OH{0}----------".format(ohN))
+                print("LINK0_MISSED_COMMA_CNT		{0}{1}{2}".format(colors.RED if (linkResult[ohN] > 0) else colors.GREEN,linkResult[ohN],colors.ENDC))
+                print("LINK1_MISSED_COMMA_CNT		{0}{1}{2}".format(colors.RED if (linkResult[ohN+self.nOHs] > 0) else colors.GREEN,linkResult[ohN+self.nOHs],colors.ENDC))
+                print("LINK0_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[ohN+2*self.nOHs] > 0) else colors.GREEN,linkResult[ohN+2*self.nOHs],colors.ENDC))
+                print("LINK1_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[ohN+3*self.nOHs] > 0) else colors.GREEN,linkResult[ohN+3*self.nOHs],colors.ENDC))
+                print("LINK0_UNDERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[ohN+4*self.nOHs] > 0) else colors.GREEN,linkResult[ohN+4*self.nOHs],colors.ENDC))
+                print("LINK1_UNDERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[ohN+5*self.nOHs] > 0) else colors.GREEN,linkResult[ohN+5*self.nOHs],colors.ENDC))
+                print("LINK0_SBIT_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[ohN+6*self.nOHs] > 0) else colors.GREEN,linkResult[ohN+6*self.nOHs],colors.ENDC))
+                print("LINK1_SBIT_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[ohN+7*self.nOHs] > 0) else colors.GREEN,linkResult[ohN+7*self.nOHs],colors.ENDC))
                 pass
+
             if (checkCSCTrigLink):
-                index=index+8
-                ohBeingChecked=ohBeingChecked+1
                 if(printSummary):
-                    print("----------OH{0}----------".format(ohBeingChecked))
-                    print("LINK0_MISSED_COMMA_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index] > 0) else colors.GREEN,linkResult[index],colors.ENDC))
-                    print("LINK1_MISSED_COMMA_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index+1] > 0) else colors.GREEN,linkResult[index+1],colors.ENDC))
-                    print("LINK0_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index+2] > 0) else colors.GREEN,linkResult[index+2],colors.ENDC))
-                    print("LINK1_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index+3] > 0) else colors.GREEN,linkResult[index+3],colors.ENDC))
-                    print("LINK0_UNDERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index+4] > 0) else colors.GREEN,linkResult[index+4],colors.ENDC))
-                    print("LINK1_UNDERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index+5] > 0) else colors.GREEN,linkResult[index+5],colors.ENDC))
-                    print("LINK0_SBIT_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index+6] > 0) else colors.GREEN,linkResult[index+6],colors.ENDC))
-                    print("LINK1_SBIT_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[index+7] > 0) else colors.GREEN,linkResult[index+7],colors.ENDC))
+                    print("----------OH{0}----------".format(ohN))
+                    print("LINK0_MISSED_COMMA_CNT		{0}{1}{2}".format(colors.RED if (linkResult[(ohN+1)] > 0) else colors.GREEN,linkResult[(ohN+1)],colors.ENDC))
+                    print("LINK1_MISSED_COMMA_CNT		{0}{1}{2}".format(colors.RED if (linkResult[(ohN+1)+self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+self.nOHs],colors.ENDC))
+                    print("LINK0_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[(ohN+1)+2*self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+2*self.nOHs],colors.ENDC))
+                    print("LINK1_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[(ohN+1)+3*self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+3*self.nOHs],colors.ENDC))
+                    print("LINK0_UNDERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[(ohN+1)+4*self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+4*self.nOHs],colors.ENDC))
+                    print("LINK1_UNDERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[(ohN+1)+5*self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+5*self.nOHs],colors.ENDC))
+                    print("LINK0_SBIT_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[(ohN+1)+6*self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+6]*self.nOHs,colors.ENDC))
+                    print("LINK1_SBIT_OVERFLOW_CNT		{0}{1}{2}".format(colors.RED if (linkResult[(ohN+1)+7*self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+7*self.nOHs],colors.ENDC))
                     pass
-            for i in range(0,8):
-            	index=(int(ohN)*8)+i
-                ohLinkStatus=linkResult[index]
-                linkStatus=linkStatus+ohLinkStatus
+
+            for idx in range(0,8):
+                linkStatus+=linkResult[ohN+idx*self.nOHs]
                 if (checkCSCTrigLink):
-                    index=index+8
-                    ohLinkStatus=linkResult[index]
-                    linkStatus=linkStatus+ohLinkStatus
+                    linkStatus+=linkResult[(ohN+1)+idx*self.nOHs]
                 pass
+            pass
+
         return linkStatus
 
     def getVFATLinkStatus(self,doReset=False,printSummary=False, ohMask=0xfff):
