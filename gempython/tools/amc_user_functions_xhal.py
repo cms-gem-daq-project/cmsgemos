@@ -422,17 +422,28 @@ class HwAMC(object):
          It is expected that the GEM trigger link from the physical optohybrid is going to the OHN fiber slot on this AMC and the
          CSC Trigger Link from the physical optohybrid is going to the OHN+1 fiber slot on this AMC.
         """
-        linkStatus=0
-        arraySize=8*int(self.nOHs)
-        linkResult = (c_uint32 * arraySize)()
-        self.getmonTRIGGEROHmain(linkResult, self.nOHs, ohMask)
 
-        #Add check for checkCSCTrigLink=True: that the input mask is even otherwise quits
+        ohMask2Query=ohMask
+        # Are we checking CSC Trigger links?
         if (checkCSCTrigLink):
+            # If input mask is not even otherwise it quits
             if (int(ohMask)%2!=0):
                 printRed("HwAMC::getTriggerLinkStatus(): checkCSCTrigLink=True and ohMask={0}. Checking the CSC trigger link on an odd bit is not allowed.".format(hex(ohMask)))
                 exit(os.EX_USAGE)
                 pass
+
+            # Set the corresponding odd bits of the nonzero even bits in ohMask2Query to 1
+            for ohN in range(0,self.nOHs,2):
+                if (not ((ohMask >> ohN) & 0x1)):
+                    continue
+                ohMask2Query += (0x1 << (ohN+1))
+                pass
+            pass
+        
+        linkStatus=0
+        arraySize=8*int(self.nOHs)
+        linkResult = (c_uint32 * arraySize)()
+        self.getmonTRIGGEROHmain(linkResult, self.nOHs, ohMask2Query)
 
         if(printSummary):
             print("--=======================================--")
@@ -472,7 +483,13 @@ class HwAMC(object):
                     print("LINK1_SBIT_OVERFLOW_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[(ohN+1)+7*self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+7*self.nOHs],colors.ENDC))
                     pass
 
+            # Initialize trigger link status container
             ohSumLinkStatus[ohN] = 0
+            if (checkCSCTrigLink):
+                ohSumLinkStatus[ohN+1] = 0
+                pass
+
+            # Sum trigger link status registers per OH
             for idx in range(0,8):
                 ohSumLinkStatus[ohN]+=linkResult[ohN+idx*self.nOHs]
                 if (checkCSCTrigLink):
