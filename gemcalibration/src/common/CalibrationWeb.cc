@@ -30,16 +30,17 @@ void gem::calib::CalibrationWeb::webDefault(xgi::Input * in, xgi::Output * out)
   *out << "<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js\"></script>" << std::endl;
 
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
-      *out << "  <div class=\"xdaq-tab\" title=\"Calibration Control\">"  << std::endl;
+      *out << "<div class=\"xdaq-tab\" title=\"Calibration Control\">" << std::endl;
           this->calibrationPage(in, out);
-      *out << "  </div>" << std::endl;
-      *out << "  <div class=\"xdaq-tab\" title=\"Monitoring page\">"  << std::endl;
+      *out << "</div>" << std::endl;
+      *out << "<div class=\"xdaq-tab\" title=\"Monitoring page\">" << std::endl;
           this->monitorPage(in, out);
-      *out << "  </div>" << std::endl;
-      *out << "  <div class=\"xdaq-tab\" title=\"Expert page\">"  << std::endl;
+      *out << "</div>" << std::endl;
+      *out << "<div class=\"xdaq-tab\" title=\"Expert page\">" << std::endl;
           this->expertPage(in, out);
-      *out << "  </div>" << std::endl;
-  *out << "  </div>" << std::endl;
+      *out << "</div>" << std::endl;
+  *out << "</div>" << std::endl;
+
   GEMWebApplication::webFooterGEM(in, out);
 
   std::string updateLink = "/" + p_gemApp->m_urn + "/";
@@ -47,6 +48,7 @@ void gem::calib::CalibrationWeb::webDefault(xgi::Input * in, xgi::Output * out)
   *out<<"<script type=\"text/javascript\">"           <<std::endl
       <<"store_actionURL(\""<<updateLink<<"\");"<<std::endl
       <<"</script>"<<std::endl;
+
 }
 
 void gem::calib::CalibrationWeb::calibrationPage(xgi::Input* in, xgi::Output* out)
@@ -55,9 +57,11 @@ void gem::calib::CalibrationWeb::calibrationPage(xgi::Input* in, xgi::Output* ou
     CMSGEMOS_DEBUG("CalibrationWeb::calibrationPage");
     *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
         *out << "<div align=\"center\">" << std::endl;
+
             *out<< "<form id=\"cal_select\">"<<std::endl; *out << "<div class=\"form-group row\">" << std::endl;
                     *out << "<h2><span class=\"label label-info col-md-3\" id=\"cal_scurve\">Select calibration type:" << "</span></h2>" << std::endl; 
                    *out << "<div class=\"col-md-3\">" << std::endl;
+
                     *out << "<select class=\"form-control form-control-lg\" id=\"cal_type_select\" name=\"cal_type_select\" onChange=\"selectCalType()\">" << std::endl;
                         *out << "<option disabled selected value> -- select an option -- </option>" << std::endl;
                         *out << "<option>GBT Phase Scan</option>" << std::endl;
@@ -72,7 +76,9 @@ void gem::calib::CalibrationWeb::calibrationPage(xgi::Input* in, xgi::Output* ou
                     *out << "</select>" << std::endl;
                     *out << "</div>" << std::endl; //<div class=\"col-md-6\">
                 *out << "</div>" << std::endl; //<div class=\"form-group row\">
+
             *out<<"</form>"<< std::endl;
+
         *out << "</div>" << std::endl;
     *out << "</div>" << std::endl;
 
@@ -96,7 +102,6 @@ void gem::calib::CalibrationWeb::triggerSelector(xgi::Output* out)
     *out << "<h2><span class=\"label label-warning col-md-6\">TRIGGER SOURCE"<< "</span></h2>"
     << "<div class=\"col-md-6\">"
         << "<div class=\"form-check\">"
-
             << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_0\" value=0 checked>TTC input</label></div>"
 	    << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_1\" value=2>Loopback</label></div>"
             << "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\"trigType\" id=\"trig_radio_2\" value=3>Lemo/T3</label></div>"
@@ -161,7 +166,6 @@ void gem::calib::CalibrationWeb::genericParamSelector(std::string labelName, std
     << "</div>" << std::endl;    
 }
 
-
 void gem::calib::CalibrationWeb::slotsAndMasksSelector(xgi::Output* out)
   throw (xgi::exception::Exception)
 {
@@ -197,24 +201,25 @@ void gem::calib::CalibrationWeb::slotsAndMasksSelector(xgi::Output* out)
                         << "</div>"
                         << "<div class=\"col-md-9\">"
                             << "<div class=\"dropdown\">"
-                                <<"<button id=\"amc_dropdown_button\" class=\"btn btn-lg btn-outline dropdown-toggle\" data-toggle=\"dropdown\">Select AMC and OH</button>"
-                                <<"<div class=\"dropdown-menu pre-scrollable\">" << std::endl;
+                                << "<button id=\"amc_dropdown_button\" class=\"btn btn-lg btn-outline dropdown-toggle\" data-toggle=\"dropdown\">Select AMC and OH</button>"
+                                << "<div class=\"dropdown-menu pre-scrollable\">" << std::endl;
                                     for (unsigned int j = 0; j < NAMC; ++j) { //SHELF.AMC
                                         t_stream.clear();
                                         t_stream.str(std::string());
                                         t_stream << "shelf"<< std::setfill('0') << std::setw(2) << i+1 << ".amc" << std::setfill('0') << std::setw(2) << j+1;
                                         *out << "<span class =\"dropdown-item-text\">"
-                                            <<"<div class=\"row\">"
-                                                <<"<div class=\"col-md-3\">"
-                                                    << "<div class=\"checkbox\"><label><input type=\"checkbox\" class=\"check\" id=\"AMC"
-                                                    << std::setfill('0') << std::setw(2) << i+1 << "." << std::setfill('0') << std::setw(2) << j+1 <<"\">  AMC"
-                                                 << std::setfill('0') << std::setw(2) << j+1 << " </label> </div>"
+                                            << "<div class=\"row\">"
+                                                << "<div class=\"col-md-3\">"
+                                                    << "<div class=\"checkbox\"><label><input type=\"checkbox\" class=\"check\" name=\""
+                                                    << t_stream.str() << "\" id=\"" << t_stream.str() << "\">  AMC"
+                                                    << std::setfill('0') << std::setw(2) << j+1 << " </label> </div>"
                                                 << "</div>"
-                                                <<"<div class=\"col-md-1\">"
+                                                << "<div class=\"col-md-1\">"
                                                 << "</div>"
-                                                <<"<div class=\"col-md-8\">"
-                                                    << "<input type=\"text\" value=\"0x000\" size=\"4\" id=\"ohMask"
-                                                    << std::setfill('0') << std::setw(2) << i+1 << "." << std::setfill('0') << std::setw(2) << j+1<<"\">OH mask </input>"
+                                                << "<div class=\"col-md-8\">" << std::endl;
+                                                    t_stream << ".ohMask";
+                                                    *out << "<input type=\"text\" value=\"0x000\" size=\"4\" name=\""
+                                                    << t_stream.str() << "\" id =\"" << t_stream.str() << "\">OH mask </input>"
                                                 << "</div>"
                                             << "</div>"
                                         << "</span>" << std::endl;
@@ -226,15 +231,13 @@ void gem::calib::CalibrationWeb::slotsAndMasksSelector(xgi::Output* out)
                 } // end loop over NSHELF
             *out << "</div>" << std::endl; // end container
         *out << "</form>"<< std::endl;
-    *out<<"<div align=\"center\">"<<std::endl;
+
+    *out << "<div align=\"center\">"<< std::endl;
         *out << "<button class=\"btn btn-lg btn-info\" onclick=\"select_links()\">SELECT ALL</button>" << std::endl;
         *out << "<button class=\"btn btn-lg btn-warning\" onclick=\"deselect_links()\">DESELECT ALL</button>" << std::endl;
-
-    *out<<"</div>"<< std::endl;
-
+    *out << "</div>"<< std::endl;
     *out << "</div>" << std::endl; // end panel
 }
-
 
 void gem::calib::CalibrationWeb::settingsInterface(calType_t m_calType, xgi::Output* out)
   throw (xgi::exception::Exception)
@@ -302,9 +305,10 @@ void gem::calib::CalibrationWeb::expertPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("CalibrationWeb::expertPage");
-  *out<<"<div class=\"xdaq-tab-wrapper\">" << std::endl;
+
+  *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   //*out << "<div align=\"center\">" << std::endl;
-  //*out<< "<h1><span class=\"label label-info\" id=\"mon_state\">MONITORING STATE: "
+  //*out << "<h1><span class=\"label label-info\" id=\"mon_state\">MONITORING STATE: "
   //    << dynamic_cast<gem::calib::Calibration*>(p_gemApp)->monitoringState() << "</span></h1>" << std::endl; //CG
   //    *out << cgicc::script().set("type", "text/javascript").set("src", "/gemdaq/gemcalibration/html/scripts/checkall.js")
  
@@ -326,15 +330,16 @@ void gem::calib::CalibrationWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
   CMSGEMOS_DEBUG("CalibrationWeb::jsonUpdate");
 /*
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  *out<<" { "<<std::endl;
+  *out << " { "<< std::endl;
   for (unsigned int i = 0; i < NAMC; ++i){
     auto gemcal = dynamic_cast<gem::calib::Calibration*>(p_gemApp)->v_gemcal.at(i);
     if (gemcal) {
-      *out<<"\"amc"<<i+1<<"\" : "  <<std::endl;
+      *out << "\"amc"<<i+1<< "\" : "  << std::endl;
       gemcal->jsonContentUpdate(out);
-      if (i!=NAMC-1) *out<<","<<std::endl; // Add comma if not the last entry
+      if (i!=NAMC-1) *out << ","<< std::endl; // Add comma if not the last entry
     }
   }
-  *out<<" } "<<std::endl;
+  *out << " } "<< std::endl;
+
 */
 }

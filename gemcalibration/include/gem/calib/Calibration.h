@@ -162,7 +162,6 @@ namespace gem {
         log4cplus::Logger m_logger; //FIXME should be removed!
         std::string m_state;
         const std::map<std::string, calType_t> m_calTypeSelector{
-
 	    {"GBT Phase Scan"                , GBTPHASE},
 	    {"Latency Scan"                  , LATENCY},
 	    {"S-curve Scan"                  , SCURVE},
@@ -173,34 +172,6 @@ namespace gem {
             {"Calibrate CFG_THR_ARM_DAC"     , CALIBRATEARMDAC},
 	    
         };
-        std::map<calType_t, std::map<std::string, uint32_t>> m_scanParams{
-        {PHASE  ,{{"n_samples",0},{"trig_type", 0},}},
-        {LATENCY,{
-            {"nSamples"  , 0},
-            {"trigType"  , 0},
-            {"l1aTime"   , 0},
-            {"calPhase"  , 0},
-            {"mspl"      , 0},
-            {"scanMin"   , 0},
-            {"scanMax"   , 0},
-            {"vfatChMin" , 0},
-            {"vfatChMax" , 0},
-            {"vt2"       , 0},
-            }},
-        {SCURVE,{
-            {"nSamples"  , 0},
-            {"trigType"  , 0},
-            {"l1aTime"   , 0},
-            {"pulseDelay", 0},
-            {"latency"   , 0},
-            {"vfatChMin" , 0},
-            {"vfatChMax" , 0},
-            {"calPhase"  , 0},
-            }},
-         };
-        //int nSamples, trigType, l1aTime, latency, pulseDelay, calPhase, vfatChMin, vfatChMax; 
-	    //int scanMin, scanMax, throttle, vt2, mspl;
-	  
       };
   }  // namespace gem::calib
 }  // namespace gem

@@ -131,6 +131,7 @@ void gem::calib::Calibration::pauseAction(xgi::Input* in, xgi::Output* out)
 void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
+    bool t_errorsOccured = false;
     cgicc::Cgicc cgi(in);
     for (auto it: m_scanParams.find(m_calType)->second){
         it.second = cgi[it.first]->getIntegerValue();
@@ -173,8 +174,11 @@ void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
     } else {
         *out << "{\"status\":0,\"alert\":\"Parameters successfully applied. Now you can run the scan.\"}";
     }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> fac3430978f65193e57515f4554169ac0f7788cf
 }
 
 void gem::calib::Calibration::setCalType(xgi::Input* in, xgi::Output* out)
