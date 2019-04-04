@@ -1,8 +1,11 @@
 from ctypes import *
 from gempython.utils.gemlogger import colors, printRed, printYellow
+from gempython.utils.wrappers import runCommand, runCommandWithOutput
 
+from reg_utils.reg_interface.common.jtag import initJtagRegAddrs
 from reg_utils.reg_interface.common.reg_base_ops import rpc_connect, rReg, writeReg
 from reg_utils.reg_interface.common.reg_xml_parser import getNode, parseInt, parseXML
+from reg_utils.reg_interface.common.sca_utils import sca_reset 
 
 from xhal.reg_interface_gem.core.reg_extra_ops import rBlock
 
@@ -544,7 +547,7 @@ class HwAMC(object):
 
         return (totalSyncErrors == 0)
 
-    def performDacScanMultiLink(self, dacDataAll, dacSelect, dacStep=1, ohMask=0x3ff, useExtRefADC=False):
+    def performDacScanMultiLink(self, dacDataAll, dacSelect, dacStep=1, ohMask=0xfff, useExtRefADC=False):
         """
         Scans the DAC defined by dacSelect for all links on this AMC.  See VFAT3 manual for more details
         on the available DAC selection.
@@ -584,7 +587,7 @@ class HwAMC(object):
 
         return self.dacScanMulti(ohMask, self.nOHs, dacSelect, dacStep, useExtRefADC, dacDataAll)
 
-    def performSBITRateScanMultiLink(self, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, chan=128, dacMin=0, dacMax=254, dacStep=1, ohMask=0x3ff, scanReg="THR_ARM_DAC"):
+    def performSBITRateScanMultiLink(self, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, chan=128, dacMin=0, dacMax=254, dacStep=1, ohMask=0xfff, scanReg="THR_ARM_DAC"):
         """
         Measures the rate of sbits sent by all unmasked optobybrids on this AMC
 
@@ -636,6 +639,68 @@ class HwAMC(object):
             exit(os.EX_USAGE)
 
         return self.sbitRateScanMulti(ohMask, dacMin, dacMax, dacStep, chan, scanReg, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT)
+    
+    def programAllOptohybridFPGAs(self, maxIter=5, ohMask=None):
+        """
+        Will program the FPGA of all unmasked optohybrids. If ohMask is None it will 
+        determine which 
+        """
+
+        # Determine if PROM-Less programming is enabled, if not enable it
+        mpeekCmd = "mpeek 0x6a000000"
+        shellCmd = [
+                'ssh',
+                'gemuser@{0}'.format(self.name),
+                'sh -c "{0}"'.format(mpeekCmd)
+                ]
+        promlessEnabled = int(runCommandWithOutput(shellCmd).strip('\n'))
+        if promlessEnabled != 0x1:
+            shellCmd = [
+                    'ssh',
+                    'gemuser@{0}'.format(self.name),
+                    'sh -c "/mnt/persistent/gemdaq/gemloader/gemloader_configure.sh"'
+                    ]
+            runCommand(shellCmd)
+
+        # Automatically determine ohMask if not provided
+        if ohMask is None:
+            scaReady = self.readRegister("GEM_AMC.SLOW_CONTROL.SCA.STATUS.READY")
+            scaError = self.readRegister("GEM_AMC.SLOW_CONTROL.SCA.STATUS.CRITICAL_ERROR")
+            ohMask = (scaReady & (~scaError & 0xfff))
+
+        # Are any optohybrids available?
+        if (not (bin(ohMask).count("1") > 0) ):
+            printRed("HwAMC::programAllOptohybridFPGAs(): there are no unmasked optohybrids to program")
+            return [x for x in range(0,12) ]
+
+        # Program FPGA's
+        self.writeRegister("GEM_AMC.TTC.GENERATOR.ENABLE",0x1)
+        initJtagRegAddrs()
+        for trial in range(0,maxIter):
+            self.writeRegister("GEM_AMC.TTC.GENERATOR.SINGLE_HARD_RESET",0x1)
+            isDead = True
+            listOfDeadFPGAs = []
+            for ohN in range(self.nOHs):
+                # Skip masked OH's
+                if( not ((ohMask >> ohN) & 0x1)):
+                    continue
+                fwVerMaj = self.readRegister("GEM_AMC.OH.OH{0}.FPGA.CONTROL.RELEASE.VERSION.MAJOR".format(ohN))
+                if fwVerMaj != 0xdeaddead:
+                    isDead = False
+                else:
+                    isDead = True
+                    sca_reset(ohMask)
+                    listOfDeadFPGAs.append(ohN)
+                    pass
+                pass
+
+            if not isDead:
+                fpgaCommPassed = True
+                break
+            pass
+        self.writeRegister("GEM_AMC.TTC.GENERATOR.ENABLE",0x0)
+
+        return listOfDeadFPGAs
 
     def readADCsMultiLink(self, adcDataAll, useExtRefADC=False, ohMask=0xFFF, debug=False):
         """
@@ -747,7 +812,7 @@ class HwAMC(object):
         rpcResp = self.getmonOHSCAmain(scaMonData, NOH, ohMask)
 
         if rpcResp != 0:
-            raise Exception("RPC response was non-zero, reading SCA Monitoring Data from OH's in ohMask = {0} failed".format(str(hex(args.ohMask)).strip('L')))
+            raise Exception("RPC response was non-zero, reading SCA Monitoring Data from OH's in ohMask = {0} failed".format(str(hex(ohMask)).strip('L')))
 
         return scaMonData
 
@@ -773,7 +838,7 @@ class HwAMC(object):
         rpcResp = self.getmonOHSysmon(sysmonData, NOH, ohMask, doReset)
 
         if rpcResp != 0:
-            raise Exception("RPC response was non-zero, reading Sysmon Monitoring Data from OH's in ohMask = {0} failed".format(str(hex(args.ohMask)).strip('L')))
+            raise Exception("RPC response was non-zero, reading Sysmon Monitoring Data from OH's in ohMask = {0} failed".format(str(hex(ohMask)).strip('L')))
 
         return sysmonData
 
