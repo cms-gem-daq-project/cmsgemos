@@ -53,7 +53,7 @@ def runCommandWithOutput(cmd,log=None):
             msg+=" %s"%(c)
         logger.info(colormsg(msg,logging.INFO))
         sys.stdout.flush()
-        returnVal = subprocess.check_output(cmd,stdout=log,stderr=log)
+        returnVal = subprocess.check_output(cmd,stderr=log)
     except CalledProcessError as e:
         msg =  "Caught exception"
         msg+=str(e)
