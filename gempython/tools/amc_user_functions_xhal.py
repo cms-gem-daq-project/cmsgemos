@@ -722,13 +722,13 @@ class HwAMC(object):
         """
         Will make up to maxIter attempts to program the FPGA of all unmasked optohybrids.
         Before the first attempt the function will check on the AMC that the PROMLESS programming
-        is enabled, if it isn't this will call gemloader_configure.sh.sh on the AMC. Then
+        is enabled, if it isn't this will call gemloader_configure.sh on the AMC. Then
         for each attempt a TTC Hard Reset will be sent from the TTC Generator and then it will
         check if slow control with the unmasked OH FPGA's is possible.  If it is not, an SCA reset
         will be sent and then the next attempt will be tried.
 
         It will return a list of OH's, out of ohMask, who after maxIter is performed are still
-        unprogrammed. If all OH's in ohMask are programmed before maxIter is reached the proceedure will exit
+        unprogrammed. If all OH's in ohMask are programmed before maxIter is reached the procedure will exit
         and return an empty list.
 
         maxIter- Maximum number of attempts to program all OH's in ohMask
@@ -774,6 +774,7 @@ class HwAMC(object):
             self.writeRegister("GEM_AMC.TTC.GENERATOR.SINGLE_HARD_RESET",0x1)
             isDead = True
             listOfDeadFPGAs = []
+            ohMaskNeedSCAReset = 0x0
             for ohN in range(self.nOHs):
                 # Skip masked OH's
                 if( not ((ohMask >> ohN) & 0x1)):
@@ -783,14 +784,16 @@ class HwAMC(object):
                     isDead = False
                 else:
                     isDead = True
-                    sca_reset(ohMask)
                     listOfDeadFPGAs.append(ohN)
+                    ohMaskNeedSCAReset += (0x1 << ohN)
                     pass
                 pass
 
             if not isDead:
                 fpgaCommPassed = True
                 break
+            else:
+                sca_reset(ohMaskNeedSCAReset)
             pass
         self.writeRegister("GEM_AMC.TTC.GENERATOR.ENABLE",0x0)
 
