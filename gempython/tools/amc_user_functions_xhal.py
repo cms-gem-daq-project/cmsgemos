@@ -772,6 +772,7 @@ class HwAMC(object):
         initJtagRegAddrs()
         for trial in range(0,maxIter):
             self.writeRegister("GEM_AMC.TTC.GENERATOR.SINGLE_HARD_RESET",0x1)
+            self.writeRegister("GEM_AMC.GEM_SYSTEM.CTRL.LINK_RESET",0x1)
             isDead = True
             listOfDeadFPGAs = []
             ohMaskNeedSCAReset = 0x0
