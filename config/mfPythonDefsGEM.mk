@@ -9,6 +9,10 @@ PYTHON_LIB     ?= python${PYTHON_VERSION}
 # Python Config
 PYTHONCFLAGS = $(shell pkg-config python --cflags)
 PYTHONLIBS   = $(shell pkg-config python --libs)
+PYTHONGLIBS  = $(shell pkg-config python --glibs)
+
+IncludeDirs+=${PYTHON_INCLUDE_PREFIX}
+
 
 ## these should come from PYTHONCFLAGS and PYTHONLIBS variables
 # IncludeDirs+=${PYTHON_INCLUDE_PREFIX}

@@ -11,6 +11,7 @@ SUBPACKAGES := \
         gempython \
         gemdaqmonitor \
         gemonlinedb \
+        gemcalibration \
         # gemHwMonitor \
 
 # SUBPACKAGES.DOC      := $(patsubst %,%.doc,    ${SUBPACKAGES})
