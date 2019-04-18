@@ -1,0 +1,22 @@
+<?xml version='1.0'?>
+<xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+              xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
+
+
+  <xc:Context url="http://gem904daq02:20500">
+    <xc:Application class="gem::calib::Calibration" id="30" instance="0" network="local">
+    </xc:Application>
+
+
+    <!--<xc:Module>/opt/xhal/lib/libxhal.so</xc:Module>-->
+
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemutils.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemcalibration/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemcalibration.so</xc:Module>
+
+<!--    <xc:Module>${CMSGEMOS_ROOT}/lib/libgemutils.so</xc:Module>
+    <xc:Module>${CMSGEMOS_ROOT}/lib/libgembase.so</xc:Module>
+    <xc:Module>${CMSGEMOS_ROOT}/lib/libgemdaqmonitor.so</xc:Module>-->
+  </xc:Context>
+</xc:Partition>
