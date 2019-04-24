@@ -1,7 +1,7 @@
 /** @file CalibrationWeb.h */
 
-#ifndef GEM_GEMCAL_CALIBRATIONWEB_H
-#define GEM_GEMCAL_CALIBRATIONWEB_H
+#ifndef GEM_CALIB_CALIBRATIONWEB_H
+#define GEM_CALIB_CALIBRATIONWEB_H
 
 #include <memory>
 
@@ -16,31 +16,74 @@ namespace gem {
 
     class CalibrationWeb: public gem::base::GEMWebApplication
       {
-        // friend class GEMMonitor;
-        // friend class GEMSupervisor;
-        // friend class gem::base::GEMFSMApplication;
-
+        
       public:
         CalibrationWeb(Calibration *CalibrationApp);
         //CalibrationWeb();
 
         virtual ~CalibrationWeb();
-//
-        void settingsInterface(calType_t m_calType, xgi::Output *out)
+	
+	/**
+         * @brief Set the interface for the selected calibration routine
+	 * @param calibration routine to be perfomed
+	 * @param xgi output for the html 
+	 * @param number of shelves taken from XML configuration file for the amc optical links
+         * @throws
+         */
+
+	void settingsInterface(calType_t m_calType, xgi::Output *out, xdata::Integer m_nShelves)
           throw (xgi::exception::Exception);
-//
-        void slotsAndMasksSelector(xgi::Output *out)
+
+	/**
+         * @brief Selector for the slot and OH mask 
+	 * @param xgi output for the html 
+	 * @param number of shelves taken from XML configuration file for the amc optical links
+         * @throws
+         */
+
+	void slotsAndMasksSelector(xgi::Output *out, xdata::Integer m_nShelves)
           throw (xgi::exception::Exception);
-//
+
+	/**
+         * @brief Generic selector for a calibration routine parameter 
+	 * @param label associated with the parameter
+ 	 * @param parameter name
+ 	 * @param parameter default value
+	 * @param xgi output for the html 
+         * @throws
+         */
+	
         void genericParamSelector(std::string labelName, std::string paramName, int defaultValue, xgi::Output *out)
           throw (xgi::exception::Exception);
-//
+	
+	/**
+         * @brief Selector for the DAC scan calibration routine parameter with dropdown to select the parameter to scan on
+	 * @param xgi output for the html 
+         * @throws
+         */
+	
         void dacScanV3Selector(xgi::Output *out)
           throw (xgi::exception::Exception);
-//
+	
+	/**
+         * @brief Form selector for the DAC scan calibration routine parameter
+	 * @param parameter name 
+	 * @param parameter default value 
+       	 * @param xgi output for the html 
+         * @throws
+         */
+	
         void genericParamSelector_dacScan( std::string paramName, int defaultValue, xgi::Output *out)
           throw (xgi::exception::Exception);
-//	
+
+	/**
+         * @brief Radio selector for calibration routine parameter
+	 * @param parameter name 
+	 * @param parameter options 
+       	 * @param xgi output for the html 
+         * @throws
+         */
+	
         void genericRadioSelector(std::string paramName, gem::calib::Calibration::scanParamsRadioSelector radio_param, xgi::Output *out)
           throw (xgi::exception::Exception);
 //
@@ -53,17 +96,17 @@ namespace gem {
         virtual void calibrationPage(  xgi::Input *in, xgi::Output *out )
           throw (xgi::exception::Exception);
 
-       virtual void monitorPage(xgi::Input *in, xgi::Output *out)
-         throw (xgi::exception::Exception);
-//
-        virtual void expertPage(xgi::Input *in, xgi::Output *out)
-          throw (xgi::exception::Exception);
+/*        virtual void monitorPage(xgi::Input *in, xgi::Output *out) */
+/*          throw (xgi::exception::Exception); */
+/* // */
+/*         virtual void expertPage(xgi::Input *in, xgi::Output *out) */
+/*           throw (xgi::exception::Exception); */
 //
         virtual void applicationPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
-//
-        virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
-          throw (xgi::exception::Exception);
+/* // */
+/*         virtual void jsonUpdate(xgi::Input *in, xgi::Output *out) */
+/*           throw (xgi::exception::Exception); */
 
       private:
         size_t level;
@@ -88,4 +131,4 @@ namespace gem {
   }  // namespace gem::calib
 }  // namespace gem
 
-#endif  // GEM_GEMCAL_CALIBRATIONWEB_H
+#endif  // GEM_CALIB_CALIBRATIONWEB_H

@@ -103,11 +103,11 @@ void gem::calib::CalibrationWeb::genericRadioSelector( std::string paramName, ge
     << "<div class=\"col-md-6\">"
         << "<div class=\"form-check\">" << std::endl;
     
-      for (unsigned int i=0; i< radio_param.radio_options.size() ;i++)
+      for (unsigned int i=0; i< radio_param.options.size() ;i++)
 	
 	if (i==0)
-	  *out<<"<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\""<<paramName<<"\" id=\""<<paramName<<"_radio_"<<i<<"\" value="<<i<<" checked>"<<radio_param.radio_options[i]<<"</label></div>"<< std::endl;
-	else *out<< "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\""<<paramName<<"\" id=\""<<paramName<<"_radio_"<<i<<"\" value="<<i<<">"<<radio_param.radio_options[i]<<"</label></div>"<< std::endl;
+	  *out<<"<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\""<<paramName<<"\" id=\""<<paramName<<"_radio_"<<i<<"\" value="<<i<<" checked>"<<radio_param.options[i]<<"</label></div>"<< std::endl;
+	else *out<< "<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\""<<paramName<<"\" id=\""<<paramName<<"_radio_"<<i<<"\" value="<<i<<">"<<radio_param.options[i]<<"</label></div>"<< std::endl;
       
         *out<< "</div>"
     << "</div>" << std::endl;
@@ -136,7 +136,7 @@ void gem::calib::CalibrationWeb::genericParamSelector_dacScan( std::string param
     << "</div>" << std::endl;    
 }
 
-void gem::calib::CalibrationWeb::slotsAndMasksSelector(xgi::Output* out)
+void gem::calib::CalibrationWeb::slotsAndMasksSelector(xgi::Output* out,xdata::Integer m_nShelves)
   throw (xgi::exception::Exception)
 {
     std::stringstream t_stream;
@@ -157,7 +157,7 @@ void gem::calib::CalibrationWeb::slotsAndMasksSelector(xgi::Output* out)
         // panel body
         *out << "<form id=\"slot_and_masks_select\">" << std::endl;
             *out << "<div class=\"container\" id=\"links_selection\">" << std::endl;
-                for (unsigned int i = 0; i < NSHELF; ++i) {
+                for ( int i = 0; i < m_nShelves; ++i) {
                     t_stream.clear();
                     t_stream.str(std::string());
                     t_stream << "shelf"<< std::setfill('0') << std::setw(2) << i+1;
@@ -173,7 +173,7 @@ void gem::calib::CalibrationWeb::slotsAndMasksSelector(xgi::Output* out)
                             << "<div class=\"dropdown\">"
                                 << "<button id=\"amc_dropdown_button\" class=\"btn btn-lg btn-outline dropdown-toggle\" data-toggle=\"dropdown\">Select AMC and OH</button>"
                                 << "<div class=\"dropdown-menu pre-scrollable\">" << std::endl;
-                                    for (unsigned int j = 0; j < NAMC; ++j) { //SHELF.AMC
+                                    for (unsigned int j = 0; j < gem::base::GEMApplication::MAX_AMCS_PER_CRATE ; ++j) { //SHELF.AMC
                                         t_stream.clear();
                                         t_stream.str(std::string());
                                         t_stream << "shelf"<< std::setfill('0') << std::setw(2) << i+1 << ".amc" << std::setfill('0') << std::setw(2) << j+1;
@@ -276,7 +276,7 @@ void gem::calib::CalibrationWeb::dacScanV3Selector(xgi::Output* out)
 
 
 
-void gem::calib::CalibrationWeb::settingsInterface(calType_t m_calType, xgi::Output* out)
+void gem::calib::CalibrationWeb::settingsInterface(calType_t m_calType, xgi::Output* out, xdata::Integer m_nShelves)
   throw (xgi::exception::Exception)
 {
     *out << "<div id=\"cal_interface\">" << std::endl;
@@ -314,24 +314,21 @@ void gem::calib::CalibrationWeb::settingsInterface(calType_t m_calType, xgi::Out
                     
                
             *out << "</form>"<< std::endl;
-	    //*out << "</div>" << std::endl; //column ends
-            *out << "<br>" << std::endl;
+	    *out << "<br>" << std::endl;
 
-	    //*out << "</div>" << std::endl;
-	    //*out << "<div class=\"row\">" << std::endl;    
-	    //*out << "<div class=\"col-md-6\">" << std::endl;
-		if (m_calType == DACSCANV3){
-		  *out << "<br>" << std::endl;
-		  this->dacScanV3Selector(out);
-		  *out << "<br>" << std::endl;
-		
-		}
-		//*out << "</div>" << std::endl;
+	   
+	    if (m_calType == DACSCANV3) {
+	      *out << "<br>" << std::endl;
+	      this->dacScanV3Selector(out);
+	      *out << "<br>" << std::endl;
+	      
+	    }
+	
 	    *out << "</div>" << std::endl; //end row    
 	 
 	     *out << "<div class=\"col-md-6\">" << std::endl;
 	            *out << "<br>" << std::endl;
-                this->slotsAndMasksSelector(out);
+		    this->slotsAndMasksSelector(out, m_nShelves);
 		        *out << "<br><br><br>" << std::endl;
 		
 			
@@ -350,45 +347,45 @@ void gem::calib::CalibrationWeb::settingsInterface(calType_t m_calType, xgi::Out
 }
 
 
-void gem::calib::CalibrationWeb::expertPage(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-  CMSGEMOS_DEBUG("CalibrationWeb::expertPage");
+// void gem::calib::CalibrationWeb::expertPage(xgi::Input* in, xgi::Output* out)
+//   throw (xgi::exception::Exception)
+// {
+//   CMSGEMOS_DEBUG("CalibrationWeb::expertPage");
 
-  *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
-  //*out << "<div align=\"center\">" << std::endl;
-  //*out << "<h1><span class=\"label label-info\" id=\"mon_state\">MONITORING STATE: "
-  //    << dynamic_cast<gem::calib::Calibration*>(p_gemApp)->monitoringState() << "</span></h1>" << std::endl; //CG
-  //    *out << cgicc::script().set("type", "text/javascript").set("src", "/gemdaq/gemcalibration/html/scripts/checkall.js")
+//   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
+//   //*out << "<div align=\"center\">" << std::endl;
+//   //*out << "<h1><span class=\"label label-info\" id=\"mon_state\">MONITORING STATE: "
+//   //    << dynamic_cast<gem::calib::Calibration*>(p_gemApp)->monitoringState() << "</span></h1>" << std::endl; //CG
+//   //    *out << cgicc::script().set("type", "text/javascript").set("src", "/gemdaq/gemcalibration/html/scripts/checkall.js")
  
 
-}
+// }
 
-void gem::calib::CalibrationWeb::monitorPage(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-  CMSGEMOS_DEBUG("CalibrationWeb::monitorPage : Do nothing for the moment, will be eventually filled later");
-  //*out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
-  //  
-  //*out << "</div>" << std::endl;
-}
+// void gem::calib::CalibrationWeb::monitorPage(xgi::Input* in, xgi::Output* out)
+//   throw (xgi::exception::Exception)
+// {
+//   CMSGEMOS_DEBUG("CalibrationWeb::monitorPage : Do nothing for the moment, will be eventually filled later");
+//   //*out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
+//   //  
+//   //*out << "</div>" << std::endl;
+// }
 
-void gem::calib::CalibrationWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-  CMSGEMOS_DEBUG("CalibrationWeb::jsonUpdate");
-/*
-  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  *out << " { "<< std::endl;
-  for (unsigned int i = 0; i < NAMC; ++i){
-    auto gemcal = dynamic_cast<gem::calib::Calibration*>(p_gemApp)->v_gemcal.at(i);
-    if (gemcal) {
-      *out << "\"amc"<<i+1<< "\" : "  << std::endl;
-      gemcal->jsonContentUpdate(out);
-      if (i!=NAMC-1) *out << ","<< std::endl; // Add comma if not the last entry
-    }
-  }
-  *out << " } "<< std::endl;
+// void gem::calib::CalibrationWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
+//   throw (xgi::exception::Exception)
+// {
+//   CMSGEMOS_DEBUG("CalibrationWeb::jsonUpdate");
+// /*
+//   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+//   *out << " { "<< std::endl;
+//   for (unsigned int i = 0; i < NAMC; ++i){
+//     auto gemcal = dynamic_cast<gem::calib::Calibration*>(p_gemApp)->v_gemcal.at(i);
+//     if (gemcal) {
+//       *out << "\"amc"<<i+1<< "\" : "  << std::endl;
+//       gemcal->jsonContentUpdate(out);
+//       if (i!=NAMC-1) *out << ","<< std::endl; // Add comma if not the last entry
+//     }
+//   }
+//   *out << " } "<< std::endl;
 
-*/
-}
+// */
+// }

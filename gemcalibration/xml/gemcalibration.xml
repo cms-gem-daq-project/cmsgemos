@@ -5,7 +5,11 @@
 
 
   <xc:Context url="http://gem904daq02:20500">
-    <xc:Application class="gem::calib::Calibration" id="30" instance="0" network="local">
+     <xc:Application class="gem::calib::Calibration" id="30" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:Calibration"
+                  xsi:type="soapenc:Struct">
+        <nShelves  xsi:type="xsd:integer">2</nShelves>
+      </properties>
     </xc:Application>
 
 

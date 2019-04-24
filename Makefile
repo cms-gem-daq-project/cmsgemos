@@ -162,6 +162,8 @@ gemreadout: gemutils gembase gemhwdevices
 
 gemdaqmonitor: gembase gemhwdevices
 
+gemcalibration: gemutils gembase
+
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
 	@echo XDAQ_ROOT     $(XDAQ_ROOT)

@@ -1,7 +1,7 @@
 /** @file Calibration.h */
 
-#ifndef GEM_GEMCAL_CALIBRATION_H
-#define GEM_GEMCAL_CALIBRATION_H
+#ifndef GEM_CALIB_CALIBRATION_H
+#define GEM_CALIB_CALIBRATION_H
 
 #include <string>
 #include <vector>
@@ -10,22 +10,16 @@
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
 
-//#include "gem/daqmon/exception/Exception.h"
 #include "gem/utils/exception/Exception.h"
-//#include "gem/daqmon/DaqMonitor.h"
-
-#define NAMC 12
-#define NSHELF 2
+#include "gem/calib/GEMCalibEnums.h"
 
 
 namespace gem {
   namespace calib {
-
-    enum calType {NDEF, GBTPHASE, LATENCY, SCURVE, SBITARMDACSCAN, ARMDACSCAN, TRIMDAC, DACSCANV3, CALIBRATEARMDAC}; 
+    
     typedef enum calType calType_t;
-
-
-    enum dacScanType {CFG_CAL_DAC, CFG_BIAS_PRE_I_BIT, CFG_BIAS_PRE_I_BLCC, CFG_BIAS_PRE_I_BSF, CFG_BIAS_SH_I_BFCAS, CFG_BIAS_SH_I_BDIFF, CFG_BIAS_SD_I_BDIFF, CFG_BIAS_SD_I_BFCAS, CFG_BIAS_SD_I_BSF, CFG_BIAS_CFD_DAC_1, CFG_BIAS_CFD_DAC_2, CFG_HYST, CFG_THR_ARM_DAC, CFG_THR_ZCC_DAC, CFG_BIAS_PRE_VREF, CFG_VREF_ADC}; 
+    
+    
     typedef enum dacScanType dacScanType_t;
 
     
@@ -43,32 +37,25 @@ namespace gem {
 
         virtual void actionPerformed(xdata::Event& event);
 
-	// void startMonitoring();
-
-        //void stopMonitoring();
-
-        //std::string monitoringState(){return m_state;}
-
-        void stopAction(xgi::Input *in, xgi::Output *out)
+	void applyAction(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 
-        void resumeAction(xgi::Input *in, xgi::Output *out)
-          throw (xgi::exception::Exception);
-
-        void pauseAction(xgi::Input *in, xgi::Output *out)
-          throw (xgi::exception::Exception);
+	/**
+         * @brief Set the calibration routine to be perfomed from an initial dropdown menu and calls the appropriate selected interface
+         * @throws
+         */
 	
-        void applyAction(xgi::Input *in, xgi::Output *out)
-          throw (xgi::exception::Exception);
-        
         void setCalType(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 
-        std::vector<Calibration*> v_gemcal;
-
         calType_t m_calType;
+	
+	/**
+         *  map to link a particular calibration routine to the parameters needed for it.
+	 *  parameters can be filled with a form  or a radio selector
+         */
 
-        std::map<calType_t, std::map<std::string, uint32_t>> m_scanParams{
+	std::map<calType_t, std::map<std::string, uint32_t>> m_scanParams{ 
             {GBTPHASE  ,{{"nSamples",100},{"trigType", 0},}},
             {LATENCY,{
                 {"nSamples"  , 100},
@@ -133,27 +120,33 @@ namespace gem {
 	       }}  
         };
 
-	struct  scanParamsRadioSelector{
-	  //std::string name;
-	  
+	struct scanParamsRadioSelector{
 	  std::string label;
-	  std::vector<std::string>  radio_options;
-	  
+	  std::vector<std::string>  options;
 	};
 	
-    
-	std::map<std::string, scanParamsRadioSelector> m_scanParamsRadioSelector{
+	/**
+         *  map of the parameters for which radio selector are used with relative viable options
+         */
+	
+	std::map<std::string, scanParamsRadioSelector> m_scanParamsRadioSelector{ 
 	  {"trigType",
 	      {"TriggerType", {"TTC input","Loopback","Lemo/T3"}}},
 	      {"signalSourceType", {"Signal Source", {"Calibration Pulse","Particle"}}},
 	      {"comparatorType", {"Coparator Type", {"CDF","Arming comparator"}}},
 	      {"adcType", {"VFAT ADC reference", {"Internal","External"}}},
 	      {"perChannelType", {"DAC scan per channel", {"False","True"}}},
-	    };
-	std::set <std::string> m_scanParamsNonForm  {"trigType", "signalSourceType", "signalSourceType", "comparatorType", "adcType", "perChannelType", "dacScanType" };
-      
+		};
+	/**
+         *  set of parameters not filled with form
+         */
+	std::set <std::string> m_scanParamsNonForm  {"trigType", "signalSourceType", "signalSourceType", "comparatorType", "adcType", "perChannelType", "dacScanType" }; 
+
+	/**
+         *  map of the routine parameters and relative labels to appear in the interface
+         */
 	
-	std::map< std::string,std::string > m_scanParamsLabels{
+	std::map< std::string,std::string > m_scanParamsLabels{ 
 	  {"nSamples"  , "Number of samples"},
 	  {"l1aTime"   , "L1A period (BX)"},
 	  {"calPhase"  , "CalPulse phase"},
@@ -161,17 +154,23 @@ namespace gem {
 	  {"scanMin"   , "Scan min"},
           {"scanMax"   , "Scan max"},
           {"vfatChMin" , "VFAT Ch min"},
-          {"vfatChMax" , "VAT Ch max"},
+          {"vfatChMax" , "VFAT Ch max"},
           {"vt2"       , "CFG_THR_ARM_DAC"},
           {"trigThrottle"  , "Trigger throttle (int)"},
 	  {"pulseDelay", "Pulse delay (BX)"},
 	  {"latency"   , "Latency (BX)"},
 	  {"trimValues", "Points in dac range (odd)"}, // TODO:need to be implemented properly in the back end in order to get a given number of points {-63,0,63}
 	    };
-        std::map<std::string, uint32_t> amc_optical_links;
+	
+        std::map<std::string, uint32_t> m_amcOpticalLinks;
 
 	dacScanType_t m_dacScanType;
-	std::map<dacScanType_t,  std::map<std::string, uint32_t>> m_dacScanTypeParams{
+	
+	/**
+         *  map of selectable DAC scan for the VFAT3 parameters and relative range limits 
+         */
+	
+	std::map<dacScanType_t,  std::map<std::string, uint32_t>> m_dacScanTypeParams{ 
 	  {CFG_CAL_DAC,{{"CFG_CAL_DAC_Min"  , 0},{"CFG_CAL_DAC_Max", 255},}},
 	  {CFG_BIAS_PRE_I_BIT, {{"CFG_BIAS_PRE_I_BIT_Min",0},{"CFG_BIAS_PRE_I_BIT_Max", 255},}},
 	  {CFG_BIAS_PRE_I_BLCC,{{"CFG_BIAS_PRE_I_BLCC_Min", 0},{"CFG_BIAS_PRE_I_BLCC_Max", 63},}},
@@ -189,7 +188,12 @@ namespace gem {
 	  {CFG_BIAS_PRE_VREF,{{"CFG_BIAS_PRE_VREF_Min",0},{"CFG_BIAS_PRE_VREF_Max", 255},}},  
 	  {CFG_VREF_ADC, {{"CFG_VREF_ADC_Min",0},{"CFG_VREF_ADC_Max", 3},}}
 	    };
-	std::map<dacScanType_t,  std::string > m_dacScanTypeParams_label{
+
+	/**
+         *  map of selectable DAC scan for the VFAT3 parameters and relative range limits 
+         */
+	
+	std::map<dacScanType_t,  std::string > m_dacScanTypeParams_label{ 
 	  {CFG_CAL_DAC, "CFG_CAL_DAC"},
 	  {CFG_BIAS_PRE_I_BIT, "CFG_BIAS_PRE_I_BIT"},
 	  {CFG_BIAS_PRE_I_BLCC, "CFG_BIAS_PRE_I_BLCC"},
@@ -210,18 +214,18 @@ namespace gem {
 	
 
       protected:
-        /* virtual bool calibrationAction(toolbox::task::WorkLoop *wl); */
-        /* virtual bool calibrationSequencer(toolbox::task::WorkLoop *wl); */
-
+      
       private:
         /**
          * @param classname is the class to check to see whether it is a GEMApplication inherited application
          * @throws
          */
         bool isGEMApplication(const std::string& classname) const;
-        xdata::Integer m_shelfID;
-        log4cplus::Logger m_logger; //FIXME should be removed!
-        std::string m_state;
+    
+	xdata::Integer m_nShelves;
+
+	log4cplus::Logger m_logger;
+	
         const std::map<std::string, calType_t> m_calTypeSelector{
 	    {"GBT Phase Scan"                , GBTPHASE},
 	    {"Latency Scan"                  , LATENCY},
@@ -237,4 +241,4 @@ namespace gem {
   }  // namespace gem::calib
 }  // namespace gem
 
-#endif  // GEM_GEMCAL_CALIBRATION_H
+#endif  // GEM_CALIB_CALIBRATION_H

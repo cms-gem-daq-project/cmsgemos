@@ -28,18 +28,19 @@ typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 XDAQ_INSTANTIATOR_IMPL(gem::calib::Calibration);
 
 gem::calib::Calibration::Calibration(xdaq::ApplicationStub* stub) :
-  gem::base::GEMApplication(stub)
+  gem::base::GEMApplication(stub),
+  m_nShelves(0)
 {
     CMSGEMOS_DEBUG("gem::calib::Calibration : Creating the CalibrationWeb interface");
+    CMSGEMOS_DEBUG("gem::calib::Calibration : Retrieving configuration");
+    p_appInfoSpace->fireItemAvailable("nShelves",     &m_nShelves);
+    p_appInfoSpace->addItemRetrieveListener("nShelves", this);
+    p_appInfoSpace->addItemChangedListener("nShelves", this);
+    CMSGEMOS_DEBUG("gem::calib::Calibration : configuration retrieved");
+    CMSGEMOS_INFO("gem::calib::Calibration:init() number of shelves: " << m_nShelves.value_);
     p_gemWebInterface = new gem::calib::CalibrationWeb(this);
     m_calType = NDEF;
-    /*
-    xgi::bind(this, &Calibration::stopAction, "stopAction");
-    xgi::bind(this, &Calibration::resumeAction, "resumeAction");
-    xgi::bind(this, &Calibration::pauseAction, "pauseAction");
-    init();
-    */
-    xgi::bind(this, &Calibration::pauseAction, "pauseAction");
+  
     xgi::bind(this, &Calibration::applyAction, "applyAction");
     xgi::bind(this, &Calibration::setCalType, "setCalType");
 }
@@ -50,39 +51,27 @@ gem::calib::Calibration::~Calibration()
     // make sure to empty the v_supervisedApps  vector and free the pointers
 }
 
-
-// This is the callback used for handling xdata:Event objects
 void gem::calib::Calibration::actionPerformed(xdata::Event& event)
 {
-    if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-      CMSGEMOS_DEBUG("gem::calib::Calibration::actionPerformed() setDefaultValues" <<
-            "Default configuration values have been loaded from xml profile");
-      //init();
-    }
-    
-    // item is changed, update it
-    if (event.type() == "ItemChangedEvent" || event.type() == "urn:xdata-event:ItemChangedEvent") {
-      CMSGEMOS_DEBUG("gem::calib::Calibration:actionPerformed() ItemChangedEvent");
-    }
-    
-    // update monitoring variables
-     gem::base::GEMApplication::actionPerformed(event);
+  if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
+    CMSGEMOS_DEBUG("gem::calib::Calibration::actionPerformed() setDefaultValues" <<
+          "Default configuration values have been loaded from xml profile");
+    init();
+  }
+
+  // item is changed, update it
+  if (event.type() == "ItemChangedEvent" || event.type() == "urn:xdata-event:ItemChangedEvent") {
+    CMSGEMOS_DEBUG("gem::calib::Calibration::actionPerformed() ItemChangedEvent");
+  }
+  // update calibration variables
+  gem::base::GEMApplication::actionPerformed(event);
 }
 
 void gem::calib::Calibration::init()
 {
-  /*  v_daqmon.clear();
-      v_daqmon.reserve(NAMC);
-      for (int i = 1; i <= NAMC; ++i)
-      {
-      char t_board_name[20];
-      sprintf(t_board_name, "gem-shelf%02d-amc%02d", m_shelfID.value_, i);
-      CMSGEMOS_DEBUG("gem::daqmon::ShelfMonitor::init :  Domain name for the board " << std::dec << i << " : " << t_board_name);
-      v_daqmon.push_back(new gem::daqmon::DaqMonitor(t_board_name, this->getApplicationLogger(), this, i));
-      CMSGEMOS_DEBUG("gem::daqmon::ShelfMonitor::init : DaqMonitor pointer created");
-  */
+  CMSGEMOS_INFO("gem::calib::Calibration:init() number of shelves: " << m_nShelves.value_);
+ 
 }
-
 
 bool gem::calib::Calibration::isGEMApplication(const std::string& classname) const
 {
@@ -93,39 +82,6 @@ bool gem::calib::Calibration::isGEMApplication(const std::string& classname) con
       return true;  // include from list
     */
     return false;
-}
-
-void gem::calib::Calibration::stopAction(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-/*
-  CMSGEMOS_INFO("ShelfMonitor::stopAction");
-  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  //this->stopMonitoring();
-  *out << " { \"mon_state\":\"STOPPED\"}" << std::endl;
-*/
-}
-
-void gem::calib::Calibration::resumeAction(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-/*
-  CMSGEMOS_INFO("ShelfMonitor::startAction");
-  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  //this->startMonitoring();
-  *out << " { \"mon_state\":\"RUNNING\"}" << std::endl;
-*/
-}
-
-void gem::calib::Calibration::pauseAction(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
-{
-  
-  CMSGEMOS_INFO("Calibration::pauseAction");
-  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  //this->stopMonitoring();
-  *out << " { \"mon_state\":\"PAUSED\"}" << std::endl;
-  std::cout << "ciao! " << std::endl;
 }
 
 void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
@@ -139,30 +95,29 @@ void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
     }
     
     std::stringstream t_stream;
-    t_stream.clear();
-    t_stream.str(std::string());
-    for (unsigned int i = 0; i < NSHELF; ++i) {
+    //for (unsigned int i = 0; i < NSHELF; ++i) {
+    for ( int i = 0; i < m_nShelves.value_; ++i) {
         t_stream.clear();
         t_stream.str(std::string());
         t_stream << "shelf"<< std::setfill('0') << std::setw(2) << i+1;
         bool checked = false;
         checked = cgi.queryCheckbox(t_stream.str());
         if (checked) {
-            for (unsigned int j = 0; j < NAMC; ++j) { //SHELF.AMC
+            for (unsigned int j = 0; j < gem::base::GEMApplication::MAX_AMCS_PER_CRATE; ++j) { //SHELF.AMC
                 t_stream.clear();
                 t_stream.str(std::string());
                 t_stream << "shelf"<< std::setfill('0') << std::setw(2) << i+1 << ".amc" << std::setfill('0') << std::setw(2) << j+1;
                 checked = cgi.queryCheckbox(t_stream.str());
                 if (checked) {
                     std::string amc_id = t_stream.str();
-                    amc_optical_links.emplace(amc_id, 0);
+                    m_amcOpticalLinks.emplace(amc_id, 0);
                     t_stream << ".ohMask";
                     uint32_t ohMask = std::stoul(cgi[t_stream.str()]->getValue(), 0, 16);
                     if (ohMask > 0x3ff) {
                         t_errorsOccured = true;
                         CMSGEMOS_ERROR("Calibration::applyAction : OH mask for " << t_stream.str() << " is out of allowed boundaries! Ignoring it");
                     } else{
-                        amc_optical_links.find(amc_id)->second = ohMask;
+                         m_amcOpticalLinks.find(amc_id)->second = ohMask;
                     }
                 } // end if checked for amc
             } // end loop over NAMC 
@@ -172,17 +127,15 @@ void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
     
 
     //DACSCAN type
-    if (m_calType==DACSCANV3){
-      std::map<dacScanType_t, std::map<std::string, uint32_t> >::iterator it;
-      for(it=m_dacScanTypeParams.begin();it!=m_dacScanTypeParams.end();it++){
+    if (m_calType==DACSCANV3) {
+      for (auto it=m_dacScanTypeParams.begin();it!=m_dacScanTypeParams.end();it++) {
 	t_stream.clear();
 	t_stream.str(std::string());
 	t_stream << m_dacScanTypeParams_label.find(it->first)->second ;
 	bool checked = false;
 	checked = cgi.queryCheckbox(t_stream.str());
 	if (checked) {
-	  std::map<std::string, uint32_t> t_dacScan_parameters = it->second;
-	  for (auto dacScan_parameter: t_dacScan_parameters) {
+	  for (auto dacScan_parameter: it->second) {
 	    dacScan_parameter.second = cgi[dacScan_parameter.first]->getIntegerValue();
 	  }	  
 	}
@@ -198,13 +151,6 @@ void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
     }
     
 
-    
-
-     // std::map<dacScanType_t, std::map<std::string, uint32_t> >::iterator it;
-    // // std::cout<<" m_dacScanType 0 "<< m_dacScanType["CFG_CAL_DAC"].first <<std::endl;
-    //  for(it=m_dacScanTypeParams.begin();it!=m_dacScanTypeParams.end();it++){
-    //    std::cout<<" m_dacScanType 0 "<< m_dacScanTypeParams_label.find(it->first)->second <<std::endl;
-    //  }
 }
 
 void gem::calib::Calibration::setCalType(xgi::Input* in, xgi::Output* out)
@@ -220,7 +166,7 @@ void gem::calib::Calibration::setCalType(xgi::Input* in, xgi::Output* out)
             break;
         default: 
             CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: SCURVE");
-            dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->settingsInterface(m_calType, out); 
+            dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->settingsInterface(m_calType, out, m_nShelves); 
             break;
     }
 }
