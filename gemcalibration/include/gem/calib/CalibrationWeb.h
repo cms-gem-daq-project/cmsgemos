@@ -96,17 +96,8 @@ namespace gem {
         virtual void calibrationPage(  xgi::Input *in, xgi::Output *out )
           throw (xgi::exception::Exception);
 
-/*        virtual void monitorPage(xgi::Input *in, xgi::Output *out) */
-/*          throw (xgi::exception::Exception); */
-/* // */
-/*         virtual void expertPage(xgi::Input *in, xgi::Output *out) */
-/*           throw (xgi::exception::Exception); */
-//
         virtual void applicationPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
-/* // */
-/*         virtual void jsonUpdate(xgi::Input *in, xgi::Output *out) */
-/*           throw (xgi::exception::Exception); */
 
       private:
         size_t level;

@@ -347,45 +347,4 @@ void gem::calib::CalibrationWeb::settingsInterface(calType_t m_calType, xgi::Out
 }
 
 
-// void gem::calib::CalibrationWeb::expertPage(xgi::Input* in, xgi::Output* out)
-//   throw (xgi::exception::Exception)
-// {
-//   CMSGEMOS_DEBUG("CalibrationWeb::expertPage");
 
-//   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
-//   //*out << "<div align=\"center\">" << std::endl;
-//   //*out << "<h1><span class=\"label label-info\" id=\"mon_state\">MONITORING STATE: "
-//   //    << dynamic_cast<gem::calib::Calibration*>(p_gemApp)->monitoringState() << "</span></h1>" << std::endl; //CG
-//   //    *out << cgicc::script().set("type", "text/javascript").set("src", "/gemdaq/gemcalibration/html/scripts/checkall.js")
- 
-
-// }
-
-// void gem::calib::CalibrationWeb::monitorPage(xgi::Input* in, xgi::Output* out)
-//   throw (xgi::exception::Exception)
-// {
-//   CMSGEMOS_DEBUG("CalibrationWeb::monitorPage : Do nothing for the moment, will be eventually filled later");
-//   //*out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
-//   //  
-//   //*out << "</div>" << std::endl;
-// }
-
-// void gem::calib::CalibrationWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
-//   throw (xgi::exception::Exception)
-// {
-//   CMSGEMOS_DEBUG("CalibrationWeb::jsonUpdate");
-// /*
-//   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-//   *out << " { "<< std::endl;
-//   for (unsigned int i = 0; i < NAMC; ++i){
-//     auto gemcal = dynamic_cast<gem::calib::Calibration*>(p_gemApp)->v_gemcal.at(i);
-//     if (gemcal) {
-//       *out << "\"amc"<<i+1<< "\" : "  << std::endl;
-//       gemcal->jsonContentUpdate(out);
-//       if (i!=NAMC-1) *out << ","<< std::endl; // Add comma if not the last entry
-//     }
-//   }
-//   *out << " } "<< std::endl;
-
-// */
-// }
