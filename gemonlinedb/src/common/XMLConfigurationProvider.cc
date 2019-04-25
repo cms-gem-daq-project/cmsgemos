@@ -34,21 +34,17 @@ namespace gem {
             }
 
             /// @brief Loads and validates a document.
-            DOMDocumentPtr loadDOM(const std::string &filename,
-                                   const std::string &searchPath,
+            DOMDocumentPtr loadDOM(const std::string &path,
                                    const std::string &schema)
             {
                 using namespace detail::literals;
-
-                // Find the file (throws if not found)
-                auto path = detail::getFileInPath(filename, searchPath);
 
                 // Find the schema (throws if not found)
                 auto schemaPath = detail::getFileInPath(
                     schema, "xml/schema:/opt/cmsgemos/share/gemonlinedb/xml/schema");
 
                 // Make the paths absolute
-                path = boost::filesystem::canonical(path).string();
+                auto absPath = boost::filesystem::canonical(path).string();
                 schemaPath = boost::filesystem::canonical(schemaPath).string();
 
                 // Get a DOM implementation
@@ -70,7 +66,7 @@ namespace gem {
                 parser.setValidationSchemaFullChecking(true);
 
                 // Parse and validate
-                parser.parse(detail::XercesString(path));
+                parser.parse(detail::XercesString(absPath));
 
                 DOMDocumentPtr document;
                 document.reset(parser.adoptDocument());
@@ -140,52 +136,62 @@ namespace gem {
 
         void XMLConfigurationProvider::loadAMC13(const std::string &filename)
         {
-            detail::XercesGuard guard; // Make sure that Xerces is loaded
-            auto document = loadDOM(filename,
-                                    getSearchPath(),
-                                    "AMC13Configuration.xsd");
+            // Find the file (throws if not found)
+            auto path = detail::getFileInPath(filename, getSearchPath());
+            m_sources.push_back(path);
 
-            loadInternal(filename, document, m_amc13Config);
+            detail::XercesGuard guard; // Make sure that Xerces is loaded
+            auto document = loadDOM(path, "AMC13Configuration.xsd");
+
+            loadInternal(path, document, m_amc13Config);
         }
 
         void XMLConfigurationProvider::loadAMC(const std::string &filename)
         {
-            detail::XercesGuard guard; // Make sure that Xerces is loaded
-            auto document = loadDOM(filename,
-                                    getSearchPath(),
-                                    "AMCConfiguration.xsd");
+            // Find the file (throws if not found)
+            auto path = detail::getFileInPath(filename, getSearchPath());
+            m_sources.push_back(path);
 
-            loadInternal(filename, document, m_amcConfig);
+            detail::XercesGuard guard; // Make sure that Xerces is loaded
+            auto document = loadDOM(path, "AMCConfiguration.xsd");
+
+            loadInternal(path, document, m_amcConfig);
         }
 
         void XMLConfigurationProvider::loadOHv3(const std::string &filename)
         {
-            detail::XercesGuard guard; // Make sure that Xerces is loaded
-            auto document = loadDOM(filename,
-                                    getSearchPath(),
-                                    "OHv3Configuration.xsd");
+            // Find the file (throws if not found)
+            auto path = detail::getFileInPath(filename, getSearchPath());
+            m_sources.push_back(path);
 
-            loadInternal(filename, document, m_ohv3Config);
+            detail::XercesGuard guard; // Make sure that Xerces is loaded
+            auto document = loadDOM(path, "OHv3Configuration.xsd");
+
+            loadInternal(path, document, m_ohv3Config);
         }
 
         void XMLConfigurationProvider::loadVFAT3Chip(const std::string &filename)
         {
-            detail::XercesGuard guard; // Make sure that Xerces is loaded
-            auto document = loadDOM(filename,
-                                    getSearchPath(),
-                                    "VFAT3ChipConfiguration.xsd");
+            // Find the file (throws if not found)
+            auto path = detail::getFileInPath(filename, getSearchPath());
+            m_sources.push_back(path);
 
-            loadInternal(filename, document, m_vfat3ChipConfig);
+            detail::XercesGuard guard; // Make sure that Xerces is loaded
+            auto document = loadDOM(path, "VFAT3ChipConfiguration.xsd");
+
+            loadInternal(path, document, m_vfat3ChipConfig);
         }
 
         void XMLConfigurationProvider::loadVFAT3Channel(const std::string &filename)
         {
-            detail::XercesGuard guard; // Make sure that Xerces is loaded
-            auto document = loadDOM(filename,
-                                    getSearchPath(),
-                                    "VFAT3ChannelConfiguration.xsd");
+            // Find the file (throws if not found)
+            auto path = detail::getFileInPath(filename, getSearchPath());
+            m_sources.push_back(path);
 
-            loadInternal(filename, document, m_vfat3ChannelConfig);
+            detail::XercesGuard guard; // Make sure that Xerces is loaded
+            auto document = loadDOM(path, "VFAT3ChannelConfiguration.xsd");
+
+            loadInternal(path, document, m_vfat3ChannelConfig);
         }
 
         std::shared_ptr<AMC13Configuration>

@@ -22,6 +22,7 @@ namespace gem {
             std::map<std::string, std::shared_ptr<VFAT3ChannelConfiguration>> m_vfat3ChannelConfig;
 
             std::string m_searchPath = ".";
+            std::vector<std::string> m_sources;
 
         public:
             /// @brief Constructor.
@@ -118,6 +119,9 @@ namespace gem {
 
             std::shared_ptr<VFAT3ChannelConfiguration> getVFAT3ChannelConfiguration(
                 const ConfigurationTraits<VFAT3ChannelConfiguration>::PartType &reference) const override;
+
+            std::vector<std::string> getObjectSources() const override
+            { return m_sources; };
         };
 
     } // namespace onlinedb
