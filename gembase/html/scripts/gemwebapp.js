@@ -1,3 +1,6 @@
+$(document.head).append(
+    "<link rel=\"stylesheet\" href=\"/gemdaq/gembase/html/css/gemwebapp.css\"/>");
+
 $(document).ready(function() {
         gemFooterStick();
     });
