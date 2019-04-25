@@ -66,7 +66,7 @@ DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLA
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
 DependentLibraries=gembase gemutils xdaq cgicc xgi peer xdata mimetic xoap xerces-c xcept toolbox logudpappender logxmlappender log4cplus config cgicc
-DependentLibraries += boost_filesystem boost_regex boost_system boost_thread
+DependentLibraries += boost_filesystem boost_regex boost_system boost_thread jansson
 
 # DependentLibraries+=$(StandardLibraries)
 
