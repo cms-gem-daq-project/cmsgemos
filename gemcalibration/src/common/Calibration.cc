@@ -28,8 +28,8 @@ typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 XDAQ_INSTANTIATOR_IMPL(gem::calib::Calibration);
 
 gem::calib::Calibration::Calibration(xdaq::ApplicationStub* stub) :
-  gem::base::GEMApplication(stub),
-  m_nShelves(0)
+    gem::base::GEMApplication(stub),
+    m_nShelves(0)
 {
     CMSGEMOS_DEBUG("gem::calib::Calibration : Creating the CalibrationWeb interface");
     CMSGEMOS_DEBUG("gem::calib::Calibration : Retrieving configuration");
@@ -53,30 +53,30 @@ gem::calib::Calibration::~Calibration()
 
 void gem::calib::Calibration::actionPerformed(xdata::Event& event)
 {
-  if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    CMSGEMOS_DEBUG("gem::calib::Calibration::actionPerformed() setDefaultValues" <<
-          "Default configuration values have been loaded from xml profile");
-    init();
-  }
+    if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
+        CMSGEMOS_DEBUG("gem::calib::Calibration::actionPerformed() setDefaultValues" <<
+                       "Default configuration values have been loaded from xml profile");
+        init();
+    }
 
-  // item is changed, update it
-  if (event.type() == "ItemChangedEvent" || event.type() == "urn:xdata-event:ItemChangedEvent") {
-    CMSGEMOS_DEBUG("gem::calib::Calibration::actionPerformed() ItemChangedEvent");
-  }
-  // update calibration variables
-  gem::base::GEMApplication::actionPerformed(event);
+    // item is changed, update it
+    if (event.type() == "ItemChangedEvent" || event.type() == "urn:xdata-event:ItemChangedEvent") {
+        CMSGEMOS_DEBUG("gem::calib::Calibration::actionPerformed() ItemChangedEvent");
+    }
+    // update calibration variables
+    gem::base::GEMApplication::actionPerformed(event);
 }
 
 void gem::calib::Calibration::init()
 {
-  CMSGEMOS_INFO("gem::calib::Calibration:init() number of shelves: " << m_nShelves.value_);
+    CMSGEMOS_INFO("gem::calib::Calibration:init() number of shelves: " << m_nShelves.value_);
  
 }
 
 bool gem::calib::Calibration::isGEMApplication(const std::string& classname) const
 {
     if (classname.find("gem::") != std::string::npos)
-      return true;  // handle all GEM applications
+        return true;  // handle all GEM applications
     /*
       if (m_otherClassesToSupport.count(classname) != 0)
       return true;  // include from list
@@ -85,11 +85,11 @@ bool gem::calib::Calibration::isGEMApplication(const std::string& classname) con
 }
 
 void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
+    throw (xgi::exception::Exception)
 {
     bool t_errorsOccured = false;
     cgicc::Cgicc cgi(in);
-    for (auto it: m_scanParams.find(m_calType)->second){
+    for (auto it: m_scanParams.find(m_calType)->second) {
         it.second = cgi[it.first]->getIntegerValue();
         CMSGEMOS_DEBUG("Calibration::applyAction : " << it.first << " = " << it.second);
     }
@@ -117,7 +117,7 @@ void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
                         t_errorsOccured = true;
                         CMSGEMOS_ERROR("Calibration::applyAction : OH mask for " << t_stream.str() << " is out of allowed boundaries! Ignoring it");
                     } else{
-                         m_amcOpticalLinks.find(amc_id)->second = ohMask;
+                        m_amcOpticalLinks.find(amc_id)->second = ohMask;
                     }
                 } // end if checked for amc
             } // end loop over NAMC 
@@ -128,20 +128,20 @@ void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
 
     //DACSCAN type
     if (m_calType==DACSCANV3) {
-      for (auto it=m_dacScanTypeParams.begin();it!=m_dacScanTypeParams.end();it++) {
-	t_stream.clear();
-	t_stream.str(std::string());
-	t_stream << m_dacScanTypeParams_label.find(it->first)->second ;
-	bool checked = false;
-	checked = cgi.queryCheckbox(t_stream.str());
-	if (checked) {
-	  for (auto dacScan_parameter: it->second) {
-	    dacScan_parameter.second = cgi[dacScan_parameter.first]->getIntegerValue();
-	  }	  
-	}
-      }
+        for (auto it=m_dacScanTypeParams.begin();it!=m_dacScanTypeParams.end();it++) {
+            t_stream.clear();
+            t_stream.str(std::string());
+            t_stream << m_dacScanTypeParams_label.find(it->first)->second ;
+            bool checked = false;
+            checked = cgi.queryCheckbox(t_stream.str());
+            if (checked) {
+                for (auto dacScan_parameter: it->second) {
+                    dacScan_parameter.second = cgi[dacScan_parameter.first]->getIntegerValue();
+                }	  
+            }
+        }
     }
-   //TODO: should we check the range of the parameters?
+    //TODO: should we check the range of the parameters?
 
     out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
     if (t_errorsOccured) {
@@ -154,19 +154,19 @@ void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
 }
 
 void gem::calib::Calibration::setCalType(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
+    throw (xgi::exception::Exception)
 {
     CMSGEMOS_INFO("Calibration::setCalType");
     out->getHTTPResponseHeader().addHeader("Content-Type", "text/html");
     cgicc::Cgicc cgi(in);
     m_calType = m_calTypeSelector.find(cgi["cal_type_select"]->getValue())->second;
     switch (m_calType) {
-        case NDEF: 
-            CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: NDEF");
-            break;
-        default: 
-            CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: SCURVE");
-            dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->settingsInterface(m_calType, out, m_nShelves); 
-            break;
+    case NDEF: 
+        CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: NDEF");
+        break;
+    default: 
+        CMSGEMOS_DEBUG("Calibration::setCalType : Selected Cal Type: SCURVE");
+        dynamic_cast<gem::calib::CalibrationWeb*>(p_gemWebInterface)->settingsInterface(m_calType, out, m_nShelves); 
+        break;
     }
 }
