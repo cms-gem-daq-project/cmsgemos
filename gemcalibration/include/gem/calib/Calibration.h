@@ -17,12 +17,6 @@
 namespace gem {
     namespace calib {
 
-        typedef enum calType calType_t;
-
-
-        typedef enum dacScanType dacScanType_t;
-
-
         class Calibration : public gem::base::GEMApplication
         {
 
@@ -56,7 +50,7 @@ namespace gem {
              */
 
             std::map<calType_t, std::map<std::string, uint32_t>> m_scanParams{
-                {GBTPHASE  ,{{"nSamples",100},{"trigType", 0},}},
+                {GBTPHASE  ,{{"nSamples",100},{"phaseMin", 0},{"phaseMax", 14},{"stepSize", 1},}},
                 {LATENCY,{
                         {"nSamples"  , 100},
                         {"trigType"  , 0},
@@ -67,9 +61,10 @@ namespace gem {
                         {"scanMax"   , 255},
                         {"vfatChMin" , 0},
                         {"vfatChMax" , 127},
-                        {"vt2"       , 0},
-                        {"trigThrottle"  ,100},
+                        {"vt2"       , 100},
+                        {"trigThrottle"  ,0},
                         {"signalSourceType"       , 0},
+                        {"pulseDelay" , 40},
                 }},
                 {SCURVE,{
                         {"nSamples"  , 100},
@@ -80,16 +75,17 @@ namespace gem {
                         {"vfatChMin" , 0},
                         {"vfatChMax" , 127},
                         {"calPhase"  , 0},
+                        {"mspl"      , 4},
                  }},
                  {SBITARMDACSCAN  ,{
-                        {"nSamples", 100},
                         {"comparatorType",0},
                         {"perChannelType",0},
                         {"vfatChMin" , 0},
                         {"vfatChMax" , 127},
+                        {"stepSize", 1},
                   }},
                   {ARMDACSCAN  ,{
-                        {"nSamples"  , 100},
+                        {"nSamples"  , 1000},
                         {"trigType"  , 0},
                         {"vfatChMin" , 0},
                         {"vfatChMax" , 127},
@@ -104,9 +100,9 @@ namespace gem {
                         {"mspl"       , 4},
                         {"trimValues" , 3},// TODO: need to be implemented properly in the back end in order to get a given number of points {-63,0,63}
                         // TODO: need to implement interaction with DB to get proper configurations per ARM DAC
+                        {"calPhase"  , 0},   
                     }},
                     {DACSCANV3  ,{
-                        {"nSamples",100},
                         {"adcType",0},
                     }},
                     {CALIBRATEARMDAC,{
@@ -159,57 +155,45 @@ namespace gem {
                 {"pulseDelay", "Pulse delay (BX)"},
                 {"latency"   , "Latency (BX)"},
                 {"trimValues", "Points in dac range (odd)"}, // TODO:need to be implemented properly in the back end in order to get a given number of points {-63,0,63}
+                {"phaseMin"  , "Phase min (int)"  },  
+                {"phaseMax"  , "Phase max (int)"  },
+                {"stepSize", "Step size (int)"}
             };
 
             std::map<std::string, uint32_t> m_amcOpticalLinks;
 
             dacScanType_t m_dacScanType;
 
-            /**
-             *  map of selectable DAC scan for the VFAT3 parameters and relative range limits
+            struct dacScanTypeFeature{
+                std::string label;
+                std::map<std::string, uint32_t> range;
+            };
+            
+             /**
+             *  map of selectable DAC scan for the VFAT3 parameters and relative labels and range limits
              */
 
-            std::map<dacScanType_t,  std::map<std::string, uint32_t>> m_dacScanTypeParams{
-                {CFG_CAL_DAC,{{"CFG_CAL_DAC_Min"  , 0},{"CFG_CAL_DAC_Max", 255},}},
-                {CFG_BIAS_PRE_I_BIT, {{"CFG_BIAS_PRE_I_BIT_Min",0},{"CFG_BIAS_PRE_I_BIT_Max", 255},}},
-                {CFG_BIAS_PRE_I_BLCC,{{"CFG_BIAS_PRE_I_BLCC_Min", 0},{"CFG_BIAS_PRE_I_BLCC_Max", 63},}},
-                {CFG_BIAS_PRE_I_BSF,{{"CFG_BIAS_PRE_I_BSF_Min",0}, {"CFG_BIAS_PRE_I_BSF_Max", 63},}},
-                {CFG_BIAS_SH_I_BFCAS,{{"CFG_BIAS_SH_I_BFCAS_Min",0},{"CFG_BIAS_SH_I_BFCAS_Max", 255},}},
-                {CFG_BIAS_SH_I_BDIFF,{{"CFG_BIAS_SH_I_BDIFF_Min", 0},{"CFG_BIAS_SH_I_BDIFF_Max", 255},}},
-                {CFG_BIAS_SD_I_BDIFF,{{"CFG_BIAS_SD_I_BDIFF_Min",0},{"CFG_BIAS_SD_I_BDIFF_Max",255},}},
-                {CFG_BIAS_SD_I_BFCAS,{{"CFG_BIAS_SD_I_BFCAS_Min",0},{"CFG_BIAS_SD_I_BFCAS_Max", 255}, }},
-                {CFG_BIAS_SD_I_BSF,{{"CFG_BIAS_SD_I_BSF_Min",0}, {"CFG_BIAS_SD_I_BSF_Max", 63},}},
-                {CFG_BIAS_CFD_DAC_1,{{"CFG_BIAS_CFD_DAC_1_Min",0},{"CFG_BIAS_CFD_DAC_1_Max", 63},}},
-                {CFG_BIAS_CFD_DAC_2,{{"CFG_BIAS_CFD_DAC_2_Min", 0},{"CFG_BIAS_CFD_DAC_2_Max", 63},}},
-                {CFG_HYST,{{"CFG_HYST_Min",0},{"CFG_HYST_Max", 63},}},
-                {CFG_THR_ARM_DAC,{{"CFG_THR_ARM_DAC_Min",0},{"CFG_THR_ARM_DAC_Max", 255},}},
-                {CFG_THR_ZCC_DAC,{{"CFG_THR_ZCC_DAC_Min",0}, {"CFG_THR_ZCC_DAC_Max", 255},}},
-                {CFG_BIAS_PRE_VREF,{{"CFG_BIAS_PRE_VREF_Min",0},{"CFG_BIAS_PRE_VREF_Max", 255},}},
-                {CFG_VREF_ADC, {{"CFG_VREF_ADC_Min",0},{"CFG_VREF_ADC_Max", 3},}}
+            
+            std::map<dacScanType_t, dacScanTypeFeature> m_dacScanTypeParams{
+                {CFG_CAL_DAC,{"CFG_CAL_DAC", {{"CFG_CAL_DAC_Min"  , 0},{"CFG_CAL_DAC_Max", 255},}}},
+                {CFG_BIAS_PRE_I_BIT, {"CFG_BIAS_PRE_I_BIT",{{"CFG_BIAS_PRE_I_BIT_Min",0},{"CFG_BIAS_PRE_I_BIT_Max", 255},}}}, 
+                {CFG_BIAS_PRE_I_BLCC,{"CFG_BIAS_PRE_I_BLCC",{{"CFG_BIAS_PRE_I_BLCC_Min", 0},{"CFG_BIAS_PRE_I_BLCC_Max", 63},}}},
+                {CFG_BIAS_PRE_I_BSF,{"CFG_BIAS_PRE_I_BSF",{{"CFG_BIAS_PRE_I_BSF_Min",0}, {"CFG_BIAS_PRE_I_BSF_Max", 63},}}},
+                {CFG_BIAS_SH_I_BFCAS,{"CFG_BIAS_SH_I_BFCAS",{{"CFG_BIAS_SH_I_BFCAS_Min",0},{"CFG_BIAS_SH_I_BFCAS_Max", 255},}}},
+                {CFG_BIAS_SH_I_BDIFF,{"CFG_BIAS_SH_I_BDIFF",{{"CFG_BIAS_SH_I_BDIFF_Min", 0},{"CFG_BIAS_SH_I_BDIFF_Max", 255},}}},
+                {CFG_BIAS_SD_I_BDIFF,{"CFG_BIAS_SD_I_BDIFF",{{"CFG_BIAS_SD_I_BDIFF_Min",0},{"CFG_BIAS_SD_I_BDIFF_Max",255},}}},
+                {CFG_BIAS_SD_I_BFCAS,{"CFG_BIAS_SD_I_BFCAS",{{"CFG_BIAS_SD_I_BFCAS_Min",0},{"CFG_BIAS_SD_I_BFCAS_Max", 255},}}},
+                {CFG_BIAS_SD_I_BSF,{"CFG_BIAS_SD_I_BSF",{{"CFG_BIAS_SD_I_BSF_Min",0}, {"CFG_BIAS_SD_I_BSF_Max", 63},}}},
+                {CFG_BIAS_CFD_DAC_1,{"CFG_BIAS_CFD_DAC",{{"CFG_BIAS_CFD_DAC_1_Min",0},{"CFG_BIAS_CFD_DAC_1_Max", 63},}}},
+                {CFG_BIAS_CFD_DAC_2,{"CFG_BIAS_CFD_DAC",{{"CFG_BIAS_CFD_DAC_2_Min", 0},{"CFG_BIAS_CFD_DAC_2_Max", 63},}}},
+                {CFG_HYST,{"CFG_HYST",{{"CFG_HYST_Min",0},{"CFG_HYST_Max", 63},}}},
+                {CFG_THR_ARM_DAC,{"CFG_THR_ARM_DAC",{{"CFG_THR_ARM_DAC_Min",0},{"CFG_THR_ARM_DAC_Max", 255},}}},
+                {CFG_THR_ZCC_DAC,{"CFG_THR_ZCC_DAC",{{"CFG_THR_ZCC_DAC_Min",0}, {"CFG_THR_ZCC_DAC_Max", 255},}}},
+                {CFG_BIAS_PRE_VREF,{"CFG_BIAS_PRE_VREF",{{"CFG_BIAS_PRE_VREF_Min",0},{"CFG_BIAS_PRE_VREF_Max", 255},}}},
+                {CFG_VREF_ADC,{"CFG_VREF_ADC", {{"CFG_VREF_ADC_Min",0},{"CFG_VREF_ADC_Max", 3},}}}
             };
 
-            /**
-             *  map of selectable DAC scan for the VFAT3 parameters and relative range limits
-             */
-
-            std::map<dacScanType_t,  std::string > m_dacScanTypeParams_label{
-                {CFG_CAL_DAC, "CFG_CAL_DAC"},
-                {CFG_BIAS_PRE_I_BIT, "CFG_BIAS_PRE_I_BIT"},
-                {CFG_BIAS_PRE_I_BLCC, "CFG_BIAS_PRE_I_BLCC"},
-                {CFG_BIAS_PRE_I_BSF, "CFG_BIAS_PRE_I_BSF"},
-                {CFG_BIAS_SH_I_BFCAS,"CFG_BIAS_SH_I_BFCAS"},
-                {CFG_BIAS_SH_I_BDIFF, "CFG_BIAS_SH_I_BDIFF"},
-                {CFG_BIAS_SD_I_BDIFF, "CFG_BIAS_SD_I_BDIFF"},
-                {CFG_BIAS_SD_I_BFCAS, "CFG_BIAS_SD_I_BFCAS"},
-                {CFG_BIAS_SD_I_BSF, "CFG_BIAS_SD_I_BSF"},
-                {CFG_BIAS_CFD_DAC_1,"CFG_BIAS_CFD_DAC_1"},
-                {CFG_BIAS_CFD_DAC_2,"CFG_BIAS_CFD_DAC_2"},
-                {CFG_HYST,"CFG_HYST"},
-                {CFG_THR_ARM_DAC,"CFG_THR_ARM_DAC"},
-                {CFG_THR_ZCC_DAC, "CFG_THR_ZCC_DAC"},
-                {CFG_BIAS_PRE_VREF,"CFG_BIAS_PRE_VREF"},
-                {CFG_VREF_ADC, "CFG_VREF_ADC"},
-            };
+  
 
 
         protected:

@@ -97,7 +97,7 @@ void gem::calib::CalibrationWeb::genericRadioSelector( std::string paramName, ge
     *out << "<div class=\"col-md-6\">"<< std::endl;
     *out << "    <div class=\"form-check\">" << std::endl;
 
-    for (unsigned int i=0; i< radio_param.options.size();i++) {
+    for (unsigned int i=0; i< radio_param.options.size();++i) {
         if (i==0) {
             *out<<"<div class=\"form-check-input radio-inline\"> <label><input type=\"radio\" name=\""<<paramName<<"\" id=\""<<paramName<<"_radio_"<<i<<"\" value="<<i<<" checked>"<<radio_param.options[i]<<"</label></div>"<< std::endl;
         } else {
@@ -218,10 +218,43 @@ void gem::calib::CalibrationWeb::dacScanV3Selector(xgi::Output* out)
     *out << "                <button id=\"dacScan_dropdown_button\" class=\"btn btn-lg btn-outline dropdown-toggle\" data-toggle=\"dropdown\">Settings</button>" << std::endl;
     *out << "                <div class=\"dropdown-menu pre-scrollable\">" << std::endl;
 
-    for(auto it=dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_dacScanTypeParams.begin();it!=dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_dacScanTypeParams.end();it++){
+    //for(auto it=dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_dacScanTypeParams.begin();it!=dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_dacScanTypeParams.end();it++){
+    // for (auto & it : dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_dacScanTypeParams) {
+    //     t_stream.clear();
+    //     t_stream.str(std::string());
+    //     t_stream << dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_dacScanTypeParams_label.find(it.first)->second ;
+
+    //     *out << "                    <div class=\"row\">" << std::endl;
+    //     *out << "                        <div class=\"col-md-4\">"   << std::endl;
+    //     *out << "                            <div class=\"checkbox\">" << std::endl;
+    //     *out << "                                <label> <input type=\"checkbox\" class=\"check\" name=\""<<  t_stream.str() << "\" id=\"" << t_stream.str() << "\">" << t_stream.str() << "</label>"<< std::endl;
+    //     *out << "                            </div>" << std::endl;
+    //     *out << "                        </div>"<< std::endl;//end column
+
+    //     for (auto dacScan_parameter: it.second) {
+    //         *out << "                        <div class=\"col-md-4\">" <<std::endl;
+    //         this->genericParamSelector_dacScan(  dacScan_parameter.first, dacScan_parameter.second, out);
+    //         *out << "                        </div>"<< std::endl;//end column
+    //     }
+    //     *out << "                    </div>" << std::endl; // end <div class="row">
+    // } // end loop over DAC scan type
+    // *out << "                </div>" << std::endl; // end drop-down scrollable
+    // *out << "            </div>" << std::endl; // end drop-down
+    // *out << "        </div>" << std::endl; // end container
+    // *out << "    </form>"<< std::endl;
+    // *out << "    <div align=\"center\">"<< std::endl;
+    // *out << "        <button class=\"btn btn-lg btn-info\" onclick=\"default_dacscans()\">SELECT DEFAULT</button>" << std::endl;
+    // *out << "        <button class=\"btn btn-lg btn-info\" onclick=\"select_dacscans()\">SELECT ALL</button>" << std::endl;
+    // *out << "        <button class=\"btn btn-lg btn-warning\" onclick=\"deselect_dacscans()\">DESELECT ALL</button>" << std::endl;
+    // *out << "    </div>"<< std::endl;
+    // *out << "</div>" << std::endl; // end panel
+
+    
+    // for(auto it=dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_dacScanTypeParams.begin();it!=dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_dacScanTypeParams.end();it++){
+    for (auto & it : dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_dacScanTypeParams) {
         t_stream.clear();
         t_stream.str(std::string());
-        t_stream << dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_dacScanTypeParams_label.find(it->first)->second ;
+        t_stream << it.second.label ;
 
         *out << "                    <div class=\"row\">" << std::endl;
         *out << "                        <div class=\"col-md-4\">"   << std::endl;
@@ -230,7 +263,7 @@ void gem::calib::CalibrationWeb::dacScanV3Selector(xgi::Output* out)
         *out << "                            </div>" << std::endl;
         *out << "                        </div>"<< std::endl;//end column
 
-        for (auto dacScan_parameter: it->second) {
+        for (auto dacScan_parameter: it.second.range) {
             *out << "                        <div class=\"col-md-4\">" <<std::endl;
             this->genericParamSelector_dacScan(  dacScan_parameter.first, dacScan_parameter.second, out);
             *out << "                        </div>"<< std::endl;//end column
@@ -242,11 +275,11 @@ void gem::calib::CalibrationWeb::dacScanV3Selector(xgi::Output* out)
     *out << "        </div>" << std::endl; // end container
     *out << "    </form>"<< std::endl;
     *out << "    <div align=\"center\">"<< std::endl;
+    *out << "        <button class=\"btn btn-lg btn-info\" onclick=\"default_dacscans()\">SELECT DEFAULT</button>" << std::endl;
     *out << "        <button class=\"btn btn-lg btn-info\" onclick=\"select_dacscans()\">SELECT ALL</button>" << std::endl;
     *out << "        <button class=\"btn btn-lg btn-warning\" onclick=\"deselect_dacscans()\">DESELECT ALL</button>" << std::endl;
     *out << "    </div>"<< std::endl;
     *out << "</div>" << std::endl; // end panel
-
 }
 
 

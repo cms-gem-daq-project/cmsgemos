@@ -42,7 +42,7 @@ function select_links()
     var checkboxes = $('form#slot_and_masks_select').find(':checkbox');
     checkboxes.prop('checked', true);
     var masks = $('form#slot_and_masks_select').find(':input[type=text]');
-    masks.attr('value','0x3FF');
+    masks.attr('value','0xFFC');
 };
 
 function deselect_links()
@@ -67,6 +67,18 @@ function deselect_dacscans()
     checkboxes.prop('checked', false);  
 };
 
+function default_dacscans()
+{
+    //$.event.preventDefault();
+    var checkboxes = $('form#dacScanV3_select').find(':checkbox');
+    checkboxes.prop('checked', true);
+    document.getElementById("CFG_CAL_DAC").checked=false;
+    document.getElementById("CFG_VREF_ADC").checked=false;
+    if (window.jQuery) {
+        alert("Selecting all except CFG_CAL_DAC and CFG_VREF_ADC.");
+    }
+   
+};
 
 function run_scan()
 {

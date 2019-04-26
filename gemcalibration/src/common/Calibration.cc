@@ -113,7 +113,7 @@ void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
                     m_amcOpticalLinks.emplace(amc_id, 0);
                     t_stream << ".ohMask";
                     uint32_t ohMask = std::stoul(cgi[t_stream.str()]->getValue(), 0, 16);
-                    if (ohMask > 0x3ff) {
+                    if (ohMask > 0xffc) {
                         t_errorsOccured = true;
                         CMSGEMOS_ERROR("Calibration::applyAction : OH mask for " << t_stream.str() << " is out of allowed boundaries! Ignoring it");
                     } else{
@@ -128,14 +128,14 @@ void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
 
     //DACSCAN type
     if (m_calType==DACSCANV3) {
-        for (auto it=m_dacScanTypeParams.begin();it!=m_dacScanTypeParams.end();it++) {
+        for (auto & it : m_dacScanTypeParams) {
             t_stream.clear();
             t_stream.str(std::string());
-            t_stream << m_dacScanTypeParams_label.find(it->first)->second ;
+            t_stream << it.second.label;
             bool checked = false;
             checked = cgi.queryCheckbox(t_stream.str());
             if (checked) {
-                for (auto dacScan_parameter: it->second) {
+                for (auto dacScan_parameter: it.second.range) {
                     dacScan_parameter.second = cgi[dacScan_parameter.first]->getIntegerValue();
                 }	  
             }
