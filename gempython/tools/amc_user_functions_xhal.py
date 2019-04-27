@@ -1,4 +1,5 @@
 from ctypes import *
+from gempython.tools.hw_constants import maxVfat3DACSize
 from gempython.utils.gemlogger import colors, printRed, printYellow
 from gempython.utils.wrappers import runCommand, runCommandWithOutput
 
@@ -13,34 +14,6 @@ import logging, os
 
 gMAX_RETRIES = 5
 gRetries = 5
-
-maxVfat3DACSize = {
-        #ADC Measures Current
-        #0:(0x3f, "CFG_IREF"), # This should never be scanned per VFAT3 Team's Instructions
-        1:(0xff,"CFG_CAL_DAC"), # as current
-        2:(0xff,"CFG_BIAS_PRE_I_BIT"),
-        3:(0x3f,"CFG_BIAS_PRE_I_BLCC"),
-        4:(0x3f,"CFG_BIAS_PRE_I_BSF"),
-        5:(0xff,"CFG_BIAS_SH_I_BFCAS"),
-        6:(0xff,"CFG_BIAS_SH_I_BDIFF"),
-        7:(0xff,"CFG_BIAS_SD_I_BDIFF"),
-        8:(0xff,"CFG_BIAS_SD_I_BFCAS"),
-        9:(0x3f,"CFG_BIAS_SD_I_BSF"),
-        10:(0x3f,"CFG_BIAS_CFD_DAC_1"),
-        11:(0x3f,"CFG_BIAS_CFD_DAC_2"),
-        12:(0x3f,"CFG_HYST"),
-        14:(0xff,"CFG_THR_ARM_DAC"),
-        15:(0xff,"CFG_THR_ZCC_DAC"),
-        #16:(0xff,""),Don't know reg in CTP7 address space
-
-        #ADC Measures Voltage
-        #33:(0xff,"CFG_CAL_DAC"), # as voltage; removing, harder to convert to charge
-        34:(0xff,"CFG_BIAS_PRE_VREF"),
-        35:(0xff,"CFG_THR_ARM_DAC"),
-        36:(0xff,"CFG_THR_ZCC_DAC"),
-        39:(0x3,"CFG_VREF_ADC")
-        #41:(0x3f,""))Don't know reg in CTP7 address space
-        }
 
 gbtValueArray = c_uint32 * 3
 class OHLinkMonitorParams(Structure):
@@ -270,11 +243,7 @@ class HwAMC(object):
         
         # Automatically determine ohMask if not provided
         if ohMask is None:
-            ohMask = self.getOHMask()
-
-        # Are any optohybrids available?
-        if (not (bin(ohMask).count("1") > 0) ):
-            raise NoUnmaskedOHException("{0}HwAMC::configureVFAT3DacMonitorMulti(): there are no unmasked optohybrids{1}".format(colors.RED,colors.ENDC),os.EX_SOFTWARE)
+            ohMask = self.getOHMask(callingMthd="configureVFAT3DacMonitorMulti")
 
         ohVFATMaskArray = self.getMultiLinkVFATMask(ohMask)
         return self.confDacMonitorMulti(ohMask, ohVFATMaskArray, dacSelect)
@@ -305,11 +274,7 @@ class HwAMC(object):
         
         # Automatically determine ohMask if not provided
         if ohMask is None:
-            ohMask = self.getOHMask()
-
-        # Are any optohybrids available?
-        if (not (bin(ohMask).count("1") > 0) ):
-            raise NoUnmaskedOHException("{0}HwAMC::getGBTLinkStatus(): there are no unmasked optohybrids{1}".format(colors.RED,colors.ENDC),os.EX_SOFTWARE)
+            ohMask = self.getOHMask(callingMthd="getGBTLinkStatus")
 
         gbtMonData = OHLinkMonitorArrayType()
         self.getmonGBTLink(gbtMonData, self.nOHs, ohMask, doReset)
@@ -398,11 +363,7 @@ class HwAMC(object):
 
         # Automatically determine ohMask if not provided
         if ohMask is None:
-            ohMask = self.getOHMask()
-
-        # Are any optohybrids available?
-        if (not (bin(ohMask).count("1") > 0) ):
-            raise NoUnmaskedOHException("{0}HwAMC::getMultiLinkVFATMask(): there are no unmasked optohybrids{1}".format(colors.RED,colors.ENDC),os.EX_SOFTWARE)
+            ohMask = self.getOHMask(callingMthd="getMultiLinkVFATMask")
 
         vfatMaskArray = (c_uint32 * self.nOHs)()
         rpcResp = self.getOHVFATMaskMultiLink(ohMask, vfatMaskArray)
@@ -417,13 +378,21 @@ class HwAMC(object):
         printYellow("HwAMC::getOHLinkStatus() not yet implemented")
         return
 
-    def getOHMask(self):
+    def getOHMask(self,callingMthd="getOHMask",raiseIfNoOHs=True):
         """
         Gets the OH Mask to use with this AMC
+
+        callingMthd  - Name of calling method, will display in error message if NoUnmaskedOHException is raised
+        raiseIfNoOHs - If True (False) will (not) raise NoUnmaskedOHException if ohMask is determined to be 0x0
         """
         scaReady = self.readRegister("GEM_AMC.SLOW_CONTROL.SCA.STATUS.READY")
         scaError = self.readRegister("GEM_AMC.SLOW_CONTROL.SCA.STATUS.CRITICAL_ERROR")
-        return (scaReady & (~scaError & 0xfff))
+
+        ohMask = (scaReady & (~scaError & 0xfff))
+        if ( (not (bin(ohMask).count("1") > 0)) and raiseIfNoOHs):
+            raise NoUnmaskedOHException("{0}HwAMC::{1}: there are no unmasked optohybrids{2}".format(colors.RED,callingMthd,colors.ENDC),os.EX_SOFTWARE)
+
+        return ohMask
 
     def getShelf(self):
         return self.shelf
@@ -471,11 +440,7 @@ class HwAMC(object):
         
         # Automatically determine ohMask if not provided
         if ohMask is None:
-            ohMask = self.getOHMask()
-
-        # Are any optohybrids available?
-        if (not (bin(ohMask).count("1") > 0) ):
-            raise NoUnmaskedOHException("{0}HwAMC::getTriggerLinkStatus(): there are no unmasked optohybrids{1}".format(colors.RED,colors.ENDC),os.EX_SOFTWARE)
+            ohMask = self.getOHMask(callingMthd="getTriggerLinkStatus")
 
         ohMask2Query=ohMask
         # Are we checking CSC Trigger links?
@@ -568,11 +533,7 @@ class HwAMC(object):
         
         # Automatically determine ohMask if not provided
         if ohMask is None:
-            ohMask = self.getOHMask()
-
-        # Are any optohybrids available?
-        if (not (bin(ohMask).count("1") > 0) ):
-            raise NoUnmaskedOHException("{0}HwAMC::getVFATLinkStatus(): there are no unmasked optohybrids{1}".format(colors.RED,colors.ENDC),os.EX_SOFTWARE)
+            ohMask = self.getOHMask(callingMthd="getVFATLinkStatus")
 
         vfatMonData = VFATLinkMonitorArrayType()
         self.getmonVFATLink(vfatMonData, self.nOHs, ohMask, doReset)
@@ -625,12 +586,7 @@ class HwAMC(object):
         
         # Automatically determine ohMask if not provided
         if ohMask is None:
-            ohMask = self.getOHMask()
-
-        # Are any optohybrids available?
-        nUnmaskedOHs = bin(ohMask).count("1")
-        if (not (nUnmaskedOHs > 0) ):
-            raise NoUnmaskedOHException("{0}HwAMC::performDacScanMultiLink(): there are no unmasked optohybrids{1}".format(colors.RED,colors.ENDC),os.EX_SOFTWARE)
+            ohMask = self.getOHMask(callingMthd="performDacScanMultiLink")
 
         # Check we are v3 electronics
         if self.fwVersion < 3:
@@ -644,6 +600,7 @@ class HwAMC(object):
             exit(os.EX_USAGE)
 
         # Check number of nonzero bits doesn't exceed NOH's
+        nUnmaskedOHs = bin(ohMask).count("1")
         if nUnmaskedOHs > self.nOHs:
             printRed("HwAMC::performDacScanMultiLink(): Number of unmasked OH's {0} exceeds max number of OH's {1}".format(nUnmaskedOHs,self.nOHs))
             exit(os.EX_USAGE)
@@ -683,12 +640,7 @@ class HwAMC(object):
         
         # Automatically determine ohMask if not provided
         if ohMask is None:
-            ohMask = self.getOHMask()
-
-        # Are any optohybrids available?
-        nUnmaskedOHs = bin(ohMask).count("1")
-        if (not (nUnmaskedOHs > 0) ):
-            raise NoUnmaskedOHException("{0}HwAMC::performSBITRateScanMultiLink(): there are no unmasked optohybrids{1}".format(colors.RED,colors.ENDC),os.EX_SOFTWARE)
+            ohMask = self.getOHMask(callingMthd="performSBITRateScanMultiLink")
 
         # Check we are v3 electronics
         if self.fwVersion < 3:
@@ -696,6 +648,7 @@ class HwAMC(object):
             exit(os.EX_USAGE)
 
         # Check number of nonzero bits doesn't exceed NOH's
+        nUnmaskedOHs = bin(ohMask).count("1")
         if nUnmaskedOHs > self.nOHs:
             printRed("HwAMC::performSBITRateScanMultiLink(): Number of unmasked OH's {0} exceeds max number of OH's {1}".format(nUnmaskedOHs,self.nOHs))
             exit(os.EX_USAGE)
@@ -761,11 +714,7 @@ class HwAMC(object):
 
         # Automatically determine ohMask if not provided
         if ohMask is None:
-            ohMask = self.getOHMask()
-
-        # Are any optohybrids available?
-        if (not (bin(ohMask).count("1") > 0) ):
-            raise NoUnmaskedOHException("{0}HwAMC::programAllOptohybridFPGAs(): there are no unmasked optohybrids{1}".format(colors.RED,colors.ENDC),os.EX_SOFTWARE)
+            ohMask = self.getOHMask(callingMthd="programAllOptohybridFPGAs")
 
         # Program FPGA's
         self.writeRegister("GEM_AMC.TTC.GENERATOR.ENABLE",0x1)
@@ -813,11 +762,7 @@ class HwAMC(object):
 
         # Automatically determine ohMask if not provided
         if ohMask is None:
-            ohMask = self.getOHMask()
-
-        # Are any optohybrids available?
-        if (not (bin(ohMask).count("1") > 0) ):
-            raise NoUnmaskedOHException("{0}HwAMC::readADCsMultiLink(): there are no unmasked optohybrids{1}".format(colors.RED,colors.ENDC),os.EX_SOFTWARE)
+            ohMask = self.getOHMask(callingMthd="readADCsMultiLink")
 
         if debug:
             print("getting vfatmasks for each OH")
@@ -918,11 +863,7 @@ class HwAMC(object):
         
         # Automatically determine ohMask if not provided
         if ohMask is None:
-            ohMask = self.getOHMask()
-
-        # Are any optohybrids available?
-        if (not (bin(ohMask).count("1") > 0) ):
-            raise NoUnmaskedOHException("{0}HwAMC::scaMonitorMultiLink(): there are no unmasked optohybrids{1}".format(colors.RED,colors.ENDC),os.EX_SOFTWARE)
+            ohMask = self.getOHMask(callingMthd="scaMonitorMultiLink")
 
         scaMonData = SCAMonitorArrayType()
         rpcResp = self.getmonOHSCAmain(scaMonData, self.nOHs, ohMask)
@@ -954,11 +895,7 @@ class HwAMC(object):
 
         # Automatically determine ohMask if not provided
         if ohMask is None:
-            ohMask = self.getOHMask()
-
-        # Are any optohybrids available?
-        if (not (bin(ohMask).count("1") > 0) ):
-            raise NoUnmaskedOHException("{0}HwAMC::sysmonMonitorMultiLink(): there are no unmasked optohybrids{1}".format(colors.RED,colors.ENDC),os.EX_SOFTWARE)
+            ohMask = self.getOHMask(callingMthd="sysmonMonitorMultiLink")
 
         sysmonData = SysmonMonitorArrayType()
         rpcResp = self.getmonOHSysmon(sysmonData, NOH, ohMask, doReset)
