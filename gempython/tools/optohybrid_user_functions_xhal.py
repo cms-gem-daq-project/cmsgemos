@@ -547,7 +547,7 @@ class HwOptoHybrid(object):
         """
         # Check if input type is understood
         if gemType not in gemVariants.keys():
-            raise OHTypeException("gemType {0} not in the list of known gemVariants: {1}".format(gemType,gemVariants),os.EX_USAGE)
+            raise OHTypeException("gemType {0} not in the list of known gemVariants: {1}".format(gemType,gemVariants.keys()),os.EX_USAGE)
 
         if detType not in gemVariants[gemType]:
             raise OHTypeException("detType {0} not in the list of known detector types for gemType {1}; list of known detector types: {2}".format(detType, gemType, gemVariants[gemType]), os.EX_USAGE)
