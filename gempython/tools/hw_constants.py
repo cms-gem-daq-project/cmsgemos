@@ -1,7 +1,7 @@
 # Known detector types
 gemVariants = {
             "ge11":["short","long"],
-            "ge21":["M{0}".format(ge21Type) for ge21Type in range(1,9) ],
+            "ge21":["m{0}".format(ge21Type) for ge21Type in range(1,9) ],
             "me0":"null"}
 
 vfatsPerGemVariant = {
@@ -39,6 +39,8 @@ maxVfat3DACSize = {
         }
 
 # VFAT3 Phase Settings
+GBT_PHASE_RANGE = 16
+
 # Best Guess of what default good phase "should be"
 from gempython.utils.nesteddict import nesteddict as ndict
 vfat3GBTPhaseLookupTable = ndict() #keys follow from gemVariants, values are a list with length = N_VFATs; each element is a phase value for that VFAT
