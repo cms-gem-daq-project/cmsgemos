@@ -729,7 +729,7 @@ class HwAMC(object):
                 # Skip masked OH's
                 if( not ((ohMask >> ohN) & 0x1)):
                     continue
-                fwVerMaj = self.readRegister("GEM_AMC.OH.OH{0}.FPGA.CONTROL.RELEASE.VERSION.MAJOR".format(ohN))
+                fwVerMaj = int(self.readRegister("GEM_AMC.OH.OH{0}.FPGA.CONTROL.RELEASE.VERSION.MAJOR".format(ohN)))
                 if fwVerMaj != 0xdeaddead:
                     isDead = False
                 else:
@@ -743,6 +743,8 @@ class HwAMC(object):
                 fpgaCommPassed = True
                 break
             else:
+                #FIXME note when @evka85 removes adc monitoring block from GEM_AMC FW this line will need to be removed
+                self.writeRegister("GEM_AMC.SLOW_CONTROL.SCA.ADC_MONITORING.MONITORING_OFF",0x0)
                 sca_reset(ohMaskNeedSCAReset)
             pass
         self.writeRegister("GEM_AMC.TTC.GENERATOR.ENABLE",0x0)
