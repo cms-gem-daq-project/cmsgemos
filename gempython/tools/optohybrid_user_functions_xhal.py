@@ -1,4 +1,5 @@
 from gempython.tools.amc_user_functions_xhal import *
+from gempython.tools.hw_constants import gemVariants, maxVfat3DACSize, vfatsPerGemVariant, vfat3GBTPhaseLookupTable
 
 import logging
 import os, sys
@@ -10,10 +11,23 @@ class OHRPCException(Exception):
         self.errors = errors
         return
 
+class OHTypeException(Exception):
+    def __init__(self, message, errors):
+        super(OHTypeException, self).__init__(message)
+
+        self.errors = errors
+        return
+
 class HwOptoHybrid(object):
-    def __init__(self, cardName, link, debug=False):
+    def __init__(self, cardName, link, debug=False, gemType="ge11", detType="short"):
         """
         Initialize the HW board an open an RPC connection
+
+        cardName - string specifying network alias to CTP7 (e.g. "gem.shelf01.amc04" or "eagle23" or ip address if known)
+        link     - optical link on cardName
+        debug    - Prints additional debugging information
+        gemType  - Type of gem variant to be used, should come from keys of gemVariants
+        detType  - Detector type within gem variant
         """
         # Debug flag
         self.debug = debug
@@ -21,11 +35,20 @@ class HwOptoHybrid(object):
         # Logger
         self.ohlogger = logging.getLogger(__name__)
 
+        # Check if input type is understood
+        if gemType not in gemVariants.keys():
+            raise OHTypeException("gemType {0} not in the list of known gemVariants: {1}".format(gemType,gemVariants),os.EX_USAGE)
+
+        if detType not in gemVariants[gemType]:
+            raise OHTypeException("detType {0} not in the list of known detector types for gemType {1}; list of known detector types: {2}".format(detType, gemType, gemVariants[gemType]), os.EX_USAGE)
+
         # Store HW info
         self.link = link
-        #self.mask = self.getVFATMask()
         self.mask = 0x0
-        self.nVFATs = 24
+        self.nVFATs = vfatsPerGemVariant[gemType]
+        self.vfatGBTPhases = vfat3GBTPhaseLookupTable[gemType][detType]
+        self.typeDet = detType
+        self.typeGEM = gemType
         self.parentAMC = HwAMC(cardName, debug)
 
         # Define broadcast read
