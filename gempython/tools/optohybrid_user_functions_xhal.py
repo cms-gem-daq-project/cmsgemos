@@ -37,10 +37,10 @@ class HwOptoHybrid(object):
 
         # Check if input type is understood
         if gemType not in gemVariants.keys():
-            raise OHTypeException("gemType {0} not in the list of known gemVariants: {1}".format(gemType,gemVariants),os.EX_USAGE)
+            raise OHTypeException("HwOptoHybrid: gemType '{0}' not in the list of known gemVariants: {1}".format(gemType,gemVariants.keys()),os.EX_USAGE)
 
         if detType not in gemVariants[gemType]:
-            raise OHTypeException("detType {0} not in the list of known detector types for gemType {1}; list of known detector types: {2}".format(detType, gemType, gemVariants[gemType]), os.EX_USAGE)
+            raise OHTypeException("HwOptoHybrid: detType '{0}' not in the list of known detector types for gemType {1}; list of known detector types: {2}".format(detType, gemType, gemVariants[gemType]), os.EX_USAGE)
 
         # Store HW info
         self.link = link
@@ -335,6 +335,9 @@ class HwOptoHybrid(object):
             print("HwOptoHybrid.getTriggerSource() - No support for v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
     
+    def getType(self):
+        return (self.typeGEM,self.typeDet)
+
     def getVFATMask(self):
         """
         V3 electronics only
@@ -533,6 +536,28 @@ class HwOptoHybrid(object):
         else:
             print("HwOptoHybrid.setTriggerThrottle() - There is no way to presecale the L1As being sent in v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
+
+    def setType(self, gemType, detType):
+        """
+        Sets the GEM type and detector type, updates the number of VFATs expected 
+        and changes the VFAT GBT Phase lookup table
+
+        gemType - string specifying gemType, expexted to be a key in gemVariants dictionary
+        detType - string specifyng detector type within gemType, expected to be a value in gemVariants[gemType]
+        """
+        # Check if input type is understood
+        if gemType not in gemVariants.keys():
+            raise OHTypeException("gemType {0} not in the list of known gemVariants: {1}".format(gemType,gemVariants),os.EX_USAGE)
+
+        if detType not in gemVariants[gemType]:
+            raise OHTypeException("detType {0} not in the list of known detector types for gemType {1}; list of known detector types: {2}".format(detType, gemType, gemVariants[gemType]), os.EX_USAGE)
+
+        self.nVFATs = vfatsPerGemVariant[gemType]
+        self.typeDet = detType
+        self.typeGEM = gemType
+        self.vfatGBTPhases = vfat3GBTPhaseLookupTable[gemType][detType]
+
+        return
 
     def setVFATMask(self, mask=None):
         if mask is None:

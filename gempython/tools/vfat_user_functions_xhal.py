@@ -5,7 +5,7 @@ from gempython.utils.gemlogger import colormsg
 import logging
 
 class HwVFAT(object):
-    def __init__(self, cardName, link, debug=False, gemVariants="ge11", detType="short"):
+    def __init__(self, cardName, link, debug=False, gemType="ge11", detType="short"):
         """
         Initialize the HW board an open an RPC connection
         """
@@ -15,15 +15,14 @@ class HwVFAT(object):
         # Logger
         self.vfatlogger = logging.getLogger(__name__)
 
-        # Check if input type is understood
         if gemType not in gemVariants.keys():
-            raise OHTypeException("gemType {0} not in the list of known gemVariants: {1}".format(gemType,gemVariants),os.EX_USAGE)
+            raise OHTypeException("HwVFAT: gemType '{0}' not in the list of known gemVariants: {1}".format(gemType,gemVariants.keys()),os.EX_USAGE)
 
         if detType not in gemVariants[gemType]:
-            raise OHTypeException("detType {0} not in the list of known detector types for gemType {1}; list of known detector types: {2}".format(detType, gemType, gemVariants[gemType]), os.EX_USAGE)
+            raise OHTypeException("HwVFAT: detType '{0}' not in the list of known detector types for gemType {1}; list of known detector types: {2}".format(detType, gemType, gemVariants[gemType]), os.EX_USAGE)
         
         # Optohybrid
-        self.parentOH = HwOptoHybrid(cardName, link, debug, detType)
+        self.parentOH = HwOptoHybrid(cardName, link, debug, gemType, detType)
 
         # Define VFAT3 DAC Monitoring
         self.confDacMonitor = self.parentOH.parentAMC.lib.configureVFAT3DacMonitor
