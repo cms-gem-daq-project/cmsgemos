@@ -51,7 +51,7 @@ void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::gl
 gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   gem::base::GEMFSMApplication(stub),
   m_amcEnableMask(0),
-  m_uhalPhaseShift(false),
+  m_doPhaseShift(false),
   m_bc0LockPhaseShift(false),
   m_relockPhase(true)
 {
@@ -60,20 +60,20 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   p_appInfoSpace->fireItemAvailable("AllGLIBsInfo",      &m_glibInfo);
   p_appInfoSpace->fireItemAvailable("AMCSlots",          &m_amcSlots);
   p_appInfoSpace->fireItemAvailable("ConnectionFile",    &m_connectionFile);
-  p_appInfoSpace->fireItemAvailable("UHALPhaseShift",    &m_uhalPhaseShift);
+  p_appInfoSpace->fireItemAvailable("DoPhaseShift",      &m_doPhaseShift);
   p_appInfoSpace->fireItemAvailable("BC0LockPhaseShift", &m_bc0LockPhaseShift);
   p_appInfoSpace->fireItemAvailable("RelockPhase",       &m_relockPhase);
 
   p_appInfoSpace->addItemRetrieveListener("AllGLIBsInfo",      this);
   p_appInfoSpace->addItemRetrieveListener("AMCSlots",          this);
   p_appInfoSpace->addItemRetrieveListener("ConnectionFile",    this);
-  p_appInfoSpace->addItemRetrieveListener("UHALPhaseShift",    this);
+  p_appInfoSpace->addItemRetrieveListener("DoPhaseShift",      this);
   p_appInfoSpace->addItemRetrieveListener("BC0LockPhaseShift", this);
   p_appInfoSpace->addItemRetrieveListener("RelockPhase",       this);
   p_appInfoSpace->addItemChangedListener( "AllGLIBsInfo",      this);
   p_appInfoSpace->addItemChangedListener( "AMCSlots",          this);
   p_appInfoSpace->addItemChangedListener( "ConnectionFile",    this);
-  p_appInfoSpace->addItemChangedListener( "UHALPhaseShift",    this);
+  p_appInfoSpace->addItemChangedListener( "DoPhaseShift",      this);
   p_appInfoSpace->addItemChangedListener( "BC0LockPhaseShift", this);
   p_appInfoSpace->addItemChangedListener( "RelockPhase",       this);
 
@@ -149,13 +149,10 @@ void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
                   << " to slotMask 0x" << std::hex << m_amcEnableMask << std::dec);
 
     // how to handle passing in various values nested in a vector in a bag
-    for (auto slot = m_glibInfo.begin(); slot != m_glibInfo.end(); ++slot) {
-    // for (auto slot = std::begin(m_glibInfo); slot != std::end(m_glibInfo); ++slot) { // post GCC447
-    // for (auto slot : m_glibInfo) { // post GCC447
-      // if (slot->bag.present.value_)
-      if (slot->bag.crateID.value_ > -1) {
-        slot->bag.present = true;
-        CMSGEMOS_DEBUG("GLIBManager::Found attribute:" << slot->bag.toString());
+    for (auto& slot : m_glibInfo) {
+      if (slot.bag.crateID.value_ > -1) {
+        slot.bag.present = true;
+        CMSGEMOS_DEBUG("GLIBManager::Found attribute:" << slot.bag.toString());
       }
     }
     // p_gemMonitor->startMonitoring();
@@ -182,12 +179,12 @@ void gem::hw::glib::GLIBManager::initializeAction()
     if ((m_amcEnableMask >> (slot)) & 0x1) {
       CMSGEMOS_DEBUG("GLIBManager::info:" << info.toString());
       CMSGEMOS_DEBUG("GLIBManager::expect a card in slot " << (slot+1));
-      CMSGEMOS_DEBUG("GLIBManager::bag"
+      CMSGEMOS_DEBUG("GLIBManager::bag: "
                      << "crate " << info.crateID.value_
                      << " slot " << info.slotID.value_);
       // this maybe shouldn't be done?
       info.slotID  = slot+1;
-      CMSGEMOS_DEBUG("GLIBManager::bag"
+      CMSGEMOS_DEBUG("GLIBManager::bag: "
                      << "crate " << info.crateID.value_
                      << " slot " << info.slotID.value_);
       // this maybe shouldn't be done?
@@ -202,19 +199,20 @@ void gem::hw::glib::GLIBManager::initializeAction()
   }
 
   // FIXME make me more streamlined
-  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    GLIBInfo& info = m_glibInfo[slot].bag;
+  for (auto const& infoi : m_glibInfo) {
+    auto&& info = infoi.bag;
 
     // check the config file if there should be a GLIB in the specified slot, if not, do not initialize
     if (!info.present)
       continue;
 
+    uint32_t slot = info.slotID.value_-1;
     CMSGEMOS_DEBUG("GLIBManager::creating pointer to card in slot " << (slot+1));
 
     // create the cfgInfoSpace object (qualified vs non?)
-    std::string deviceName = deviceName = toolbox::toString("gem-shelf%02d-amc%02d",
-                                                            info.crateID.value_,
-                                                            info.slotID.value_);
+    std::string deviceName = toolbox::toString("gem-shelf%02d-amc%02d",
+                                               info.crateID.value_,
+                                               info.slotID.value_);
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
 
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
@@ -280,8 +278,6 @@ void gem::hw::glib::GLIBManager::initializeAction()
     // set the web view to be empty or grey
     // if (!info.present.value_) continue;
     // p_gemWebInterface->glibInSlot(slot);
-    // FOR MISHA
-    // hardware should be connected, can update ldqm_db for teststand/local runs
   }
 
   // FIXME make me more streamlined
@@ -325,7 +321,7 @@ void gem::hw::glib::GLIBManager::configureAction()
         m_glibMonitors.at(slot)->pauseMonitoring();
 
       bool enableZS     = info.enableZS.value_;
-      bool doPhaseShift = m_uhalPhaseShift.value_;
+      bool doPhaseShift = m_doPhaseShift.value_;
       uint32_t runType  = 0x0;
       try { // FIXME if we fail, do we go to error?
         amc->configureDAQModule(enableZS, doPhaseShift, runType, 0xfaac, m_relockPhase.value_, m_bc0LockPhaseShift.value_);
@@ -645,16 +641,16 @@ void gem::hw::glib::GLIBManager::resetAction(toolbox::Event::Reference e)
 void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib, glib_shared_ptr glib)
 {
   // system registers
-  is_glib->createUInt32("BOARD_ID",             glib->getBoardIDRaw(),      NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
-  is_glib->createUInt32("SYSTEM_ID",            glib->getSystemIDRaw(),     NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
-  is_glib->createUInt32("FIRMWARE_VERSION",     glib->getFirmwareVerRaw(),  NULL, GEMUpdateType::PROCESS,  "docstring", "fwver");
-  is_glib->createUInt32("FIRMWARE_DATE",        glib->getFirmwareDateRaw(), NULL, GEMUpdateType::PROCESS,  "docstring", "date");
-  is_glib->createUInt32("AMC_FIRMWARE_VERSION", glib->getFirmwareVerRaw(),  NULL, GEMUpdateType::PROCESS,  "docstring", "fwverglib");
-  is_glib->createUInt32("AMC_FIRMWARE_DATE",    glib->getFirmwareDateRaw(), NULL, GEMUpdateType::PROCESS,  "docstring", "dateoh");
+  is_glib->createUInt32("BOARD_ID",             glib->getBoardID(),      NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
+  is_glib->createUInt32("SYSTEM_ID",            glib->getSystemID(),     NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
+  is_glib->createUInt32("FIRMWARE_VERSION",     glib->getFirmwareVer(),  NULL, GEMUpdateType::PROCESS,  "docstring", "fwver");
+  is_glib->createUInt32("FIRMWARE_DATE",        glib->getFirmwareDate(), NULL, GEMUpdateType::PROCESS,  "docstring", "date");
+  is_glib->createUInt32("AMC_FIRMWARE_VERSION", glib->getFirmwareVer(),  NULL, GEMUpdateType::PROCESS,  "docstring", "fwverglib");
+  is_glib->createUInt32("AMC_FIRMWARE_DATE",    glib->getFirmwareDate(), NULL, GEMUpdateType::PROCESS,  "docstring", "dateoh");
 
   // FIXME GLIB ONLY? OBSOLETE?
-  is_glib->createUInt32("IP_ADDRESS",    glib->getIPAddressRaw(),    NULL, GEMUpdateType::NOUPDATE, "docstring", "ip");
-  is_glib->createUInt64("MAC_ADDRESS",   glib->getMACAddressRaw(),   NULL, GEMUpdateType::NOUPDATE, "docstring", "mac");
+  is_glib->createUInt32("IP_ADDRESS",    glib->getIPAddress(),       NULL, GEMUpdateType::NOUPDATE, "docstring", "ip");
+  is_glib->createUInt64("MAC_ADDRESS",   glib->getMACAddress(),      NULL, GEMUpdateType::NOUPDATE, "docstring", "mac");
   is_glib->createUInt32("SFP1_STATUS",   glib->SFPStatus(1),         NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("SFP2_STATUS",   glib->SFPStatus(2),         NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("SFP3_STATUS",   glib->SFPStatus(3),         NULL, GEMUpdateType::HW32);

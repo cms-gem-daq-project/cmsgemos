@@ -6,15 +6,8 @@
 #include <iomanip>
 #include <memory>
 
-#include <boost/algorithm/string.hpp>
-
-/* #include "xdata/String.h" */
-/* #include "xdata/UnsignedLong.h" */
-/* #include "xdata/UnsignedInteger32.h" */
 // can we decouple completely from these?
 #include "toolbox/string.h"
-/* #include "toolbox/mem/Reference.h" */
-/* #include "toolbox/mem/Pool.h" */
 
 #include "uhal/uhal.hpp"
 /* #include "uhal/Utilities.hpp"  /\* removed in 2.5 or 2.6 *\/ */
@@ -165,7 +158,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a register identified by a register name
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName name of the register to read
        *
@@ -177,7 +170,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a register identified by a raw address
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regAddr address of the register to read
        *
@@ -189,7 +182,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a register identified by an address, with the supplied mask
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regAddr address of the register to read
        * @param regMask mask of the register to read
@@ -202,7 +195,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a register identified by prefix.name in the address table
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regPrefix prefix in the address table, possibly root nodes
        * @param regName name of the register to read from the address table
@@ -242,7 +235,7 @@ namespace gem {
        * @brief read list of registers in a single transaction (one dispatch call)
        *        into the supplied vector regList
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regList list of register address and uint32_t value to store the result
        * @param freq integer number of transactions to bundle (-1 for all)
@@ -254,7 +247,7 @@ namespace gem {
        * @brief read list of registers in a single transaction (one dispatch call)
        *        into the supplied vector regList
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regList list of register address/mask pair and uint32_t value to store the result
        * @param freq integer number of transactions to bundle (-1 for all)
@@ -265,7 +258,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief write to a register identified by a register name
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName name of the register to read
        * @param val value to write to the register
@@ -276,7 +269,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief write to a register identified by a raw address
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regAddr address of the register to read
        * @param val value to write to the register
@@ -287,7 +280,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief write to a register identified by prefix.name in the address table
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regPrefix prefix in the address table to the register
        * @param regName name of the register to write to
@@ -300,7 +293,7 @@ namespace gem {
        * @brief write list of registers in a single transaction (one dispatch call)
        *        using the supplied vector regList
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regList std::vector of a pairs of register names and values to write
        * @param freq integer number of transactions to bundle (-1 for all)
@@ -312,7 +305,7 @@ namespace gem {
        * @brief write single value to a list of registers in a single transaction
        *        (one dispatch call) using the supplied vector regList
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regList list of registers to write a value to
        * @param regValue uint32_t value to write to the list of registers
@@ -324,7 +317,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief write zero to a single register
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName register to zero
        */
@@ -335,7 +328,7 @@ namespace gem {
        * @brief write zero to a list of registers in a single transaction (one dispatch call)
        *        using the supplied vector regNames
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regNames list of registers to zero
        */
@@ -345,7 +338,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a memory block
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName fixed size memory block to read from
        */
@@ -355,7 +348,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a memory block
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName name of memory block to read from
        * @param nWords size of the memory block to read
@@ -368,7 +361,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a memory block
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName name of memory block to read from
        * @param buffer a pointer to an array containing the read values
@@ -397,7 +390,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief write to a memory block
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName name of memory block to write to
        * @param values list of 32-bit words to write into the memory block
@@ -408,7 +401,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief write zeros to a block of memory
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName block or memory to zero
        */
@@ -418,7 +411,7 @@ namespace gem {
        * @ingroup uhalwrappers FIXME, isn't this a block, not a FIFO?
        * @brief readFIFO(std::string const& regName) read from a FIFO/memory port
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName fixed size memory block to read from
        */
@@ -429,7 +422,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a FIFO/memory port a fixed amount of data
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName FIFO to read from
        * @param nWords number of words to read from the FIFO
@@ -442,7 +435,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief write to a FIFO
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName FIFO to write to
        * @param values list of 32-bit words to write into the FIFO
@@ -453,7 +446,7 @@ namespace gem {
        * @ingroup uhalwrappers FIXME: does this even make semantic sense?
        * @brief reset a FIFO
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName FIFO to zero
        */
@@ -464,18 +457,18 @@ namespace gem {
       // specifying the `uhal` address table name and the IPbus protocol
       // version.
       /**
-         @brief getters
+         FIXME getters
       */
       const std::string getAddressTableFileName() const { return m_addressTable;   };
       const std::string getDeviceBaseNode()       const { return m_deviceBaseNode; };
       const std::string getDeviceID()             const { return m_deviceID;       };
 
       /**
-         @brief setters, should maybe be private/protected? defeats the purpose?
+         FIXME setters, should maybe be private/protected? defeats the purpose?
       */
       void setAddressTableFileName(std::string const& name) { m_addressTable = "file://${GEM_ADDRESS_TABLE_PATH}/"+name; };
       void setDeviceBaseNode(std::string const& deviceBase) { m_deviceBaseNode = deviceBase; };
-      void setDeviceID(      std::string const& deviceID)   { m_deviceID = deviceID; };
+      void setDeviceID(std::string const& deviceID)         { m_deviceID = deviceID; };
 
       ///////////////////////////////////////////////////////////////////////////////////////
       //******************* Generic properties of the GEMHwDevice object ******************//
@@ -490,7 +483,7 @@ namespace gem {
       /**
        * @brief performs a general reset of the GLIB
        *
-       * @usage
+       * @usage FILLME
        *
        */
       virtual void generalReset()=0;
@@ -498,7 +491,7 @@ namespace gem {
       /**
        * @brief performs a reset of the counters
        *
-       * @usage
+       * @usage FILLME
        *
        */
       virtual void counterReset()=0;
@@ -506,7 +499,7 @@ namespace gem {
       /**
        * @brief performs a reset of the GLIB link
        *
-       * @usage
+       * @usage FILLME
        *
        * @param link is the link to perform the reset on
        */
@@ -525,7 +518,7 @@ namespace gem {
        * @brief Performs basic setup for the device
        * sets connection details (OBSOLETE)
        * sets logging level to Error
-       * Not inherited, but calls a pure virtual function...
+       * Not inherited, but calls a pure virtual function (connectRPC)
        **/
       void setup(std::string const& deviceName);
 
@@ -535,14 +528,7 @@ namespace gem {
        *
        * @param caller should be the name of the function, only used in the error message
        **/
-      void checkRPCResponse(std::string const& caller) const {
-        if (rsp.get_key_exists("error")) {
-          std::stringstream errmsg;
-          errmsg << rsp.get_string("error");
-          CMSGEMOS_ERROR(caller << ": " << errmsg.str());
-          XCEPT_RAISE(gem::hw::exception::RPCMethodError, errmsg.str());
-        }
-      }
+      void checkRPCResponse(std::string const& caller) const;
 
       /**
        * @brief Extracts the device parameters from the device name
@@ -551,18 +537,7 @@ namespace gem {
        *        optionally including -optohybridZZ
        * @param index selects which of XX, YY, ZZ to return
        **/
-      static uint8_t extractDeviceID(std::string const& deviceName, uint8_t const& index) {
-        std::vector<std::string> subs;
-        boost::split(subs, deviceName, boost::is_any_of("-"));
-        if (index < subs.size()) {
-          return stoull(subs[index].substr(subs[index].find_first_of("0123456789"),2),nullptr,10);
-        } else {
-          std::stringstream errmsg;
-          errmsg << "Unable to extract parameter " << static_cast<int>(index)
-                 << " value from provided device name: " << deviceName;
-          XCEPT_RAISE(gem::hw::exception::DeviceNameParseError, errmsg.str());
-        }
-      }
+      static uint8_t extractDeviceID(std::string const& deviceName, uint8_t const& index);
 
     private:
       // Do Not use default constructor. GEMHwDevice object should only be made using
@@ -577,15 +552,15 @@ namespace gem {
        * @brief loads the necessary modules into the RPC module manager
        * @details pure virtual, must be implemented in derived classes
        *
-       * @usage
+       * @usage FILLME
        *
        * @param should reconnect in the case of an already connected manager
        */
       virtual void connectRPC(bool reconnect=false)=0;
 
-      std::string m_addressTable;   ///<
-      std::string m_deviceBaseNode; ///<
-      std::string m_deviceID;       ///<
+      std::string m_addressTable;   ///< FILLME
+      std::string m_deviceBaseNode; ///< FILLME
+      std::string m_deviceID;       ///< FILLME
 
       // All GEMHwDevice objects should have these properties
       uint8_t m_crate;  ///< Crate number the AMC is housed in

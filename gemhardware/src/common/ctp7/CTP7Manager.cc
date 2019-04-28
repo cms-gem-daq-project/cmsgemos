@@ -531,22 +531,22 @@ void gem::hw::ctp7::CTP7Manager::resetAction(toolbox::Event::Reference e)
 void gem::hw::ctp7::CTP7Manager::createCTP7InfoSpaceItems(is_toolbox_ptr is_ctp7, ctp7_shared_ptr ctp7)
 {
   // system registers
-  is_ctp7->createUInt32("BOARD_ID",      ctp7->getBoardIDRaw(),      NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
-  is_ctp7->createUInt32("SYSTEM_ID",     ctp7->getSystemIDRaw(),     NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
-  is_ctp7->createUInt32("FIRMWARE_ID",   ctp7->getFirmwareVerRaw(),  NULL, GEMUpdateType::PROCESS,  "docstring", "fwver");
-  is_ctp7->createUInt32("FIRMWARE_DATE", ctp7->getFirmwareDateRaw(), NULL, GEMUpdateType::PROCESS,  "docstring", "date");
-  is_ctp7->createUInt32("IP_ADDRESS",    ctp7->getIPAddressRaw(),    NULL, GEMUpdateType::NOUPDATE, "docstring", "ip");
-  is_ctp7->createUInt64("MAC_ADDRESS",   ctp7->getMACAddressRaw(),   NULL, GEMUpdateType::NOUPDATE, "docstring", "mac");
-  is_ctp7->createUInt32("SFP1_STATUS",   ctp7->SFPStatus(1),         NULL, GEMUpdateType::HW32);
-  is_ctp7->createUInt32("SFP2_STATUS",   ctp7->SFPStatus(2),         NULL, GEMUpdateType::HW32);
-  is_ctp7->createUInt32("SFP3_STATUS",   ctp7->SFPStatus(3),         NULL, GEMUpdateType::HW32);
-  is_ctp7->createUInt32("SFP4_STATUS",   ctp7->SFPStatus(4),         NULL, GEMUpdateType::HW32);
-  is_ctp7->createUInt32("FMC1_STATUS",   ctp7->FMCPresence(0),       NULL, GEMUpdateType::HW32);
-  is_ctp7->createUInt32("FMC2_STATUS",   ctp7->FMCPresence(1),       NULL, GEMUpdateType::HW32);
-  is_ctp7->createUInt32("FPGA_RESET",    ctp7->FPGAResetStatus(),    NULL, GEMUpdateType::HW32);
-  is_ctp7->createUInt32("GBE_INT",       ctp7->GbEInterrupt(),       NULL, GEMUpdateType::HW32);
-  is_ctp7->createUInt32("V6_CPLD",       ctp7->V6CPLDStatus(),       NULL, GEMUpdateType::HW32);
-  is_ctp7->createUInt32("CPLD_LOCK",     ctp7->CDCELockStatus(),     NULL, GEMUpdateType::HW32);
+  is_ctp7->createUInt32("BOARD_ID",      ctp7->getBoardID(),      NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
+  is_ctp7->createUInt32("SYSTEM_ID",     ctp7->getSystemID(),     NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
+  is_ctp7->createUInt32("FIRMWARE_ID",   ctp7->getFirmwareVer(),  NULL, GEMUpdateType::PROCESS,  "docstring", "fwver");
+  is_ctp7->createUInt32("FIRMWARE_DATE", ctp7->getFirmwareDate(), NULL, GEMUpdateType::PROCESS,  "docstring", "date");
+  is_ctp7->createUInt32("IP_ADDRESS",    ctp7->getIPAddress(),    NULL, GEMUpdateType::NOUPDATE, "docstring", "ip");
+  is_ctp7->createUInt64("MAC_ADDRESS",   ctp7->getMACAddress(),   NULL, GEMUpdateType::NOUPDATE, "docstring", "mac");
+  is_ctp7->createUInt32("SFP1_STATUS",   ctp7->SFPStatus(1),      NULL, GEMUpdateType::HW32);
+  is_ctp7->createUInt32("SFP2_STATUS",   ctp7->SFPStatus(2),      NULL, GEMUpdateType::HW32);
+  is_ctp7->createUInt32("SFP3_STATUS",   ctp7->SFPStatus(3),      NULL, GEMUpdateType::HW32);
+  is_ctp7->createUInt32("SFP4_STATUS",   ctp7->SFPStatus(4),      NULL, GEMUpdateType::HW32);
+  is_ctp7->createUInt32("FMC1_STATUS",   ctp7->FMCPresence(0),    NULL, GEMUpdateType::HW32);
+  is_ctp7->createUInt32("FMC2_STATUS",   ctp7->FMCPresence(1),    NULL, GEMUpdateType::HW32);
+  is_ctp7->createUInt32("FPGA_RESET",    ctp7->FPGAResetStatus(), NULL, GEMUpdateType::HW32);
+  is_ctp7->createUInt32("GBE_INT",       ctp7->GbEInterrupt(),    NULL, GEMUpdateType::HW32);
+  is_ctp7->createUInt32("V6_CPLD",       ctp7->V6CPLDStatus(),    NULL, GEMUpdateType::HW32);
+  is_ctp7->createUInt32("CPLD_LOCK",     ctp7->CDCELockStatus(),  NULL, GEMUpdateType::HW32);
 
   // ttc registers
   is_ctp7->createUInt32("L1A",      ctp7->getL1ACount(),      NULL, GEMUpdateType::HW32);

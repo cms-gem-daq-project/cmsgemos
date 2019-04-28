@@ -87,76 +87,76 @@ namespace gem {
            * Read the board ID registers
            * @returns the CTP7 board ID
            */
-          std::string getBoardID()  ;
+          std::string getBoardIDString()  ;
 
           /**
            * Read the board ID registers
            * @returns the CTP7 board ID as 32 bit unsigned
            */
-          uint32_t getBoardIDRaw()  ;
+          uint32_t getBoardID();
 
           /**
            * Read the system information register
            * @returns a string corresponding to the system ID
            */
-          std::string getSystemID();
+          std::string getSystemIDString();
 
           /**
            * Read the system information register
            * @returns a string corresponding to the system ID as 32 bit unsigned
            */
-          uint32_t getSystemIDRaw();
+          uint32_t getSystemID();
 
           /**
            * Read the IP address register
            * @returns a string corresponding to the dotted quad IP address of the board
            */
-          std::string getIPAddress();
+          std::string getIPAddressString();
 
           /**
            * Read the IP address register
            * @returns the IP address of the board as a 32 bit unsigned
            */
-          uint32_t getIPAddressRaw();
+          uint32_t getIPAddress();
 
           /**
            * Read the MAC address register
            * @returns a string corresponding to the MAC address of the board
            */
-          std::string getMACAddress();
+          std::string getMACAddressString();
 
           /**
            * Read the MAC address register
            * @returns the MAC address of the board as a 64 bit unsigned
            */
-          uint64_t getMACAddressRaw();
+          uint64_t getMACAddress();
 
           /**
            * Read the system firmware register
            * @param system determines whether to read the system or user firmware register
            * @returns a string corresponding to firmware version
            */
-          std::string getFirmwareVer(bool const& system=true);
+          std::string getFirmwareVerString(bool const& system=true);
 
           /**
            * Read the system firmware register
            * @param system determines whether to read the system or user firmware register
            * @returns the firmware version as a 32 bit unsigned
            */
-          uint32_t getFirmwareVerRaw(bool const& system=true);
+          uint32_t getFirmwareVer(bool const& system=true);
 
           /**
            * Read the system firmware register
            * @returns a string corresponding to the build date dd-mm-yyyy
            */
-          std::string getFirmwareDate(bool const& system=true);
+          std::string getFirmwareDateString(bool const& system=true);
 
           /**
            * Read the system firmware register
            * @param system determines whether to read the system or user firmware register
            * @returns the build date as a 32 bit unsigned
            */
-          uint32_t getFirmwareDateRaw(bool const& system=true);
+          uint32_t getFirmwareDate(bool const& system=true);
 
           //external clocking control functions
           /**

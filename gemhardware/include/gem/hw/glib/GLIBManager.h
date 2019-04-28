@@ -122,9 +122,9 @@ namespace gem {
           xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;  ///< [MAX_AMCS_PER_CRATE];
           xdata::String  m_amcSlots;           ///< 
           xdata::String  m_connectionFile;     ///< 
-          xdata::Boolean m_uhalPhaseShift;     ///< FIXME OBSOLETE
-          xdata::Boolean m_bc0LockPhaseShift;  ///< 
-          xdata::Boolean m_relockPhase;        ///<
+          xdata::Boolean m_doPhaseShift;       ///< Whether or not to do a phase shifting procedure during configuration
+          xdata::Boolean m_bc0LockPhaseShift;  ///< Use BC0 to find the best phase during the phase shifting procedure
+          xdata::Boolean m_relockPhase;        ///< Relock the phase during phase shifting
 
 	  uint32_t m_lastLatency;         ///< Special variable for latency scan mode
           uint32_t m_lastVT1, m_lastVT2;  ///< Special variable for threshold scan mode 

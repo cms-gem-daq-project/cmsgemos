@@ -821,3 +821,32 @@ void gem::hw::GEMHwDevice::zeroBlock(std::string const& name)
   std::vector<uint32_t> zeros(numWords, 0);
   return writeBlock(name, zeros);
 }
+
+void gem::hw::GEMHwDevice::checkRPCResponse(std::string const& caller) const
+{
+  if (rsp.get_key_exists("error")) {
+    std::stringstream errmsg;
+    errmsg << rsp.get_string("error");
+    CMSGEMOS_ERROR(caller << ": " << errmsg.str());
+    XCEPT_RAISE(gem::hw::exception::RPCMethodError, errmsg.str());
+  } else if (rsp.get_key_exists("rpcerror")) {
+    std::stringstream errmsg;
+    errmsg << rsp.get_string("rpcerror");
+    CMSGEMOS_ERROR(caller << ": " << errmsg.str());
+    XCEPT_RAISE(gem::hw::exception::RPCMethodError, errmsg.str());
+  }
+}
+
+uint8_t gem::hw::GEMHwDevice::extractDeviceID(std::string const& deviceName, uint8_t const& index)
+{
+  std::vector<std::string> subs;
+  boost::split(subs, deviceName, boost::is_any_of("-"));
+  if (index < subs.size()) {
+    return stoull(subs[index].substr(subs[index].find_first_of("0123456789"),2),nullptr,10);
+  } else {
+    std::stringstream errmsg;
+    errmsg << "Unable to extract parameter " << static_cast<int>(index)
+           << " value from provided device name: " << deviceName;
+    XCEPT_RAISE(gem::hw::exception::DeviceNameParseError, errmsg.str());
+  }
+}
