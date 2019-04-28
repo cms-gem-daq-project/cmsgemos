@@ -6,6 +6,8 @@
 #include <iomanip>
 #include <memory>
 
+#include <boost/algorithm/string.hpp>
+
 /* #include "xdata/String.h" */
 /* #include "xdata/UnsignedLong.h" */
 /* #include "xdata/UnsignedInteger32.h" */
@@ -473,7 +475,7 @@ namespace gem {
       */
       void setAddressTableFileName(std::string const& name) { m_addressTable = "file://${GEM_ADDRESS_TABLE_PATH}/"+name; };
       void setDeviceBaseNode(std::string const& deviceBase) { m_deviceBaseNode = deviceBase; };
-      void setDeviceID(      std::string const& deviceID) { m_deviceID = deviceID; };
+      void setDeviceID(      std::string const& deviceID)   { m_deviceID = deviceID; };
 
       ///////////////////////////////////////////////////////////////////////////////////////
       //******************* Generic properties of the GEMHwDevice object ******************//
@@ -481,7 +483,7 @@ namespace gem {
 
       std::string getLoggerName() const { return m_gemLogger.getName(); };
 
-      void updateErrorCounters(std::string const& errCode);
+      void updateErrorCounters(std::string const& errCode) const;
 
       virtual std::string printErrorCounts() const;
 
@@ -491,15 +493,15 @@ namespace gem {
        * @usage
        *
        */
-      virtual void generalReset();
+      virtual void generalReset()=0;
 
       /**
-       * @brief performs a reset of the GLIB counters
+       * @brief performs a reset of the counters
        *
        * @usage
        *
        */
-      virtual void counterReset();
+      virtual void counterReset()=0;
 
       /**
        * @brief performs a reset of the GLIB link
@@ -508,16 +510,13 @@ namespace gem {
        *
        * @param link is the link to perform the reset on
        */
-      virtual void linkReset(uint8_t const& link);
+      virtual void linkReset(uint8_t const& link)=0;
 
-      DeviceErrors m_ipBusErrs;
+      mutable DeviceErrors m_ipBusErrs;
 
       bool b_is_connected;
 
     protected:
-      /* std::shared_ptr<uhal::ConnectionManager> p_gemConnectionManager; */
-      /* std::shared_ptr<uhal::HwInterface> p_gemHW; */
-
       log4cplus::Logger m_gemLogger;
 
       mutable gem::utils::Lock m_hwLock;
@@ -529,6 +528,41 @@ namespace gem {
        * Not inherited, but calls a pure virtual function...
        **/
       void setup(std::string const& deviceName);
+
+      /**
+       * @brief Performs a check on the RPC response to verify whether there is an `error` key set
+       *        Every method that makes an RPC call *must* use this function to check the response
+       *
+       * @param caller should be the name of the function, only used in the error message
+       **/
+      void checkRPCResponse(std::string const& caller) const {
+        if (rsp.get_key_exists("error")) {
+          std::stringstream errmsg;
+          errmsg << rsp.get_string("error");
+          CMSGEMOS_ERROR(caller << ": " << errmsg.str());
+          XCEPT_RAISE(gem::hw::exception::RPCMethodError, errmsg.str());
+        }
+      }
+
+      /**
+       * @brief Extracts the device parameters from the device name
+       *
+       * @param deviceName should be of the format: gem-shelfXX-amcYY
+       *        optionally including -optohybridZZ
+       * @param index selects which of XX, YY, ZZ to return
+       **/
+      static uint8_t extractDeviceID(std::string const& deviceName, uint8_t const& index) {
+        std::vector<std::string> subs;
+        boost::split(subs, deviceName, boost::is_any_of("-"));
+        if (index < subs.size()) {
+          return stoull(subs[index].substr(subs[index].find_first_of("0123456789"),2),nullptr,10);
+        } else {
+          std::stringstream errmsg;
+          errmsg << "Unable to extract parameter " << static_cast<int>(index)
+                 << " value from provided device name: " << deviceName;
+          XCEPT_RAISE(gem::hw::exception::DeviceNameParseError, errmsg.str());
+        }
+      }
 
     private:
       // Do Not use default constructor. GEMHwDevice object should only be made using
@@ -549,15 +583,16 @@ namespace gem {
        */
       virtual void connectRPC(bool reconnect=false)=0;
 
-      std::string m_addressTable;   //!<
-      std::string m_deviceBaseNode; //!<
-      std::string m_deviceID;       //!<
+      std::string m_addressTable;   ///<
+      std::string m_deviceBaseNode; ///<
+      std::string m_deviceID;       ///<
 
       // All GEMHwDevice objects should have these properties
       uint8_t m_crate;  ///< Crate number the AMC is housed in
       uint8_t m_slot;   ///< Slot number in the uTCA shelf the AMC is sitting in
 
       bool knownErrorCode(std::string const& errCode) const;
+
     };  // class GEMHwDevice
   }  // namespace gem::hw
 }  // namespace gem

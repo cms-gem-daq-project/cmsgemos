@@ -95,17 +95,21 @@ bool gem::hw::HwGenericAMC::isHwConnected()
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     CMSGEMOS_INFO("basic check: HwGenericAMC pointer valid");
     m_maxLinks = this->getSupportedOptoHybrids();
-    if ((this->getBoardID()).rfind("GLIB") != std::string::npos ) {
+    // FIXME needs update for V3
+    if (((this->getBoardID()).rfind("GLIB") != std::string::npos) ||
+        ((this->getBoardID()).rfind("beef") != std::string::npos)) {
       CMSGEMOS_INFO("HwGenericAMC found boardID");
-      for (unsigned int gtx = 0; gtx < m_maxLinks; ++gtx) {
-        // FIXME!!! somehow need to actually check that the specified link is present
+      for (uint8_t gtx = 0; gtx < m_maxLinks; ++gtx) {
+        // FIXME OBSOLETE!!! somehow need to actually check that the specified link is present
+        // check GBT status?
         b_links[gtx] = true;
         CMSGEMOS_INFO("m_links 0x" << std::hex << std::setw(8) << std::setfill('0')
                       << m_links
                       << " 0x1 << gtx = " << std::setw(8) << std::setfill('0') << (0x1<<gtx)
                       << std::dec);
         m_links |= (0x1<<gtx);
-        CMSGEMOS_INFO("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
+        CMSGEMOS_INFO("gtx" << static_cast<int>(gtx) << " present("
+                      << this->getFirmwareVer() << ")"); // FIXME get link FW?
         CMSGEMOS_INFO("m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
                       << m_links << std::dec);
         CMSGEMOS_INFO("m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
@@ -133,21 +137,62 @@ bool gem::hw::HwGenericAMC::isHwConnected()
   }
 }
 
-std::string gem::hw::HwGenericAMC::getBoardID()
+std::string gem::hw::HwGenericAMC::getBoardID(bool const legacy)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board ID consists of four characters encoded as a 32-bit unsigned int
   std::string res = "N/A";
-  res = gem::utils::uint32ToString(getBoardIDRaw());
+  uint32_t brdID = getBoardIDRaw(legacy);
+
+  if (legacy)
+    res = gem::utils::uint32ToString(brdID);
+  else
+    res = toolbox::toString("%x",brdID);
   return res;
 }
 
-uint32_t gem::hw::HwGenericAMC::getBoardIDRaw()
+uint32_t gem::hw::HwGenericAMC::getBoardIDRaw(bool const legacy)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board ID consists of four characters encoded as a 32-bit unsigned int
-  uint32_t val = readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_ID");
-  return val;
+  if (legacy)
+    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.LEGACY_SYSTEM.BOARD_ID");
+  else
+    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_ID");
+}
+
+std::string gem::hw::HwGenericAMC::getSystemID(bool const legacy)
+{
+  // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  // The system ID consists of four characters encoded as a 32-bit unsigned int
+  std::string res = "N/A";
+  uint32_t sysID = getSystemIDRaw(legacy);
+
+  if (legacy)
+    res = gem::utils::uint32ToString(sysID);
+  else
+    res = toolbox::toString("%x",sysID);
+  return res;
+}
+
+uint32_t gem::hw::HwGenericAMC::getSystemIDRaw(bool const legacy)
+{
+  // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  // The system ID consists of four characters encoded as a 32-bit unsigned int
+  if (legacy)
+    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.LEGACY_SYSTEM.SYSTEM_ID");
+  else
+    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_TYPE");
+}
+
+uint32_t gem::hw::HwGenericAMC::getSupportedOptoHybrids()
+{
+  return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.NUM_OF_OH");
+}
+
+uint32_t gem::hw::HwGenericAMC::supportsTriggerLink()
+{
+  return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.USE_TRIG_LINKS");
 }
 
 std::string gem::hw::HwGenericAMC::getFirmwareDate(bool const& system)

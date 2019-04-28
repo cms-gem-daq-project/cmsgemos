@@ -82,9 +82,9 @@ namespace gem {
         friend class GEMWebApplication;
 
       public:
-        static const unsigned MAX_AMCS_PER_CRATE      = 12;  ///< I SHOULD PROBABLY NOT BE HARD CODED
-        static const unsigned MAX_OPTOHYBRIDS_PER_AMC = 12;  ///< I SHOULD PROBABLY NOT BE HARD CODED
-        static const unsigned MAX_VFATS_PER_GEB       = 24;  ///< I SHOULD PROBABLY NOT BE HARD CODED
+        static constexpr size_t MAX_AMCS_PER_CRATE      = 12;  ///< I SHOULD PROBABLY NOT BE HARD CODED
+        static constexpr size_t MAX_OPTOHYBRIDS_PER_AMC = 12;  ///< I SHOULD PROBABLY NOT BE HARD CODED
+        static constexpr size_t MAX_VFATS_PER_GEB       = 24;  ///< I SHOULD PROBABLY NOT BE HARD CODED
 
         GEMApplication(xdaq::ApplicationStub *stub)
           throw (xdaq::exception::Exception);

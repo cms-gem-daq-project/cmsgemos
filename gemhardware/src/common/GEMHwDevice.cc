@@ -8,7 +8,7 @@
 
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
                                   std::string const& connectionFile) :
-  xhal::XHALInterface(deviceName),
+  xhal::XHALInterface(deviceName.substr(0,deviceName.rfind("-optohybrid"))),
   uhal::HwInterface(std::shared_ptr<uhal::ConnectionManager>(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/"+connectionFile))->getDevice(deviceName)),
   // b_is_connected(false),
   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
@@ -24,7 +24,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
                                   std::string const& connectionURI,
                                   std::string const& addressTable) :
-  xhal::XHALInterface(deviceName),
+  xhal::XHALInterface(deviceName.substr(0,deviceName.rfind("-optohybrid"))),
   uhal::HwInterface(uhal::ConnectionManager::getDevice(deviceName, connectionURI, addressTable)),
   // b_is_connected(false),
   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
@@ -39,7 +39,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
 
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
                                   uhal::HwInterface const& uhalDevice) :
-  xhal::XHALInterface(deviceName),
+  xhal::XHALInterface(deviceName.substr(0,deviceName.rfind("-optohybrid"))),
   uhal::HwInterface(uhalDevice),
   // b_is_connected(false),
   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
@@ -85,15 +85,8 @@ void gem::hw::GEMHwDevice::setup(std::string const& deviceName)
   setDeviceBaseNode("");
   setDeviceID(deviceName);
 
-  std::vector<std::string> subs;
-  // deviceName should be of the format: gem-shelfXX-amcYY
-  // optionally including -optohybridZZ
-  // boost::split(subs, deviceName, boost::is_any_of('-'));
-  // m_crate = stoull(subs[1].substr(subs[1].find_first_of("0123456789"),2),nullptr,10);
-  // m_slot  = stoull(subs[2].substr(subs[2].find_first_of("0123456789"),2),nullptr,10);
-
-  m_crate = gem::utils::extractDeviceID(deviceName,1);
-  m_slot  = gem::utils::extractDeviceID(deviceName,2);
+  m_crate = extractDeviceID(deviceName,1);
+  m_slot  = extractDeviceID(deviceName,2);
 
   m_ipBusErrs.BadHeader     = 0;
   m_ipBusErrs.ReadError     = 0;
@@ -137,31 +130,34 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
                      << " retry count is " << retryCount << ". Should move on to next operation");
       return res;
     } catch (uhal::exception::exception const& err) {
-      std::string msgBase = toolbox::toString("Could not read register '%s' (uHAL)", name.c_str());
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      std::string errCode = toolbox::toString("%s",err.what());
-      if (knownErrorCode(errCode)) {
+      std::stringstream errmsg, errcode;
+      errmsg << "Could not read register '" << name << "' (uHAL)";
+      errcode << err.what();
+      if (knownErrorCode(errcode.str())) {
         ++retryCount;
         if (retryCount > (MAX_IPBUS_RETRIES-1))
           CMSGEMOS_DEBUG("GEMHwDevice::Failed to read register " << name
-                         << ". retryCount("<<retryCount<<")"
+                         << ". retryCount(" << retryCount << ")"
                          << std::endl);
-        updateErrorCounters(errCode);
+        updateErrorCounters(errcode.str());
         continue;
       } else {
-        CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+        errmsg << ": " << errcode.str();
+        CMSGEMOS_ERROR("GEMHwDevice::readReg " << errmsg.str());
+        // XCEPT_RAISE(gem::hw::exception::HardwareProblem, errmsg.str());
       }
     } catch (std::exception const& err) {
-      std::string msgBase = toolbox::toString("Could not read register '%s' (std)", name.c_str());
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      std::stringstream errmsg;
+      errmsg << "Could not read register '" << name << "' (std): "
+             << err.what();
+      CMSGEMOS_ERROR("GEMHwDevice::" << errmsg.str());
+      // XCEPT_RAISE(gem::hw::exception::HardwareProblem, errmsg.str());
     }
   }
-  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read register %s",name.c_str());
-  CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  std::stringstream errmsg;
+  errmsg << "Maximum number of retries reached, unable to read register '" << name << "'";
+  CMSGEMOS_ERROR("GEMHwDevice::" << errmsg.str());
+  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, errmsg.str());
   return res;
 }
 
@@ -788,7 +784,8 @@ void gem::hw::GEMHwDevice::zeroFIFO(std::string const& name)
   return writeReg(name+".FLUSH",0x0);
 }
 
-bool gem::hw::GEMHwDevice::knownErrorCode(std::string const& errCode) const {
+bool gem::hw::GEMHwDevice::knownErrorCode(std::string const& errCode) const
+{
   return ((errCode.find("amount of data")              != std::string::npos) ||
           (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
           (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
@@ -800,7 +797,8 @@ bool gem::hw::GEMHwDevice::knownErrorCode(std::string const& errCode) const {
 }
 
 
-void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) {
+void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) const
+{
   if (errCode.find("amount of data")    != std::string::npos)
     ++m_ipBusErrs.BadHeader;
   if (errCode.find("INFO CODE = 0x4L")  != std::string::npos)
@@ -822,19 +820,4 @@ void gem::hw::GEMHwDevice::zeroBlock(std::string const& name)
   size_t numWords = this->getNode(name).getSize();
   std::vector<uint32_t> zeros(numWords, 0);
   return writeBlock(name, zeros);
-}
-
-void gem::hw::GEMHwDevice::generalReset()
-{
-  return;
-}
-
-void gem::hw::GEMHwDevice::counterReset()
-{
-  return;
-}
-
-void gem::hw::GEMHwDevice::linkReset(uint8_t const& link)
-{
-  return;
 }

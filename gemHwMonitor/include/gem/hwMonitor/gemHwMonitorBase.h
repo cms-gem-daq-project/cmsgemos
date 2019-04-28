@@ -108,8 +108,8 @@ namespace gem {
       protected:
       private:
         bool m_isConfigured;
-        unsigned int m_deviceStatus;                  ///!< 0 - device is working well, 1 - device has errors, 2 - device status unknown
-        std::vector<unsigned int> m_subDeviceStatus;  ///!< 0 - device is working well, 1 - device has errors, 2 - device status unknown
+        unsigned int m_deviceStatus;                  ///< 0 - device is working well, 1 - device has errors, 2 - device status unknown
+        std::vector<unsigned int> m_subDeviceStatus;  ///< 0 - device is working well, 1 - device has errors, 2 - device status unknown
         std::string m_xmlConfigFileName;
         T* p_gemDevice;
       };

@@ -83,6 +83,8 @@ GEM_HW_DEFINE_EXCEPTION(ValueError)
 
 GEM_HW_DEFINE_EXCEPTION(RPCMethodError)
 
+GEM_HW_DEFINE_EXCEPTION(DeviceNameParseError)
+
 // The gem::hw alarms.
 #define GEM_HW_DEFINE_ALARM(ALARM_NAME) GEM_HW_DEFINE_EXCEPTION(ALARM_NAME)
 
@@ -96,7 +98,7 @@ GEM_HW_DEFINE_ALARM(MonitoringFailureAlarm)
 
 // FIXME: SHOULD I BE A MACRO OR A FUNCTION ELSEWHERE?
 #define GEM_CATCH_RPC_ERROR(MSG_BASE, EX_TYPE)                 \
-  catch (xhal::utils::XHALRPCNotConnectedException const& e) { \
+catch (xhal::utils::XHALRPCNotConnectedException const& e) {   \
   std::stringstream errmsg;                                    \
   errmsg << e.what();                                          \
   CMSGEMOS_ERROR(MSG_BASE << "error: " << errmsg.str());       \
@@ -115,27 +117,27 @@ GEM_HW_DEFINE_ALARM(MonitoringFailureAlarm)
 
 // FIXME: SHOULD I BE A MACRO OR A FUNCTION ELSEWHERE
 // FIXME: SHOULD TRANSITION ERRORS FORCE FSM TO ERROR?
-#define GEM_HW_TRANSITION_CATCH(MSG_BASE, EX_TYPE)          \
-  catch (uhalException const& e) {                          \
-  std::stringstream msg;                                    \
-  msg << MSG_BASE << " caught uHAL exception " << e.what(); \
-  CMSGEMOS_ERROR(msg.str());                                \
-  XCEPT_RAISE(EX_TYPE, msg.str());                          \
-} catch (EX_TYPE const& e) {                                \
-  std::stringstream msg;                                    \
-  msg << MSG_BASE << " caught exception " << e.what();      \
-  CMSGEMOS_ERROR(msg.str());                                \
-  XCEPT_RAISE(EX_TYPE, msg.str());                          \
-} catch (toolbox::net::exception::MalformedURN const& e) {  \
-  std::stringstream msg;                                    \
-  msg << MSG_BASE << " caught exception " << e.what();      \
-  CMSGEMOS_ERROR(msg.str());                                \
-  XCEPT_RAISE(EX_TYPE, msg.str());                          \
-} catch (std::exception const& e) {                         \
-  std::stringstream msg;                                    \
-  msg << MSG_BASE << " caught exception " << e.what();      \
-  CMSGEMOS_ERROR(msg.str());                                \
-  XCEPT_RAISE(EX_TYPE, msg.str());                          \
+#define GEM_HW_TRANSITION_CATCH(MSG_BASE, EX_TYPE)             \
+catch (uhalException const& e) {                               \
+  std::stringstream errmsg;                                    \
+  errmsg << MSG_BASE << " caught uHAL exception " << e.what(); \
+  CMSGEMOS_ERROR(errmsg.str());                                \
+  XCEPT_RAISE(EX_TYPE, errmsg.str());                          \
+} catch (EX_TYPE const& e) {                                   \
+  std::stringstream errmsg;                                    \
+  errmsg << MSG_BASE << " caught exception " << e.what();      \
+  CMSGEMOS_ERROR(errmsg.str());                                \
+  XCEPT_RAISE(EX_TYPE, errmsg.str());                          \
+} catch (toolbox::net::exception::MalformedURN const& e) {     \
+  std::stringstream errmsg;                                    \
+  errmsg << MSG_BASE << " caught exception " << e.what();      \
+  CMSGEMOS_ERROR(errmsg.str());                                \
+  XCEPT_RAISE(EX_TYPE, errmsg.str());                          \
+} catch (std::exception const& e) {                            \
+  std::stringstream errmsg;                                    \
+  errmsg << MSG_BASE << " caught exception " << e.what();      \
+  CMSGEMOS_ERROR(errmsg.str());                                \
+  XCEPT_RAISE(EX_TYPE, errmsg.str());                          \
 }
 
 #endif  // GEM_HW_EXCEPTION_EXCEPTION_H

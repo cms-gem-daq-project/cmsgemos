@@ -35,7 +35,6 @@ gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo()
   present    = false;
   crateID    = -1;
   slotID     = -1;
-  cardName   = "";
   sbitSource = 0;
   enableZS   = true;
 }
@@ -45,7 +44,6 @@ void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::gl
   bag->addField("crateID",    &crateID);
   bag->addField("slot",       &slotID);
   bag->addField("present",    &present);
-  bag->addField("CardName",   &cardName);
   bag->addField("sbitSource", &sbitSource);
   bag->addField("enableZS",   &enableZS);
 }
@@ -214,11 +212,9 @@ void gem::hw::glib::GLIBManager::initializeAction()
     CMSGEMOS_DEBUG("GLIBManager::creating pointer to card in slot " << (slot+1));
 
     // create the cfgInfoSpace object (qualified vs non?)
-    std::string deviceName = info.cardName.toString();
-    if (deviceName.empty())
-      deviceName = toolbox::toString("gem-shelf%02d-amc%02d",
-                                     info.crateID.value_,
-                                     info.slotID.value_);
+    std::string deviceName = deviceName = toolbox::toString("gem-shelf%02d-amc%02d",
+                                                            info.crateID.value_,
+                                                            info.slotID.value_);
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
 
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
@@ -352,8 +348,8 @@ void gem::hw::glib::GLIBManager::configureAction()
 	amc->setDAQLinkRunParameter(0x2,initialVT1);
 	amc->setDAQLinkRunParameter(0x3,initialVT2);
       } else {
-	amc->setDAQLinkRunType(0x1);
-	amc->setDAQLinkRunParameters(0xfaac);
+	amc->setDAQLinkRunType(0x1);          // FIXME duplicated in configureDAQModule call
+	amc->setDAQLinkRunParameters(0xfaac); // FIXME duplicated in configureDAQModule call
       }
 
       // what else is required for configuring the GLIB?

@@ -81,38 +81,48 @@ namespace gem {
         /** GEM system information **/
         /****************************/
         /**
-         * Read the board ID registers
+         * @brief Read the board ID register (should be reimplemented in derived HW, e.g., GLIB)
+         * @param legacy determines whether to read the legacy system board ID (GLIB)
+         *        or the GEM_AMC board ID
          * @returns the AMC board ID as a std::string
          */
-        virtual std::string getBoardID();
+        virtual std::string getBoardID(bool const legacy=false);
 
         /**
-         * Read the board ID registers
+         * @brief Read the board ID register (should be reimplemented in derived HW, e.g., GLIB)
+         * @param legacy determines whether to read the legacy system board ID ('GLIB' as ASCII characters)
+         *        or the GEM_AMC board ID (0xbeef as uint32_t)
          * @returns the AMC board ID as 32 bit unsigned value
          */
-        virtual uint32_t getBoardIDRaw();
+        virtual uint32_t getBoardIDRaw(bool const legacy=false);
 
         /**
-         * Check how many OptoHybrids the AMC FW can support
+         * @brief Read the system ID register (should be reimplemented in derived HW, e.g., GLIB)
+         * @param legacy determines whether to read the legacy system system ID (GLIB)
+         *        or the GEM_AMC system ID
+         * @returns the AMC system ID as a std::string
+         */
+        virtual std::string getSystemID(bool const legacy=false);
+
+        /**
+         * @brief Read the system ID register (should be reimplemented in derived HW, e.g., GLIB)
+         * @param legacy determines whether to read the legacy system system ID ('20v1' as ASCII characters)
+         *        or the GEM_AMC board type (0x1 as uint32_t)
+         * @returns the AMC system ID as 32 bit unsigned value
+         */
+        virtual uint32_t getSystemIDRaw(bool const legacy=false);
+
+        /**
+         * @brief Check how many OptoHybrids the AMC FW can support
          * @returns the number of OptoHybrid boards supported by the FW
          */
-        uint32_t getSupportedOptoHybrids() {
-          return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.NUM_OF_OH"); }
-
-        /**
-         * FIXME: OBSOLETE
-         * Check if the AMC FW supports GBT communication
-         * @returns whether or not the AMC FW supports GBT communication
-         */
-        uint32_t supportsGBTLink() {
-          return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.USE_GBT"); }
+        uint32_t getSupportedOptoHybrids();
 
         /**
          * Check if the AMC FW supports trigger links
          * @returns whether or not the AMC FW supports trigger links
          */
-        uint32_t supportsTriggerLink() {
-          return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.USE_TRIG_LINKS"); }
+        uint32_t supportsTriggerLink();
 
         /**
          * Read the AMC FW register
