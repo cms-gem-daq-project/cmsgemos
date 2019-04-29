@@ -446,7 +446,8 @@ class HwAMC(object):
         # Are we checking CSC Trigger links?
         if (checkCSCTrigLink):
             # If input mask is not even otherwise it quits
-            if (int(ohMask)%2!=0):
+            onlyOddBits = 0b101010101010
+            if ( (ohMask & onlyOddBits) !=0):
                 printRed("HwAMC::getTriggerLinkStatus(): checkCSCTrigLink=True and ohMask={0}. Checking the CSC trigger link on an odd bit is not allowed.".format(hex(ohMask)))
                 exit(os.EX_USAGE)
                 pass
@@ -461,7 +462,7 @@ class HwAMC(object):
         
         linkStatus=0
         arraySize=8*int(self.nOHs)
-        linkResult = (c_uint32 * arraySize)()
+        linkResult = (c_uint32 * arraySize)( * [0xffffffff for x in range(0,arraySize) ] )
         self.getmonTRIGGEROHmain(linkResult, self.nOHs, ohMask2Query)
 
         if(printSummary):
