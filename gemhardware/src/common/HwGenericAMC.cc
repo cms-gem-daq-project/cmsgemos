@@ -2,9 +2,6 @@
 
 #include <iomanip>
 
-// // define the consts
-// const unsigned gem::hw::HwGenericAMC::N_GTX;
-
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     std::string const& connectionFile) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice, connectionFile),

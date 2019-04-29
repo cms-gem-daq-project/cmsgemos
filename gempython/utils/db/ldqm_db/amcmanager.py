@@ -1,5 +1,5 @@
 from gempython.tools.glib_system_info_uhal import *
-from gempython.tools.amc_user_functions_uhal import *
+from gempython.tools.amc_user_functions import *
 from gempython.tools.optohybrid_user_functions_uhal import *
 from gempython.tools.vfat_user_functions_uhal import *
 
@@ -113,7 +113,7 @@ class AMCmanager:
     return self.status
 
 from gempython.tools.glib_system_info_uhal import *
-from gempython.tools.amc_user_functions_uhal import *
+from gempython.tools.amc_user_functions import *
 from gempython.tools.optohybrid_user_functions_uhal import *
 from gempython.tools.vfat_user_functions_uhal import *
 

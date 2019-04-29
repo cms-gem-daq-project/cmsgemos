@@ -95,7 +95,7 @@ class ColoredFormatter(logging.Formatter):
 #             "handlers":["console","file"],
 #             "level":"INFO",
 #             },
-#         "gempython.tools.amc_user_functions_uhal":{
+#         "gempython.tools.amc_user_functions":{
 #             "handlers":["console","file"],
 #             "level":"INFO",
 #             },

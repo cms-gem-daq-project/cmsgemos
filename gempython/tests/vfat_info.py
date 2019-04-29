@@ -2,7 +2,7 @@
 
 from gempython.tools.glib_system_info_uhal import getSystemFWVer,getSystemFWDate
 from gempython.tools.vfat_user_functions_uhal import *
-from gempython.tools.amc_user_functions_uhal import *
+from gempython.tools.amc_user_functions import *
 from gempython.utils.rate_calculator import errorRate
 
 import logging
