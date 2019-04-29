@@ -7,18 +7,18 @@ def setDAQParams(args):
     from gempython.utils.gracefulKiller import GracefulKiller
     killer = GracefulKiller()
 
-    for slot in range(1,13):
+    for slot in range(0,12):
         # Skip unmasked slots
         if (not ((args.slotMask >> slot) & 0x1)):
             continue
 
         # Make the AMC Object w/uhal
         global amc
-        amc = getAMCObject(args.slot,args.shelf,args.d)
+        amc = getAMCObject(slot+1,args.shelf,args.d)
 
         # Get ohMask for this slot
         from gempython.tools.amc_user_functions_xhal import HwAMC
-        cardName = "gem-shelf%02d-amc%02d"%(args.shelf,args.slot)
+        cardName = "gem-shelf%02d-amc%02d"%(args.shelf,slot+1)
         amcRPC = HwAMC(cardName,debug=args.d)
         ohMask = amcRPC.getOHMask(raiseIfNoOHs=False)
 
