@@ -27,7 +27,7 @@ void gem::calib::CalibrationWeb::webDefault(xgi::Input * in, xgi::Output * out)
     *out << "<link  rel=\"stylesheet\" href=\"/gemdaq/gembase/html/css/bootstrap.css\" type=\"text/css\">" << std::endl;
     *out << "<link  rel=\"stylesheet\" href=\"/gemdaq/gembase/html/css/bootstrap.min.css\" type=\"text/css\">" << std::endl;
     *out << "<script src=\"/gemdaq/gembase/html/scripts/bootstrap.js\"></script>" << std::endl;
-    *out << "<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js\"></script>" << std::endl;
+    *out << "<script src=\"/gemdaq/gembase/html/scripts/jquery.min.js\"></script>" << std::endl;
 
     *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
     *out << "    <div class=\"xdaq-tab\" title=\"Calibration Control\">" << std::endl;
@@ -108,7 +108,7 @@ void gem::calib::CalibrationWeb::genericRadioSelector( std::string paramName, ge
     *out << "</div>" << std::endl;
 }
 
-void gem::calib::CalibrationWeb::genericParamSelector(std::string labelName, std::string paramName, int defaultValue, xgi::Output* out)
+void gem::calib::CalibrationWeb::genericParamSelector(std::string labelName, std::string paramName, std::string defaultValue, xgi::Output* out)
     throw (xgi::exception::Exception)
 {
     *out << "<h2><span class=\"label label-success col-md-6\">" << labelName << "</span></h2>"<< std::endl;
@@ -267,7 +267,7 @@ void gem::calib::CalibrationWeb::settingsInterface(calType_t m_calType, xgi::Out
     // create a temporary parameters map,
     // check whether requested calibration type needs a trigger selector
     // if it is, create it and pop out the trigger setting
-    std::map<std::string, uint32_t> t_parameters = dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_scanParams.find(m_calType)->second;
+    std::map<std::string, std::string> t_parameters = dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_scanParams.find(m_calType)->second; 
 
     for (auto parameter: t_parameters) {
         if (dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_scanParamsNonForm.find(parameter.first) !=dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_scanParamsNonForm.end()) {

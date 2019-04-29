@@ -53,7 +53,7 @@ namespace gem {
              * @throws
              */
 	
-            void genericParamSelector(std::string labelName, std::string paramName, int defaultValue, xgi::Output *out)
+            void genericParamSelector(std::string labelName, std::string paramName, std::string defaultValue, xgi::Output *out)
                 throw (xgi::exception::Exception);
 	
             /**

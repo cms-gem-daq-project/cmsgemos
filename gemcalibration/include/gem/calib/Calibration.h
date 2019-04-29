@@ -49,69 +49,67 @@ namespace gem {
              *  parameters can be filled with a form  or a radio selector
              */
 
-            std::map<calType_t, std::map<std::string, uint32_t>> m_scanParams{
-                {GBTPHASE  ,{{"nSamples",100},{"phaseMin", 0},{"phaseMax", 14},{"stepSize", 1},}},
+            std::map<calType_t, std::map<std::string, std::string /* uint32_t */>> m_scanParams{
+                {GBTPHASE  ,{{"nSamples","100"},{"phaseMin", "0"},{"phaseMax", "14"},{"stepSize", "1"},}},
                 {LATENCY,{
-                        {"nSamples"  , 100},
-                        {"trigType"  , 0},
-                        {"l1aTime"   , 250},
-                        {"calPhase"  , 0},
-                        {"mspl"      , 4},
-                        {"scanMin"   , 0},
-                        {"scanMax"   , 255},
-                        {"vfatChMin" , 0},
-                        {"vfatChMax" , 127},
-                        {"vt2"       , 100},
-                        {"trigThrottle"  ,0},
-                        {"signalSourceType"       , 0},
-                        {"pulseDelay" , 40},
+                        {"nSamples"  , "100"},
+                        {"trigType"  , "0"},
+                        {"l1aTime"   , "250"},
+                        {"mspl"      , "4"},
+                        {"scanMin"   , "0"},
+                        {"scanMax"   , "255"},
+                        {"vfatChMin" , "0"},
+                        {"vfatChMax" , "127"},
+                            //{"vt2"       , 100},// TODO:need to be taken from DB
+                        {"trigThrottle"  ,"0"},
+                        {"signalSourceType"       , "0"},
+                        {"pulseDelay" , "40"},
                 }},
                 {SCURVE,{
-                        {"nSamples"  , 100},
-                        {"trigType"  , 0}, // TODO: TTC local should be only possible one
-                        {"l1aTime"   , 250},
-                        {"pulseDelay", 40},
-                        {"latency"   , 33},
-                        {"vfatChMin" , 0},
-                        {"vfatChMax" , 127},
-                        {"calPhase"  , 0},
-                        {"mspl"      , 4},
+                        {"nSamples"  , "100"},
+                        {"trigType"  , "0"}, // TODO: TTC local should be only possible one
+                        {"l1aTime"   , "250"},
+                        {"pulseDelay", "40"},
+                        {"latency"   , "33"},
+                        {"vfatChMin" , "0"},
+                        {"vfatChMax" , "127"},
+                        {"mspl"      , "4"},
                  }},
                  {SBITARMDACSCAN  ,{
-                        {"comparatorType",0},
-                        {"perChannelType",0},
-                        {"vfatChMin" , 0},
-                        {"vfatChMax" , 127},
-                        {"stepSize", 1},
+                        {"comparatorType","0"},
+                        {"perChannelType","0"},
+                        {"vfatChMin" , "0"},
+                        {"vfatChMax" , "127"},
+                        {"stepSize", "1"},
                   }},
                   {ARMDACSCAN  ,{
-                        {"nSamples"  , 1000},
-                        {"trigType"  , 0},
-                        {"vfatChMin" , 0},
-                        {"vfatChMax" , 127},
+                        {"nSamples"  , "1000"},
+                        {"trigType"  , "0"},
+                        {"vfatChMin" , "0"},
+                        {"vfatChMax" , "127"},
                    }},
                    {TRIMDAC  , {
-                        {"nSamples"   , 100},
-                        {"trigType"   , 0}, // TODO: TTC local should be only possible one
-                        {"nSamples"   , 100},
-                        {"l1aTime"    , 250},
-                        {"pulseDelay" , 40},
-                        {"latency"    , 33},
-                        {"mspl"       , 4},
-                        {"trimValues" , 3},// TODO: need to be implemented properly in the back end in order to get a given number of points {-63,0,63}
+                        {"nSamples"   , "100"},
+                        {"trigType"   , "0"}, // TODO: TTC local should be only possible one
+                        {"nSamples"   , "100"},
+                        {"l1aTime"    , "250"},
+                        {"pulseDelay" , "40"},
+                        {"latency"    , "33"},
+                        {"mspl"       , "4"},
+                        {"trimValues" , "-63,0,63"},// TODO: need to be implemented properly in the back end in order to get a given number of points {-63,0,63}
                         // TODO: need to implement interaction with DB to get proper configurations per ARM DAC
-                        {"calPhase"  , 0},   
+                   
                     }},
                     {DACSCANV3  ,{
-                        {"adcType",0},
+                        {"adcType","0"},
                     }},
                     {CALIBRATEARMDAC,{
-                        {"nSamples"  , 100},
-                        {"trigType"  , 0}, // TODO: TTC local should be only possible one
-                        {"l1aTime"   , 250},
-                        {"pulseDelay", 40},
-                        {"latency"   , 33},
-                        {"calPhase"  , 0},
+                        {"nSamples"  , "100"},
+                        {"trigType"  , "0"}, // TODO: TTC local should be only possible one
+                        {"l1aTime"   , "250"},
+                        {"pulseDelay", "40"},
+                        {"latency"   , "33"},
+                        {"armDacPoins","17,20,23,25,30,40,50,60,70,80,100,125,150,175"},
                         // TODO: need to take the list of te ARM dac from a file
                         }}
             };
@@ -144,20 +142,20 @@ namespace gem {
             std::map< std::string,std::string > m_scanParamsLabels{
                 {"nSamples"  , "Number of samples"},
                 {"l1aTime"   , "L1A period (BX)"},
-                {"calPhase"  , "CalPulse phase"},
                 {"mspl"      , "Pulse stretch (int)"},
                 {"scanMin"   , "Scan min"},
                 {"scanMax"   , "Scan max"},
                 {"vfatChMin" , "VFAT Ch min"},
                 {"vfatChMax" , "VFAT Ch max"},
-                {"vt2"       , "CFG_THR_ARM_DAC"},
+                    //{"vt2"       , "CFG_THR_ARM_DAC"},// TODO:need to be taken from DB
                 {"trigThrottle"  , "Trigger throttle (int)"},
                 {"pulseDelay", "Pulse delay (BX)"},
                 {"latency"   , "Latency (BX)"},
-                {"trimValues", "Points in dac range (odd)"}, // TODO:need to be implemented properly in the back end in order to get a given number of points {-63,0,63}
+                {"trimValues", "Points in dac range"}, // TODO:need to be implemented properly in the back end in order to get a given number of points {-63,0,63}
                 {"phaseMin"  , "Phase min (int)"  },  
                 {"phaseMax"  , "Phase max (int)"  },
-                {"stepSize", "Step size (int)"}
+                {"stepSize", "Step size (int)"},
+                {"armDacPoins", "ARM DAC points"}, 
             };
 
             std::map<std::string, uint32_t> m_amcOpticalLinks;
