@@ -229,12 +229,13 @@ void gem::calib::CalibrationWeb::dacScanV3Selector(xgi::Output* out)
         *out << "                                <label> <input type=\"checkbox\" class=\"check\" name=\""<<  t_stream.str() << "\" id=\"" << t_stream.str() << "\">" << t_stream.str() << "</label>"<< std::endl;
         *out << "                            </div>" << std::endl;
         *out << "                        </div>"<< std::endl;//end column
-
-        for (auto dacScan_parameter: it.second.range) {
-            *out << "                        <div class=\"col-md-4\">" <<std::endl;
-            this->genericParamSelector_dacScan(  dacScan_parameter.first, dacScan_parameter.second, out);
-            *out << "                        </div>"<< std::endl;//end column
-        }
+       
+        *out << "                        <div class=\"col-md-4\">" <<std::endl;
+        this->genericParamSelector_dacScan(  it.second.label+"_Min", it.second.min, out);
+        *out << "                        </div>"<< std::endl;//end column
+        *out << "                        <div class=\"col-md-4\">" <<std::endl;
+        this->genericParamSelector_dacScan(  it.second.label+"_Max", it.second.max, out);
+        *out << "                        </div>"<< std::endl;//end column
         *out << "                    </div>" << std::endl; // end <div class="row">
     } // end loop over DAC scan type
     *out << "                </div>" << std::endl; // end drop-down scrollable
@@ -267,18 +268,19 @@ void gem::calib::CalibrationWeb::settingsInterface(calType_t m_calType, xgi::Out
     // create a temporary parameters map,
     // check whether requested calibration type needs a trigger selector
     // if it is, create it and pop out the trigger setting
-    std::map<std::string, std::string> t_parameters = dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_scanParams.find(m_calType)->second; 
+    auto gemAppLocal = dynamic_cast<gem::calib::Calibration*>(p_gemApp);
+    std::map<std::string, std::string> t_parameters = gemAppLocal->m_scanParams.find(m_calType)->second; 
 
     for (auto parameter: t_parameters) {
-        if (dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_scanParamsNonForm.find(parameter.first) !=dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_scanParamsNonForm.end()) {
-            this->genericRadioSelector( parameter.first,  dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_scanParamsRadioSelector.find(parameter.first)->second, out);
+        if (gemAppLocal->m_scanParamsNonForm.find(parameter.first) !=gemAppLocal->m_scanParamsNonForm.end()) {
+            this->genericRadioSelector( parameter.first, gemAppLocal->m_scanParamsRadioSelector.find(parameter.first)->second, out);
             *out << "            <br>" << std::endl;
             t_parameters.erase(parameter.first);
         } else continue;
 
     }
     for (auto parameter: t_parameters) {
-        this->genericParamSelector( dynamic_cast<gem::calib::Calibration*>(p_gemApp)->m_scanParamsLabels.find(parameter.first)->second, parameter.first, parameter.second, out);
+        this->genericParamSelector(gemAppLocal->m_scanParamsLabels.find(parameter.first)->second, parameter.first, parameter.second, out);
         *out << "            <br>" << std::endl;
     }
 

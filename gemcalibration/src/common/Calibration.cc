@@ -73,17 +73,6 @@ void gem::calib::Calibration::init()
  
 }
 
-bool gem::calib::Calibration::isGEMApplication(const std::string& classname) const
-{
-    if (classname.find("gem::") != std::string::npos)
-        return true;  // handle all GEM applications
-    /*
-      if (m_otherClassesToSupport.count(classname) != 0)
-      return true;  // include from list
-    */
-    return false;
-}
-
 void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
     throw (xgi::exception::Exception)
 {
@@ -135,9 +124,8 @@ void gem::calib::Calibration::applyAction(xgi::Input* in, xgi::Output* out)
             bool checked = false;
             checked = cgi.queryCheckbox(t_stream.str());
             if (checked) {
-                for (auto dacScan_parameter: it.second.range) {
-                    dacScan_parameter.second = cgi[dacScan_parameter.first]->getIntegerValue();
-                }	  
+                it.second.min = cgi[it.second.label+"_Min"]->getIntegerValue();
+                it.second.max = cgi[it.second.label+"_Max"]->getIntegerValue();
             }
         }
     }

@@ -96,8 +96,7 @@ namespace gem {
                         {"pulseDelay" , "40"},
                         {"latency"    , "33"},
                         {"mspl"       , "4"},
-                        {"trimValues" , "-63,0,63"},// TODO: need to be implemented properly in the back end in order to get a given number of points {-63,0,63}
-                        // TODO: need to implement interaction with DB to get proper configurations per ARM DAC
+                        {"trimValues" , "-63,0,63"},
                    
                     }},
                     {DACSCANV3  ,{
@@ -110,8 +109,7 @@ namespace gem {
                         {"pulseDelay", "40"},
                         {"latency"   , "33"},
                         {"armDacPoins","17,20,23,25,30,40,50,60,70,80,100,125,150,175"},
-                        // TODO: need to take the list of te ARM dac from a file
-                        }}
+                    }}
             };
 
             struct scanParamsRadioSelector{
@@ -162,50 +160,41 @@ namespace gem {
 
             dacScanType_t m_dacScanType;
 
-            struct dacScanTypeFeature{
+            struct dacFeature {
                 std::string label;
-                std::map<std::string, uint32_t> range;
+                uint16_t min;
+                uint16_t max;
             };
-            
-             /**
+
+            /**
              *  map of selectable DAC scan for the VFAT3 parameters and relative labels and range limits
              */
-
             
-            std::map<dacScanType_t, dacScanTypeFeature> m_dacScanTypeParams{
-                {CFG_CAL_DAC,{"CFG_CAL_DAC", {{"CFG_CAL_DAC_Min"  , 0},{"CFG_CAL_DAC_Max", 255},}}},
-                {CFG_BIAS_PRE_I_BIT, {"CFG_BIAS_PRE_I_BIT",{{"CFG_BIAS_PRE_I_BIT_Min",0},{"CFG_BIAS_PRE_I_BIT_Max", 255},}}}, 
-                {CFG_BIAS_PRE_I_BLCC,{"CFG_BIAS_PRE_I_BLCC",{{"CFG_BIAS_PRE_I_BLCC_Min", 0},{"CFG_BIAS_PRE_I_BLCC_Max", 63},}}},
-                {CFG_BIAS_PRE_I_BSF,{"CFG_BIAS_PRE_I_BSF",{{"CFG_BIAS_PRE_I_BSF_Min",0}, {"CFG_BIAS_PRE_I_BSF_Max", 63},}}},
-                {CFG_BIAS_SH_I_BFCAS,{"CFG_BIAS_SH_I_BFCAS",{{"CFG_BIAS_SH_I_BFCAS_Min",0},{"CFG_BIAS_SH_I_BFCAS_Max", 255},}}},
-                {CFG_BIAS_SH_I_BDIFF,{"CFG_BIAS_SH_I_BDIFF",{{"CFG_BIAS_SH_I_BDIFF_Min", 0},{"CFG_BIAS_SH_I_BDIFF_Max", 255},}}},
-                {CFG_BIAS_SD_I_BDIFF,{"CFG_BIAS_SD_I_BDIFF",{{"CFG_BIAS_SD_I_BDIFF_Min",0},{"CFG_BIAS_SD_I_BDIFF_Max",255},}}},
-                {CFG_BIAS_SD_I_BFCAS,{"CFG_BIAS_SD_I_BFCAS",{{"CFG_BIAS_SD_I_BFCAS_Min",0},{"CFG_BIAS_SD_I_BFCAS_Max", 255},}}},
-                {CFG_BIAS_SD_I_BSF,{"CFG_BIAS_SD_I_BSF",{{"CFG_BIAS_SD_I_BSF_Min",0}, {"CFG_BIAS_SD_I_BSF_Max", 63},}}},
-                {CFG_BIAS_CFD_DAC_1,{"CFG_BIAS_CFD_DAC",{{"CFG_BIAS_CFD_DAC_1_Min",0},{"CFG_BIAS_CFD_DAC_1_Max", 63},}}},
-                {CFG_BIAS_CFD_DAC_2,{"CFG_BIAS_CFD_DAC",{{"CFG_BIAS_CFD_DAC_2_Min", 0},{"CFG_BIAS_CFD_DAC_2_Max", 63},}}},
-                {CFG_HYST,{"CFG_HYST",{{"CFG_HYST_Min",0},{"CFG_HYST_Max", 63},}}},
-                {CFG_THR_ARM_DAC,{"CFG_THR_ARM_DAC",{{"CFG_THR_ARM_DAC_Min",0},{"CFG_THR_ARM_DAC_Max", 255},}}},
-                {CFG_THR_ZCC_DAC,{"CFG_THR_ZCC_DAC",{{"CFG_THR_ZCC_DAC_Min",0}, {"CFG_THR_ZCC_DAC_Max", 255},}}},
-                {CFG_BIAS_PRE_VREF,{"CFG_BIAS_PRE_VREF",{{"CFG_BIAS_PRE_VREF_Min",0},{"CFG_BIAS_PRE_VREF_Max", 255},}}},
-                {CFG_VREF_ADC,{"CFG_VREF_ADC", {{"CFG_VREF_ADC_Min",0},{"CFG_VREF_ADC_Max", 3},}}}
+            std::map<dacScanType_t, dacFeature> m_dacScanTypeParams{
+                {CFG_CAL_DAC,{"CFG_CAL_DAC", 0, 255}},
+                {CFG_BIAS_PRE_I_BIT, {"CFG_BIAS_PRE_I_BIT", 0, 255}},
+                {CFG_BIAS_PRE_I_BLCC,{"CFG_BIAS_PRE_I_BLCC", 0, 63}},
+                {CFG_BIAS_PRE_I_BSF,{"CFG_BIAS_PRE_I_BSF", 0, 63}},
+                {CFG_BIAS_SH_I_BFCAS,{"CFG_BIAS_SH_I_BFCAS", 0, 255}},
+                {CFG_BIAS_SH_I_BDIFF,{"CFG_BIAS_SH_I_BDIFF", 0, 255}},
+                {CFG_BIAS_SD_I_BDIFF,{"CFG_BIAS_SD_I_BDIFF", 0, 255}},
+                {CFG_BIAS_SD_I_BFCAS,{"CFG_BIAS_SD_I_BFCAS", 0, 255}},
+                {CFG_BIAS_SD_I_BSF,{"CFG_BIAS_SD_I_BSF", 0, 63}},
+                {CFG_BIAS_CFD_DAC_1,{"CFG_BIAS_CFD_DAC", 0, 63}},
+                {CFG_BIAS_CFD_DAC_2,{"CFG_BIAS_CFD_DAC", 0, 63}},
+                {CFG_HYST,{"CFG_HYST", 0, 63}},
+                {CFG_THR_ARM_DAC,{"CFG_THR_ARM_DAC", 0, 255}},
+                {CFG_THR_ZCC_DAC,{"CFG_THR_ZCC_DAC", 0, 255}},
+                {CFG_BIAS_PRE_VREF,{"CFG_BIAS_PRE_VREF", 0, 255}},
+                {CFG_VREF_ADC,{"CFG_VREF_ADC", 0, 3}}
             };
-
-  
-
+         
 
         protected:
 
         private:
-            /**
-             * @param classname is the class to check to see whether it is a GEMApplication inherited application
-             * @throws
-             */
-            bool isGEMApplication(const std::string& classname) const;
-
+   
             xdata::Integer m_nShelves;
-
-            log4cplus::Logger m_logger;
 
             const std::map<std::string, calType_t> m_calTypeSelector{
                 {"GBT Phase Scan"                , GBTPHASE},
