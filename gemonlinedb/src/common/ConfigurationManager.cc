@@ -16,9 +16,18 @@ namespace gem {
         namespace /* anonymous */ {
 
             /**
+             * @brief Finds the path to the XML topology file
+             */
+            std::string findXMLTopologyFile(const std::string &path)
+            {
+                // Find the file (throws if not found)
+                return detail::getFileInPath("system-topology.xml", path);
+            }
+
+            /**
              * @brief Loads a system-topology.xml file
              */
-            DOMDocumentPtr loadXMLTopologyFile(const std::string &path)
+            DOMDocumentPtr loadXMLTopologyFile(const std::string &filePath)
             {
                 using namespace detail::literals;
                 XERCES_CPP_NAMESPACE_USE
@@ -29,9 +38,6 @@ namespace gem {
                 auto schemaPath = detail::getFileInPath(
                     "system-topology.xsd",
                     "xml/schema:/opt/cmsgemos/share/gemonlinedb/xml/schema");
-
-                // Find the file (throws if not found)
-                auto filePath = detail::getFileInPath("system-topology.xml", path);
 
                 // Get an implementation
                 auto impl = DOMImplementationRegistry::getDOMImplementation("LS"_xml);
@@ -70,7 +76,9 @@ namespace gem {
         boost::shared_mutex ConfigurationManager::s_mutex;
 
         ConfigurationManager::ConfigurationManager(Source objectSource,
-                                                   Source topologySource)
+                                                   Source topologySource) :
+            m_objectSource(objectSource),
+            m_topologySource(topologySource)
         {
             try {
                 detail::xercesExceptionsToXcept([&]{
@@ -91,7 +99,8 @@ namespace gem {
                     case Source::XML:
                         auto provider = std::make_shared<XMLConfigurationProvider>();
                         provider->setSearchPath(path);
-                        provider->load(loadXMLTopologyFile(path));
+                        provider->load(loadXMLTopologyFile(findXMLTopologyFile(path)));
+                        m_objectSourceDetails = provider->getObjectSources();
                         linker.setProvider(provider);
                         break;
                     }
@@ -105,7 +114,9 @@ namespace gem {
                         break;
 
                     case Source::XML:
-                        topology->populate(loadXMLTopologyFile(path));
+                        auto file = findXMLTopologyFile(path);
+                        topology->populate(loadXMLTopologyFile(file));
+                        m_topologySourceDetails = { file };
                         break;
                     }
 
@@ -114,6 +125,42 @@ namespace gem {
             } catch (std::exception &e) {
                 XCEPT_RAISE(exception::SoftwareProblem, e.what());
             }
+        }
+
+        ConfigurationManager::ObjectStats ConfigurationManager::getStatistics() const
+        {
+            ObjectStats stats;
+
+            auto &config = getConfiguration();
+
+            for (auto &amc13 : config) {
+                if (amc13 != nullptr) {
+                    stats.amc13Count++;
+
+                    auto amcConfigs = amc13->getAMCConfigs();
+                    for (auto &amc : amcConfigs) {
+                        if (amc != nullptr) {
+                            stats.amcCount++;
+
+                            auto ohConfigs = amc->getOHConfigs();
+                            for (auto &oh : ohConfigs) {
+                                if (oh != nullptr) {
+                                    stats.ohCount++;
+
+                                    auto vfatConfigs = oh->getVFATConfigs();
+                                    for (auto &vfat : vfatConfigs) {
+                                        if (vfat != nullptr) {
+                                            stats.vfatCount++;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return stats;
         }
 
         ConfigurationManager::ReadLock ConfigurationManager::makeReadLock() noexcept
@@ -126,8 +173,8 @@ namespace gem {
             return EditLock(s_mutex, boost::defer_lock);
         }
 
-        const std::vector<std::unique_ptr<AMC13Configuration>> &
-        ConfigurationManager::getConfiguration(ConfigurationManager::ReadLock &lock)
+        const ConfigurationManager &
+        ConfigurationManager::getManager(ConfigurationManager::ReadLock &lock)
         {
             // Get read-only access if needed
             if (!lock.owns_lock()) {
@@ -139,7 +186,7 @@ namespace gem {
                 {
                     // Need write access to create the config
                     auto uniqueLock = makeEditLock();
-                    getConfiguration(uniqueLock);
+                    getManager(uniqueLock);
                 }
                 // Get back read access once the unique lock is released
 
@@ -147,11 +194,11 @@ namespace gem {
                 // cannot rely on the result of getConfiguration(uniqueLock)
                 lock.lock();
             }
-            return s_instance->m_config;
+            return *s_instance;
         }
 
-        std::vector<std::unique_ptr<AMC13Configuration>> &
-        ConfigurationManager::getConfiguration(ConfigurationManager::EditLock &lock)
+        ConfigurationManager &
+        ConfigurationManager::getManager(ConfigurationManager::EditLock &lock)
         {
             // Get read-write access if needed
             if (!lock.owns_lock()) {
@@ -162,7 +209,19 @@ namespace gem {
                 s_instance.reset(
                     new ConfigurationManager(Source::XML, Source::XML));
             }
-            return s_instance->m_config;
+            return *s_instance;
+        }
+
+        const std::vector<std::unique_ptr<AMC13Configuration>> &
+        ConfigurationManager::getConfiguration(ConfigurationManager::ReadLock &lock)
+        {
+            return getManager(lock).getConfiguration();
+        }
+
+        std::vector<std::unique_ptr<AMC13Configuration>> &
+        ConfigurationManager::getConfiguration(ConfigurationManager::EditLock &lock)
+        {
+            return getManager(lock).getConfiguration();
         }
 
     } // namespace onlinedb

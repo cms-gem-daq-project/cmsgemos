@@ -68,6 +68,13 @@ namespace gem {
             virtual std::shared_ptr<VFAT3ChannelConfiguration>
             getVFAT3ChannelConfiguration(
                 const ConfigurationTraits<VFAT3ChannelConfiguration>::PartType &reference) const = 0;
+
+            /**
+             * @brief Retrieves the list of sources from which the data is pulled.
+             *
+             * The list can be used for display purposes.
+             */
+            virtual std::vector<std::string> getObjectSources() const = 0;
         };
 
     } // namespace onlinedb
