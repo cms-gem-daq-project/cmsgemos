@@ -11,7 +11,8 @@
 namespace gem {
     namespace onlinedb {
 
-        // Forward declaration
+        // Forward declarations
+        class GBTXConfiguration;
         class VFAT3ChipConfiguration;
 
         /**
@@ -23,9 +24,9 @@ namespace gem {
         {
         public:
             /**
-             * @brief The number of wires in an HDMI cable.
+             * @brief The number of GBTX on an OH.
              */
-            static const constexpr std::size_t HDMI_WIRE_COUNT = 8;
+            static const constexpr std::size_t GBTX_COUNT = 3;
 
             /**
              * @brief The number of VFATs connected to an OH.
@@ -43,12 +44,10 @@ namespace gem {
             using TrigTapDelayBits = std::array<std::uint32_t, TRIGGER_CHANNEL_COUNT>;
 
         private:
-            std::array<std::uint32_t, HDMI_WIRE_COUNT> m_hdmiSBitModes;
-            std::array<std::uint32_t, HDMI_WIRE_COUNT> m_hdmiSBitSel;
-            std::array<std::uint32_t, VFAT_COUNT>      m_sotTapDelays;
             std::array<TrigTapDelayBits, VFAT_COUNT>   m_trigTapDelays;
 
             std::array<std::shared_ptr<VFAT3ChipConfiguration>, VFAT_COUNT> m_vfatConfigs;
+            std::array<std::shared_ptr<GBTXConfiguration>, GBTX_COUNT> m_gbtxConfigs;
 
         public:
             /**
@@ -73,119 +72,9 @@ namespace gem {
             ////////////////////////////////////////////////////////////////////
 
             /**
-             * @name HDMI pin control
-             * @{
-             */
-            /**
-             * @brief Retrieves the S-bit mode for an HDMI wire.
-             */
-            auto getHDMISBitMode(std::size_t wire) const ->
-                decltype(m_hdmiSBitModes)::const_reference {
-                return m_hdmiSBitModes.at(wire); };
-
-            /**
-             * @brief Retrieves the S-bit mode for all HDMI wires.
-             */
-            auto getHDMISBitModes() const -> const decltype(m_hdmiSBitModes) & {
-                return m_hdmiSBitModes; };
-
-            /**
-             * @brief Retrieves the S-bit mode for all HDMI wires.
-             */
-            auto getHDMISBitModes() -> decltype(m_hdmiSBitModes) & {
-                return m_hdmiSBitModes; };
-
-            /**
-             * @brief Modifies the S-bit mode for an HDMI wire.
-             */
-            void setHDMISBitMode(std::size_t wire, std::uint32_t mode) {
-                m_hdmiSBitModes.at(wire) = mode; };
-
-            /**
-             * @brief Modifies the S-bit mode for all HDMI wires.
-             */
-            void setHDMISBitModes(const decltype(m_hdmiSBitModes) &modes) {
-                m_hdmiSBitModes = modes; };
-
-            ////////////////////////////////////////////////////////////////////
-
-            /**
-             * @brief Retrieves the value of the S-bit selection register for an
-             *        HDMI wire.
-             */
-            std::uint32_t getHDMISBitSel(std::size_t wire) const {
-                return m_hdmiSBitSel.at(wire); };
-
-            /**
-             * @brief Retrieves the values of S-bit selection registers for all
-             *        HDMI wires.
-             */
-            auto getHDMISBitSel() -> decltype(m_hdmiSBitSel) {
-                return m_hdmiSBitSel; };
-
-            /**
-             * @brief Retrieves the values of S-bit selection registers for all
-             *        HDMI wires.
-             */
-            auto getHDMISBitSel() const -> const decltype(m_hdmiSBitSel) & {
-                return m_hdmiSBitSel; };
-
-            /**
-             * @brief Modifies the value of the S-bit selection register for an
-             *        HDMI wire.
-             */
-            void setHDMISBitSel(std::size_t wire, std::uint32_t value) {
-                m_hdmiSBitSel.at(wire) = value; };
-
-            /**
-             * @brief Modifies the values of S-bit selection registers for all
-             *        HDMI wires.
-             */
-            void setHDMISBitSel(const decltype(m_hdmiSBitSel) &values) {
-                m_hdmiSBitSel = values; };
-
-            /**
-             * @}
-             */
-
-            ////////////////////////////////////////////////////////////////////
-
-            /**
              * @name Trigger tap delays
              * @{
              */
-            /**
-             * @brief Retrieves the sot tap delay for the given VFAT.
-             */
-            std::uint32_t getSotTapDelay(std::size_t vfat) const {
-                return m_sotTapDelays.at(vfat); };
-
-            /**
-             * @brief Retrieves all sot tap delays.
-             */
-            auto getSotTapDelays() const -> const decltype(m_sotTapDelays) & {
-                return m_sotTapDelays; };
-
-            /**
-             * @brief Retrieves all sot tap delays.
-             */
-            auto getSotTapDelays() -> decltype(m_sotTapDelays) & {
-                return m_sotTapDelays; };
-
-            /**
-             * @brief Modifies the sot tap delay for the given VFAT.
-             */
-            void setSotTapDelay(std::size_t vfat, std::uint32_t delay) {
-                m_sotTapDelays.at(vfat) = delay; };
-
-            /**
-             * @brief Modifies all sot tap delays.
-             */
-            void setSotTapDelays(const decltype(m_sotTapDelays) &delays) {
-                m_sotTapDelays = delays; };
-
-            ////////////////////////////////////////////////////////////////////
-
             /**
              * @brief Retrieves the trigger tap delay at the given index for the
              *        given VFAT.
@@ -328,6 +217,96 @@ namespace gem {
              *        @c config.
              */
             void createAllVFATConfigs(const VFAT3ChipConfiguration &config);
+
+            /**
+             * @}
+             */
+
+            ////////////////////////////////////////////////////////////////////
+
+            /**
+             * @name Child GBTX configuration
+             * @{
+             */
+            /**
+             * @brief Retrieves the configuration of the given GBTX, if set.
+             */
+            const std::shared_ptr<GBTXConfiguration> getGBTXConfig(
+                std::size_t vfat) const {
+                return m_gbtxConfigs.at(vfat); };
+
+            /**
+             * @brief Retrieves the configuration of the given GBTX, if set.
+             */
+            std::shared_ptr<GBTXConfiguration> getGBTXConfig(std::size_t vfat) {
+                return m_gbtxConfigs.at(vfat); };
+
+            /**
+             * @brief Retrieves the configuration of all GBTXs.
+             */
+            auto getGBTXConfigs() const -> const decltype(m_gbtxConfigs) & {
+                return m_gbtxConfigs; };
+
+            /**
+             * @brief Retrieves the configuration of all GBTXs.
+             */
+            auto getGBTXConfigs() -> decltype(m_gbtxConfigs) & { return m_gbtxConfigs; };
+
+            /**
+             * @brief Modifies the configuration of the given GBTX.
+             */
+            void setGBTXConfig(std::size_t vfat,
+                               const std::shared_ptr<GBTXConfiguration> &config) {
+                m_gbtxConfigs.at(vfat) = config; };
+
+            /**
+             * @brief Modifies the configuration of all GBTXs.
+             */
+            void setGBTXConfigs(const decltype(m_gbtxConfigs) &configs) {
+                m_gbtxConfigs = configs; };
+
+            /**
+             * @brief Unsets the configuration of the given GBTX.
+             */
+            void unsetGBTXConfig(std::size_t vfat) { setGBTXConfig(vfat, nullptr); };
+
+            /**
+             * @brief Unsets all GBTX configurations.
+             */
+            void unsetGBTXConfigs() {
+                for (auto &config : m_gbtxConfigs) {
+                    config = nullptr;
+                }
+            };
+
+            /**
+             * @brief Checks that all GBTX configurations are set.
+             */
+            bool hasAllGBTXConfigs() const {
+                return 0 == std::count(getGBTXConfigs().begin(),
+                                       getGBTXConfigs().end(),
+                                       nullptr);
+            };
+
+            /**
+             * @brief Checks that no GBTX configurations is set.
+             */
+            bool hasNoGBTXConfig() const {
+                return GBTX_COUNT == std::count(getGBTXConfigs().begin(),
+                                                getGBTXConfigs().end(),
+                                                nullptr);
+            };
+
+            /**
+             * @brief Default-constructs all GBTX configurations.
+             */
+            void createAllGBTXConfigs();
+
+            /**
+             * @brief Initializes all GBTX configurations with copies of
+             *        @c config.
+             */
+            void createAllGBTXConfigs(const GBTXConfiguration &config);
 
             /**
              * @}

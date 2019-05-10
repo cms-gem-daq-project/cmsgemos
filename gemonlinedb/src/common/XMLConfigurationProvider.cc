@@ -126,6 +126,8 @@ namespace gem {
                     loadVFAT3Chip(detail::transcode(fileEl->getTextContent()));
                 } else if (tagName == "gem:ohv3-file") {
                     loadOHv3(detail::transcode(fileEl->getTextContent()));
+                } else if (tagName == "gem:gbtx-file") {
+                    loadGBTX(detail::transcode(fileEl->getTextContent()));
                 } else if (tagName == "gem:amc-file") {
                     loadAMC(detail::transcode(fileEl->getTextContent()));
                 } else if (tagName == "gem:amc13-file") {
@@ -156,6 +158,18 @@ namespace gem {
             auto document = loadDOM(path, "AMCConfiguration.xsd");
 
             loadInternal(path, document, m_amcConfig);
+        }
+
+        void XMLConfigurationProvider::loadGBTX(const std::string &filename)
+        {
+            // Find the file (throws if not found)
+            auto path = detail::getFileInPath(filename, getSearchPath());
+            m_sources.push_back(path);
+
+            detail::XercesGuard guard; // Make sure that Xerces is loaded
+            auto document = loadDOM(path, "GBTXConfiguration.xsd");
+
+            loadInternal(path, document, m_gbtxConfig);
         }
 
         void XMLConfigurationProvider::loadOHv3(const std::string &filename)
@@ -215,6 +229,18 @@ namespace gem {
             } catch (const std::out_of_range &e) {
                 XCEPT_RAISE(exception::ReferenceError,
                             "AMC config not found: " + toString(reference));
+            }
+        }
+
+        std::shared_ptr<GBTXConfiguration>
+        XMLConfigurationProvider::getGBTXConfiguration(
+            const ConfigurationTraits<GBTXConfiguration>::PartType &reference) const
+        {
+            try {
+                return m_gbtxConfig.at(toString(reference));
+            } catch (const std::out_of_range &e) {
+                XCEPT_RAISE(exception::ReferenceError,
+                            "GBTX config not found: " + toString(reference));
             }
         }
 

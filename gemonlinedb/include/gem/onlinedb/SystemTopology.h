@@ -6,6 +6,7 @@
 
 #include "gem/onlinedb/AMC13Configuration.h"
 #include "gem/onlinedb/AMCConfiguration.h"
+#include "gem/onlinedb/GBTXConfiguration.h"
 #include "gem/onlinedb/OHv3Configuration.h"
 #include "gem/onlinedb/VFAT3ChipConfiguration.h"
 
@@ -49,10 +50,29 @@ namespace gem {
             };
 
             /**
+             * @brief Represents a GBTX.
+             */
+            class GBTXNode
+            {
+                friend class SystemTopology;
+
+            public:
+                /**
+                 * @brief The part reference associated to the GBTX.
+                 */
+                ConfigurationTraits<GBTXConfiguration>::PartType reference;
+
+            private:
+                /// @brief Populates a @c GBTXNode from XML data.
+                void populate(const xercesc::DOMElement *el);
+            };
+
+            /**
              * @brief Represents an OHv3.
              */
             class OHv3Node
             {
+                static const constexpr std::size_t GBTX_COUNT = 3;
                 static const constexpr std::size_t VFAT_COUNT = 24;
 
                 friend class SystemTopology;
@@ -60,6 +80,9 @@ namespace gem {
             public:
                 /// @brief The part reference associated to the OH.
                 ConfigurationTraits<OHv3Configuration>::PartType reference;
+
+                /// @brief The child VFATs (entries can be null).
+                std::array<std::unique_ptr<GBTXNode>, GBTX_COUNT> gbtx;
 
                 /// @brief The child VFATs (entries can be null).
                 std::array<std::unique_ptr<VFAT3Node>, VFAT_COUNT> vfat;

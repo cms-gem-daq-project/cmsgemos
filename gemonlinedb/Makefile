@@ -25,6 +25,7 @@ Sources = \
     ConfigurationManager.cc \
     DBInterface.cc \
     FileUtils.cc \
+    GBTXConfigurationGen.cc \
     OHv3Configuration.cc \
     OHv3ConfigurationGen.cc \
     Run.cc \
@@ -91,13 +92,14 @@ xml/schema/%.xsd include/gem/onlinedb/%Gen.h src/common/%Gen.cc: defs/%.json par
 
 # XML schemas
 .PHONY: xsd
-xsd: xml/schema/AMCConfiguration.xsd xml/schema/VFAT3ChipConfiguration.xsd xml/schema/OHv3Configuration.xsd
+xsd: xml/schema/AMCConfiguration.xsd xml/schema/VFAT3ChipConfiguration.xsd xml/schema/OHv3Configuration.xsd xml/schema/GBTXConfiguration.xsd
 
 .PHONY: clean-xsd
 clean-xsd:
 	$(RM) xml/schema/AMCConfiguration.xsd
 	$(RM) xml/schema/VFAT3ChipConfiguration.xsd
 	$(RM) xml/schema/OHv3Configuration.xsd
+	$(RM) xml/schema/GBTXConfiguration.xsd
 
 .PHONY: run-tests-xsd
 run-tests-xsd:
@@ -105,6 +107,7 @@ run-tests-xsd:
 	xmllint --noout --schema xml/schema/VFAT3ChannelConfiguration.xsd xml/examples/VFAT3_Channel_Configuration.xml
 	xmllint --noout --schema xml/schema/OHv3Configuration.xsd xml/examples/OHv3_Configuration.xml
 	xmllint --noout --schema xml/schema/AMCConfiguration.xsd xml/examples/AMC_Configuration.xml
+	xmllint --noout --schema xml/schema/GBTXConfiguration.xsd xml/examples/GBTX_Configuration.xml
 	xmllint --noout --schema xml/schema/system-topology.xsd xml/examples/system-topology.xml
 
 TEST_ENV = LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/

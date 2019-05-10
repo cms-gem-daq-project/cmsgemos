@@ -2,7 +2,7 @@
     <gem:configuration>
         <gem:vfat3-channel-file>VFAT3_Channel_Configuration.xml</gem:vfat3-channel-file>
         <gem:vfat3-chip-file>VFAT3_Chip_Configuration.xml</gem:vfat3-chip-file>
-        <gem:gbt-file>GBT_Configuration.xml</gem:gbt-file>
+        <gem:gbtx-file>GBTX_Configuration.xml</gem:gbtx-file>
         <gem:ohv3-file>OHv3_Configuration.xml</gem:ohv3-file>
         <gem:amc-file>AMC_Configuration.xml</gem:amc-file>
         <gem:amc13-file>AMC13_Configuration.xml</gem:amc13-file>
@@ -12,6 +12,9 @@
             <gem:amc gem:serial-number="AMC-VI-VERSION-0001">
                 <gem:empty-slot/>
                 <gem:ohv3 gem:serial-number="0000">
+                    <gem:gbtx gem:serial-number="111"/>
+                    <gem:gbtx gem:serial-number="222"/>
+                    <gem:gbtx gem:serial-number="333"/>
                     <gem:vfat3 gem:barcode="2940"/>
                     <gem:vfat3 gem:barcode="2941"/>
                     <gem:empty-slot/>
@@ -38,6 +41,9 @@
                     <gem:empty-slot/>
                 </gem:ohv3>
                 <gem:ohv3 gem:serial-number="0001">
+                    <gem:gbtx gem:serial-number="111"/>
+                    <gem:gbtx gem:serial-number="222"/>
+                    <gem:gbtx gem:serial-number="333"/>
                     <gem:empty-slot/>
                     <gem:empty-slot/>
                     <gem:empty-slot/>

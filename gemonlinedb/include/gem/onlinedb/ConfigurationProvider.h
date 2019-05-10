@@ -3,6 +3,7 @@
 
 #include "gem/onlinedb/AMC13Configuration.h"
 #include "gem/onlinedb/AMCConfiguration.h"
+#include "gem/onlinedb/GBTXConfiguration.h"
 #include "gem/onlinedb/OHv3Configuration.h"
 #include "gem/onlinedb/VFAT3ChipConfiguration.h"
 
@@ -46,6 +47,12 @@ namespace gem {
              */
             virtual std::shared_ptr<AMCConfiguration> getAMCConfiguration(
                 const ConfigurationTraits<AMCConfiguration>::PartType &reference) const = 0;
+
+            /**
+             * @brief Retrieves a configuration for the referenced GBTX
+             */
+            virtual std::shared_ptr<GBTXConfiguration> getGBTXConfiguration(
+                const ConfigurationTraits<GBTXConfiguration>::PartType &reference) const = 0;
 
             /**
              * @brief Retrieves a configuration for the referenced OH
