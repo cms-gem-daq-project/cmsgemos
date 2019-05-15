@@ -1,10 +1,11 @@
 from gempython.tools.optohybrid_user_functions_xhal import *
+from gempython.tools.hw_constants import gemVariants
 from gempython.utils.gemlogger import colormsg
 
 import logging
 
 class HwVFAT(object):
-    def __init__(self, cardName, link, debug=False):
+    def __init__(self, cardName, link, debug=False, gemType="ge11", detType="short"):
         """
         Initialize the HW board an open an RPC connection
         """
@@ -14,8 +15,14 @@ class HwVFAT(object):
         # Logger
         self.vfatlogger = logging.getLogger(__name__)
 
+        if gemType not in gemVariants.keys():
+            raise OHTypeException("HwVFAT: gemType '{0}' not in the list of known gemVariants: {1}".format(gemType,gemVariants.keys()),os.EX_USAGE)
+
+        if detType not in gemVariants[gemType]:
+            raise OHTypeException("HwVFAT: detType '{0}' not in the list of known detector types for gemType {1}; list of known detector types: {2}".format(detType, gemType, gemVariants[gemType]), os.EX_USAGE)
+        
         # Optohybrid
-        self.parentOH = HwOptoHybrid(cardName, link, debug)
+        self.parentOH = HwOptoHybrid(cardName, link, debug, gemType, detType)
 
         # Define VFAT3 DAC Monitoring
         self.confDacMonitor = self.parentOH.parentAMC.lib.configureVFAT3DacMonitor
@@ -113,7 +120,7 @@ class HwVFAT(object):
         """
         Returns the chipIDs for all VFATs not in mask.
 
-        mask - vfatMask, 24 bit number, 1 in the N^th bit means skip this VFAT
+        mask - vfatMask, up to a 24 bit number, 1 in the N^th bit means skip this VFAT
         rawID - If true returns the rawID and does not apply the Reed-Muller decoding
         """
 

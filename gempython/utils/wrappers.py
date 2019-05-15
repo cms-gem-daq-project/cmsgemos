@@ -4,12 +4,13 @@ def runCommand(cmd,log=None):
     Provides a wrapper around the subprocess.call command
     cmd should be an array of the form: ["command","arg1",...]
     log should specify a logfile to write to
+    returns the returncode of the process call
     """
 
-    import datetime,os,sys
+    import sys
     import subprocess
     from subprocess import CalledProcessError
-    from gempython.utils.gemlogger import colors,colormsg
+    from gempython.utils.gemlogger import colormsg
     import logging
     logger = logging.getLogger(__name__)
 
@@ -30,6 +31,39 @@ def runCommand(cmd,log=None):
         sys.stdout.flush()
         pass
     return returncode
+
+def runCommandWithOutput(cmd,log=None):
+    """
+    Provides a wrapper around the subprocess.check_output command
+    cmd should be an array of the form: ["command","arg1",...]
+    log should specify a logfile to write to
+    returns the output of the process as a byte string
+    """
+
+    import sys
+    import subprocess
+    from subprocess import CalledProcessError
+    from gempython.utils.gemlogger import colormsg
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        msg = "Executing command:"
+        for c in cmd:
+            msg+=" %s"%(c)
+        logger.info(colormsg(msg,logging.INFO))
+        sys.stdout.flush()
+        returnVal = subprocess.check_output(cmd,stderr=log)
+    except CalledProcessError as e:
+        msg =  "Caught exception"
+        msg+=str(e)
+        msg+=" running:"
+        for c in cmd:
+            msg+=" %s"%(c)
+        logger.error(colormsg(msg,logging.ERROR))
+        sys.stdout.flush()
+        pass
+    return returnVal
 
 def envCheck(envVar):
     import os

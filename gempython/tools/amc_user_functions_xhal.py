@@ -1,8 +1,12 @@
 from ctypes import *
+from gempython.tools.hw_constants import maxVfat3DACSize
 from gempython.utils.gemlogger import colors, printRed, printYellow
+from gempython.utils.wrappers import runCommand, runCommandWithOutput
 
+from reg_utils.reg_interface.common.jtag import initJtagRegAddrs
 from reg_utils.reg_interface.common.reg_base_ops import rpc_connect, rReg, writeReg
 from reg_utils.reg_interface.common.reg_xml_parser import getNode, parseInt, parseXML
+from reg_utils.reg_interface.common.sca_utils import sca_reset 
 
 from xhal.reg_interface_gem.core.reg_extra_ops import rBlock
 
@@ -10,34 +14,6 @@ import logging, os
 
 gMAX_RETRIES = 5
 gRetries = 5
-
-maxVfat3DACSize = {
-        #ADC Measures Current
-        #0:(0x3f, "CFG_IREF"), # This should never be scanned per VFAT3 Team's Instructions
-        1:(0xff,"CFG_CAL_DAC"), # as current
-        2:(0xff,"CFG_BIAS_PRE_I_BIT"),
-        3:(0x3f,"CFG_BIAS_PRE_I_BLCC"),
-        4:(0x3f,"CFG_BIAS_PRE_I_BSF"),
-        5:(0xff,"CFG_BIAS_SH_I_BFCAS"),
-        6:(0xff,"CFG_BIAS_SH_I_BDIFF"),
-        7:(0xff,"CFG_BIAS_SD_I_BDIFF"),
-        8:(0xff,"CFG_BIAS_SD_I_BFCAS"),
-        9:(0x3f,"CFG_BIAS_SD_I_BSF"),
-        10:(0x3f,"CFG_BIAS_CFD_DAC_1"),
-        11:(0x3f,"CFG_BIAS_CFD_DAC_2"),
-        12:(0x3f,"CFG_HYST"),
-        14:(0xff,"CFG_THR_ARM_DAC"),
-        15:(0xff,"CFG_THR_ZCC_DAC"),
-        #16:(0xff,""),Don't know reg in CTP7 address space
-
-        #ADC Measures Voltage
-        #33:(0xff,"CFG_CAL_DAC"), # as voltage; removing, harder to convert to charge
-        34:(0xff,"CFG_BIAS_PRE_VREF"),
-        35:(0xff,"CFG_THR_ARM_DAC"),
-        36:(0xff,"CFG_THR_ZCC_DAC"),
-        39:(0x3,"CFG_VREF_ADC")
-        #41:(0x3f,""))Don't know reg in CTP7 address space
-        }
 
 gbtValueArray = c_uint32 * 3
 class OHLinkMonitorParams(Structure):
@@ -90,6 +66,13 @@ class VFATLinkMonitorParams(Structure):
             ("syncErrCnt",vfatValueArray)
             ]
 VFATLinkMonitorArrayType = VFATLinkMonitorParams * 12
+
+class NoUnmaskedOHException(Exception):
+    def __init__(self, message, errors):
+        super(NoUnmaskedOHException, self).__init__(message)
+
+        self.errors = errors
+        return
 
 class HwAMC(object):
     def __init__(self, cardName, debug=False):
@@ -244,7 +227,7 @@ class HwAMC(object):
 
         return self.ttcGenConf(ohN, mode, t1type, pulseDelay, L1Ainterval, nPulses, enable)
 
-    def configureVFAT3DacMonitorMulti(self, dacSelect, ohMask=0xFFF):
+    def configureVFAT3DacMonitorMulti(self, dacSelect, ohMask=None):
         """
         Configure the DAC Monitoring to monitor the register defined by dacSelect
         on all unmasked VFATs for optohybrids given by ohMask.
@@ -254,8 +237,13 @@ class HwAMC(object):
         dacSelect - An integer defining the monitored register.
                     See VFAT3 Manual GLB_CFG_CTR_4 for details.
         ohMask - Mask which defines which OH's to query; 12 bit number where
-                 having a 1 in the N^th bit means to query the N^th optohybrid
+                 having a 1 in the N^th bit means to query the N^th optohybrid.
+                 If None will be determined automatically using HwAMC::getOHMask()
         """
+        
+        # Automatically determine ohMask if not provided
+        if ohMask is None:
+            ohMask = self.getOHMask(callingMthd="configureVFAT3DacMonitorMulti")
 
         ohVFATMaskArray = self.getMultiLinkVFATMask(ohMask)
         return self.confDacMonitorMulti(ohMask, ohVFATMaskArray, dacSelect)
@@ -268,7 +256,7 @@ class HwAMC(object):
         self.writeRegister("GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x1)
         return
 
-    def getGBTLinkStatus(self,doReset=False,printSummary=False, ohMask=0xfff):
+    def getGBTLinkStatus(self,doReset=False,printSummary=False, ohMask=None):
         """
         Get's the GBT Status and can print a table of the status for each unmasked OH.
         Returns True if all unmasked OH's have all GBT's with:
@@ -280,8 +268,13 @@ class HwAMC(object):
         doReset - Issues a link reset if True
         printSummary - prints a table summarizing the status of the GBT's for each unmasked OH
         ohMask - Mask which defines which OH's to query; 12 bit number where
-                 having a 1 in the N^th bit means to query the N^th optohybrid
+                 having a 1 in the N^th bit means to query the N^th optohybrid.
+                 If None will be determined automatically using HwAMC::getOHMask()
         """
+        
+        # Automatically determine ohMask if not provided
+        if ohMask is None:
+            ohMask = self.getOHMask(callingMthd="getGBTLinkStatus")
 
         gbtMonData = OHLinkMonitorArrayType()
         self.getmonGBTLink(gbtMonData, self.nOHs, ohMask, doReset)
@@ -352,7 +345,7 @@ class HwAMC(object):
         else:
             return mask
 
-    def getMultiLinkVFATMask(self,ohMask=0xfff):
+    def getMultiLinkVFATMask(self,ohMask=None):
         """
         v3 electronics only
 
@@ -360,14 +353,19 @@ class HwAMC(object):
         array is the vfat mask for the ohN defined by the array index
 
         ohMask - Mask which defines which OH's to query; 12 bit number where
-                 having a 1 in the N^th bit means to query the N^th optohybrid
+                 having a 1 in the N^th bit means to query the N^th optohybrid.
+                 If None will be determined automatically using HwAMC::getOHMask()
         """
-
+        
         if self.fwVersion < 3:
             printRed("HwAMC::getLinkVFATMask() - No support in v2b FW")
             return os.EX_USAGE
 
-        vfatMaskArray = (c_uint32 * 12)()
+        # Automatically determine ohMask if not provided
+        if ohMask is None:
+            ohMask = self.getOHMask(callingMthd="getMultiLinkVFATMask")
+
+        vfatMaskArray = (c_uint32 * self.nOHs)()
         rpcResp = self.getOHVFATMaskMultiLink(ohMask, vfatMaskArray)
 
         if rpcResp != 0:
@@ -375,10 +373,26 @@ class HwAMC(object):
         else:
             return vfatMaskArray
 
-    def getOHLinkStatus(self,doReset=False,printSummary=False, ohMask=0xfff):
+    def getOHLinkStatus(self,doReset=False,printSummary=False, ohMask=None):
         #place holder
         printYellow("HwAMC::getOHLinkStatus() not yet implemented")
         return
+
+    def getOHMask(self,callingMthd="getOHMask",raiseIfNoOHs=True):
+        """
+        Gets the OH Mask to use with this AMC
+
+        callingMthd  - Name of calling method, will display in error message if NoUnmaskedOHException is raised
+        raiseIfNoOHs - If True (False) will (not) raise NoUnmaskedOHException if ohMask is determined to be 0x0
+        """
+        scaReady = self.readRegister("GEM_AMC.SLOW_CONTROL.SCA.STATUS.READY")
+        scaError = self.readRegister("GEM_AMC.SLOW_CONTROL.SCA.STATUS.CRITICAL_ERROR")
+
+        ohMask = (scaReady & (~scaError & 0xfff))
+        if ( (not (bin(ohMask).count("1") > 0)) and raiseIfNoOHs):
+            raise NoUnmaskedOHException("{0}HwAMC::{1}: there are no unmasked optohybrids{2}".format(colors.RED,callingMthd,colors.ENDC),os.EX_SOFTWARE)
+
+        return ohMask
 
     def getShelf(self):
         return self.shelf
@@ -409,7 +423,7 @@ class HwAMC(object):
                 print("\tENABLE: \t\t\t%i"%(running))
         return running
 
-    def getTriggerLinkStatus(self,printSummary=False, checkCSCTrigLink=False, ohMask=0xfff):
+    def getTriggerLinkStatus(self,printSummary=False, checkCSCTrigLink=False, ohMask=None):
         """
         Gets the trigger link status for each unmasked OH and returns a dictionary where with keys of ohN and 
         values as the sum of all trigger link status counters.  Only unmasked OH's will exist in this dictionary
@@ -419,15 +433,21 @@ class HwAMC(object):
         If checkCSCTrigLink is False the ohMask will define which OH's to query, a 1 in the N^th bit means to query the N^th optohybrid.
         If checkCSCTrigLink is True, the ohMask is expected to have all odd bits set to 0. Only even bits may be nonzero.
          If the N^th even bit is nonzero the trigger link status for that OHN and OHN+1 will be queried.
+         In all cases if ohMask is None it will be determined automatically from HwAMC::getOHMask().
          It is expected that the GEM trigger link from the physical optohybrid is going to the OHN fiber slot on this AMC and the
          CSC Trigger Link from the physical optohybrid is going to the OHN+1 fiber slot on this AMC.
         """
+        
+        # Automatically determine ohMask if not provided
+        if ohMask is None:
+            ohMask = self.getOHMask(callingMthd="getTriggerLinkStatus")
 
         ohMask2Query=ohMask
         # Are we checking CSC Trigger links?
         if (checkCSCTrigLink):
             # If input mask is not even otherwise it quits
-            if (int(ohMask)%2!=0):
+            onlyOddBits = 0b101010101010
+            if ( (ohMask & onlyOddBits) !=0):
                 printRed("HwAMC::getTriggerLinkStatus(): checkCSCTrigLink=True and ohMask={0}. Checking the CSC trigger link on an odd bit is not allowed.".format(hex(ohMask)))
                 exit(os.EX_USAGE)
                 pass
@@ -442,7 +462,7 @@ class HwAMC(object):
         
         linkStatus=0
         arraySize=8*int(self.nOHs)
-        linkResult = (c_uint32 * arraySize)()
+        linkResult = (c_uint32 * arraySize)( * [0xffffffff for x in range(0,arraySize) ] )
         self.getmonTRIGGEROHmain(linkResult, self.nOHs, ohMask2Query)
 
         if(printSummary):
@@ -499,7 +519,7 @@ class HwAMC(object):
 
         return ohSumLinkStatus
 
-    def getVFATLinkStatus(self,doReset=False,printSummary=False, ohMask=0xfff):
+    def getVFATLinkStatus(self,doReset=False,printSummary=False, ohMask=None):
         """
         Get's the VFAT link status and can print a table of the status for each unmasked OH.
         Returns True if all unmasked OH's have all VFAT's with:
@@ -508,8 +528,13 @@ class HwAMC(object):
         doReset - Issues a link reset if True
         printSummary - prints a table summarizing the status of the GBT's for each unmasked OH
         ohMask - Mask which defines which OH's to query; 12 bit number where
-                 having a 1 in the N^th bit means to query the N^th optohybrid
+                 having a 1 in the N^th bit means to query the N^th optohybrid.
+                 If None will be determined automatically using HwAMC::getOHMask()
         """
+        
+        # Automatically determine ohMask if not provided
+        if ohMask is None:
+            ohMask = self.getOHMask(callingMthd="getVFATLinkStatus")
 
         vfatMonData = VFATLinkMonitorArrayType()
         self.getmonVFATLink(vfatMonData, self.nOHs, ohMask, doReset)
@@ -544,7 +569,7 @@ class HwAMC(object):
 
         return (totalSyncErrors == 0)
 
-    def performDacScanMultiLink(self, dacDataAll, dacSelect, dacStep=1, ohMask=0x3ff, useExtRefADC=False):
+    def performDacScanMultiLink(self, dacDataAll, dacSelect, dacStep=1, ohMask=None, useExtRefADC=False):
         """
         Scans the DAC defined by dacSelect for all links on this AMC.  See VFAT3 manual for more details
         on the available DAC selection.
@@ -555,9 +580,14 @@ class HwAMC(object):
         dacSelect - Integer which specifies the DAC to scan against the ADC.  See VFAT3 Manual
         dacStep - Step size to scan the DAC with
         ohMask - Mask which defines which OH's to query; 12 bit number where
-                 having a 1 in the N^th bit means to query the N^th optohybrid
+                 having a 1 in the N^th bit means to query the N^th optohybrid.
+                 If None will be determined automatically using HwAMC::getOHMask()
         useExtRefADC - If true the DAC scan will be made using the externally referenced ADC on the VFAT3s
         """
+        
+        # Automatically determine ohMask if not provided
+        if ohMask is None:
+            ohMask = self.getOHMask(callingMthd="performDacScanMultiLink")
 
         # Check we are v3 electronics
         if self.fwVersion < 3:
@@ -584,7 +614,7 @@ class HwAMC(object):
 
         return self.dacScanMulti(ohMask, self.nOHs, dacSelect, dacStep, useExtRefADC, dacDataAll)
 
-    def performSBITRateScanMultiLink(self, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, chan=128, dacMin=0, dacMax=254, dacStep=1, ohMask=0x3ff, scanReg="THR_ARM_DAC"):
+    def performSBITRateScanMultiLink(self, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, chan=128, dacMin=0, dacMax=254, dacStep=1, ohMask=None, scanReg="THR_ARM_DAC"):
         """
         Measures the rate of sbits sent by all unmasked optobybrids on this AMC
 
@@ -604,9 +634,14 @@ class HwAMC(object):
         dacMax                  - Ending dac value of the scan
         dacStep                 - Step size for moving from dacMin to dacMax
         ohMask - Mask which defines which OH's to query; 12 bit number where
-                 having a 1 in the N^th bit means to query the N^th optohybrid
+                 having a 1 in the N^th bit means to query the N^th optohybrid.
+                 If None will be determined automatically using HwAMC::getOHMask()
         scanReg                 - Name of register to be scanned.
         """
+        
+        # Automatically determine ohMask if not provided
+        if ohMask is None:
+            ohMask = self.getOHMask(callingMthd="performSBITRateScanMultiLink")
 
         # Check we are v3 electronics
         if self.fwVersion < 3:
@@ -636,16 +671,101 @@ class HwAMC(object):
             exit(os.EX_USAGE)
 
         return self.sbitRateScanMulti(ohMask, dacMin, dacMax, dacStep, chan, scanReg, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT)
+    
+    def programAllOptohybridFPGAs(self, maxIter=5, ohMask=None):
+        """
+        Will make up to maxIter attempts to program the FPGA of all unmasked optohybrids.
+        Before the first attempt the function will check on the AMC that the PROMLESS programming
+        is enabled, if it isn't this will call gemloader_configure.sh on the AMC. Then
+        for each attempt a TTC Hard Reset will be sent from the TTC Generator and then it will
+        check if slow control with the unmasked OH FPGA's is possible.  If it is not, an SCA reset
+        will be sent and then the next attempt will be tried.
 
-    def readADCsMultiLink(self, adcDataAll, useExtRefADC=False, ohMask=0xFFF, debug=False):
+        It will return a list of OH's, out of ohMask, who after maxIter is performed are still
+        unprogrammed. If all OH's in ohMask are programmed before maxIter is reached the procedure will exit
+        and return an empty list.
+
+        maxIter- Maximum number of attempts to program all OH's in ohMask
+        ohMask - Mask which defines which OH's to query; 12 bit number where
+                 having a 1 in the N^th bit means to query the N^th optohybrid.
+                 If None will be determined automatically using HwAMC::getOHMask()
+        """
+
+        # Determine if PROM-Less programming is enabled, if not enable it
+        mpeekCmd = "mpeek 0x6a000000"
+        shellCmd = [
+                'ssh',
+                'gemuser@{0}'.format(self.name),
+                'sh -c "{0}"'.format(mpeekCmd)
+                ]
+        promlessEnabled = runCommandWithOutput(shellCmd).strip('\n')
+        if "0x" in promlessEnabled:
+            promlessEnabled = int(promlessEnabled,16)
+        else:
+            promlessEnabled = int(promlessEnabled)
+            pass
+
+        if promlessEnabled != 0x1:
+            shellCmd = [
+                    'ssh',
+                    'gemuser@{0}'.format(self.name),
+                    'sh -c "/mnt/persistent/gemdaq/gemloader/gemloader_configure.sh"'
+                    ]
+            runCommand(shellCmd)
+
+        # Automatically determine ohMask if not provided
+        if ohMask is None:
+            ohMask = self.getOHMask(callingMthd="programAllOptohybridFPGAs")
+
+        # Program FPGA's
+        self.writeRegister("GEM_AMC.TTC.GENERATOR.ENABLE",0x1)
+        initJtagRegAddrs()
+        for trial in range(0,maxIter):
+            self.writeRegister("GEM_AMC.TTC.GENERATOR.SINGLE_HARD_RESET",0x1)
+            self.writeRegister("GEM_AMC.GEM_SYSTEM.CTRL.LINK_RESET",0x1)
+            isDead = True
+            listOfDeadFPGAs = []
+            ohMaskNeedSCAReset = 0x0
+            for ohN in range(self.nOHs):
+                # Skip masked OH's
+                if( not ((ohMask >> ohN) & 0x1)):
+                    continue
+                fwVerMaj = int(self.readRegister("GEM_AMC.OH.OH{0}.FPGA.CONTROL.RELEASE.VERSION.MAJOR".format(ohN)))
+                if fwVerMaj != 0xdeaddead:
+                    isDead = False
+                else:
+                    isDead = True
+                    listOfDeadFPGAs.append(ohN)
+                    ohMaskNeedSCAReset += (0x1 << ohN)
+                    pass
+                pass
+
+            if not isDead:
+                fpgaCommPassed = True
+                break
+            else:
+                #FIXME note when @evka85 removes adc monitoring block from GEM_AMC FW this line will need to be removed
+                self.writeRegister("GEM_AMC.SLOW_CONTROL.SCA.ADC_MONITORING.MONITORING_OFF",0xfff)
+                sca_reset(ohMaskNeedSCAReset)
+            pass
+        self.writeRegister("GEM_AMC.TTC.GENERATOR.ENABLE",0x0)
+
+        return listOfDeadFPGAs
+
+    def readADCsMultiLink(self, adcDataAll, useExtRefADC=False, ohMask=None, debug=False):
         """
         Reads the ADC value from all unmasked VFATs
 
         adcDataAll - Array of type c_uint32 of size 24*12=288
         useExtRefADC - True (False) use the externally (internally) referenced ADC
         ohMask - Mask which defines which OH's to query; 12 bit number where
-                 having a 1 in the N^th bit means to query the N^th optohybrid
+                 having a 1 in the N^th bit means to query the N^th optohybrid.
+                 If None will be determined automatically using HwAMC::getOHMask()
         """
+
+        # Automatically determine ohMask if not provided
+        if ohMask is None:
+            ohMask = self.getOHMask(callingMthd="readADCsMultiLink")
 
         if debug:
             print("getting vfatmasks for each OH")
@@ -655,8 +775,7 @@ class HwAMC(object):
             print("| ohN | vfatmask |")
             print("| :-: | :------: |")
             for ohN in range(0,12):
-                mask = str(hex(ohVFATMaskArray[ohN])).strip('L')
-                print("| {0} | {1} |".format(ohN, mask))
+                print("| {0} | 0x{1:x} |".format(ohN, ohVFATMaskArray[ohN]))
 
         return self.readADCsMulti(ohMask,ohVFATMaskArray, adcDataAll, useExtRefADC)
 
@@ -734,20 +853,26 @@ class HwAMC(object):
 
         self.writeRegister("GEM_AMC.SLOW_CONTROL.SCA.ADC_MONITORING.MONITORING_OFF",ohMask,debug)
 
-    def scaMonitorMultiLink(self, NOH=12, ohMask=0xfff):
+    def scaMonitorMultiLink(self, ohMask=None):
         """
         v3 electronics only.
         Reads SCA monitoring data for multiple links on the AMC
 
-        NOH - number of OH's on this AMC
-        ohMask - 12 bit number where N^th bit corresponds to N^th OH.  Setting a bit to 1 will cause the SCA data to be monitored for this OH.
+        NOH    - number of OH's on this AMC
+        ohMask - Mask which defines which OH's to query; 12 bit number where
+                 having a 1 in the N^th bit means to query the N^th optohybrid.
+                 If None will be determined automatically using HwAMC::getOHMask()
         """
+        
+        # Automatically determine ohMask if not provided
+        if ohMask is None:
+            ohMask = self.getOHMask(callingMthd="scaMonitorMultiLink")
 
         scaMonData = SCAMonitorArrayType()
-        rpcResp = self.getmonOHSCAmain(scaMonData, NOH, ohMask)
+        rpcResp = self.getmonOHSCAmain(scaMonData, self.nOHs, ohMask)
 
         if rpcResp != 0:
-            raise Exception("RPC response was non-zero, reading SCA Monitoring Data from OH's in ohMask = {0} failed".format(str(hex(args.ohMask)).strip('L')))
+            raise Exception("RPC response was non-zero, reading SCA Monitoring Data from OH's in ohMask = 0x{0:x} failed".format(ohMask))
 
         return scaMonData
 
@@ -759,21 +884,27 @@ class HwAMC(object):
         self.slot = slot
         return
 
-    def sysmonMonitorMultiLink(self, NOH=12, ohMask=0xfff, doReset=False):
+    def sysmonMonitorMultiLink(self, NOH=12, ohMask=None, doReset=False):
         """
         v3 eletronics only.
         Reads FPGA sysmon data for multiple links on the AMC
 
         NOH - number of OH's on this AMC
-        ohMask - 12 bit number where N^th bit corresponds to N^th OH.  Setting a bit to 1 will cause the SCA data to be monitored for this OH.
+        ohMask - Mask which defines which OH's to query; 12 bit number where
+                 having a 1 in the N^th bit means to query the N^th optohybrid.
+                 If None will be determined automatically using HwAMC::getOHMask()
         doReset - Resets the sysmon alarm counters (generally unwise)
         """
+
+        # Automatically determine ohMask if not provided
+        if ohMask is None:
+            ohMask = self.getOHMask(callingMthd="sysmonMonitorMultiLink")
 
         sysmonData = SysmonMonitorArrayType()
         rpcResp = self.getmonOHSysmon(sysmonData, NOH, ohMask, doReset)
 
         if rpcResp != 0:
-            raise Exception("RPC response was non-zero, reading Sysmon Monitoring Data from OH's in ohMask = {0} failed".format(str(hex(args.ohMask)).strip('L')))
+            raise Exception("RPC response was non-zero, reading Sysmon Monitoring Data from OH's in ohMask = 0x{0:x} failed".format(ohMask))
 
         return sysmonData
 
