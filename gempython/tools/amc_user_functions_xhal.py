@@ -279,27 +279,48 @@ class HwAMC(object):
         gbtMonData = OHLinkMonitorArrayType()
         self.getmonGBTLink(gbtMonData, self.nOHs, ohMask, doReset)
 
-        if(printSummary):
+        if (printSummary):
             print("--=======================================--")
             print("-> GEM SYSTEM GBT INFORMATION")
             print("--=======================================--")
             print("")
             pass
 
-        allRdy = 1
-        noneNotRdy = 0
-        hadOverflow = 0
+        allRdy       = 1
+        noneNotRdy   = 0
+        hadOverflow  = 0
         hadUnderflow = 0
+
+        NGBT = 3
+        hfmt       = "{:4s}"
+        gbtfmt     = []
+        gbtfmt.append("GBT{}.READY")
+        gbtfmt.append("GBT{}.NOT_READY")
+        gbtfmt.append("GBT{}.RX_HAD_OVERFLOW")
+        gbtfmt.append("GBT{}.RX_HAD_UNDERFLOW")
+        stfmt      = "{}{:4d}{}"
+        lines = [[] for x in range(NGBT*4+1)]
+        lines[0].append("{}".format(" "*(len(max(gbtfmt)))))
+
+        for gbt in range(NGBT):
+            lines[4*gbt+1].append("{{:{}s}}".format(len(max(gbtfmt))).format(gbtfmt[0].format(gbt)))
+            lines[4*gbt+2].append("{{:{}s}}".format(len(max(gbtfmt))).format(gbtfmt[1].format(gbt)))
+            lines[4*gbt+3].append("{{:{}s}}".format(len(max(gbtfmt))).format(gbtfmt[2].format(gbt)))
+            lines[4*gbt+4].append("{{:{}s}}".format(len(max(gbtfmt))).format(gbtfmt[3].format(gbt)))
+
         for ohN in range(self.nOHs):
             # Skip Masked OH's
             if (not ((ohMask >> ohN) & 0x1)):
                 continue
 
-            if(printSummary):
-                print("----------OH{0}----------".format(ohN))
-                pass
+            allRdy.append([])
+            noneNotRdy.append([])
+            hadOverflow.append([])
+            hadUnderflow.append([])
 
-            for gbtN in range(3):
+            lines[0].append(hfmt.format(("OH{:d}".format(oh)).rjust(4)))
+
+            for gbtN in range(NGBT):
                 gbtRdy      = gbtMonData[ohN].gbtRdy[gbtN]
                 gbtNotRdy   = gbtMonData[ohN].gbtNotRdy[gbtN]
                 gbtRxOver   = gbtMonData[ohN].gbtRxOverflow[gbtN]
@@ -310,19 +331,16 @@ class HwAMC(object):
                 hadOverflow += gbtRxOver
                 hadUnderflow += gbtRxUnder
 
-                if(printSummary):
-                    print("GBT{0}.READY              {1}{2}{3}".format(
-                        gbtN,colors.RED if (not gbtRdy) else colors.GREEN,gbtRdy,colors.ENDC))
-                    print("GBT{0}.NOT_READY          {1}{2}{3}".format(
-                        gbtN,colors.RED if gbtNotRdy else colors.GREEN,gbtNotRdy,colors.ENDC))
-                    print("GBT{0}.RX_HAD_OVERFLOW    {1}{2}{3}".format(
-                        gbtN,colors.RED if gbtRxOver else colors.GREEN,gbtRxOver,colors.ENDC))
-                    print("GBT{0}.RX_HAD_UNDERFLOW   {1}{2}{3}".format(
-                        gbtN,colors.RED if gbtRxUnder else colors.GREEN,gbtRxUnder,colors.ENDC))
-                    pass
+                lines[4*gbtN+1].append(stfmt.format(colors.RED if not (gbtRdy) else colors.GREEN, gbtRdy,  colors.ENDC))
+                lines[4*gbtN+2].append(stfmt.format(colors.RED if gbtNotRdy else colors.GREEN, gbtNotRdy, colors.ENDC))
+                lines[4*gbtN+3].append(stfmt.format(colors.RED if gbtRxOver else colors.GREEN, gbtRxOver, colors.ENDC))
+                lines[4*gbtN+4].append(stfmt.format(colors.RED if gbtRxUnder else colors.GREEN, gbtRxUnder, colors.ENDC))
                 pass
             pass
 
+        if printSummary:
+            for line in lines:
+                print("|".join(line))
         return (allRdy == 1 and noneNotRdy == 0 and hadOverflow == 0 and hadUnderflow == 0)
 
     def getL1ACount(self):
