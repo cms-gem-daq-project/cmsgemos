@@ -9,6 +9,11 @@ vfatsPerGemVariant = {
             "ge21":12,
             "me0":24}
 
+gbtsPerGemVariant = {
+            "ge11":3,
+            "ge21":1,
+            "me0":0}
+
 # Size of VFAT3 DAC's
 maxVfat3DACSize = {
         #ADC Measures Current

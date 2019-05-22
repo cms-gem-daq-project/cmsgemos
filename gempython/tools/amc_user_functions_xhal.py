@@ -1,12 +1,12 @@
 from ctypes import *
-from gempython.tools.hw_constants import maxVfat3DACSize
+from gempython.tools.hw_constants import maxVfat3DACSize,gbtsPerGemVariant
 from gempython.utils.gemlogger import colors, printRed, printYellow
 from gempython.utils.wrappers import runCommand, runCommandWithOutput
 
 from reg_utils.reg_interface.common.jtag import initJtagRegAddrs
 from reg_utils.reg_interface.common.reg_base_ops import rpc_connect, rReg, writeReg
 from reg_utils.reg_interface.common.reg_xml_parser import getNode, parseInt, parseXML
-from reg_utils.reg_interface.common.sca_utils import sca_reset 
+from reg_utils.reg_interface.common.sca_utils import sca_reset
 
 from xhal.reg_interface_gem.core.reg_extra_ops import rBlock
 
@@ -79,10 +79,10 @@ class HwAMC(object):
         """
         Initialize the HW board an open an RPC connection
         """
-        
+
         # Debug flag
         self.debug = debug
-        
+
         # Logger
         self.amclogger = logging.getLogger(__name__)
 
@@ -97,11 +97,11 @@ class HwAMC(object):
                 printYellow("Initializing shelf{0}:slot{1}".format(self.shelf,self.slot))
         else:
             self.slot   = 0
-            self.shelf  = 0 
+            self.shelf  = 0
 
         # Open the foreign function library
         self.lib = CDLL("librpcman.so")
-        
+
         # Define Link Monitoring
         self.getmonGBTLink = self.lib.getmonGBTLink
         self.getmonGBTLink.argTypes = [ OHLinkMonitorArrayType, c_uint, c_uint, c_bool ]
@@ -118,7 +118,7 @@ class HwAMC(object):
         self.getmonVFATLink = self.lib.getmonVFATLink
         self.getmonVFATLink.argTypes = [ VFATLinkMonitorArrayType, c_uint, c_uint, c_bool ]
         self.getmonVFATLink.restype = c_uint
-        
+
         # Define VFAT3 DAC Monitoring
         self.confDacMonitorMulti = self.lib.configureVFAT3DacMonitorMultiLink
         self.confDacMonitorMulti.argTypes = [ c_uint, POINTER(c_uint32), c_uint ]
@@ -197,7 +197,7 @@ class HwAMC(object):
         """
         blocks L1A's from backplane for this AMC
         """
-       
+
         self.writeRegister("GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x0)
         return
 
@@ -240,7 +240,7 @@ class HwAMC(object):
                  having a 1 in the N^th bit means to query the N^th optohybrid.
                  If None will be determined automatically using HwAMC::getOHMask()
         """
-        
+
         # Automatically determine ohMask if not provided
         if ohMask is None:
             ohMask = self.getOHMask(callingMthd="configureVFAT3DacMonitorMulti")
@@ -252,7 +252,7 @@ class HwAMC(object):
         """
         enables L1A's from backplane for this AMC
         """
-        
+
         self.writeRegister("GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x1)
         return
 
@@ -264,14 +264,14 @@ class HwAMC(object):
             2. GBT_NOT_READY = 0x0
             3. RX_HAD_OVERFLOW = 0x0
             4. RX_HAD_UNDERFLOW = 0x0
-        
+
         doReset - Issues a link reset if True
         printSummary - prints a table summarizing the status of the GBT's for each unmasked OH
         ohMask - Mask which defines which OH's to query; 12 bit number where
                  having a 1 in the N^th bit means to query the N^th optohybrid.
                  If None will be determined automatically using HwAMC::getOHMask()
         """
-        
+
         # Automatically determine ohMask if not provided
         if ohMask is None:
             ohMask = self.getOHMask(callingMthd="getGBTLinkStatus")
@@ -279,11 +279,28 @@ class HwAMC(object):
         gbtMonData = OHLinkMonitorArrayType()
         self.getmonGBTLink(gbtMonData, self.nOHs, ohMask, doReset)
 
-        if (printSummary):
+        NGBT = gbtsPerGemVariant["ge11"]
+        if printSummary:
             print("--=======================================--")
             print("-> GEM SYSTEM GBT INFORMATION")
             print("--=======================================--")
             print("")
+            hfmt   = "{:4s}"
+            dfmt   = "{}{:4d}{}"
+            gbtfmt = []
+            gbtfmt.append("GBT{}.READY")
+            gbtfmt.append("GBT{}.NOT_READY")
+            gbtfmt.append("GBT{}.RX_HAD_OVERFLOW")
+            gbtfmt.append("GBT{}.RX_HAD_UNDERFLOW")
+
+            lines = [[] for x in range(NGBT*4+1)]
+            lines[0].append("{}".format(" "*(len(max(gbtfmt)))))
+
+            for gbt in range(NGBT):
+                lines[4*gbt+1].append("{{:{}s}}".format(len(max(gbtfmt,key=len))).format(gbtfmt[0].format(gbt)))
+                lines[4*gbt+2].append("{{:{}s}}".format(len(max(gbtfmt,key=len))).format(gbtfmt[1].format(gbt)))
+                lines[4*gbt+3].append("{{:{}s}}".format(len(max(gbtfmt,key=len))).format(gbtfmt[2].format(gbt)))
+                lines[4*gbt+4].append("{{:{}s}}".format(len(max(gbtfmt,key=len))).format(gbtfmt[3].format(gbt)))
             pass
 
         allRdy       = 1
@@ -291,34 +308,13 @@ class HwAMC(object):
         hadOverflow  = 0
         hadUnderflow = 0
 
-        NGBT = 3
-        hfmt       = "{:4s}"
-        gbtfmt     = []
-        gbtfmt.append("GBT{}.READY")
-        gbtfmt.append("GBT{}.NOT_READY")
-        gbtfmt.append("GBT{}.RX_HAD_OVERFLOW")
-        gbtfmt.append("GBT{}.RX_HAD_UNDERFLOW")
-        stfmt      = "{}{:4d}{}"
-        lines = [[] for x in range(NGBT*4+1)]
-        lines[0].append("{}".format(" "*(len(max(gbtfmt)))))
-
-        for gbt in range(NGBT):
-            lines[4*gbt+1].append("{{:{}s}}".format(len(max(gbtfmt))).format(gbtfmt[0].format(gbt)))
-            lines[4*gbt+2].append("{{:{}s}}".format(len(max(gbtfmt))).format(gbtfmt[1].format(gbt)))
-            lines[4*gbt+3].append("{{:{}s}}".format(len(max(gbtfmt))).format(gbtfmt[2].format(gbt)))
-            lines[4*gbt+4].append("{{:{}s}}".format(len(max(gbtfmt))).format(gbtfmt[3].format(gbt)))
-
         for ohN in range(self.nOHs):
             # Skip Masked OH's
             if (not ((ohMask >> ohN) & 0x1)):
                 continue
 
-            allRdy.append([])
-            noneNotRdy.append([])
-            hadOverflow.append([])
-            hadUnderflow.append([])
-
-            lines[0].append(hfmt.format(("OH{:d}".format(oh)).rjust(4)))
+            if printSummary:
+                lines[0].append(hfmt.format(("OH{:d}".format(ohN)).rjust(4)))
 
             for gbtN in range(NGBT):
                 gbtRdy      = gbtMonData[ohN].gbtRdy[gbtN]
@@ -331,10 +327,11 @@ class HwAMC(object):
                 hadOverflow += gbtRxOver
                 hadUnderflow += gbtRxUnder
 
-                lines[4*gbtN+1].append(stfmt.format(colors.RED if not (gbtRdy) else colors.GREEN, gbtRdy,  colors.ENDC))
-                lines[4*gbtN+2].append(stfmt.format(colors.RED if gbtNotRdy else colors.GREEN, gbtNotRdy, colors.ENDC))
-                lines[4*gbtN+3].append(stfmt.format(colors.RED if gbtRxOver else colors.GREEN, gbtRxOver, colors.ENDC))
-                lines[4*gbtN+4].append(stfmt.format(colors.RED if gbtRxUnder else colors.GREEN, gbtRxUnder, colors.ENDC))
+                if printSummary:
+                    lines[4*gbtN+1].append(dfmt.format(colors.RED if not (gbtRdy) else colors.GREEN, gbtRdy,  colors.ENDC))
+                    lines[4*gbtN+2].append(dfmt.format(colors.RED if gbtNotRdy else colors.GREEN, gbtNotRdy, colors.ENDC))
+                    lines[4*gbtN+3].append(dfmt.format(colors.RED if gbtRxOver else colors.GREEN, gbtRxOver, colors.ENDC))
+                    lines[4*gbtN+4].append(dfmt.format(colors.RED if gbtRxUnder else colors.GREEN, gbtRxUnder, colors.ENDC))
                 pass
             pass
 
@@ -374,7 +371,7 @@ class HwAMC(object):
                  having a 1 in the N^th bit means to query the N^th optohybrid.
                  If None will be determined automatically using HwAMC::getOHMask()
         """
-        
+
         if self.fwVersion < 3:
             printRed("HwAMC::getLinkVFATMask() - No support in v2b FW")
             return os.EX_USAGE
@@ -414,7 +411,7 @@ class HwAMC(object):
 
     def getShelf(self):
         return self.shelf
-    
+
     def getSlot(self):
         return self.slot
 
@@ -443,7 +440,7 @@ class HwAMC(object):
 
     def getTriggerLinkStatus(self,printSummary=False, checkCSCTrigLink=False, ohMask=None):
         """
-        Gets the trigger link status for each unmasked OH and returns a dictionary where with keys of ohN and 
+        Gets the trigger link status for each unmasked OH and returns a dictionary where with keys of ohN and
         values as the sum of all trigger link status counters.  Only unmasked OH's will exist in this dictionary
 
         If printSummary is set to True a summary table for the status of each unmasked OH is printed.
@@ -455,7 +452,7 @@ class HwAMC(object):
          It is expected that the GEM trigger link from the physical optohybrid is going to the OHN fiber slot on this AMC and the
          CSC Trigger Link from the physical optohybrid is going to the OHN+1 fiber slot on this AMC.
         """
-        
+
         # Automatically determine ohMask if not provided
         if ohMask is None:
             ohMask = self.getOHMask(callingMthd="getTriggerLinkStatus")
@@ -477,7 +474,7 @@ class HwAMC(object):
                 ohMask2Query += (0x1 << (ohN+1))
                 pass
             pass
-        
+
         linkStatus=0
         arraySize=8*int(self.nOHs)
         linkResult = (c_uint32 * arraySize)( * [0xffffffff for x in range(0,arraySize) ] )
@@ -491,34 +488,55 @@ class HwAMC(object):
             pass
 
         ohSumLinkStatus = {}
+        if printSummary:
+            hfmt      = "{:4s}"
+            colw      = len(max([colors.GREEN,colors.RED],key=len))+len(colors.ENDC)+4
+            xfmt      = "{}0x{:1x}{}"
+            ohlinkfmt = []
+            ohlinkfmt.append("LINK0_MISSED_COMMA_CNT")
+            ohlinkfmt.append("LINK1_MISSED_COMMA_CNT")
+            ohlinkfmt.append("LINK0_OVERFLOW_CNT")
+            ohlinkfmt.append("LINK1_OVERFLOW_CNT")
+            ohlinkfmt.append("LINK0_UNDERFLOW_CNT")
+            ohlinkfmt.append("LINK1_UNDERFLOW_CNT")
+            ohlinkfmt.append("LINK0_SBIT_OVERFLOW_CNT")
+            ohlinkfmt.append("LINK1_SBIT_OVERFLOW_CNT")
+
+            lines = [[] for x in range(len(ohlinkfmt)+1)]
+            lines[0].append("{}".format(" "*(len(max(ohlinkfmt,key=len)))))
+            for st in range(len(ohlinkfmt)):
+                lines[st+1].append("{{:{}s}}".format(len(max(ohlinkfmt,key=len))).format(ohlinkfmt[st]))
+
+            if (checkCSCTrigLink):
+                clines = [[] for x in range(len(ohlinkfmt)+1)]
+                clines[0].append("{}".format(" "*(len(max(ohlinkfmt,key=len)))))
+                for st in range(len(ohlinkfmt)):
+                    clines[st+1].append("{{:{}s}}".format(len(max(ohlinkfmt,key=len))).format(ohlinkfmt[st]))
+
         for ohN in range(self.nOHs):
             # Skip Masked OH's
             if (not ((ohMask >> ohN) & 0x1)):
                 continue
 
-            if(printSummary):
-                print("----------OH{0}----------".format(ohN))
-                print("LINK0_MISSED_COMMA_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[ohN] > 0) else colors.GREEN,linkResult[ohN],colors.ENDC))
-                print("LINK1_MISSED_COMMA_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[ohN+self.nOHs] > 0) else colors.GREEN,linkResult[ohN+self.nOHs],colors.ENDC))
-                print("LINK0_OVERFLOW_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[ohN+2*self.nOHs] > 0) else colors.GREEN,linkResult[ohN+2*self.nOHs],colors.ENDC))
-                print("LINK1_OVERFLOW_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[ohN+3*self.nOHs] > 0) else colors.GREEN,linkResult[ohN+3*self.nOHs],colors.ENDC))
-                print("LINK0_UNDERFLOW_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[ohN+4*self.nOHs] > 0) else colors.GREEN,linkResult[ohN+4*self.nOHs],colors.ENDC))
-                print("LINK1_UNDERFLOW_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[ohN+5*self.nOHs] > 0) else colors.GREEN,linkResult[ohN+5*self.nOHs],colors.ENDC))
-                print("LINK0_SBIT_OVERFLOW_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[ohN+6*self.nOHs] > 0) else colors.GREEN,linkResult[ohN+6*self.nOHs],colors.ENDC))
-                print("LINK1_SBIT_OVERFLOW_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[ohN+7*self.nOHs] > 0) else colors.GREEN,linkResult[ohN+7*self.nOHs],colors.ENDC))
-                pass
+            if printSummary:
+                lines[0].append(hfmt.format(("OH{:d}".format(ohN)).rjust(4)))
+                for st in range(len(ohlinkfmt)):
+                    if st < 1:
+                        lines[st+1].append(xfmt.format(colors.RED if (linkResult[ohN] > 0) else colors.GREEN, linkResult[ohN],  colors.ENDC).rjust(colw))
+                    elif st < 2:
+                        lines[st+1].append(xfmt.format(colors.RED if (linkResult[ohN+self.nOHs] > 0) else colors.GREEN, linkResult[ohN+self.nOHs],  colors.ENDC).rjust(colw))
+                    else:
+                        lines[st+1].append(xfmt.format(colors.RED if (linkResult[ohN+(st*self.nOHs)] > 0) else colors.GREEN, linkResult[ohN+(st*self.nOHs)],  colors.ENDC).rjust(colw))
 
-            if (checkCSCTrigLink):
-                if(printSummary):
-                    print("----------OH{0}----------".format(ohN+1))
-                    print("LINK0_MISSED_COMMA_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[(ohN+1)] > 0) else colors.GREEN,linkResult[(ohN+1)],colors.ENDC))
-                    print("LINK1_MISSED_COMMA_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[(ohN+1)+self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+self.nOHs],colors.ENDC))
-                    print("LINK0_OVERFLOW_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[(ohN+1)+2*self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+2*self.nOHs],colors.ENDC))
-                    print("LINK1_OVERFLOW_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[(ohN+1)+3*self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+3*self.nOHs],colors.ENDC))
-                    print("LINK0_UNDERFLOW_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[(ohN+1)+4*self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+4*self.nOHs],colors.ENDC))
-                    print("LINK1_UNDERFLOW_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[(ohN+1)+5*self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+5*self.nOHs],colors.ENDC))
-                    print("LINK0_SBIT_OVERFLOW_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[(ohN+1)+6*self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+6]*self.nOHs,colors.ENDC))
-                    print("LINK1_SBIT_OVERFLOW_CNT		{0}0x{1:x}{2}".format(colors.RED if (linkResult[(ohN+1)+7*self.nOHs] > 0) else colors.GREEN,linkResult[(ohN+1)+7*self.nOHs],colors.ENDC))
+                if (checkCSCTrigLink):
+                    clines[0].append(hfmt.format(("OH{:d}".format(ohN)).rjust(4)))
+                    for st in range(len(ohlinkfmt)):
+                        if st < 1:
+                            clines[st+1].append(xfmt.format(colors.RED if (linkResult[(ohN+1)] > 0) else colors.GREEN, linkResult[(ohN+1)],  colors.ENDC).rjust(colw))
+                        elif st < 2:
+                            clines[st+1].append(xfmt.format(colors.RED if (linkResult[(ohN+1)+self.nOHs] > 0) else colors.GREEN, linkResult[(ohN+1)+self.nOHs],  colors.ENDC).rjust(colw))
+                        else:
+                            clines[st+1].append(xfmt.format(colors.RED if (linkResult[(ohN+1)+(st*self.nOHs)] > 0) else colors.GREEN, linkResult[(ohN+1)+(st*self.nOHs)],  colors.ENDC).rjust(colw))
                     pass
 
             # Initialize trigger link status container
@@ -534,6 +552,12 @@ class HwAMC(object):
                     ohSumLinkStatus[ohN+1]+=linkResult[(ohN+1)+idx*self.nOHs]
                 pass
             pass
+        if printSummary:
+            for l in lines:
+                print(" | ".join(l))
+            if checkCSCTrigLink:
+                for l in clines:
+                    print(" | ".join(l))
 
         return ohSumLinkStatus
 
@@ -542,14 +566,14 @@ class HwAMC(object):
         Get's the VFAT link status and can print a table of the status for each unmasked OH.
         Returns True if all unmasked OH's have all VFAT's with:
             1. SYNC_ERR_CNT = 0x0
-        
+
         doReset - Issues a link reset if True
         printSummary - prints a table summarizing the status of the GBT's for each unmasked OH
         ohMask - Mask which defines which OH's to query; 12 bit number where
                  having a 1 in the N^th bit means to query the N^th optohybrid.
                  If None will be determined automatically using HwAMC::getOHMask()
         """
-        
+
         # Automatically determine ohMask if not provided
         if ohMask is None:
             ohMask = self.getOHMask(callingMthd="getVFATLinkStatus")
@@ -557,12 +581,22 @@ class HwAMC(object):
         vfatMonData = VFATLinkMonitorArrayType()
         self.getmonVFATLink(vfatMonData, self.nOHs, ohMask, doReset)
 
-        if(printSummary):
+        if printSummary:
             print("--=======================================--")
             print("-> GEM SYSTEM VFAT INFORMATION")
             print("--=======================================--")
             print("")
             pass
+            hfmt = "{:4s}"
+            colw = len(max([colors.GREEN,colors.RED],key=len))+len(colors.ENDC)+4
+            xfmt = "{}0x{:1x}{}"
+
+            vfatsyncfmt = ["VFAT{}.SYNC_ERR_CNT".format(vfat) for vfat in range(24) ]
+
+            lines = [[] for x in range(len(vfatsyncfmt)+1)]
+            lines[0].append("{}".format(" "*(len(max(vfatsyncfmt,key=len)))))
+            for st in range(len(vfatsyncfmt)):
+                lines[st+1].append("{{:{}s}}".format(len(max(vfatsyncfmt,key=len))).format(vfatsyncfmt[st]))
 
         totalSyncErrors = 0
         for ohN in range(self.nOHs):
@@ -570,21 +604,26 @@ class HwAMC(object):
             if (not ((ohMask >> ohN) & 0x1)):
                 continue
 
-            if(printSummary):
-                print("----------OH{0}----------".format(ohN))
+            if printSummary:
+                lines[0].append(hfmt.format(("OH{:d}".format(ohN)).rjust(4)))
+                # print("----------OH{0}----------".format(ohN))
                 pass
 
             for vfatN in range(24):
                 nSyncErrors = vfatMonData[ohN].syncErrCnt[vfatN]
                 totalSyncErrors += nSyncErrors
 
-                if(printSummary):
-                    print("VFAT{0}.SYNC_ERR_CNT {1}{2}{3}".format(
-                        vfatN,colors.RED if (nSyncErrors > 0) else colors.GREEN,hex(nSyncErrors),colors.ENDC))
+                if printSummary:
+                    lines[vfatN+1].append(xfmt.format(colors.RED if (nSyncErrors > 0) else colors.GREEN, nSyncErrors, colors.ENDC).rjust(colw))
+                    # print("VFAT{0}.SYNC_ERR_CNT {1}{2}{3}".format(
+                    #     vfatN,colors.RED if (nSyncErrors > 0) else colors.GREEN,hex(nSyncErrors),colors.ENDC))
                     pass
                 pass
             pass
 
+        if printSummary:
+            for l in lines:
+                print(" | ".join(l))
         return (totalSyncErrors == 0)
 
     def performDacScanMultiLink(self, dacDataAll, dacSelect, dacStep=1, ohMask=None, useExtRefADC=False):
@@ -602,7 +641,7 @@ class HwAMC(object):
                  If None will be determined automatically using HwAMC::getOHMask()
         useExtRefADC - If true the DAC scan will be made using the externally referenced ADC on the VFAT3s
         """
-        
+
         # Automatically determine ohMask if not provided
         if ohMask is None:
             ohMask = self.getOHMask(callingMthd="performDacScanMultiLink")
@@ -637,7 +676,7 @@ class HwAMC(object):
         Measures the rate of sbits sent by all unmasked optobybrids on this AMC
 
         V3 electronics only.
-        
+
         outDataDacVal           - Array of type c_uint32, array size must be:
                                   (12 * (dacMax - dacMin + 1) / stepSize)
                                   The i^th position here is the DAC value that
@@ -656,7 +695,7 @@ class HwAMC(object):
                  If None will be determined automatically using HwAMC::getOHMask()
         scanReg                 - Name of register to be scanned.
         """
-        
+
         # Automatically determine ohMask if not provided
         if ohMask is None:
             ohMask = self.getOHMask(callingMthd="performSBITRateScanMultiLink")
@@ -689,7 +728,7 @@ class HwAMC(object):
             exit(os.EX_USAGE)
 
         return self.sbitRateScanMulti(ohMask, dacMin, dacMax, dacStep, chan, scanReg, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT)
-    
+
     def programAllOptohybridFPGAs(self, maxIter=5, ohMask=None):
         """
         Will make up to maxIter attempts to program the FPGA of all unmasked optohybrids.
@@ -808,7 +847,7 @@ class HwAMC(object):
         if m_node is None:
             print colors.MAGENTA,"NODE %s NOT FOUND" %(register),colors.ENDC
             return 0x0
-     
+
         p = (c_uint32*nwords)()
         words = []
         if (debug):
@@ -881,7 +920,7 @@ class HwAMC(object):
                  having a 1 in the N^th bit means to query the N^th optohybrid.
                  If None will be determined automatically using HwAMC::getOHMask()
         """
-        
+
         # Automatically determine ohMask if not provided
         if ohMask is None:
             ohMask = self.getOHMask(callingMthd="scaMonitorMultiLink")
@@ -945,11 +984,11 @@ class HwAMC(object):
         if m_node is None:
             print colors.MAGENTA,"NODE %s NOT FOUND"%(register),colors.ENDC
             return 0x0
-    
+
         if debug:
             print "Trying to write\n"
             print m_node.output()
-     
+
         while (nRetries < gMAX_RETRIES):
             rsp = writeReg(m_node, value)
             if "permission" in rsp:

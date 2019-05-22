@@ -69,7 +69,7 @@ def glibCounters(device,gtx,doReset=False):
         return
     else:
         counters = nesteddict()
-        
+
         for ipbcnt in ["Strobe","Ack"]:
             for ipb in ["OptoHybrid","TRK"]:
                 counters["IPBus"][ipbcnt][ipb] = readRegister(device,"%s.IPBus.%s.%s_%d"%(   baseNode, ipbcnt,ipb,gtx))
@@ -92,7 +92,7 @@ def readTrackingInfo(device,gtx,nBlocks=1):
     """
     baseNode = "GLIB.TRK_DATA.OptoHybrid_%d"%(gtx)
     data = readBlock(device,"%s.FIFO"%(baseNode),7*nBlocks)
-    
+
     #for word in data:
     #    msg = "%s: 0x%08x"%(word,data)
     #    amclogger.info(colormsg(msg,logging.INFO))
@@ -117,7 +117,7 @@ def readFIFODepth(device,gtx):
     data["isEMPTY"]   = readRegister(device,"%s.ISEMPTY"%(baseNode))
     data["Occupancy"] = readRegister(device,"%s.DEPTH"%(baseNode))
     return data
-        
+
 def setTriggerSBits(isGLIB,device,gtx,source):
     """
     Set the trigger sbit source
@@ -143,7 +143,7 @@ def resetDAQLink(device):
     """
     Reset the DAQ link
     """
-    
+
     writeRegister(device,"GEM_AMC.DAQ.CONTROL.DAQ_LINK_RESET",0x1)
     writeRegister(device,"GEM_AMC.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
     pass
@@ -157,7 +157,7 @@ def enableDAQLink(device, linkEnableMask=0x1, doReset=False):
     amclogger.info(colormsg(msg,logging.INFO))
     if (doReset):
         resetDAQLink(device)
-        
+
     writeRegister(device, "GEM_AMC.DAQ.CONTROL.DAQ_ENABLE",        0x1)
     writeRegister(device, "GEM_AMC.DAQ.CONTROL.TTS_OVERRIDE",      0x8)
     writeRegister(device, "GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", linkEnableMask)
@@ -181,26 +181,18 @@ def printSystemTTCInfo(amc,debug=False):
     print "-> GEM SYSTEM TTC INFORMATION"
     print "--=======================================--"
     print
-    mmcmLck      = readRegister(amc,"GEM_AMC.TTC.STATUS.CLK.MMCM_LOCKED")
-    mmcmULckCnt  = readRegister(amc,"GEM_AMC.TTC.STATUS.CLK.MMCM_UNLOCK_CNT")
-    phaseLck     = readRegister(amc,"GEM_AMC.TTC.STATUS.CLK.PHASE_LOCKED")
-    phaseULckCnt = readRegister(amc,"GEM_AMC.TTC.STATUS.CLK.PHASE_UNLOCK_CNT")
-    bc0Lck       = readRegister(amc,"GEM_AMC.TTC.STATUS.BC0.LOCKED")
-    bc0ULckCnt   = readRegister(amc,"GEM_AMC.TTC.STATUS.BC0.UNLOCK_CNT")
-    syncDone     = readRegister(amc,"GEM_AMC.TTC.STATUS.CLK.SYNC_DONE")
+    mmcmLck      = readRegister(amc,"GEM_AMC.TTC.STATUS.MMCM_LOCKED")
+    mmcmULckCnt  = readRegister(amc,"GEM_AMC.TTC.STATUS.MMCM_UNLOCK_CNT")
     ttcSglErrCnt = readRegister(amc,"GEM_AMC.TTC.STATUS.TTC_SINGLE_ERROR_CNT")
     ttcDblErrCnt = readRegister(amc,"GEM_AMC.TTC.STATUS.TTC_DOUBLE_ERROR_CNT")
+    bc0Lck       = readRegister(amc,"GEM_AMC.TTC.STATUS.BC0.LOCKED")
+    bc0ULckCnt   = readRegister(amc,"GEM_AMC.TTC.STATUS.BC0.UNLOCK_CNT")
     bc0OflwCnt   = readRegister(amc,"GEM_AMC.TTC.STATUS.BC0.OVERFLOW_CNT")
     bc0UflwCnt   = readRegister(amc,"GEM_AMC.TTC.STATUS.BC0.UNDERFLOW_CNT")
     print("BC0.LOCKED           %s0x%08x%s"%(colors.GREEN if bc0Lck           else colors.RED,bc0Lck,colors.ENDC))
     print("MMCM_LOCKED          %s0x%08x%s"%(colors.GREEN if mmcmLck          else colors.RED,mmcmLck,colors.ENDC))
-    print("PHASE_LOCKED         %s0x%08x%s"%(colors.GREEN if phaseLck         else colors.RED,phaseLck,colors.ENDC))
-    print("SYNC_DONE            %s0x%08x%s"%(colors.GREEN if syncDone         else colors.RED,syncDone,colors.ENDC))
-    print("MMCM_UNLOCK_CNT      %s0x%08x%s"%(colors.RED   if mmcmULckCnt > 0  else colors.GREEN,mmcmULckCnt,colors.ENDC))
     print("BC0.UNLOCK_CNT       %s0x%08x%s"%(colors.RED   if bc0ULckCnt > 0   else colors.GREEN,bc0ULckCnt,colors.ENDC))
-    print("PHASE_UNLOCK_CNT     %s0x%08x%s"%(colors.RED   if phaseULckCnt > 0 else colors.GREEN,phaseULckCnt,colors.ENDC))
-    print("PHASE_UNLOCK_TIME    %s0x%08x%s"%(colors.BLUE,readRegister(amc,"GEM_AMC.TTC.STATUS.CLK.PHASE_UNLOCK_TIME"),colors.ENDC))
-    print("SYNC_DONE_TIME       %s0x%08x%s"%(colors.BLUE,readRegister(amc,"GEM_AMC.TTC.STATUS.CLK.SYNC_DONE_TIME"   ),colors.ENDC))
+    print("MMCM_UNLOCK_CNT      %s0x%08x%s"%(colors.RED   if mmcmULckCnt > 0  else colors.GREEN,mmcmULckCnt,colors.ENDC))
     print("TTC_SINGLE_ERROR_CNT %s0x%08x%s"%(colors.GREEN if ttcSglErrCnt == 0  else colors.YELLOW if ttcSglErrCnt < 0xffff else colors.RED,ttcSglErrCnt,colors.ENDC))
     print("TTC_DOUBLE_ERROR_CNT %s0x%08x%s"%(colors.GREEN if ttcDblErrCnt == 0  else colors.YELLOW if ttcDblErrCnt < 0xffff else colors.RED,ttcDblErrCnt,colors.ENDC))
     print("BC0.OVERFLOW_CNT     %s0x%08x%s"%(colors.GREEN if bc0OflwCnt == 0  else colors.YELLOW if bc0OflwCnt < 0xffff else colors.RED,bc0OflwCnt,colors.ENDC))

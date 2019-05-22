@@ -75,7 +75,6 @@ print "BOARD_ID            0x%08x"%(readRegister(amc,"GEM_AMC.GEM_SYSTEM.BOARD_I
 print "BOARD_TYPE          0x%08x"%(readRegister(amc,"GEM_AMC.GEM_SYSTEM.BOARD_TYPE"))
 print "RELEASE             0x%08x"%(readRegister(amc,"GEM_AMC.GEM_SYSTEM.RELEASE"))
 print "NUM_OF_OH           0x%08x"%(readRegister(amc,"GEM_AMC.GEM_SYSTEM.CONFIG.NUM_OF_OH"))
-print "USE_GBT             0x%08x"%(readRegister(amc,"GEM_AMC.GEM_SYSTEM.CONFIG.USE_GBT"))
 print "USE_TRIG_LINKS      0x%08x"%(readRegister(amc,"GEM_AMC.GEM_SYSTEM.CONFIG.USE_TRIG_LINKS"))
 print
 print "--=======================================--"
