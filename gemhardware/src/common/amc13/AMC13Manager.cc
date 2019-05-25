@@ -48,6 +48,7 @@ gem::hw::amc13::AMC13Manager::L1AInfo::L1AInfo()
   sendl1ATriburst        = false;  // CLEANME need to remove
   sendl1ATriburst        = false;  // CLEANME need to remove
   enableLEMO             = false;
+  startL1AGen            = false;
 }
 
 void gem::hw::amc13::AMC13Manager::L1AInfo::registerFields(xdata::Bag<L1AInfo> *l1Abag)
@@ -60,6 +61,7 @@ void gem::hw::amc13::AMC13Manager::L1AInfo::registerFields(xdata::Bag<L1AInfo> *
   l1Abag->addField("sendL1ATriburst",        &sendl1ATriburst );  // CLEANME need to remove
   l1Abag->addField("startL1ATricont",        &startl1ATricont );  // CLEANME need to remove
   l1Abag->addField("EnableLEMO",             &enableLEMO );
+  l1Abag->addField("StartL1AGen",            &startL1AGen );
 }
 
 gem::hw::amc13::AMC13Manager::TTCInfo::TTCInfo()
@@ -205,6 +207,7 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
     m_sendL1ATriburst        = m_localTriggerConfig.bag.sendl1ATriburst.value_;
     m_startL1ATricont        = m_localTriggerConfig.bag.startl1ATricont.value_;
     m_enableLEMO             = m_localTriggerConfig.bag.enableLEMO.value_;
+    m_startL1AGen            = m_localTriggerConfig.bag.startL1AGen.value_;
 
     DEBUG("AMC13Manager::actionPerformed m_enableLocalL1A " << std::endl
          << m_localTriggerConfig.bag.toString());
@@ -463,7 +466,9 @@ void gem::hw::amc13::AMC13Manager::startAction()
     if (m_enableLEMO) {
       DEBUG("AMC13Manager::startAction enabling LEMO trigger " << m_enableLEMO);
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0x1);
-    } else {
+    }
+    if (m_startL1AGen) {
+      DEBUG("AMC13Manager::startAction enabling local generator triggers " << m_startL1AGen);
       p_amc13->startContinuousL1A();
     }
   } else {
@@ -515,11 +520,13 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   }
 
   if (m_enableLocalL1A) {
-    if (m_enableLEMO)
+    if (m_enableLEMO) {
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
-    else
+    }
+    if (m_startL1AGen) {
       // what if using both local triggers and LEMO triggers?
       p_amc13->stopContinuousL1A();
+    }
   } else {
     /*
     // HACK
@@ -566,10 +573,12 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
     p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
     p_amc13->enableLocalL1A(m_enableLocalL1A);
 
-    if (m_enableLEMO)
+    if (m_enableLEMO) {
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
-    else
+    }
+    if (m_startL1AGen) {
       p_amc13->startContinuousL1A();  // only if we want to send triggers continuously
+    }
   } else {
     /*
     // HACK
@@ -610,11 +619,12 @@ void gem::hw::amc13::AMC13Manager::stopAction()
 
   if (m_enableLocalL1A) {
     // p_amc13->enableLocalL1A(false);
-
-    if (m_enableLEMO)
+    if (m_enableLEMO) {
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
-    else
+    }
+    if (m_startL1AGen) {
       p_amc13->stopContinuousL1A();
+    }
   } else {
     /*
     // HACK

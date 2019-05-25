@@ -133,6 +133,7 @@ namespace gem {
 	    xdata::Boolean           sendl1ATriburst; // need to remove
 	    xdata::Boolean           startl1ATricont; // need to remove
 	    xdata::Boolean           enableLEMO;
+	    xdata::Boolean           startL1AGen;
 
             inline std::string toString() {
               std::stringstream os;
@@ -144,6 +145,7 @@ namespace gem {
                  << "sendl1ATriburst       : " <<  sendl1ATriburst.toString()        << std::endl
                  << "startl1ATricont       : " <<  startl1ATricont.toString()        << std::endl
                  << "enableLEMO            : " <<  enableLEMO.toString()             << std::endl
+                 << "startL1AGen           : " <<  startL1AGen.toString()            << std::endl
                  << std::endl;
               return os.str();
             };
@@ -252,7 +254,7 @@ namespace gem {
           bool m_monBackPressEnable, m_megaMonitorScale;
           bool m_enableLocalTTC, m_skipPLLReset, m_enableLocalL1A,
             m_sendL1ATriburst, m_startL1ATricont, // need to remove
-	    m_bgoRepeat, m_bgoIsLong, m_enableLEMO;
+	    m_bgoRepeat, m_bgoIsLong, m_enableLEMO, m_startL1AGen;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset, m_bgoChannel;
 	  uint8_t m_bgoCMD;

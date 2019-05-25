@@ -55,7 +55,8 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   m_amcEnableMask(0),
   m_uhalPhaseShift(false),
   m_bc0LockPhaseShift(false),
-  m_relockPhase(true)
+  m_relockPhase(true),
+  m_enableZS(false)
 {
   m_glibInfo.setSize(MAX_AMCS_PER_CRATE);
 
@@ -65,6 +66,7 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   p_appInfoSpace->fireItemAvailable("UHALPhaseShift",    &m_uhalPhaseShift);
   p_appInfoSpace->fireItemAvailable("BC0LockPhaseShift", &m_bc0LockPhaseShift);
   p_appInfoSpace->fireItemAvailable("RelockPhase",       &m_relockPhase);
+  p_appInfoSpace->fireItemAvailable("EnableZS",          &m_enableZS);
 
   p_appInfoSpace->addItemRetrieveListener("AllGLIBsInfo",      this);
   p_appInfoSpace->addItemRetrieveListener("AMCSlots",          this);
@@ -72,12 +74,14 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   p_appInfoSpace->addItemRetrieveListener("UHALPhaseShift",    this);
   p_appInfoSpace->addItemRetrieveListener("BC0LockPhaseShift", this);
   p_appInfoSpace->addItemRetrieveListener("RelockPhase",       this);
+  p_appInfoSpace->addItemRetrieveListener("EnableZS",          this);
   p_appInfoSpace->addItemChangedListener( "AllGLIBsInfo",      this);
   p_appInfoSpace->addItemChangedListener( "AMCSlots",          this);
   p_appInfoSpace->addItemChangedListener( "ConnectionFile",    this);
   p_appInfoSpace->addItemChangedListener( "UHALPhaseShift",    this);
   p_appInfoSpace->addItemChangedListener( "BC0LockPhaseShift", this);
   p_appInfoSpace->addItemChangedListener( "RelockPhase",       this);
+  p_appInfoSpace->addItemChangedListener( "EnableZS",          this);
 
   xgi::bind(this, &GLIBManager::dumpGLIBFIFO, "dumpGLIBFIFO");
 
@@ -325,6 +329,10 @@ void gem::hw::glib::GLIBManager::configureAction()
         m_glibMonitors.at(slot)->pauseMonitoring();
 
       amc->scaHardResetEnable(false);
+      // reset the DAQ (could move this to HwGenericAMC and eventually  a corresponding RPC module
+      amc->setL1AEnable(false);
+      amc->disableDAQLink();
+      amc->resetDAQLink();
       amc->resetL1ACount();
       amc->resetCalPulseCount();
 
@@ -352,12 +360,8 @@ void gem::hw::glib::GLIBManager::configureAction()
         }
       }
 
-      // reset the DAQ (could move this to HwGenericAMC and eventually  a corresponding RPC module
-      amc->setL1AEnable(false);
-      amc->disableDAQLink();
-      amc->resetDAQLink();
-      amc->enableDAQLink(0x4);  // FIXME
-      amc->enableZeroSuppression(0x1);
+      // amc->enableDAQLink(0x4);  // FIXME REMOVED 27.05.2019 jsturdy
+      amc->enableZeroSuppression(m_enableZS.value_);
       amc->setDAQLinkRunType(0x0);
       amc->setDAQLinkRunParameters(0xfaac);
 
@@ -473,7 +477,7 @@ void gem::hw::glib::GLIBManager::startAction()
       amc->ttcReset();
       amc->enableDAQLink(0x4);  // FIXME
       amc->resetDAQLink();
-      amc->enableZeroSuppression(0x1);
+      amc->enableZeroSuppression(m_enableZS.value_);
       amc->setL1AEnable(true);
       usleep(10); // just for testing the timing of different applications
 
