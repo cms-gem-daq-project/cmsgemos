@@ -46,12 +46,12 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
             controlChar = device.getNode(register).read()
             device.dispatch()
             return controlChar
-        except uhal.exception, e:
+        except uhal.exception as e:
             nRetries += 1
             gRetries += 1
             if ((nRetries % 10) == 1):
                 msg = "%s: read (%s) error encountered (%s), retrying operation (%d,%d)"%(device,register,str(e),nRetries,gRetries)
-                reglogger.warning(msg)
+                reglogger.debug(msg)
                 continue
         pass
 
@@ -78,8 +78,10 @@ def readRegisterList(device, registers, debug=False):
     while (nRetries < gMAX_RETRIES):
         try:
             results = nesteddict()
-            for reg in registers:
+            for i,reg in enumerate(registers):
                 results[reg] = device.getNode(reg).read()
+                if (i % 5 == 4):
+                    device.dispatch()
                 pass
             msg = "%s\n"%(device)
             if (debug):
@@ -102,9 +104,9 @@ def readRegisterList(device, registers, debug=False):
 
             return results
 
-        except uhal.exception, e:
+        except uhal.exception as e:
             msg ="%s: read error encountered (%s), retrying operation (%d,%d)"%(device,str(e),nRetries,gRetries),
-            reglogger.warning(msg)
+            reglogger.debug(msg)
             nRetries += 1
             gRetries += 1
             if ((nRetries % 10) == 1):
@@ -154,7 +156,7 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
 
             return words
         # want to be able to return nothing in the result of a failed transaction
-        except uhal.exception, e:
+        except uhal.exception as e:
             nRetries += 1
             gRetries += 1
             # if ('amount of data' in e):
@@ -167,12 +169,12 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
             #     print colors.MAGENTA, "other error",register, "-> Error : ", e, colors.ENDC
             if ((nRetries % 10) == 1):
                 msg = "%s: read (%s) error encountered (%s), retrying operation (%d,%d)"%(device,register,str(e),nRetries,gRetries)
-                reglogger.warning(msg)
+                reglogger.debug(msg)
             continue
         pass
     msg = "%s: error encountered, retried read operation (%d)"%(device,nRetries)
     reglogger.error(msg)
-    
+
     return []
 
 def writeRegister(device, register, value, debug=False):
@@ -201,7 +203,7 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
             device.dispatch()
             return
 
-        except uhal.exception, e:
+        except uhal.exception as e:
             # if ('amount of data' in e):
             #     print colors.BLUE, "bad header",register, "-> Error : ", e, colors.ENDC
             # elif ('INFO CODE = 0x4L' in e):
@@ -214,7 +216,7 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
             gRetries += 1
             if ((nRetries % 10) == 1) and debug:
                 msg = "%s: write (%s) error encountered (%s), retrying operation (%d,%d)"%(device,register,str(e),nRetries,gRetries)
-                reglogger.warning(msg)
+                reglogger.debug(msg)
                 pass
             continue
         pass
@@ -233,19 +235,20 @@ def writeRegisterList(device, regs_with_vals, debug=False):
     nRetries = 0
     while (nRetries < gMAX_RETRIES):
         try:
-            for reg in regs_with_vals.keys():
+            for i,reg in enumerate(regs_with_vals.keys()):
                 device.getNode(reg).write(0xffffffff&regs_with_vals[reg])
-                # device.dispatch()
+                if (i % 5 == 4):
+                    device.dispatch()
                 pass
             device.dispatch()
             return
 
-        except uhal.exception, e:
+        except uhal.exception as e:
             msg = "%s: write error encountered ["%(device)
             for reg in regs_with_vals:
                 msg+= "%s:0x%x,"%(reg,regs_with_vals[reg])
             msg+= "], (%s) retrying operation (%d,%d)"%(str(e),nRetries,gRetries)
-            reglogger.warning(msg)
+            reglogger.debug(msg)
             nRetries += 1
             gRetries += 1
             if ((nRetries % 10) == 1) and debug:

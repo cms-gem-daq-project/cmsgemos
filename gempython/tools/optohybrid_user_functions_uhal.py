@@ -72,28 +72,27 @@ def checkOHBoard(device,gtx=0,debug=False):
 
 def getFirmwareVersionRaw(device,gtx=0,debug=False):
     """
-    Returns the raw OH firmware date
+    Returns the raw OH firmware version
     """
-    baseNode = "GEM_AMC.OH.OH%d"%(gtx)
-    fwver = readRegister(device,"%s.STATUS.FW"%(baseNode),debug)
+    baseNode = "GEM_AMC.OH.OH%d.FPGA.CONTROL"%(gtx)
+    fwver = readRegister(device,"%s.RELEASE.VERSION"%(baseNode),debug)
     return fwver
 
 def getFirmwareVersion(device,gtx=0,debug=False):
     """
     Returns the OH firmware date as a map (day, month, year)
     """
-    baseNode = "GEM_AMC.OH.OH%d"%(gtx)
-    fwver = readRegister(device,"%s.STATUS.FW.VERSION"%(baseNode),debug)
-    ver = "%x.%x.%x.%x"%(0xff&(fwver>>24),0xff&(fwver>>16),0xff&(fwver>>8),0xff&fwver)
+    baseNode = "GEM_AMC.OH.OH%d.FPGA.CONTROL"%(gtx)
+    fwver = readRegister(device,"%s.RELEASE.VERSION"%(baseNode),debug)
+    ver = "{3:x}.{2:x}.{1:x}.{0:x}".format(0xff&(fwver>>24),0xff&(fwver>>16),0xff&(fwver>>8),0xff&fwver)
     return ver
-    #return date
 
 def getFirmwareDate(device,gtx=0,debug=False):
     """
     Returns the OH firmware date as a map (day, month, year)
     """
-    baseNode = "GEM_AMC.OH.OH%d"%(gtx)
-    fwdate = readRegister(device,"%s.STATUS.FW.DATE"%(baseNode),debug)
+    baseNode = "GEM_AMC.OH.OH%d.FPGA.CONTROL"%(gtx)
+    fwdate = readRegister(device,"%s.RELEASE.DATE"%(baseNode),debug)
     date = nesteddict()
     date["d"] = fwdate&0xff
     date["m"] = (fwdate>>8)&0xff
@@ -122,150 +121,75 @@ def getConnectedVFATsMask(device,gtx=0,debug=False):
     """
     Returns the broadcast I2C mask corresponding to the connected VFATs
     """
-    vfatVals  = broadcastRead(device,gtx,"ChipID0")
-    bmask = 0x0
+    level = reglogger.level
+    setRegisterLogLevel(logging.FATAL)
+    vfatVals  = broadcastRead(device,gtx,"HW_CHIP_ID")
+    bmask = 0xff000000
     if (vfatVals):
         for i,val in enumerate(vfatVals):
             msg = "%d: value = 0x%08x"%(i,val)
             ohlogger.debug(colormsg(msg,logging.DEBUG))
+            if not val:
+                bmask |= (0x1<<i)
             pass
         pass
 
+    setRegisterLogLevel(level)
     return bmask
 
 def broadcastWrite(device,gtx,register,value,mask=0xff000000,debug=False):
     """
     Perform a broadcast I2C write on the VFATs specified by mask
     Will return when operation has completed
+    FIXME for V3 this is changed to a list write
     """
-    baseNode = "GEM_AMC.OH.OH%d.GEB.Broadcast"%(gtx)
-    writeRegister(device,"%s.Reset"%(baseNode), 0x1,debug)
-    writeRegister(device,"%s.Mask"%(baseNode), mask,debug)
-    writeRegister(device,"%s.Request.%s"%(baseNode,register),value,debug)
-
-    msg ="%s: broadcast read request status 0x%x"%(device,readRegister(device,"%s.Running"%(baseNode),debug))
-    ohlogger.debug(colormsg(msg,logging.DEBUG))
-
-    while (readRegister(device,"%s.Running"%(baseNode))):
-        msg ="%s: broadcast read request still running..."%(device)
-        ohlogger.debug(colormsg(msg,logging.DEBUG))
-        time.sleep(0.1)
-        pass
+    baseNode = "GEM_AMC.OH.OH%d.GEB"%(gtx)
+    regsToWrite = {}
+    for v in range(24):
+        if not ((mask >> v) & 0x1):
+            regsToWrite["{:s}.VFAT{:d}.{:s}".format(baseNode,v,register)] = value
+    # writeRegisterList(device, regsToWrite, debug)
+    for r in regsToWrite:
+        regVals.append(writeRegister(device, r, regsToWrite[r], debug))
+    pass
 
 def broadcastRead(device,gtx,register,mask=0xff000000,debug=False):
     """
     Perform a broadcast I2C read on the VFATs specified by mask
     Will return data when operation has completed
+    FIXME for V3 this is changed to a list read
     """
-    baseNode = "GEM_AMC.OH.OH%d.GEB.Broadcast"%(gtx)
-    writeRegister(device,"%s.Reset"%(baseNode), 0x1,debug)
-    writeRegister(device,"%s.Mask"%(baseNode), mask,debug)
-    readRegister(device,"%s.Request.%s"%(baseNode,register),debug)
+    baseNode = "GEM_AMC.OH.OH%d.GEB"%(gtx)
+    regsToRead = []
+    for v in range(24):
+        # if not ((mask >> v) & 0x1):
+        regsToRead.append("{:s}.VFAT{:d}.{:s}".format(baseNode,v,register))
 
-    msg = "%s: broadcast write request status 0x%x"%(device,readRegister(device,"%s.Running"%(baseNode),debug))
-    ohlogger.debug(colormsg(msg,logging.DEBUG))
-
-    while (readRegister(device,"%s.Running"%(baseNode))):
-        msg ="%s: broadcast write request still running..."%(device)
-        ohlogger.debug(colormsg(msg,logging.DEBUG))
-        time.sleep(0.1)
-        pass
-
-    # bitcount = bits not set in mask
-    bitcount = 24
-    return readBlock(device,"%s.Results"%(baseNode),bitcount)
+    # regVals = readRegisterList(device, regsToRead, debug)
+    regVals = []
+    for r in regsToRead:
+        try:
+            regVals.append(readRegister(device, r, debug))
+        except Exception as e:
+            regVals.append(None)
+    return regVals
 
 def optohybridCounters(device,gtx=0,doReset=False,debug=False):
     """
     read the optical link counters, returning a map
     if doReset is true, just send the reset command and pass
-    WB:MASTER,SLAVE
+    SEM:CRITICAL,CORRECTION
     CRC:VALID,INCORRECT
-    T1:GTX_TTC,GBT_TTC,INTERNAL,EXTERNAL,LOOPBACK,SENT
-    GTX
-    GBT
+    LOCAL:BX0,BXN
+    TTC:L1A,BX0,BXN
     """
-    baseNode = "GEM_AMC.OH.OH%d.COUNTERS"%(gtx)
+    baseNode = "GEM_AMC.OH.OH%d.FPGA"%(gtx)
 
     if doReset:
         reg_list = nesteddict()
-        for wbcnt in ["Strobe","Ack"]:
-
-            reg_list["%s.WB.MASTER.%s.GTX.Reset"%(   baseNode, wbcnt)] = 0x1
-            reg_list["%s.WB.MASTER.%s.GBT.Reset"%(   baseNode, wbcnt)] = 0x1
-            reg_list["%s.WB.MASTER.%s.ExtI2C.Reset"%(baseNode, wbcnt)] = 0x1
-            reg_list["%s.WB.MASTER.%s.Scan.Reset"%(  baseNode, wbcnt)] = 0x1
-            reg_list["%s.WB.MASTER.%s.DAC.Reset"%(   baseNode, wbcnt)] = 0x1
-            # wishbone slaves
-            for i2c in range(6):
-                reg_list["%s.WB.SLAVE.%s.I2C%d.Reset"%(baseNode, wbcnt, i2c)] = 0x1
-            for slave in ["ExtI2C","Scan","T1","DAC","ADC","Clocking","Counters","System"]:
-                reg_list["%s.WB.SLAVE.%s.%s.Reset"%(baseNode, wbcnt, slave)] = 0x1
-        #CRC counters
-        for vfat in range(24):
-            reg_list["%s.CRC.VALID.VFAT%d.Reset"%(    baseNode, vfat)] = 0x1
-            reg_list["%s.CRC.INCORRECT.VFAT%d.Reset"%(baseNode, vfat)] = 0x1
-
-        #T1 counters
-        for t1src in ["GTX_TTC", "GBT_TTC", "INTERNAL","EXTERNAL","LOOPBACK","SENT"]:
-            for t1 in ["L1A", "CalPulse","Resync","BC0"]:
-                reg_list["%s.T1.%s.%s.Reset"%(baseNode, t1src, t1)] = 0x1
-
-        reg_list["%s.GTX_LINK.TRK_ERR.Reset"%(     baseNode)] = 0x1
-        # reg_list["%s.GTX_LINK.TRG_ERR.Reset"%(   baseNode)] = 0x1
-        reg_list["%s.GTX_LINK.DATA_Packets.Reset"%(baseNode)] = 0x1
-        reg_list["%s.GBT_LINK.TRK_ERR.Reset"%(     baseNode)] = 0x1
-        reg_list["%s.GBT_LINK.DATA_Packets.Reset"%(baseNode)] = 0x1
-
-        writeRegisterList(device,reg_list,debug)
         return
     else:
         counters = nesteddict()
-
-        reg_list = []
-        for wbcnt in ["Strobe","Ack"]:
-            # reg_list.append("%s.WB.MASTER.%s.GTX"%(   baseNode, wbcnt))
-            # reg_list.append("%s.WB.MASTER.%s.GBT"%(   baseNode, wbcnt))
-            # reg_list.append("%s.WB.MASTER.%s.ExtI2C"%(baseNode, wbcnt))
-            # reg_list.append("%s.WB.MASTER.%s.Scan"%(  baseNode, wbcnt))
-            # reg_list.append("%s.WB.MASTER.%s.DAC"%(   baseNode, wbcnt))
-            counters["WB"]["MASTER"][wbcnt]["GTX"]    = readRegister(device,"%s.WB.MASTER.%s.GTX"%(   baseNode, wbcnt))
-            counters["WB"]["MASTER"][wbcnt]["GBT"]    = readRegister(device,"%s.WB.MASTER.%s.GBT"%(   baseNode, wbcnt))
-            counters["WB"]["MASTER"][wbcnt]["ExtI2C"] = readRegister(device,"%s.WB.MASTER.%s.ExtI2C"%(baseNode, wbcnt))
-            counters["WB"]["MASTER"][wbcnt]["Scan"]   = readRegister(device,"%s.WB.MASTER.%s.Scan"%(  baseNode, wbcnt))
-            counters["WB"]["MASTER"][wbcnt]["DAC"]    = readRegister(device,"%s.WB.MASTER.%s.DAC"%(   baseNode, wbcnt))
-
-            # wishbone slaves
-            for i2c in range(6):
-                # reg_list.append("%s.WB.SLAVE.%s.I2C%d"%(baseNode, wbcnt, i2c))
-                counters["WB"]["MASTER"][wbcnt]["I2C%d"%i2c] = readRegister(device,"%s.WB.SLAVE.%s.I2C%d"%(baseNode, wbcnt, i2c))
-            for slave in ["ExtI2C","Scan","T1","DAC","ADC","Clocking","Counters","System"]:
-                # reg_list.append("%s.WB.SLAVE.%s.%s"%(baseNode, wbcnt, slave))
-                counters["WB"]["MASTER"][wbcnt][slave]       = readRegister(device,"%s.WB.SLAVE.%s.%s"%(baseNode, wbcnt, slave))
-
-        #CRC counters
-        for vfat in range(24):
-            # reg_list.append("%s.CRC.VALID.VFAT%d"%(    baseNode, vfat))
-            # reg_list.append("%s.CRC.INCORRECT.VFAT%d"%(baseNode, vfat))
-            counters["CRC"]["VALID"]["VFAT%d"%vfat]     = readRegister(device,"%s.CRC.VALID.VFAT%d"%(    baseNode, vfat))
-            counters["CRC"]["INCORRECT"]["VFAT%d"%vfat] = readRegister(device,"%s.CRC.INCORRECT.VFAT%d"%(baseNode, vfat))
-
-        #T1 counters
-        for t1src in ["GTX_TTC", "GBT_TTC", "INTERNAL","EXTERNAL","LOOPBACK","SENT"]:
-            for t1 in ["L1A", "CalPulse","Resync","BC0"]:
-                # reg_list.append("%s.T1.%s.%s"%(baseNode, t1src, t1))
-                counters["T1"][t1src][t1] = readRegister(device,"%s.T1.%s.%s"%(baseNode, t1src, t1))
-
-        # reg_list.append("%s.GTX.TRK_ERR"%(baseNode))
-        # reg_list.append("%s.GTX.TRG_ERR"%(baseNode))
-        # reg_list.append("%s.GTX.DATA_Packets"%(baseNode))
-        counters["GTX"]["TRK_ERR"]      = readRegister(device,"%s.GTX_LINK.TRK_ERR"%(baseNode))
-        counters["GTX"]["DATA_Packets"] = readRegister(device,"%s.GTX_LINK.DATA_Packets"%(baseNode))
-        counters["GBT"]["TRK_ERR"]      = readRegister(device,"%s.GBT_LINK.TRK_ERR"%(baseNode))
-        counters["GBT"]["DATA_Packets"] = readRegister(device,"%s.GBT_LINK.DATA_Packets"%(baseNode))
-
-        # reg_vals = readRegisterList(device,reg_list,debug)
-
         return counters
 
 def setTriggerSource(device,gtx,source,debug=False):
@@ -487,16 +411,10 @@ def getClockingInfo(device,gtx,debug=False):
     """
     clocking = nesteddict()
 
-    # v2b only
-    clocking["qplllock"]        = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.QPLL_LOCK" %(gtx))
-    clocking["qpllfpgaplllock"] = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.QPLL_FPGA_PLL_LOCK"%(gtx))
-
-    #v2a only
-    clocking["fpgaplllock"] = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.FPGA_PLL_LOCK"%(gtx))
-    clocking["extplllock"]  = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.EXT_PLL_LOCK" %(gtx))
-    clocking["cdcelock"]    = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.CDCE_LOCK"    %(gtx))
-    clocking["gtxreclock"]  = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.GTX_LOCK" %(gtx))
-    clocking["refclock"]    = readRegister(device,"GEM_AMC.OH.OH%d.CONTROL.CLOCK.REF_CLK"%(gtx))
+    clocking["gbtmmcmlock"]      = readRegister(device,"GEM_AMC.OH.OH%d.FPGA.CLOCKING.GBT_MMCM_LOCKED" %(gtx))
+    clocking["gbtmmcmlockcnt"]   = readRegister(device,"GEM_AMC.OH.OH%d.FPGA.CLOCKING.GBT_MMCM_UNLOCKED_CNT" %(gtx))
+    clocking["logicmmcmlock"]    = readRegister(device,"GEM_AMC.OH.OH%d.FPGA.CLOCKING.LOGIC_MMCM_LOCKED"%(gtx))
+    clocking["logicmmcmlockcnt"] = readRegister(device,"GEM_AMC.OH.OH%d.FPGA.CLOCKING.LOGIC_MMCM_UNLOCKED_CNT"%(gtx))
 
     return clocking
 
@@ -504,41 +422,29 @@ def getVFATsBitMask(device,gtx=0,debug=False):
     """
     Returns the VFAT s-bit mask
     """
-    baseNode = "GEM_AMC.OH.OH%d.CONTROL"%(gtx)
-    return readRegister(device,"%s.VFAT.SBIT_MASK"%(baseNode))
+    baseNode = "GEM_AMC.OH.OH%d.FPGA.TRIG"%(gtx)
+    return readRegister(device,"%s.CTRL.VFAT_MASK"%(baseNode))
 
 def setVFATsBitMask(device,gtx=0,mask=0x000000,debug=False):
     """
     Set the VFAT s-bit mask
     """
-    baseNode = "GEM_AMC.OH.OH%d.CONTROL"%(gtx)
-    return writeRegister(device,"%s.VFAT.SBIT_MASK"%(baseNode),mask)
+    baseNode = "GEM_AMC.OH.OH%d.FPGA.TRIG"%(gtx)
+    return writeRegister(device,"%s.CTRL.VFAT_MASK"%(baseNode),mask)
 
 def getVFATTrackingMask(device,gtx=0,debug=False):
     """
     Returns the VFAT s-bit mask
     """
-    baseNode = "GEM_AMC.OH.OH%d.CONTROL.VFAT"%(gtx)
-    return readRegister(device,"%s.TRK_MASK"%(baseNode))
+    baseNode = "GEM_AMC.OH_LINKS.OH%d.VFAT"%(gtx)
+    return readRegister(device,"%s_MASK"%(baseNode))
 
 def setVFATTrackingMask(device,gtx=0,mask=0x000000,debug=False):
     """
     Set the VFAT s-bit mask
     """
-    baseNode = "GEM_AMC.OH.OH%d.CONTROL.VFAT"%(gtx)
-    return writeRegister(device,"%s.TRK_MASK"%(baseNode),mask)
-
-def calculateLockErrors(device,gtx,register,sampleTime):
-    baseNode = "GEM_AMC.OH.OH%d.COUNTERS"%(gtx)
-    errorCounts = nesteddict()
-
-    #for link in ("QPLL_LOCK","QPLL_FPGA_PLL_LOCK"):
-    writeRegister(device,"%s.%s_LOCK.Reset"%(baseNode,register),0x1)
-    first = readRegister(device,"%s.%s_LOCK"%(baseNode,register))
-    time.sleep(sampleTime)
-    second = readRegister(device,"%s.%s_LOCK"%(baseNode,register))
-    errorCounts = [first,second]
-    return errorCounts
+    baseNode = "GEM_AMC.OH_LINKS.OH%d.VFAT"%(gtx)
+    return writeRegister(device,"%s_MASK"%(baseNode),mask)
 
 def configureScanModule(device, gtx, mode, vfat, channel=0,
                         scanmin=0x0, scanmax=0xff,
@@ -596,7 +502,7 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
         pass
 
     writeRegisterList(device,regList)
-    
+
     #regList = dict.fromkeys(["GEM_AMC.OH.OH%d.COUNTERS.CRC.INCORRECT.VFAT%d.Reset"%(gtx,i) for i in range(24)],1)
     #writeRegisterList(device,regList)
     # for some reason the code above doesn't work and triggers ipbus transaction errors... The code below works!
@@ -715,7 +621,7 @@ def getUltraScanResults(device, gtx, numpoints, debug=False):
         isLatency = True
         print "At link %s: %d/%d L1As processed, %d%% done" %(gtx, getL1ACount(device,gtx)-ohnL1A_0, numpoints*numtrigs, (getL1ACount(device,gtx)-ohnL1A_0)*100./(numpoints*numtrigs))
     else:
-        isLatency = False    
+        isLatency = False
     while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
         msg = "%s: Ultra scan still running (0x%x), not returning results"%(device,
                                                                             readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
@@ -809,6 +715,6 @@ def calculateLinkErrors(device,gtx,sampleTime):
         second = readRegister(device,"%s.OH%d.COUNTERS.%s_LINK.TRK_ERR"%(baseNode,gtx,link))
         errorCounts[link] = [first,second]
     return errorCounts
-                                                                                      
+
 def getL1ACount(device,link):
     return readRegister(device, "GEM_AMC.OH.OH%s.COUNTERS.T1.SENT.L1A"%(link))
