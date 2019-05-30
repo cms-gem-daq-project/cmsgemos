@@ -22,6 +22,7 @@
 ## Stage definitions
 stages:
   - compile   # compile the sources, make the docs (if requested)
+  # - docs      # compile the docs (if requested)
   - buildrpm  # build the RPMs
   - test      # test the packages (install, run basic tests)
   - deploy    # deploy the RPMs and docs
@@ -51,11 +52,11 @@ stages:
 
   
 .common_variables: &common_variables
-  BUILD_HOME:        /builds/$CI_PROJECT_NAMESPACE
+  BUILD_HOME:        /builds/${CI_PROJECT_NAMESPACE}
   XDAQ_OS:           linux
   XDAQ_ROOT:         /opt/xdaq
   LD_LIBRARY_PATH:   /opt/xdaq/lib
-  ARTIFACT_DIR:      $BUILD_HOME/artifacts
+  ARTIFACT_DIR:      ${BUILD_HOME}/artifacts
   PACKAGE_NAME:      ${CI_PROJECT_NAME}
   # REPO_NAME:         ${${CI_REPOSITORY_URL##?*/}%%.*}
 
@@ -73,41 +74,88 @@ stages:
   # EOS_PATH: ${EOS_BASE_WEB_DIR}/${EOS_SITE_WEB_DIR}/sw/release/${SUB_VERSION}/repos/${ARCH}
   
 .slc6setup: &slc6setup
+  ## drop support for slc6
   image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:slc6
   variables: *common_variables
 
 .cc7setup: &cc7setup
   image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc7
+  # image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc7:xdaq14-6
+  # image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc7:xdaq15
   variables: *common_variables
 
 .cc8setup: &cc8setup
   image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc8
+  # image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc8:python2
+  # image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc8:python3
   variables: *common_variables
 
-.common_artifacts: &common_artifacts
-  expire_in: 1d
+.common_setup: &common_setup
+  ## these are set in the Dockerfile, but don't work in the gitlab CI by default
+  - export BUILD_HOME=/builds/$CI_PROJECT_NAMESPACE
+  - export ARTIFACT_DIR=$BUILD_HOME/artifacts
+  - mkdir -p ${ARTIFACT_DIR}
+  ## need to pull in all cmsgemos dependencies, based on some requirements?
+  # - yum clean all && yum install xhal xhal-devel
+  # - ${BUILD_HOME}/config/build/setupMachine.sh
+  # - . /etc/profile/xdaq.sh
+  - . ${BUILD_HOME}/cmsgemos/setup/etc/profile.d/gemdaqenv.sh
+  - . ${BUILD_HOME}/cmsgemos/setup/paths.sh
+  - env
+  - sudo yum install -y daq-jansson\* xhal\* --enablerepo=gemos*
+  - pip install -I --user "pip" "importlib" "codecov" "setuptools<38.2"
 
+.retry_settings: &retry_settings
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+      
+.common_cache: &common_cache
+  # key: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+  # key: "$BUILD_ARCH"
+  untracked: true
+  paths:
+    - gempython/pkg
+    - gem*/**/linux/*.o
+    - gem*/**/linux/*.d
+    - gem*/**/lib/*.so
+    - gem*/rpm/**/*.rpm
+  
+.common_artifacts: &common_artifacts
+  # name: $BUILD_ARCH
+  name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+  expire_in: 1d
+  untracked: true
+  
 .compile_artifacts: &compile_artifacts
+  ## take all compile artifacts and save
   <<: *common_artifacts
   paths:
     - ${ARTIFACTS_DIR}
+    - gem*/src/**/*.d
+    - gem*/src/**/*.o
     - gem*/lib/**/*.so
-    - gem*/rpm/**/*.tar.gz
-    - gem*/rpm/**/*.zip
-    - gem*/rpm/**/*.tgz
-    - gem*/rpm/**/*.tbz2
+    - gempython/pkg
 
 .docs_artifacts: &docs_artifacts
+  ## take all docs artifacts and save
   <<: *common_artifacts
   paths:
     - ${ARTIFACTS_DIR}
     - doc/build/html
 
 .rpm_artifacts: &rpm_artifacts
+  ## take all packaging artifacts and save
   <<: *common_artifacts
   paths:
     - ${ARTIFACTS_DIR}
     - gem*/rpm/**/*.rpm
+    - gem*/rpm/**/*.tar.gz
+    - gem*/rpm/**/*.tbz2
+    - gem*/rpm/**/*.zip
+    - gem*/rpm/**/*.tgz
   
 .compile_common: &compile_common
   only:
@@ -123,41 +171,53 @@ stages:
   tags:
   stage: compile
   before_script:
-    ## these are set in the Dockerfile, but don't work in the gitlab CI by default
-    - export BUILD_HOME=/builds/$CI_PROJECT_NAMESPACE
-    - export ARTIFACT_DIR=$BUILD_HOME/artifacts
-    ## need to pull in all cmsgemos dependencies, based on some requirements?
-    # - yum clean all && yum install xhal xhal-devel
-    # - ${BUILD_HOME}/config/build/setupMachine.sh
-    # - . /etc/profile/xdaq.sh
-    - . ${BUILD_HOME}/cmsgemos/setup/etc/profile.d/gemdaqenv.sh
-    - . ${BUILD_HOME}/cmsgemos/setup/paths.sh
-    - env
-    - sudo yum install -y daq-jansson\* xhal\* --enablerepo=gemos*
+    *common_setup
   script:
+    - ls -l ${ARTIFACTS_DIR}
+    - touch gempython/CHANGELOG.md
+    - touch gempython/LICENSE
+    - touch gempython/__init__.py
     - make all -j8
-    - mkdir ${ARTIFACTS_DIR}/${XDAQ_PLATFORM}
-    - find . -iname '*.so' -print0 -exec mv -t ${ARTIFACTS_DIR}/${XDAQ_PLATFORM} {} \+
+    - mkdir -p ${ARTIFACTS_DIR}/${XDAQ_PLATFORM}
+    # - find . -type f -iname '*.d' -print0 -exec rsync -ahcX --progress --partial --relative --exclude="./gem*/rpm"  {} ${ARTIFACTS_DIR}/${XDAQ_PLATFORM} \+
+    # - find . -type f -iname '*.o' -print0 -exec rsync -ahcX --progress --partial --relative --exclude="./gem*/rpm"  {} ${ARTIFACTS_DIR}/${XDAQ_PLATFORM} \+
+    # - find . -type f -iname '*.so' -print0 -exec rsync -ahcX --progress --partial --relative --exclude="./gem*/rpm" {} ${ARTIFACTS_DIR}/${XDAQ_PLATFORM} \+
+  # cache:
+  #   key: "${CI_COMMIT_SHA}-cache-cc7"
+  #   <<: *common_cache
   artifacts:
-    name: ${CI_JOB_STAGE}
+    # name: ${CI_JOB_STAGE}
     <<: *compile_artifacts
 
 # .buildrpm_common: &buildrpm_common
   
 .buildrpm_common: &buildrpm_common
-  stage: buildrpm
   only:
     - /^feature.*ci-cd*$/
     - /^citest.*$/
     - tags
     - triggers
+  tags:
+  stage: buildrpm
+  before_script:
+    *common_setup
   script:
+    - ls -l ${ARTIFACTS_DIR}
+    ## copy compile artifacts into working tree
+    - find . -type f -iname '*.d' -print0 -exec touch {} \;
+    - find . -type f -iname '*.o' -print0 -exec touch {} \;
+    - find . -type f -iname '*.so' -print0 -exec touch {} \;
+    - touch gempython/CHANGELOG.md
+    - touch gempython/LICENSE
+    - touch gempython/__init__.py
     - make rpm
     - mkdir ${ARTIFACTS_DIR}/${XDAQ_PLATFORM}
     - find . -iname '*.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/${XDAQ_PLATFORM} {} \+
-    - glob gem*/rpm/**/*.rpm # what is this for again?
+    # - glob gem*/rpm/**/*.rpm # what is this for again?
+  # cache:
+  #   key: "${CI_COMMIT_SHA}-cache-cc7"
+  #   <<: *common_cache
   artifacts:
-    name: ${CI_JOB_STAGE}
     <<: *rpm_artifacts
   
 # compile:slc6:
@@ -172,7 +232,7 @@ compile:cc7:
   <<: *compile_common
   environment:
   variables:
-  cache:
+  # cache:
 
 # compile:cc8:
 #   <<: *cc8setup
@@ -197,6 +257,9 @@ docs:
   script:
     - make doc
     # - doxygen -s ${BUILD_HOME}/doc/cmsgemos.cfg >& /dev/null
+  # cache:
+  #   key: "${CI_COMMIT_SHA}-cache-cc7"
+  #   <<: *common_cache
   artifacts:
     name: ${CI_JOB_STAGE}
     <<: *docs_artifacts
@@ -258,9 +321,16 @@ deploy:
     - tags
   dependencies:
     - docs # is a dep of each of the below, so not necessary?
+    # - compile:slc6
     # - buildrpm:slc6
+    - compile:cc7
     - buildrpm:cc7
+    # - compile:cc8
     # - buildrpm:cc8
+  # cache:
+  #   key: "${CI_COMMIT_SHA}-cache-cc7"
+  before_script:
+    *common_setup
   script:
     # - push python packages to pypi/conda
     # - push RPMs to packagecloud.io
