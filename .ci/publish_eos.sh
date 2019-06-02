@@ -1,7 +1,19 @@
 #!/bin/sh -ie
 
 REPO_NAME=$1
-ARTIFACT_DIR=$2
+ARTIFACTS_DIR=$2
+
+### fail if KRB_USERNAME not set
+# if ! [ -n "${KRB_USERNAME}" ]
+
+## Structure of ARTIFACTS_DIR
+# └── artifacts
+#     ├── api
+#     └── repos
+#         └── ${ARCH}/{'','base','testing'}
+#             ├── tarballs
+#             ├── RPMS
+#             └── SRPMS
 
 # ## normally taken from the gitlab CI job
 # EOS_BASE_WEB_DIR=/eos/project/c/cmsgemdaq/www
@@ -28,30 +40,33 @@ REL_VERSION=${BUILD_VER%.*}
 # ├── sw
 # │   ├── ${REPO_NAME}
 # │   │   ├── latest/unstable ## all builds not on a release branch?
-# │   │   |   ├── api/docs
-# │   │   |   |    └── latest  ## overwrite with latest each build?
-# │   │   |   └── repos
-# │   │   |       └── ${ARCH} ## (slc6_x86_64/centos7_x86_64/centos8_x86_64/arm/peta/noarch/pythonX.Y/gccXYZ/clangXYZ?)
-# │   │   |          ├── RPMS  ## keep all versions, manual cleanup only?
-# │   │   |          │   └── repodata
-# │   │   |          └── SRPMS  ## necessary?
-# │   │   |              └── repodata
+# │   │   │   ├── api
+# │   │   │   │   └── latest  ## overwrite with latest each build?
+# │   │   │   └── repos
+# │   │   │       └── ${ARCH} ## (slc6_x86_64/centos7_x86_64/centos8_x86_64/arm/peta/noarch/pythonX.Y/gccXYZ/clangXYZ?)
+# │   │   │           ├── tarballs
+# │   │   │           ├── RPMS  ## keep all versions, manual cleanup only?
+# │   │   │           │   └── repodata
+# │   │   │           └── SRPMS  ## necessary?
+# │   │   │               └── repodata
 # │   │   └── releases
-# │   │       ├── api/docs
-# │   │       |   └── ${REL_VERSION} ## Maj.Min, might even not have this directory?
-# │   │       |       ├── latest -> ${REL_VERSION}.Z+2
-# │   │       |       ├── ${REL_VERSION}.Z+2
-# │   │       |       ├── ${REL_VERSION}.Z+1
-# │   │       |       └── ${REL_VERSION}.Z
+# │   │       ├── api
+# │   │       │   └── ${REL_VERSION} ## Maj.Min, might even not have this directory?
+# │   │       │       ├── latest -> ${REL_VERSION}.Z+2
+# │   │       │       ├── ${REL_VERSION}.Z+2
+# │   │       │       ├── ${REL_VERSION}.Z+1
+# │   │       │       └── ${REL_VERSION}.Z
 # │   │       └── repos
 # │   │           └── ${REL_VERSION} ## Maj.Min
 # │   │               └── ${ARCH} ## (slc6_x86_64/centos7_x86_64/centos8_x86_64/arm/peta/noarch/pythonX.Y/gccXYZ/clangXYZ?)
 # │   │                   ├── base
+# │   │                   │   ├── tarballs
 # │   │                   │   ├── RPMS
 # │   │                   │   │   └── repodata
 # │   │                   │   └── SRPMS
 # │   │                   │       └── repodata
 # │   │                   └── testing ## all untagged builds along a given release tree
+# │   │                       ├── tarballs
 # │   │                       ├── RPMS
 # │   │                       │   └── repodata
 # │   │                       └── SRPMS
@@ -59,19 +74,21 @@ REL_VERSION=${BUILD_VER%.*}
 ############### BEGIN OR
 # │   │   └── releases
 # │   │       └── ${REL_VERSION} ## Maj.Min
-# │   │           ├── api/docs
-# │   │           │    └── latest -> ${REL_VERSION}.Z+2
-# │   │           │    └── ${REL_VERSION}.Z+2
-# │   │           │    └── ${REL_VERSION}.Z+1
-# │   │           │    └── ${REL_VERSION}.Z
+# │   │           ├── api
+# │   │           │   └── latest -> ${REL_VERSION}.Z+2
+# │   │           │   └── ${REL_VERSION}.Z+2
+# │   │           │   └── ${REL_VERSION}.Z+1
+# │   │           │   └── ${REL_VERSION}.Z
 # │   │           └── repos
 # │   │               └── ${ARCH} ## (slc6_x86_64/centos7_x86_64/centos8_x86_64/arm/peta/noarch/pythonX.Y/gccXYZ/clangXYZ?)
 # │   │                   ├── base
+# │   │                   │   ├── tarballs
 # │   │                   │   ├── RPMS
 # │   │                   │   │   └── repodata
 # │   │                   │   └── SRPMS
 # │   │                   │       └── repodata
 # │   │                   └── testing ## all untagged builds along a given release tree
+# │   │                       ├── tarballs
 # │   │                       ├── RPMS
 # │   │                       │   └── repodata
 # │   │                       └── SRPMS
@@ -82,7 +99,7 @@ REL_VERSION=${BUILD_VER%.*}
 # │               └── repodata
 # ├── guides ## user/developer guides and other synthesied information, if versioning of this is foreseen, need to address
 # │   ├── user
-# |   |   └── index.html
+# |   │   └── index.html
 # │   └── developers
 # |       └── index.html
 # └── docs
@@ -98,35 +115,40 @@ RELEASE_DIR=${EOS_RELEASE_DIR}/${REL_VERSION}
 ##### RPMs
 ARCH='arch' ## FIXME, job dependent
 
+# basic version unit is vX.Y.Z
+vre='^v?(\.)?([0-9]+)\.([0-9]+)\.([0-9]+)'
+gre='(git[0-9a-fA-F]{6,8})'
+
+## map source dir to output dir
 echo "Figuring out appropriate tag"
 ## choose the correct of: base|testing|latest/unstable
-if [[ ${BUILD_TAG} =~ (dev) ]]
+if [[ ${BUILD_TAG} =~ (dev) ]] || [[ ${CI_COMMIT_REF_NAME} =~ (develop) ]] 
 then
-    ## unstable for unknown or untagged
+    ## unstable for dev tag or 'develop' branch
     DEPLOY_DIR=${EOS_LATEST_DIR}
     DOCS_DIR=${DEPLOY_DIR}/${EOS_DOC_DIR_NAME}
     TAG_REPO_TYPE=unstable
-    REPO_DIR=${DEPLOY_DIR}/${EOS_REPO_DIR_NAME}/${ARCH}
+    REPO_DIR=${DEPLOY_DIR}/${EOS_REPO_DIR_NAME}
 elif [[ ${BUILD_TAG} =~ (alpha|beta|pre|rc) ]]
 then
     ## testing for tag vx.y.z-(alpha|beta|pre|rc)\d+-git<hash>
     DEPLOY_DIR=${EOS_RELEASE_DIR}/${REL_VERSION}
     DOCS_DIR=${DEPLOY_DIR}/${EOS_DOC_DIR_NAME}
     TAG_REPO_TYPE=testing
-    REPO_DIR=${DEPLOY_DIR}/${EOS_REPO_DIR_NAME}/${ARCH}/testing
-elif [[ ${BUILD_VER} =~ [0-9]$ ]]
+    REPO_DIR=${DEPLOY_DIR}/${EOS_REPO_DIR_NAME}
+elif [[ ${BUILD_VER}${BUILD_TAG} =~ $vre$ ]]
 then
     ## base for tag vx.y.z
     DEPLOY_DIR=${EOS_RELEASE_DIR}/${REL_VERSION}
     DOCS_DIR=${DEPLOY_DIR}/${EOS_DOC_DIR_NAME}
     TAG_REPO_TYPE=base
-    REPO_DIR=${DEPLOY_DIR}/${EOS_REPO_DIR_NAME}/${ARCH}/base
+    REPO_DIR=${DEPLOY_DIR}/${EOS_REPO_DIR_NAME}
 else
     ## unstable for unknown or untagged
     DEPLOY_DIR=${EOS_LATEST_DIR}
     DOCS_DIR=${DEPLOY_DIR}/${EOS_DOC_DIR_NAME}
     TAG_REPO_TYPE=unstable
-    REPO_DIR=${DEPLOY_DIR}/${EOS_REPO_DIR_NAME}/${ARCH}
+    REPO_DIR=${DEPLOY_DIR}/${EOS_REPO_DIR_NAME}
 fi
 
 echo mkdir -p ${DOCS_DIR}
@@ -136,19 +158,13 @@ echo "Done creating repository structure"
 echo "Tag ${BUILD_VER}${BUILD_TAG} determined to be ${TAG_REPO_TYPE}"
 
 CI_REPO_DIR=${REPO_DIR}
-echo mkdir ${ARTIFACT_DIR}/done
 
-## if unstable, rsync docs with --delete
-## source RPM
-echo rsync ${ARTIFACT_DIR}/*.src.rpm  ${KRB_USERNAME}@lxplus:${CI_REPO_DIR}/SRPMS
-echo mv    ${ARTIFACT_DIR}/*.src.rpm  ${ARTIFACT_DIR}/done
-
-## primary RPM, devel RPM, and debuginfo RPM
-echo rsync ${ARTIFACT_DIR}/*-debuginfo*.rpm  ${KRB_USERNAME}@lxplus:${CI_REPO_DIR}/RPMS
-echo mv    ${ARTIFACT_DIR}/*-debuginfo*.rpm  ${ARTIFACT_DIR}/done
-echo rsync ${ARTIFACT_DIR}/*-devel*.rpm      ${KRB_USERNAME}@lxplus:${CI_REPO_DIR}/RPMS
-echo mv    ${ARTIFACT_DIR}/*-devel*.rpm      ${ARTIFACT_DIR}/done
-echo rsync ${ARTIFACT_DIR}/*.rpm             ${KRB_USERNAME}@lxplus:${CI_REPO_DIR}/RPMS
+cd ${ARTIFACTS_DIR}/repos
+echo rsync --relative . ${KRB_USERNAME}@lxplus:${CI_REPO_DIR}
+## unstable example
+## rsync --relative . ${KRB_USERNAME}@lxplus:${EOS_BASE_WEB_DIR}/sw/cmsgemos/unstable/repos/
+## stable example
+## rsync --relative . ${KRB_USERNAME}@lxplus:${EOS_BASE_WEB_DIR}/sw/cmsgemos/releases/repos/1.2/
 
 ## update the repositories
 echo "Updating the repository"
@@ -160,19 +176,25 @@ echo createrepo --update ${CI_REPO_DIR}/SRPMS
 ##### Documentation, only done for final tags?
 echo "Publishing documentation"
 CI_DOCS_DIR=${DOCS_DIR}
+## if unstable, rsync docs with --delete
+cd ${ARTIFACTS_DIR}/api
 if [ -n "${BUILD_TAG}" ]
 then
+    ## stable example
+    ## rsync --relative . ${KRB_USERNAME}@lxplus:${EOS_BASE_WEB_DIR}/sw/cmsgemos/releases/api/1.2/${BUILD_VER}
     TAG_DOC_DIR=${CI_DOCS_DIR}/${BUILD_VER}
     LATEST_DOC_DIR=${RELEASE_DIR}/api/latest
     LATEST_DOC_DIR=${EOS_DOC_DIR}/latest
-    echo rsync ${ARTIFACT_DIR}/doc/html/ --delete ${KRB_USERNAME}@lxplus:${TAG_DOC_DIR}
+    echo rsync ${ARTIFACTS_DIR}/doc/html/ --delete ${KRB_USERNAME}@lxplus:${TAG_DOC_DIR}
     echo "ln -sf ${TAG_DOC_DIR} ${LATEST_DOC_DIR}"
     ## update the index file?
     ## or have the landing page running some scripts querying the git tags, populating some JSON, and dynamically adapting the content
 else
+    ## unstable example
+    ## rsync --relative --delete . ${KRB_USERNAME}@lxplus:${EOS_BASE_WEB_DIR}/sw/cmsgemos/unstable/api/
     TAG_DOC_DIR=${CI_DOCS_DIR}
     LATEST_DOC_DIR=${EOS_DOC_DIR}/unstable
-    echo rsync ${ARTIFACT_DIR}/doc/html/ --delete ${KRB_USERNAME}@lxplus:${TAG_DOC_DIR}
+    echo rsync ${ARTIFACTS_DIR}/doc/html/ --delete ${KRB_USERNAME}@lxplus:${TAG_DOC_DIR}
     echo "ln -sf ${TAG_DOC_DIR} ${LATEST_DOC_DIR}"
     ## update the index file?
     ## or have the landing page running some scripts querying the git tags, populating some JSON, and dynamically adapting the content

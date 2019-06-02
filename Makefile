@@ -71,7 +71,7 @@ dbgprofile: UserDynamicLinkFlags+=${PROFILING_LDFlags}
 dbgprofile: DependentLibraries+=${PROFILING_LIBS}
 dbgprofile: $(SUBPACKAGES)
 
-.phony: doc
+.PHONY: doc
 doc:
 	@echo "Generating doxygen"
 	@mkdir ./doc/build

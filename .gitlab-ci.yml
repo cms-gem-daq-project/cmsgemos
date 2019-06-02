@@ -21,88 +21,52 @@
 
 ## Stage definitions
 stages:
-  - compile   # compile the sources, make the docs (if requested)
-  # - docs      # compile the docs (if requested)
-  - buildrpm  # build the RPMs
-  - test      # test the packages (install, run basic tests)
-  - deploy    # deploy the RPMs and docs
-
-# ## script defaults
-# before_script:
-#   - 'echo mkdir -p ${ARTIFACT_DIR}'
-#   - 'echo mkdir -p ~/.ssh'
-#   # validate lxplus's SSH key?
-#   - 'echo "$SSH_SERVER_HOSTKEYS" > ~/.ssh/known_hosts'
-#   # tell SSH to forward Kerberos credentials so lxplus can access AFS/EOS on behalf of the user
-#   - 'echo -e "Host *\n\tGSSAPIDelegateCredentials yes\n\tGSSAPITrustDNS yes\n\n" > ~/.ssh/config'
-# script:
-#   # make sure to get a forwardable Kerberos ticket so lxplus can access AFS/EOS on behalf of the user
-#   - 'echo "${KRB_PASSWORD}" \| kinit -f ${KRB_USERNAME}@CERN.CH'
-#   - 'echo ssh ${KRB_USERNAME}@lxplus "ls /eos/some/path/"'
-                          
-
-# after_script:
+  - compile  # compile the sources, make the docs (if requested)
+  # - docs     # compile the docs (if requested)
+  - test     # test the packages (make install, run basic tests)
+  - package  # build the RPMs
+  - publish  # publish the RPMs and docs
 
 ## Define up anchors for various tasks, shared across all jobs utilizing them
-# .compile_setup: &compile_setup
-
-# .buildrpm_setup: &buildrpm_setup
-  
-# .deply_setup: &deply_setup
-
-  
 .common_variables: &common_variables
   BUILD_HOME:        /builds/${CI_PROJECT_NAMESPACE}
   XDAQ_OS:           linux
   XDAQ_ROOT:         /opt/xdaq
   LD_LIBRARY_PATH:   /opt/xdaq/lib
-  ARTIFACT_DIR:      ${BUILD_HOME}/artifacts
+  ARTIFACTS_DIR:     ${BUILD_HOME}/artifacts
   PACKAGE_NAME:      ${CI_PROJECT_NAME}
   # REPO_NAME:         ${${CI_REPOSITORY_URL##?*/}%%.*}
 
-.deploy_variables: &deploy_variables
-  EOS_BASE_WEB_DIR: /eos/project/c/cmsgemdaq/www
-  EOS_COMMON_WEB_DIR: cmsgemdaq
-  EOS_SITE_WEB_DIR:   ${EOS_BASE_WEB_DIR}/${PACKAGE_NAME}
-  EOS_SW_DIR:         ${EOS_BASE_WEB_DIR}/sw/${PACKAGE_NAME}
-  EOS_DOC_DIR:        ${EOS_BASE_WEB_DIR}/docs/${PACKAGE_NAME}
-  EOS_LATEST_DIR:     ${EOS_SW_DIR}/unstable
-  EOS_RELEASE_DIR:    ${EOS_SW_DIR}/releases
-  EOS_DOC_DIR:        api
-  EOS_REPO_DIR:       repos
-  # EOS_PATH: ${EOS_BASE_WEB_DIR}/${EOS_COMMON_WEB_DIR}
-  # EOS_PATH: ${EOS_BASE_WEB_DIR}/${EOS_SITE_WEB_DIR}/sw/release/${SUB_VERSION}/repos/${ARCH}
-  
-.slc6setup: &slc6setup
-  ## drop support for slc6
-  image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:slc6
-  variables: *common_variables
+variables: *common_variables
 
 .cc7setup: &cc7setup
   image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc7
   # image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc7:xdaq14-6
   # image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc7:xdaq15
-  variables: *common_variables
 
 .cc8setup: &cc8setup
   image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc8
   # image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc8:python2
   # image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc8:python3
-  variables: *common_variables
 
+##################### Shared setup between stages ##################
 .common_setup: &common_setup
   ## these are set in the Dockerfile, but don't work in the gitlab CI by default
-  - export BUILD_HOME=/builds/$CI_PROJECT_NAMESPACE
-  - export ARTIFACT_DIR=$BUILD_HOME/artifacts
-  - mkdir -p ${ARTIFACT_DIR}
+  # - export BUILD_HOME=/builds/$CI_PROJECT_NAMESPACE
+  # - export ARTIFACTS_DIR=$BUILD_HOME/artifacts
+  - env
+  - mkdir -p ${ARTIFACTS_DIR}
+  - tree ${ARTIFACTS_DIR}
+  - ls -lsh ${ARTIFACTS_DIR}
   ## need to pull in all cmsgemos dependencies, based on some requirements?
-  # - yum clean all && yum install xhal xhal-devel
   # - ${BUILD_HOME}/config/build/setupMachine.sh
-  # - . /etc/profile/xdaq.sh
   - . ${BUILD_HOME}/cmsgemos/setup/etc/profile.d/gemdaqenv.sh
   - . ${BUILD_HOME}/cmsgemos/setup/paths.sh
   - env
-  - sudo yum install -y daq-jansson\* xhal\* --enablerepo=gemos*
+  ## cache this stuff between builds?
+  ## should be in the Docker image
+  - sudo yum install -y daq-jansson daq-jansson-devel
+  - sudo yum install -y xhal\* --enablerepo=gemos*
   - pip install -I --user "pip" "importlib" "codecov" "setuptools<38.2"
 
 .retry_settings: &retry_settings
@@ -117,48 +81,36 @@ stages:
   # key: "$BUILD_ARCH"
   untracked: true
   paths:
-    - gempython/pkg
-    - gem*/**/linux/*.o
-    - gem*/**/linux/*.d
-    - gem*/**/lib/*.so
-    - gem*/rpm/**/*.rpm
+    - ~/.cache/pip
+    # - /opt/ctp7_modules
+    # - /opt/reedmuller
+    # - /opt/reg_utils
+    # - /opt/rwreg
+    # - /opt/wiscrpcsvc
+    # - /opt/xhal
   
 .common_artifacts: &common_artifacts
   # name: $BUILD_ARCH
   name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
   expire_in: 1d
   untracked: true
+  paths:
+    - ${ARTIFACTS_DIR}
   
+##################### Run compilation ##################
 .compile_artifacts: &compile_artifacts
   ## take all compile artifacts and save
   <<: *common_artifacts
-  paths:
-    - ${ARTIFACTS_DIR}
-    - gem*/src/**/*.d
-    - gem*/src/**/*.o
-    - gem*/lib/**/*.so
-    - gempython/pkg
+  # paths:
+  #   - ${ARTIFACTS_DIR}
+  #   - gem*/src/**/*.d
+  #   - gem*/src/**/*.o
+  #   - gem*/lib/**/*.so
+  #   - gempython/pkg
 
-.docs_artifacts: &docs_artifacts
-  ## take all docs artifacts and save
-  <<: *common_artifacts
-  paths:
-    - ${ARTIFACTS_DIR}
-    - doc/build/html
-
-.rpm_artifacts: &rpm_artifacts
-  ## take all packaging artifacts and save
-  <<: *common_artifacts
-  paths:
-    - ${ARTIFACTS_DIR}
-    - gem*/rpm/**/*.rpm
-    - gem*/rpm/**/*.tar.gz
-    - gem*/rpm/**/*.tbz2
-    - gem*/rpm/**/*.zip
-    - gem*/rpm/**/*.tgz
-  
 .compile_common: &compile_common
   only:
+    - /^issue.*$/
     - /^issue-.*$/
     - /^.*.hotfix.*$/
     - /^release.*$/
@@ -173,15 +125,11 @@ stages:
   before_script:
     *common_setup
   script:
-    - ls -l ${ARTIFACTS_DIR}
+    # - tree ${ARTIFACTS_DIR}
     - touch gempython/CHANGELOG.md
     - touch gempython/LICENSE
     - touch gempython/__init__.py
     - make all -j8
-    - mkdir -p ${ARTIFACTS_DIR}/${XDAQ_PLATFORM}
-    # - find . -type f -iname '*.d' -print0 -exec rsync -ahcX --progress --partial --relative --exclude="./gem*/rpm"  {} ${ARTIFACTS_DIR}/${XDAQ_PLATFORM} \+
-    # - find . -type f -iname '*.o' -print0 -exec rsync -ahcX --progress --partial --relative --exclude="./gem*/rpm"  {} ${ARTIFACTS_DIR}/${XDAQ_PLATFORM} \+
-    # - find . -type f -iname '*.so' -print0 -exec rsync -ahcX --progress --partial --relative --exclude="./gem*/rpm" {} ${ARTIFACTS_DIR}/${XDAQ_PLATFORM} \+
   # cache:
   #   key: "${CI_COMMIT_SHA}-cache-cc7"
   #   <<: *common_cache
@@ -189,49 +137,11 @@ stages:
     # name: ${CI_JOB_STAGE}
     <<: *compile_artifacts
 
-# .buildrpm_common: &buildrpm_common
-  
-.buildrpm_common: &buildrpm_common
-  only:
-    - /^feature.*ci-cd*$/
-    - /^citest.*$/
-    - tags
-    - triggers
-  tags:
-  stage: buildrpm
-  before_script:
-    *common_setup
-  script:
-    - ls -l ${ARTIFACTS_DIR}
-    ## copy compile artifacts into working tree
-    - find . -type f -iname '*.d' -print0 -exec touch {} \;
-    - find . -type f -iname '*.o' -print0 -exec touch {} \;
-    - find . -type f -iname '*.so' -print0 -exec touch {} \;
-    - touch gempython/CHANGELOG.md
-    - touch gempython/LICENSE
-    - touch gempython/__init__.py
-    - make rpm
-    - mkdir ${ARTIFACTS_DIR}/${XDAQ_PLATFORM}
-    - find . -iname '*.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/${XDAQ_PLATFORM} {} \+
-    # - glob gem*/rpm/**/*.rpm # what is this for again?
-  # cache:
-  #   key: "${CI_COMMIT_SHA}-cache-cc7"
-  #   <<: *common_cache
-  artifacts:
-    <<: *rpm_artifacts
-  
-# compile:slc6:
-#   <<: *slc6setup
-#   <<: *compile_common
-#   environment:
-#   variables:
-#   cache:
-
 compile:cc7:
   <<: *cc7setup
   <<: *compile_common
   environment:
-  variables:
+  # variables:
   # cache:
 
 # compile:cc8:
@@ -244,19 +154,42 @@ compile:cc7:
 # coverage:
 #   coverage: '/Code coverage: \d+\.\d+/'
 
-# generate docs
+##################### Generate docs ##################
+.docs_artifacts: &docs_artifacts
+  ## take all docs artifacts and save
+  <<: *common_artifacts
+  # paths:
+  #   - ${ARTIFACTS_DIR}
+  #   - doc/build/html
+
 docs:
   <<: *cc7setup
   stage: compile
   only:
     - /^feature.*ci-cd*$/
     - /^citest.*$/
+    - /^develop$/
+    - /^release.*$/
     - tags
     - master
   dependencies:
+  before_script:
+    # - export BUILD_HOME=/builds/$CI_PROJECT_NAMESPACE
+    # - export ARTIFACTS_DIR=$BUILD_HOME/artifacts
+    - env
+    - . ${BUILD_HOME}/cmsgemos/setup/etc/profile.d/gemdaqenv.sh
+    - . ${BUILD_HOME}/cmsgemos/setup/paths.sh
+    - env
+    # *common_setup ## necessary?
   script:
     - make doc
     # - doxygen -s ${BUILD_HOME}/doc/cmsgemos.cfg >& /dev/null
+  after_script:
+    - mkdir -p ${ARTIFACTS_DIR}/api
+    - tree ${ARTIFACTS_DIR}/api
+    - ls -lsh ${ARTIFACTS_DIR}/api
+    # - mv -t ${ARTIFACTS_DIR}/api/ doc/build/html/*
+    
   # cache:
   #   key: "${CI_COMMIT_SHA}-cache-cc7"
   #   <<: *common_cache
@@ -265,75 +198,184 @@ docs:
     <<: *docs_artifacts
   coverage: '/Documentation coverage: \d+\.\d+/'
 
-# generate RPMs
-# buildrpm:slc6:
-#   <<: *slc6setup
-#   dependencies:
-#     - compile:slc6
-#     - docs
-#   <<: *buildrpm_common
-  
-buildrpm:cc7:
-  <<: *cc7setup
-  dependencies:
-    - compile:cc7
-    - docs
-  <<: *buildrpm_common
-
-# buildrpm:cc8:
-#   <<: *cc8setup
-#   dependencies:
-#     - compile:cc8
-#     - docs
-#   <<: *buildrpm_common
-
-# run tests using the binary built before
-# test:slc6:
-#   <<: *slc6setup
-#   stage: test
-#   dependencies:
-#     - buildrpm:slc6
-#   script:
-#     - echo ${BUILD_HOME}/runmytests.sh
-
+##################### Run tests using the compiled binaries ##################
 test:cc7:
   <<: *cc7setup
   stage: test
   dependencies:
-    - buildrpm:cc7
+    - compile:cc7
+    # - package:cc7 ## maybe don't depend on RPMs, rather use a make install target?
+  before_script:
+    # - export BUILD_HOME=/builds/$CI_PROJECT_NAMESPACE
+    # - export ARTIFACTS_DIR=$BUILD_HOME/artifacts
+    - env
+    - . ${BUILD_HOME}/cmsgemos/setup/etc/profile.d/gemdaqenv.sh
+    - . ${BUILD_HOME}/cmsgemos/setup/paths.sh
+    - env
+    # *common_setup ## necessary?
   script:
     - echo ${BUILD_HOME}/runmytests.sh
+    - echo export INSTALL_PATH=${BUILD_HOME}/local
+    - echo make install
+    - echo make tests-ci
+    - echo make run-tests-ci
+  after_script:
+    - echo test summary
+  coverage: '/Test coverage: \d+\.\d+/'
 
-# test:cc8:
-#   <<: *cc8setup
-#   stage: test
-#   dependencies:
-#     - buildrpm:cc8
-#   script:
-#     - echo ${BUILD_HOME}/runmytests.sh
-
-##package and release RPMs
-deploy:
-  stage: deploy
-  only:
-    - /^feature.*ci-cd*$/
-    - /^citest.*$/
-    - tags
-  dependencies:
-    - docs # is a dep of each of the below, so not necessary?
-    # - compile:slc6
-    # - buildrpm:slc6
-    - compile:cc7
-    - buildrpm:cc7
-    # - compile:cc8
-    # - buildrpm:cc8
-  # cache:
-  #   key: "${CI_COMMIT_SHA}-cache-cc7"
+##################### Package generated files into RPMs and tarballs ##################
+.rpm_artifacts: &rpm_artifacts
+  ## take all packaging artifacts and save
+  <<: *common_artifacts
+  # paths:
+  #   - ${ARTIFACTS_DIR}
+  #   - gem*/rpm/**/*.rpm
+  #   - gem*/rpm/**/*.tar.gz
+  #   - gem*/rpm/**/*.tbz2
+  #   - gem*/rpm/**/*.zip
+  #   - gem*/rpm/**/*.tgz
+  
+.package_common: &package_common
+  stage: package
   before_script:
     *common_setup
   script:
+    # - tree ${ARTIFACTS_DIR}
+    ## Ensure compile artifacts are more recent than the checkout
+    - find . -type f \( -iname '*Gen*.h' -o -iname '*Gen*.cc' \) -print0 -exec touch {} \;
+    - find . -type f -iname '*.d' -print0 -exec touch {} \;
+    - find . -type f -iname '*.o' -print0 -exec touch {} \;
+    - find . -type f -iname '*.so' -print0 -exec touch {} \;
+    - touch gempython/CHANGELOG.md
+    - touch gempython/LICENSE
+    - touch gempython/__init__.py
+    - make rpm
+  after_script:
+    ## Move packaged files to deployment staging area
+    - mkdir -p ${ARTIFACTS_DIR}/repos/${XDAQ_PLATFORM}/${PACKAGE_TYPE}/{tarballs,RPMS,SRPMS}
+    - tree ${ARTIFACTS_DIR}/repos
+    - ls -lsh ${ARTIFACTS_DIR}/repos
+    - find . -iname '*.src.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/repos/${XDAQ_PLATFORM}/${PACKAGE_TYPE}/SRPMS {} \+
+    - find . -iname '*-devel*.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/repos/${XDAQ_PLATFORM}/${PACKAGE_TYPE}/RPMS {} \+
+    - find . -iname '*-debuginfo*.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/repos/${XDAQ_PLATFORM}/${PACKAGE_TYPE}/RPMS {} \+
+    - find . -iname '*.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/repos/${XDAQ_PLATFORM}/${PACKAGE_TYPE}/RPMS {} \+
+    - find . \( -iname '*.tar.gz' -o -iname '*.tbz2' -o -iname '*.tgz' -o -iname '*.zip' \) -print0 -exec mv -t ${ARTIFACTS_DIR}/${XDAQ_PLATFORM}/${PACKAGE_TYPE}/tarballs/ {} \+
+    - mv -t ${ARTIFACTS_DIR}/api/ doc/build/html/*
+    # - tree ${ARTIFACTS_DIR}
+  # cache:
+  #   key: "${CI_COMMIT_SHA}-cache-cc7"
+  #   <<: *common_cache
+  artifacts:
+    <<: *rpm_artifacts
+  
+package:cc7:unstable:
+  <<: *cc7setup
+  only:
+    - /^develop$/         ## should go into 'unstable' 
+    - /^feature.*ci-cd*$/ ## should go into 'unstable'
+    - /^citest.*$/        ## should go into 'unstable'
+    # - triggers            ## should go into releases/'testing' or unstable?
+    # - chat                ## should go into releases/'testing' or unstable?
+    # - api                 ## should go into releases/'testing' or unstable?
+  tags:
+  variables:
+    PACKAGE_TYPE: 'unstable'
+  dependencies:
+    - compile:cc7
+    - test:cc7
+    - docs
+  <<: *package_common
+
+package:cc7:testing:
+  <<: *cc7setup
+  only:
+    - /^release.*$/
+  tags:
+  variables:
+    PACKAGE_TYPE: 'testing'
+  dependencies:
+    - compile:cc7
+    - test:cc7
+    - docs
+  <<: *package_common
+
+package:cc7:base:
+  <<: *cc7setup
+  only:
+    - tags
+  tags:
+  variables:
+    PACKAGE_TYPE: 'base'
+  dependencies:
+    - compile:cc7
+    - test:cc7
+    - docs
+  <<: *package_common
+
+##################### Publish RPMs, docs, and tarballs #####################
+.publish_variables: &publish_variables
+  EOS_BASE_WEB_DIR:   /eos/project/c/cmsgemdaq/www
+  EOS_COMMON_WEB_DIR: cmsgemdaq
+  EOS_SITE_WEB_DIR:   ${EOS_BASE_WEB_DIR}/${PACKAGE_NAME}
+  EOS_SW_DIR:         ${EOS_BASE_WEB_DIR}/sw/${PACKAGE_NAME}
+  EOS_DOC_DIR:        ${EOS_BASE_WEB_DIR}/docs/${PACKAGE_NAME}
+  EOS_LATEST_DIR:     ${EOS_SW_DIR}/unstable
+  EOS_RELEASE_DIR:    ${EOS_SW_DIR}/releases
+  EOS_DOC_DIR:        api
+  EOS_REPO_DIR:       repos
+  # EOS_PATH: ${EOS_BASE_WEB_DIR}/${EOS_COMMON_WEB_DIR}
+  # EOS_PATH: ${EOS_BASE_WEB_DIR}/${EOS_SITE_WEB_DIR}/sw/release/${SUB_VERSION}/repos/${ARCH}
+  
+.publish_common: &publish_common
+  <<: *cc7setup
+  stage: publish
+  # cache:
+  #   key: "${CI_COMMIT_SHA}-cache-cc7"
+  variables: *publish_variables
+  before_script:
+    # - export BUILD_HOME=/builds/$CI_PROJECT_NAMESPACE
+    # - export ARTIFACTS_DIR=$BUILD_HOME/artifacts
+    - env
+    - . ${BUILD_HOME}/cmsgemos/setup/etc/profile.d/gemdaqenv.sh
+    - . ${BUILD_HOME}/cmsgemos/setup/paths.sh
+    - env
+    # *common_setup ## necessary?
+  script:
     # - push python packages to pypi/conda
     # - push RPMs to packagecloud.io
+    # - push RPMs to gitlab yum repo, a la xDAQ?
     # - push sphinx/rst/md/rtd docs to readthedocs.io
     # - push sphinx/rst/md/rtd docs to $EOS_WEB_DIR/docs/${fulltag}, update doc main page index
-    - .ci/deploy_eos.sh ${PACKAGE_NAME} ${ARTIFACTS_DIR}
+    - .ci/publish_eos.sh ${PACKAGE_NAME} ${ARTIFACTS_DIR}
+  # after_script:
+  #   - notify mattermost
+  #   - send email
+
+publish:unstable:
+  <<: *publish_common
+  only:
+    - /^feature.*ci-cd*$/
+    - /^citest.*$/
+    - /^develop$/
+  dependencies:
+    - docs # is a dep of each of the below, so not necessary?
+    - compile:cc7
+    - package:cc7:unstable
+
+publish:testing:
+  <<: *publish_common
+  only:
+    - /^release.*$/
+  dependencies:
+    - docs # is a dep of each of the below, so not necessary?
+    - compile:cc7
+    - package:cc7:testing
+
+publish:base:
+  <<: *publish_common
+  only:
+    - tags
+  dependencies:
+    - docs # is a dep of each of the below, so not necessary?
+    - compile:cc7
+    - package:cc7:base
