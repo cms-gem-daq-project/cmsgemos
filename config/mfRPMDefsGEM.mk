@@ -20,6 +20,11 @@ PWD          = $(shell pwd)
 GITREV       = $(shell git rev-parse --short HEAD)
 BUILD_DATE   = $(shell date -u +"%d%m%Y")
 
+## when building with different compilers/python versions, encode this into the platfom?
+## or for python, provide pythonX-packagename package?
+## when does compilation with python includes come into play?
+GEMOS_PLATFORM=${XDAQ_PLATFORM}
+
 # copied from mfRPM_hcal.rules to use their directory manipulation
 ifdef Package
 
@@ -58,7 +63,7 @@ endif
 
 ifndef BUILD_COMPILER
 #BUILD_COMPILER :=$(shell $(CC) --version | grep GCC |sed -e 's/-.*//g')$(shell $(CC) -dumpversion | sed -e 's/\./_/g')
-BUILD_COMPILER :=$(CC)$(shell $(CC) -dumpversion | sed -e 's/\./_/g')
+BUILD_COMPILER :=$(CC)$(shell $(CC) -dumpfullversion -dumpversion | sed -e 's/\./_/g')
 endif
 
 ifndef BUILD_DISTRIBUTION
@@ -123,7 +128,7 @@ endif
 
 .PHONY: makerpm
 makerpm:
-	$(MakeDir) $(PackagePath)/rpm/RPMBUILD/{RPMS/$(XDAQ_PLATFORM),SPECS,BUILD,SOURCES,SRPMS}
+	$(MakeDir) $(PackagePath)/rpm/RPMBUILD/{RPMS/$(XDAQ_PLATFORM)_$(BUILD_COMPILER),SPECS,BUILD,SOURCES,SRPMS}
 	@echo BUILD_VERSION $(BUILD_VERSION)
 	@echo PACKAGE_FULL_VERSION $(PACKAGE_FULL_VERSION)
 	@echo PACKAGE_RELEASE $(PACKAGE_RELEASE)

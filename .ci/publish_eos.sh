@@ -10,10 +10,12 @@ ARTIFACTS_DIR=$2
 # └── artifacts
 #     ├── api
 #     └── repos
+#         ├── SRPMS ## should be arch independent...
 #         └── ${ARCH}/{'','base','testing'}
 #             ├── tarballs
 #             ├── RPMS
-#             └── SRPMS
+#             ├── DEBUGRPMS
+#             └── SRPMS ## should be arch independent...
 
 # ## normally taken from the gitlab CI job
 # EOS_BASE_WEB_DIR=/eos/project/c/cmsgemdaq/www
@@ -43,11 +45,13 @@ REL_VERSION=${BUILD_VER%.*}
 # │   │   │   ├── api
 # │   │   │   │   └── latest  ## overwrite with latest each build?
 # │   │   │   └── repos
+# │   │   │       ├── SRPMS ## should be arch independent
+# │   │   │       │   └── repodata
 # │   │   │       └── ${ARCH} ## (slc6_x86_64/centos7_x86_64/centos8_x86_64/arm/peta/noarch/pythonX.Y/gccXYZ/clangXYZ?)
 # │   │   │           ├── tarballs
 # │   │   │           ├── RPMS  ## keep all versions, manual cleanup only?
 # │   │   │           │   └── repodata
-# │   │   │           └── SRPMS  ## necessary?
+# │   │   │           └── DEBUGRPMS
 # │   │   │               └── repodata
 # │   │   └── releases
 # │   │       ├── api
@@ -58,44 +62,54 @@ REL_VERSION=${BUILD_VER%.*}
 # │   │       │       └── ${REL_VERSION}.Z
 # │   │       └── repos
 # │   │           └── ${REL_VERSION} ## Maj.Min
-# │   │               └── ${ARCH} ## (slc6_x86_64/centos7_x86_64/centos8_x86_64/arm/peta/noarch/pythonX.Y/gccXYZ/clangXYZ?)
-# │   │                   ├── base
-# │   │                   │   ├── tarballs
-# │   │                   │   ├── RPMS
-# │   │                   │   │   └── repodata
-# │   │                   │   └── SRPMS
-# │   │                   │       └── repodata
-# │   │                   └── testing ## all untagged builds along a given release tree
+# │   │               ├── base
+# │   │               │   ├── SRPMS ## should be arch independent
+# │   │               │   │   └── repodata
+# │   │               │   └── ${ARCH} ## (slc6_x86_64/centos7_x86_64/centos8_x86_64/arm/peta/noarch/pythonX.Y/gccXYZ/clangXYZ?)
+# │   │               │       ├── tarballs
+# │   │               │       ├── RPMS
+# │   │               │       │   └── repodata
+# │   │               │       └── DEBUGRPMS
+# │   │               │           └── repodata
+# │   │               └── testing ## all untagged builds along a given release tree
+# │   │                   ├── SRPMS ## should be arch independent
+# │   │                   │   └── repodata
+# │   │                   └── ${ARCH} ## (slc6_x86_64/centos7_x86_64/centos8_x86_64/arm/peta/noarch/pythonX.Y/gccXYZ/clangXYZ?)
 # │   │                       ├── tarballs
 # │   │                       ├── RPMS
 # │   │                       │   └── repodata
-# │   │                       └── SRPMS
+# │   │                       └── DEBUGRPMS
 # │   │                           └── repodata
 ############### BEGIN OR
 # │   │   └── releases
 # │   │       └── ${REL_VERSION} ## Maj.Min
 # │   │           ├── api
-# │   │           │   └── latest -> ${REL_VERSION}.Z+2
-# │   │           │   └── ${REL_VERSION}.Z+2
-# │   │           │   └── ${REL_VERSION}.Z+1
+# │   │           │   ├── latest -> ${REL_VERSION}.Z+2
+# │   │           │   ├── ${REL_VERSION}.Z+2
+# │   │           │   ├── ${REL_VERSION}.Z+1
 # │   │           │   └── ${REL_VERSION}.Z
 # │   │           └── repos
-# │   │               └── ${ARCH} ## (slc6_x86_64/centos7_x86_64/centos8_x86_64/arm/peta/noarch/pythonX.Y/gccXYZ/clangXYZ?)
-# │   │                   ├── base
-# │   │                   │   ├── tarballs
-# │   │                   │   ├── RPMS
-# │   │                   │   │   └── repodata
-# │   │                   │   └── SRPMS
-# │   │                   │       └── repodata
-# │   │                   └── testing ## all untagged builds along a given release tree
+# │   │               ├── base
+# │   │               │   └── ${ARCH} ## (slc6_x86_64/centos7_x86_64/centos8_x86_64/arm/peta/noarch/pythonX.Y/gccXYZ/clangXYZ?)
+# │   │               │       ├── tarballs
+# │   │               │       ├── RPMS
+# │   │               │       │   └── repodata
+# │   │               │       └── DEBUGRPMS
+# │   │               │           └── repodata
+# │   │               └── testing ## all untagged builds along a given release tree
+# │   │                   └── ${ARCH} ## (slc6_x86_64/centos7_x86_64/centos8_x86_64/arm/peta/noarch/pythonX.Y/gccXYZ/clangXYZ?)
 # │   │                       ├── tarballs
 # │   │                       ├── RPMS
 # │   │                       │   └── repodata
-# │   │                       └── SRPMS
+# │   │                       └── DEBUGRPMS
 # │   │                           └── repodata
 # │   └── extras ## holds all extra/external packages we build for compatibility
+# │       ├── SRPMS ## provide source RPMs for extras?
+# │       │   └── repodata
 # |       └── ${ARCH} ## (slc6_x86_64/centos7_x86_64/centos8_x86_64/arm/peta/noarch/pythonX.Y/gccXYZ/clangXYZ?)
-# │           └── RPMS
+# │           ├── RPMS
+# │           │   └── repodata
+# │           └── DEBUGRPMS
 # │               └── repodata
 # ├── guides ## user/developer guides and other synthesied information, if versioning of this is foreseen, need to address
 # │   ├── user
@@ -113,8 +127,6 @@ REL_VERSION=${BUILD_VER%.*}
 RELEASE_DIR=${EOS_RELEASE_DIR}/${REL_VERSION}
 
 ##### RPMs
-ARCH='arch' ## FIXME, job dependent
-
 # basic version unit is vX.Y.Z
 vre='^v?(\.)?([0-9]+)\.([0-9]+)\.([0-9]+)'
 gre='(git[0-9a-fA-F]{6,8})'
@@ -152,7 +164,7 @@ else
 fi
 
 echo mkdir -p ${DOCS_DIR}
-echo mkdir -p ${REPO_DIR}/{RPMS,SRPMS}
+echo mkdir -p ${REPO_DIR}/{tarballs,RPMS,DEBUGRPMS,SRPMS}
 echo "Done creating repository structure"
 
 echo "Tag ${BUILD_VER}${BUILD_TAG} determined to be ${TAG_REPO_TYPE}"
@@ -169,6 +181,7 @@ echo rsync --relative . ${KRB_USERNAME}@lxplus:${CI_REPO_DIR}
 ## update the repositories
 echo "Updating the repository"
 echo createrepo --update ${CI_REPO_DIR}/RPMS
+echo createrepo --update ${CI_REPO_DIR}/DEBUGRPMS
 echo createrepo --update ${CI_REPO_DIR}/SRPMS
 
 ## update the groups?

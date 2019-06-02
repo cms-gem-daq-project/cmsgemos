@@ -33,8 +33,8 @@ stages:
   XDAQ_OS:           linux
   XDAQ_ROOT:         /opt/xdaq
   LD_LIBRARY_PATH:   /opt/xdaq/lib
-  ARTIFACTS_DIR:     ${BUILD_HOME}/artifacts
   PACKAGE_NAME:      ${CI_PROJECT_NAME}
+  ARTIFACTS_DIR:     ${BUILD_HOME}/${PACKAGE_NAME}/artifacts
   # REPO_NAME:         ${${CI_REPOSITORY_URL##?*/}%%.*}
 
 variables: *common_variables
@@ -125,7 +125,12 @@ variables: *common_variables
   before_script:
     *common_setup
   script:
-    # - tree ${ARTIFACTS_DIR}
+    # - >
+    #   if [ -n "${DEVTOOLGCC}" ];
+    #   then
+    #     echo "Enabling ${DEVTOOLGCC}";
+    #     . /opt/rh/${DEVTOOLGCC}/enable;
+    #   fi
     - touch gempython/CHANGELOG.md
     - touch gempython/LICENSE
     - touch gempython/__init__.py
@@ -141,8 +146,20 @@ compile:cc7:
   <<: *cc7setup
   <<: *compile_common
   environment:
-  # variables:
-  # cache:
+  variables:
+
+# compile:cc7:default:
+#   <<: *cc7setup
+#   <<: *compile_common
+#   environment:
+#   variables:
+
+# compile:cc7:devtools3:
+#   <<: *cc7setup
+#   <<: *compile_common
+#   environment:
+#   variables:
+#     DEVTOOLGCC:     devtoolset-3
 
 # compile:cc8:
 #   <<: *cc8setup
@@ -215,12 +232,16 @@ test:cc7:
     # *common_setup ## necessary?
   script:
     - echo ${BUILD_HOME}/runmytests.sh
-    - echo export INSTALL_PATH=${BUILD_HOME}/local
+    - echo export INSTALL_PREFIX=${BUILD_HOME}/local
     - echo make install
     - echo make tests-ci
     - echo make run-tests-ci
+    - echo make test-api
+    - echo make test-abi
   after_script:
     - echo test summary
+    - echo parse-api-changes.sh
+    - echo parse-abi-changes.sh
   coverage: '/Test coverage: \d+\.\d+/'
 
 ##################### Package generated files into RPMs and tarballs ##################
@@ -246,20 +267,22 @@ test:cc7:
     - find . -type f -iname '*.d' -print0 -exec touch {} \;
     - find . -type f -iname '*.o' -print0 -exec touch {} \;
     - find . -type f -iname '*.so' -print0 -exec touch {} \;
+    ## FIXME hack until these are properly handled
     - touch gempython/CHANGELOG.md
     - touch gempython/LICENSE
     - touch gempython/__init__.py
     - make rpm
   after_script:
     ## Move packaged files to deployment staging area
-    - mkdir -p ${ARTIFACTS_DIR}/repos/${XDAQ_PLATFORM}/${PACKAGE_TYPE}/{tarballs,RPMS,SRPMS}
+    - mkdir -p ${ARTIFACTS_DIR}/repos/${PACKAGE_TYPE}/SRPMS
+    - mkdir -p ${ARTIFACTS_DIR}/repos/${PACKAGE_TYPE}/${XDAQ_PLATFORM}/{tarballs,RPMS,DEBUGRPMS}
     - tree ${ARTIFACTS_DIR}/repos
     - ls -lsh ${ARTIFACTS_DIR}/repos
-    - find . -iname '*.src.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/repos/${XDAQ_PLATFORM}/${PACKAGE_TYPE}/SRPMS {} \+
-    - find . -iname '*-devel*.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/repos/${XDAQ_PLATFORM}/${PACKAGE_TYPE}/RPMS {} \+
-    - find . -iname '*-debuginfo*.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/repos/${XDAQ_PLATFORM}/${PACKAGE_TYPE}/RPMS {} \+
-    - find . -iname '*.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/repos/${XDAQ_PLATFORM}/${PACKAGE_TYPE}/RPMS {} \+
-    - find . \( -iname '*.tar.gz' -o -iname '*.tbz2' -o -iname '*.tgz' -o -iname '*.zip' \) -print0 -exec mv -t ${ARTIFACTS_DIR}/${XDAQ_PLATFORM}/${PACKAGE_TYPE}/tarballs/ {} \+
+    - find . -iname '*.src.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/repos/${PACKAGE_TYPE}/SRPMS {} \+
+    - find . -iname '*-debuginfo*.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/repos/${PACKAGE_TYPE}/${XDAQ_PLATFORM}/DEBUGRPMS {} \+
+    - find . -iname '*-devel*.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/repos/${PACKAGE_TYPE}/${XDAQ_PLATFORM}/RPMS {} \+
+    - find . -iname '*.rpm' -print0 -exec mv -t ${ARTIFACTS_DIR}/repos/${PACKAGE_TYPE}/${XDAQ_PLATFORM}/RPMS {} \+
+    - find . \( -iname '*.tar.gz' -o -iname '*.tbz2' -o -iname '*.tgz' -o -iname '*.zip' \) -print0 -exec mv -t ${ARTIFACTS_DIR}/${PACKAGE_TYPE}/${XDAQ_PLATFORM}/tarballs/ {} \+
     - mv -t ${ARTIFACTS_DIR}/api/ doc/build/html/*
     # - tree ${ARTIFACTS_DIR}
   # cache:
