@@ -179,6 +179,12 @@ class HwAMC(object):
         if debug:
             print "My FW release major = ", self.fwVersion
 
+        #Determine the number of GBTs based on the gemType
+        if gemType in gbtsPerGemVariant.keys():
+            self.NGBT = gbtsPerGemVariant[gemType]
+        else:
+            raise KeyError("Unrecognized gemType {0}".format(gemType))
+
         return
 
     def acquireSBits(self, ohN, outFilePath, acquireTime=300):
@@ -273,15 +279,6 @@ class HwAMC(object):
 
         gbtMonData = OHLinkMonitorArrayType()
         self.getmonGBTLink(gbtMonData, self.nOHs, ohMask, doReset)
-
-        #Determine the number of GBTs based on the gemType
-        if gemType == "ge11":
-            NGBT = gbtsPerGemVariant["ge11"]
-        elif gemType == "ge21":
-            NGBT = gbtsPerGemVariant["ge21"]
-        else:
-            NGBT = 0
-            print("Unrecognized gemType, setting NGBT = 0")
 
         if printSummary:
             print("--=======================================--")
