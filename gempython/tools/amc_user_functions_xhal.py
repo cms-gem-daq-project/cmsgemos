@@ -75,7 +75,7 @@ class NoUnmaskedOHException(Exception):
         return
 
 class HwAMC(object):
-    def __init__(self, cardName, debug=False):
+    def __init__(self, cardName, debug=False, gemType="ge11"):
         """
         Initialize the HW board an open an RPC connection
         """
@@ -179,13 +179,18 @@ class HwAMC(object):
         if debug:
             print "My FW release major = ", self.fwVersion
 
+        #Determine the number of GBTs based on the gemType
+        if gemType in gbtsPerGemVariant.keys():
+            self.NGBT = gbtsPerGemVariant[gemType]
+        else:
+            raise KeyError("Unrecognized gemType {0}".format(gemType))
+
         return
 
     def acquireSBits(self, ohN, outFilePath, acquireTime=300):
         """
         Using the SBIT_MONITOR acquire sbit data for time in seconds given
         by acquireTime and write the data to the directory specified by outFilePath
-
         ohN - optohybrid to monitor
         outFilePath - filepath created data files will be written too
         acquireTime - time in seconds to acquire data for
@@ -204,7 +209,6 @@ class HwAMC(object):
     def configureTTC(self, pulseDelay, L1Ainterval, ohN=0, mode=0, t1type=0,  nPulses=0, enable=True):
         """
         Default values reflects v3 electronics behavior
-
         =======v3 electronics Behavior=======
              pulseDelay (only for enable = true), delay between CalPulse and L1A
              L1Ainterval (only for enable = true), how often to repeat signals
@@ -231,9 +235,7 @@ class HwAMC(object):
         """
         Configure the DAC Monitoring to monitor the register defined by dacSelect
         on all unmasked VFATs for optohybrids given by ohMask.
-
         Will automatically determine the vfatmask for *each* optohybrid
-
         dacSelect - An integer defining the monitored register.
                     See VFAT3 Manual GLB_CFG_CTR_4 for details.
         ohMask - Mask which defines which OH's to query; 12 bit number where
@@ -264,7 +266,6 @@ class HwAMC(object):
             2. GBT_NOT_READY = 0x0
             3. RX_HAD_OVERFLOW = 0x0
             4. RX_HAD_UNDERFLOW = 0x0
-
         doReset - Issues a link reset if True
         printSummary - prints a table summarizing the status of the GBT's for each unmasked OH
         ohMask - Mask which defines which OH's to query; 12 bit number where
@@ -279,7 +280,6 @@ class HwAMC(object):
         gbtMonData = OHLinkMonitorArrayType()
         self.getmonGBTLink(gbtMonData, self.nOHs, ohMask, doReset)
 
-        NGBT = gbtsPerGemVariant["ge11"]
         if printSummary:
             print("--=======================================--")
             print("-> GEM SYSTEM GBT INFORMATION")
@@ -346,7 +346,6 @@ class HwAMC(object):
     def getLinkVFATMask(self,ohN):
         """
         V3 electronics only
-
         Returns a 24 bit number that can be used as the VFAT Mask
         for the Optohybrid ohN
         """
@@ -363,10 +362,8 @@ class HwAMC(object):
     def getMultiLinkVFATMask(self,ohMask=None):
         """
         v3 electronics only
-
         Returns a ctypes array of c_uint32 of size 12.  Each element of the
         array is the vfat mask for the ohN defined by the array index
-
         ohMask - Mask which defines which OH's to query; 12 bit number where
                  having a 1 in the N^th bit means to query the N^th optohybrid.
                  If None will be determined automatically using HwAMC::getOHMask()
@@ -396,7 +393,6 @@ class HwAMC(object):
     def getOHMask(self,callingMthd="getOHMask",raiseIfNoOHs=True):
         """
         Gets the OH Mask to use with this AMC
-
         callingMthd  - Name of calling method, will display in error message if NoUnmaskedOHException is raised
         raiseIfNoOHs - If True (False) will (not) raise NoUnmaskedOHException if ohMask is determined to be 0x0
         """
@@ -442,7 +438,6 @@ class HwAMC(object):
         """
         Gets the trigger link status for each unmasked OH and returns a dictionary where with keys of ohN and
         values as the sum of all trigger link status counters.  Only unmasked OH's will exist in this dictionary
-
         If printSummary is set to True a summary table for the status of each unmasked OH is printed.
         ohMask is a 12 bit number, see checkCSCTrigLink for how each bits are interpreted.
         If checkCSCTrigLink is False the ohMask will define which OH's to query, a 1 in the N^th bit means to query the N^th optohybrid.
@@ -566,7 +561,6 @@ class HwAMC(object):
         Get's the VFAT link status and can print a table of the status for each unmasked OH.
         Returns True if all unmasked OH's have all VFAT's with:
             1. SYNC_ERR_CNT = 0x0
-
         doReset - Issues a link reset if True
         printSummary - prints a table summarizing the status of the GBT's for each unmasked OH
         ohMask - Mask which defines which OH's to query; 12 bit number where
@@ -630,9 +624,7 @@ class HwAMC(object):
         """
         Scans the DAC defined by dacSelect for all links on this AMC.  See VFAT3 manual for more details
         on the available DAC selection.
-
         V3 electronics only.
-
         dacDataAll - Array of type c_uint32
         dacSelect - Integer which specifies the DAC to scan against the ADC.  See VFAT3 Manual
         dacStep - Step size to scan the DAC with
@@ -674,9 +666,7 @@ class HwAMC(object):
     def performSBITRateScanMultiLink(self, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, chan=128, dacMin=0, dacMax=254, dacStep=1, ohMask=None, scanReg="THR_ARM_DAC"):
         """
         Measures the rate of sbits sent by all unmasked optobybrids on this AMC
-
         V3 electronics only.
-
         outDataDacVal           - Array of type c_uint32, array size must be:
                                   (12 * (dacMax - dacMin + 1) / stepSize)
                                   The i^th position here is the DAC value that
@@ -737,11 +727,9 @@ class HwAMC(object):
         for each attempt a TTC Hard Reset will be sent from the TTC Generator and then it will
         check if slow control with the unmasked OH FPGA's is possible.  If it is not, an SCA reset
         will be sent and then the next attempt will be tried.
-
         It will return a list of OH's, out of ohMask, who after maxIter is performed are still
         unprogrammed. If all OH's in ohMask are programmed before maxIter is reached the procedure will exit
         and return an empty list.
-
         maxIter- Maximum number of attempts to program all OH's in ohMask
         ohMask - Mask which defines which OH's to query; 12 bit number where
                  having a 1 in the N^th bit means to query the N^th optohybrid.
@@ -812,7 +800,6 @@ class HwAMC(object):
     def readADCsMultiLink(self, adcDataAll, useExtRefADC=False, ohMask=None, debug=False):
         """
         Reads the ADC value from all unmasked VFATs
-
         adcDataAll - Array of type c_uint32 of size 24*12=288
         useExtRefADC - True (False) use the externally (internally) referenced ADC
         ohMask - Mask which defines which OH's to query; 12 bit number where
@@ -904,7 +891,6 @@ class HwAMC(object):
     def scaMonitorToggle(self, ohMask=0x0, debug=False):
         """
         Toggle the SCA Monitoring for OH's on this AMC
-
         ohMask - 12 bit number where N^th bit corresponds to N^th OH.  Setting a bit to 1 will suspend ADC monitoring on that SCA
         """
 
@@ -914,7 +900,6 @@ class HwAMC(object):
         """
         v3 electronics only.
         Reads SCA monitoring data for multiple links on the AMC
-
         NOH    - number of OH's on this AMC
         ohMask - Mask which defines which OH's to query; 12 bit number where
                  having a 1 in the N^th bit means to query the N^th optohybrid.
@@ -945,7 +930,6 @@ class HwAMC(object):
         """
         v3 eletronics only.
         Reads FPGA sysmon data for multiple links on the AMC
-
         NOH - number of OH's on this AMC
         ohMask - Mask which defines which OH's to query; 12 bit number where
                  having a 1 in the N^th bit means to query the N^th optohybrid.
