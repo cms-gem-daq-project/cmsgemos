@@ -75,7 +75,7 @@ class NoUnmaskedOHException(Exception):
         return
 
 class HwAMC(object):
-    def __init__(self, cardName, debug=False, args.gemType="ge11"):
+    def __init__(self, cardName, debug=False, gemType="ge11"):
         """
         Initialize the HW board an open an RPC connection
         """
