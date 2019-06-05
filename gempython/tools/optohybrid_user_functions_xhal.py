@@ -31,7 +31,7 @@ class HwOptoHybrid(object):
         """
         # Debug flag
         self.debug = debug
-        
+
         # Logger
         self.ohlogger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class HwOptoHybrid(object):
         self.vfatGBTPhases = vfat3GBTPhaseLookupTable[gemType][detType]
         self.typeDet = detType
         self.typeGEM = gemType
-        self.parentAMC = HwAMC(cardName, debug)
+        self.parentAMC = HwAMC(cardName, debug, gemType)
 
         # Define broadcast read
         self.bRead = self.parentAMC.lib.broadcastRead
@@ -60,7 +60,7 @@ class HwOptoHybrid(object):
         self.bWrite = self.parentAMC.lib.broadcastWrite
         self.bWrite.argtypes = [c_uint, c_char_p, c_uint, c_uint]
         self.bWrite.restype = c_uint
-       
+
         # Define the sbit mapping scan modules
         self.sbitMappingWithCalPulse = self.parentAMC.lib.checkSbitMappingWithCalPulse
         self.sbitMappingWithCalPulse.restype = c_uint
@@ -120,13 +120,13 @@ class HwOptoHybrid(object):
             raise OHRPCException("broadcastRead failed for device %i; reg: %s; with mask %x"%(self.link,register,mask), os.EX_SOFTWARE)
 
         return outData
-    
+
     def broadcastWrite(self,register,value,mask=0xff000000):
         """
         Perform a broadcast RPC write on the VFATs specified by mask
         Will return when operation has completed
         """
-        
+
         rpcResp = 0
 
         try:
@@ -334,7 +334,7 @@ class HwOptoHybrid(object):
         else:
             print("HwOptoHybrid.getTriggerSource() - No support for v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
-    
+
     def getType(self):
         return (self.typeGEM,self.typeDet)
 
@@ -500,7 +500,7 @@ class HwOptoHybrid(object):
 
         Sets the sbit mask in the OH FPGA
         """
-        
+
         if self.parentAMC.fwVersion < 3:
             print("Parent AMC Major FW Version: %i"%(self.parentAMC.fwVersion))
             print("Only implemented for v3 electronics, exiting")
@@ -530,7 +530,7 @@ class HwOptoHybrid(object):
         """
         Set the trigger throttle
         """
-       
+
         if self.parentAMC.fwVersion < 3:
             return self.parentAMC.writeRegister("GEM_AMC.OH.OH%d.CONTROL.TRIGGER.THROTTLE"%(self.link),throttle)
         else:
@@ -539,7 +539,7 @@ class HwOptoHybrid(object):
 
     def setType(self, gemType, detType):
         """
-        Sets the GEM type and detector type, updates the number of VFATs expected 
+        Sets the GEM type and detector type, updates the number of VFATs expected
         and changes the VFAT GBT Phase lookup table
 
         gemType - string specifying gemType, expexted to be a key in gemVariants dictionary
