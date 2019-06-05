@@ -1,5 +1,5 @@
 from ctypes import *
-from gempython.tools.hw_constants import maxVfat3DACSize,gbtsPerGemVariant
+from gempython.tools.hw_constants import maxVfat3DACSize, gbtsPerGemVariant, vfatsPerGemVariant
 from gempython.utils.gemlogger import colors, printRed, printYellow
 from gempython.utils.wrappers import runCommand, runCommandWithOutput
 
@@ -182,6 +182,12 @@ class HwAMC(object):
         #Determine the number of GBTs based on the gemType
         if gemType in gbtsPerGemVariant.keys():
             self.NGBT = gbtsPerGemVariant[gemType]
+        else:
+            raise KeyError("Unrecognized gemType {0}".format(gemType))
+
+        #Determine the number of VFATs per geb based on the gemType
+        if gemType in vfatsPerGemVariant.keys():
+            self.NVFAT = vfatsPerGemVariant[gemType]
         else:
             raise KeyError("Unrecognized gemType {0}".format(gemType))
 
@@ -604,7 +610,7 @@ class HwAMC(object):
                 # print("----------OH{0}----------".format(ohN))
                 pass
 
-            for vfatN in range(24):
+            for vfatN in range(self.NVFAT):
                 nSyncErrors = vfatMonData[ohN].syncErrCnt[vfatN]
                 totalSyncErrors += nSyncErrors
 
