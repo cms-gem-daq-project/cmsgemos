@@ -11,7 +11,7 @@ vfatsPerGemVariant = {
 
 gbtsPerGemVariant = {
             "ge11":3,
-            "ge21":1,
+            "ge21":2,
             "me0":0}
 
 # Size of VFAT3 DAC's

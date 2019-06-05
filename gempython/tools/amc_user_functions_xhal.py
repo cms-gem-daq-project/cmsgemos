@@ -285,6 +285,7 @@ class HwAMC(object):
             print("-> GEM SYSTEM GBT INFORMATION")
             print("--=======================================--")
             print("")
+            print("Number of GBTs per optical link: %s" %(self.NGBT))
             hfmt   = "{:4s}"
             dfmt   = "{}{:4d}{}"
             gbtfmt = []
