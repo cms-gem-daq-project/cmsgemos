@@ -57,6 +57,8 @@ for ge21Type in gemVariants["ge21"]:
     vfat3GBTPhaseLookupTable["ge21"][ge21Type] = [ 0 for x in range(0,vfatsPerGemVariant["ge21"]) ]
 vfat3GBTPhaseLookupTable["me0"]["null"] = [ 0 for x in range(0,vfatsPerGemVariant["me0"]) ]
 
+# Fill Info for GE21 - m3
+vfat3GBTPhaseLookupTable["ge21"]["m3"][5]  = 4  #VFAT5
 # Fill Info for GE11 - Short
 # FIXME It would be great if this was in the DB and I could just load it from there...
 vfat3GBTPhaseLookupTable["ge11"]["short"][0]  = 6  #VFAT0

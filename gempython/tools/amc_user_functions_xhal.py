@@ -104,7 +104,7 @@ class HwAMC(object):
 
         # Define Link Monitoring
         self.getmonGBTLink = self.lib.getmonGBTLink
-        self.getmonGBTLink.argTypes = [ OHLinkMonitorArrayType, c_uint, c_uint, c_bool ]
+        self.getmonGBTLink.argTypes = [ OHLinkMonitorArrayType, c_uint, c_uint, c_bool, c_uint]
         self.getmonGBTLink.restype = c_uint
 
         self.getmonOHLink = self.lib.getmonOHLink
@@ -284,7 +284,7 @@ class HwAMC(object):
             ohMask = self.getOHMask(callingMthd="getGBTLinkStatus")
 
         gbtMonData = OHLinkMonitorArrayType()
-        self.getmonGBTLink(gbtMonData, self.nOHs, ohMask, doReset)
+        self.getmonGBTLink(gbtMonData, self.nOHs, ohMask, doReset, self.NGBT)
 
         if printSummary:
             print("--=======================================--")
@@ -592,7 +592,7 @@ class HwAMC(object):
             colw = len(max([colors.GREEN,colors.RED],key=len))+len(colors.ENDC)+4
             xfmt = "{}0x{:1x}{}"
 
-            vfatsyncfmt = ["VFAT{}.SYNC_ERR_CNT".format(vfat) for vfat in range(24) ]
+            vfatsyncfmt = ["VFAT{}.SYNC_ERR_CNT".format(vfat) for vfat in range(self.NVFAT) ]
 
             lines = [[] for x in range(len(vfatsyncfmt)+1)]
             lines[0].append("{}".format(" "*(len(max(vfatsyncfmt,key=len)))))
