@@ -790,7 +790,7 @@ class HwAMC(object):
                 break
             else:
                 #FIXME note when @evka85 removes adc monitoring block from GEM_AMC FW this line will need to be removed
-                self.writeRegister("GEM_AMC.SLOW_CONTROL.SCA.ADC_MONITORING.MONITORING_OFF",0xfff)
+                self.writeRegister("GEM_AMC.SLOW_CONTROL.SCA.ADC_MONITORING.MONITORING_OFF",0xffffffff)
                 sca_reset(ohMaskNeedSCAReset)
             pass
         self.writeRegister("GEM_AMC.TTC.GENERATOR.ENABLE",0x0)
