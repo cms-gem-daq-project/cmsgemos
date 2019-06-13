@@ -293,10 +293,10 @@ class HwAMC(object):
             gbtfmt.append("GBT{}.RX_HAD_OVERFLOW")
             gbtfmt.append("GBT{}.RX_HAD_UNDERFLOW")
 
-            lines = [[] for x in range(NGBT*4+1)]
+            lines = [[] for x in range(self.NGBT*4+1)]
             lines[0].append("{}".format(" "*(len(max(gbtfmt)))))
 
-            for gbt in range(NGBT):
+            for gbt in range(self.NGBT):
                 lines[4*gbt+1].append("{{:{}s}}".format(len(max(gbtfmt,key=len))).format(gbtfmt[0].format(gbt)))
                 lines[4*gbt+2].append("{{:{}s}}".format(len(max(gbtfmt,key=len))).format(gbtfmt[1].format(gbt)))
                 lines[4*gbt+3].append("{{:{}s}}".format(len(max(gbtfmt,key=len))).format(gbtfmt[2].format(gbt)))
@@ -316,7 +316,7 @@ class HwAMC(object):
             if printSummary:
                 lines[0].append(hfmt.format(("OH{:d}".format(ohN)).rjust(4)))
 
-            for gbtN in range(NGBT):
+            for gbtN in range(self.NGBT):
                 gbtRdy      = gbtMonData[ohN].gbtRdy[gbtN]
                 gbtNotRdy   = gbtMonData[ohN].gbtNotRdy[gbtN]
                 gbtRxOver   = gbtMonData[ohN].gbtRxOverflow[gbtN]
