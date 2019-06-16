@@ -33,6 +33,9 @@ ifndef PACKAGE_VER_PATCH
 PACKAGE_VER_PATCH := $($(LongPackageLoc)_VER_PATCH)
 endif
 
+SONAME:=lib$(LongPackage).so.$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR)
+# DynamicLibraryName:=$(DynamicLibraryName).$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)
+
 ifndef BUILD_VERSION
 BUILD_VERSION=1
 endif
@@ -168,8 +171,8 @@ endif
 UserCCFlags=${UserCFlags}
 
 ##  -Wl,--no-undefined ## not necessarily a good things always
-UserStaticLinkFlags  = -Wl,--as-needed -Wl,--warn-unresolved-symbols
-UserDynamicLinkFlags = -Wl,--as-needed -Wl,--warn-unresolved-symbols
+UserStaticLinkFlags  = -Wl,-z,defs -Wl,--as-needed -Wl,--warn-unresolved-symbols -Wl,-soname,$(SONAME)
+UserDynamicLinkFlags = -Wl,-z,defs -Wl,--as-needed -Wl,--warn-unresolved-symbols -Wl,-soname,$(SONAME)
 
 ## Set up include dirs, might be better to do all this setup at a per package level for minimum linking
 IncludeDirs+=$(XDAQ_ROOT)/include
@@ -219,6 +222,12 @@ Libraries =
 #include $(BUILD_HOME)/config/mfRPM_gem.rules
 
 ## Choose the version of GCC that we want to use
+ifdef COMPILER
+CC  = $(COMPILER)
+CPP = $(COMPILER)
+CXX = $(COMPILER)
+endif
+
 #GCC_VERSION = 6.1.0
 #CC     = gcc-${GCC_VERSION}
 #CPP    = g++-${GCC_VERSION}

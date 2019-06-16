@@ -24,6 +24,7 @@ SUBPACKAGES.RPM      := $(patsubst %,%.rpm,      ${SUBPACKAGES})
 SUBPACKAGES.CLEANRPM := $(patsubst %,%.cleanrpm, ${SUBPACKAGES})
 SUBPACKAGES.CLEAN    := $(patsubst %,%.clean,    ${SUBPACKAGES})
 SUBPACKAGES.TESTS    := $(patsubst %,%.tests,    ${SUBPACKAGES})
+SUBPACKAGES.ABICHECK := $(patsubst %,%.check-abi, ${SUBPACKAGES})
 SUBPACKAGES.RUNTESTS := $(patsubst %,%.run-tests, ${SUBPACKAGES})
 SUBPACKAGES.RUNTESTSCI := $(patsubst %,%.run-tests-ci, ${SUBPACKAGES})
 
@@ -92,6 +93,11 @@ clean: $(SUBPACKAGES.CLEAN)
 
 tests: $(SUBPACKAGES) $(SUBPACKAGES.TESTS)
 
+check-abi: $(SUBPACKAGES)
+	mkdir -p libs-git$(git describe --dirty --always --tags)
+	find gem*/lib/* -inmae '*.so' -print0 -exec cp -t libs-git$(git describe --dirty --always --tags) -rfp {} \+
+#	make clean -j8
+
 run-tests: $(SUBPACKAGES.RUNTESTS)
 
 run-tests-ci: $(SUBPACKAGES.RUNTESTSCI)
@@ -126,6 +132,16 @@ $(SUBPACKAGES.CLEAN):
 
 $(SUBPACKAGES.TESTS): all
 	$(MAKE) -C $(patsubst %.tests,%, $@) tests
+
+# $(SUBPACKAGES.ABICHECK): tests
+# find all generated libraries and copy to directory
+# $(MakeDir) libs-git$(GIT_VERSION)
+# find gem*/lib/* -inmae '*.so' -print0 -exec cp -t libs-git$(GIT_VERSION) -rfp {} \+
+# make clean -j8
+# check out target commit
+# make -j8
+# find all generated libraries and copy to directory
+# $(MAKE) -C $(patsubst %.check-abi,%, $@) check-abi
 
 $(SUBPACKAGES.RUNTESTS): tests
 	$(MAKE) -C $(patsubst %.run-tests,%, $@) run-tests

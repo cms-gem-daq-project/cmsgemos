@@ -52,6 +52,8 @@ Prefix: %{_prefix}
 Requires: __requires__
 %endif
 
+AutoReqProv: yes
+
 #requires: gem-base, gem-calib, gem-hw, gem-supervisor, gem-utils, gem-readout, gem-HwMonitor, gem-calib
 
 %description
