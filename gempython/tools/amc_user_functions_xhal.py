@@ -58,7 +58,7 @@ class SysmonMonitorParams(Structure):
             ]
 SysmonMonitorArrayType = SysmonMonitorParams * 12 # Sysmon Monitor Array
 
-vfatValueArray = c_uint32 * self.NVFAT
+vfatValueArray = c_uint32 * 24
 class VFATLinkMonitorParams(Structure):
     _fields_ = [
             ("daqCRCErrCnt",vfatValueArray),
