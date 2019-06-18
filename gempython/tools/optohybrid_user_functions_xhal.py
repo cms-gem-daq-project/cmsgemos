@@ -163,7 +163,7 @@ class HwOptoHybrid(object):
         L1AInterval - Number of BX's inbetween L1A's
         mask        - VFAT mask to use for excluding vfats from the trigger
         nevts       - Number of events for each dac value in scan
-        outData     - Pointer to an array of size (24*128*8*nevts) which
+        outData     - Pointer to an array of size (self.parentAMC.nVFAT*128*8*nevts) which
                       stores the results of the scan:
                             bits [0,7] channel pulsed,
                             bits [8:15] sbit observed,
@@ -342,7 +342,7 @@ class HwOptoHybrid(object):
         """
         V3 electronics only
 
-        Returns a 24 bit number that should be used as the VFAT Mask
+        Returns a self.parentAMC.nVFAT bit number that should be used as the VFAT Mask
         """
 
         return self.parentAMC.getLinkVFATMask(self.link)
@@ -370,7 +370,7 @@ class HwOptoHybrid(object):
         mask        - VFAT mask to use
         nevts       - Number of events for each dac value in scan
         outData     - Array of type c_uint32, if chan >= 0 array size
-                      must be: ((dacMax - dacMin + 1) / stepSize) * 24.
+                      must be: ((dacMax - dacMin + 1) / stepSize) * self.parentAMC.nVFAT.
                       The first ((dacMax - dacMin + 1) / stepSize)
                       array positions are for VFAT0, the next
                       ((dacMax - dacMin + 1) / stepSize) are for VFAT1,
@@ -483,7 +483,7 @@ class HwOptoHybrid(object):
             exit(os.EX_USAGE)
 
         #Check length of results container
-        lenExpected = (maxVfat3DACSize[dacSelect][0] - 0+1)*24 / dacStep
+        lenExpected = (maxVfat3DACSize[dacSelect][0] - 0+1)*self.parentAMC.nVFAT / dacStep
         if (len(outData) != lenExpected):
             print("HwOptoHybrid::performDacScan(): I expected container of lenght {0} but provided 'outData' has length {1}",format(lenExpected, len(outData)))
             exit(os.EX_USAGE)
