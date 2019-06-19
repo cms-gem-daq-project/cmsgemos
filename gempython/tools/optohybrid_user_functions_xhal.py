@@ -53,7 +53,7 @@ class HwOptoHybrid(object):
 
         # Define broadcast read
         self.bRead = self.parentAMC.lib.broadcastRead
-        self.bRead.argtypes = [c_uint, c_char_p, c_uint, POINTER(c_uint32)]
+        self.bRead.argtypes = [c_uint, c_char_p, c_uint, POINTER(c_uint32), c_uint]
         self.bRead.restype = c_uint
 
         # Define broadcast write
@@ -111,7 +111,7 @@ class HwOptoHybrid(object):
         outData = (c_uint32 * self.nVFATs)()
 
         try:
-            rpcResp = self.bRead(self.link, register, mask, outData)
+            rpcResp = self.bRead(self.link, register, mask, outData, self.nVFATs)
         except Exception as e:
             print e
             pass
