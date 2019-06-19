@@ -21,6 +21,8 @@ class HwVFAT(object):
         if detType not in gemVariants[gemType]:
             raise OHTypeException("HwVFAT: detType '{0}' not in the list of known detector types for gemType {1}; list of known detector types: {2}".format(detType, gemType, gemVariants[gemType]), os.EX_USAGE)
 
+        self.gemType = gemType
+
         # Optohybrid
         self.parentOH = HwOptoHybrid(cardName, link, debug, gemType, detType)
 
@@ -124,9 +126,9 @@ class HwVFAT(object):
         rawID - If true returns the rawID and does not apply the Reed-Muller decoding
         """
 
-        chipIDData = (c_uint32 * vfatsPerGemVariant[gemType])()
+        chipIDData = (c_uint32 * vfatsPerGemVariant[self.gemType])()
 
-        rpcResp = self.getVFAT3ChipIDs(chipIDData, self.parentOH.link, mask, rawID, vfatsPerGemVariant[gemType])
+        rpcResp = self.getVFAT3ChipIDs(chipIDData, self.parentOH.link, mask, rawID, vfatsPerGemVariant[self.gemType])
         if rpcResp != 0:
             raise Exception("RPC response was non-zero, failed to get chipID data for OH{0}".format(self.parentOH.link))
 
