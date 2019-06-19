@@ -80,17 +80,17 @@ class HwOptoHybrid(object):
         self.genScan.restype = c_uint
         self.genScan.argtypes = [c_uint, c_uint, c_uint, c_uint,
                                  c_uint, c_uint, c_bool, c_bool, c_uint, c_uint,
-                                 c_char_p, c_bool, c_bool, POINTER(c_uint32)]
+                                 c_char_p, c_bool, c_bool, POINTER(c_uint32), c_uint]
         self.genChannelScan = self.parentAMC.lib.genChannelScan
         self.genChannelScan.restype = c_uint
         self.genChannelScan.argtypes = [c_uint, c_uint, c_uint, c_uint,
                                         c_uint, c_uint, c_bool, c_bool,
                                         c_uint, c_bool, c_char_p, c_bool,
-                                        POINTER(c_uint32)]
+                                        POINTER(c_uint32), c_uint]
 
         self.dacScan = self.parentAMC.lib.dacScan
         self.dacScan.restype = c_uint
-        self.dacScan.argtypes = [ c_uint, c_uint, c_uint, c_uint, c_bool, POINTER(c_uint32) ]
+        self.dacScan.argtypes = [ c_uint, c_uint, c_uint, c_uint, c_bool, POINTER(c_uint32), c_uint]
 
         # Define the known V2b electronics scan registers
         self.KnownV2bElScanRegs = [
@@ -454,9 +454,9 @@ class HwOptoHybrid(object):
             useExtTrig = kwargs["useExtTrig"]
 
         if chan < 0:
-            return self.genChannelScan(nevts, self.link, mask, dacMin, dacMax, stepSize, enableCal, currentPulse, calSF, useExtTrig, scanReg, useUltra, kwargs["outData"])
+            return self.genChannelScan(nevts, self.link, mask, dacMin, dacMax, stepSize, enableCal, currentPulse, calSF, useExtTrig, scanReg, useUltra, kwargs["outData"], self.nVFATs)
         else:
-            return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, currentPulse, calSF, mask, scanReg, useUltra, useExtTrig, kwargs["outData"])
+            return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, currentPulse, calSF, mask, scanReg, useUltra, useExtTrig, kwargs["outData"], self.nVFATs)
 
     def performDacScan(self, outData, dacSelect, dacStep=1, mask=0x0, useExtRefADC=False):
         """
@@ -488,7 +488,7 @@ class HwOptoHybrid(object):
             print("HwOptoHybrid::performDacScan(): I expected container of lenght {0} but provided 'outData' has length {1}",format(lenExpected, len(outData)))
             exit(os.EX_USAGE)
 
-        return self.dacScan(self.link, dacSelect, dacStep, mask, useExtRefADC, outData)
+        return self.dacScan(self.link, dacSelect, dacStep, mask, useExtRefADC, outData, self.nVFATs)
 
     def setDebug(self, debug):
         self.debug = debug

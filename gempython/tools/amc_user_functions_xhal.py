@@ -125,11 +125,11 @@ class HwAMC(object):
         self.confDacMonitorMulti.restype = c_uint
 
         self.readADCsMulti = self.lib.readVFAT3ADCMultiLink
-        self.readADCsMulti.argTypes = [ c_uint, POINTER(c_uint32), POINTER(c_uint), c_bool ]
+        self.readADCsMulti.argTypes = [ c_uint, POINTER(c_uint32), POINTER(c_uint), c_bool, c_uint ]
         self.readADCsMulti.restype = c_uint
 
         self.dacScanMulti = self.lib.dacScanMultiLink
-        self.dacScanMulti.argTypes = [ c_uint, c_uint, c_uint, c_uint, c_bool, POINTER(c_uint) ]
+        self.dacScanMulti.argTypes = [ c_uint, c_uint, c_uint, c_uint, c_bool, POINTER(c_uint), c_uint ]
         self.dacScanMulti.restype = c_uint
 
         # Define SCA & Sysmon Monitoring
@@ -165,7 +165,7 @@ class HwAMC(object):
         self.readSBits.restype = c_uint
 
         self.sbitRateScanMulti = self.lib.sbitRateScan
-        self.sbitRateScanMulti.argTypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_char_p, POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32)]
+        self.sbitRateScanMulti.argTypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_char_p, POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), c_uint]
         self.sbitRateScanMulti.restype = c_uint
 
         # Parse XML
@@ -668,7 +668,7 @@ class HwAMC(object):
             printRed("HwAMC::performDacScanMultiLink(): I expected container of length {0} but provided 'dacDataAll' has length {1}",format(lenExpected, len(dacDataAll)))
             exit(os.EX_USAGE)
 
-        return self.dacScanMulti(ohMask, self.nOHs, dacSelect, dacStep, useExtRefADC, dacDataAll)
+        return self.dacScanMulti(ohMask, self.nOHs, dacSelect, dacStep, useExtRefADC, dacDataAll, self.NVFAT)
 
     def performSBITRateScanMultiLink(self, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, chan=128, dacMin=0, dacMax=254, dacStep=1, ohMask=None, scanReg="THR_ARM_DAC"):
         """
@@ -724,7 +724,7 @@ class HwAMC(object):
             printRed("HwAMC::performSBITRateScanMultiLink(): I expected container of length {0} but provided 'outDataTrigRatePerVFAT' has length {1}".format(self.NVFAT*lenExpected, len(outDataTrigRatePerVFAT)))
             exit(os.EX_USAGE)
 
-        return self.sbitRateScanMulti(ohMask, dacMin, dacMax, dacStep, chan, scanReg, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT)
+        return self.sbitRateScanMulti(ohMask, dacMin, dacMax, dacStep, chan, scanReg, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, self.NVFAT)
 
     def programAllOptohybridFPGAs(self, maxIter=5, ohMask=None):
         """
@@ -828,7 +828,7 @@ class HwAMC(object):
             for ohN in range(0,12):
                 print("| {0} | 0x{1:x} |".format(ohN, ohVFATMaskArray[ohN]))
 
-        return self.readADCsMulti(ohMask,ohVFATMaskArray, adcDataAll, useExtRefADC)
+        return self.readADCsMulti(ohMask,ohVFATMaskArray, adcDataAll, useExtRefADC, self.NVFAT)
 
     def readBlock(register, nwords, debug=False):
         """
