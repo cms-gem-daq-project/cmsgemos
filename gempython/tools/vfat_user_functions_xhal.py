@@ -1,5 +1,5 @@
 from gempython.tools.optohybrid_user_functions_xhal import *
-from gempython.tools.hw_constants import gemVariants
+from gempython.tools.hw_constants import gemVariants, vfatsPerGemVariant
 from gempython.utils.gemlogger import colormsg
 
 import logging
@@ -20,7 +20,7 @@ class HwVFAT(object):
 
         if detType not in gemVariants[gemType]:
             raise OHTypeException("HwVFAT: detType '{0}' not in the list of known detector types for gemType {1}; list of known detector types: {2}".format(detType, gemType, gemVariants[gemType]), os.EX_USAGE)
-        
+
         # Optohybrid
         self.parentOH = HwOptoHybrid(cardName, link, debug, gemType, detType)
 
@@ -79,7 +79,7 @@ class HwVFAT(object):
                 }
 
         return
-    
+
     def biasAllVFATs(self, mask=0x0, enable=False):
         # HW Dependent Configuration
         if self.parentOH.parentAMC.fwVersion > 2:
@@ -99,7 +99,7 @@ class HwVFAT(object):
                 #what about leaving any other settings?
                 #not now, want a reproducible routine
                 self.writeAllVFATs("ContReg0",    0x36, mask=mask)
-        
+
         # User specified values - rely on the user to load self.paramsDefVals
         for key in self.paramsDefVals.keys():
             self.writeAllVFATs(key,self.paramsDefVals[key],mask)
@@ -124,12 +124,12 @@ class HwVFAT(object):
         rawID - If true returns the rawID and does not apply the Reed-Muller decoding
         """
 
-        chipIDData = (c_uint32 * 24)()
-        
-        rpcResp = self.getVFAT3ChipIDs(chipIDData, self.parentOH.link, mask, rawID)
+        chipIDData = (c_uint32 * vfatsPerGemVariant[gemType])()
+
+        rpcResp = self.getVFAT3ChipIDs(chipIDData, self.parentOH.link, mask, rawID, vfatsPerGemVariant[gemType])
         if rpcResp != 0:
             raise Exception("RPC response was non-zero, failed to get chipID data for OH{0}".format(self.parentOH.link))
-        
+
         return chipIDData
 
     def getAllChannelRegisters(self, mask=0x0):
@@ -248,7 +248,7 @@ class HwVFAT(object):
         self.debug = debug
         self.parentOH.setDebug(debug)
         return
-    
+
     def setRunModeAll(self, mask=0x0, enable=True, debug=False):
         if self.parentOH.parentAMC.fwVersion > 2:
             if (enable):
@@ -303,7 +303,7 @@ class HwVFAT(object):
         else:
             self.writeAllVFATs("CalPhase", phase, mask)
         return
-    
+
     def setVFATLatency(self, chip, lat, debug=False):
         if self.parentOH.parentAMC.fwVersion > 2:
             self.writeVFATRegisters(chip,{"CFG_LATENCY": lat})
@@ -318,7 +318,7 @@ class HwVFAT(object):
             self.writeAllVFATs("Latency",lat,mask)
 
         return
-    
+
     def setVFATMSPLAll(self, mask=0x0, mspl=4, debug=False):
         if self.parentOH.parentAMC.fwVersion > 2:
             self.writeAllVFATs("CFG_PULSE_STRETCH",mspl,mask)
@@ -342,10 +342,10 @@ class HwVFAT(object):
             self.writeAllVFATs("VThreshold2",vt2,mask)
 
         return
-    
+
     def writeAllVFATs(self, reg, value, mask=0x0):
         return self.parentOH.broadcastWrite(reg,value,mask)
-    
+
     def writeVFAT(self, chip, reg, value, debug=False):
         baseNode = ""
         if self.parentOH.parentAMC.fwVersion > 2:
