@@ -134,7 +134,7 @@ class HwVFAT(object):
         if ((calScaleFactor < 0x0) or (calScaleFactor > 0x3)):
             raise RuntimeError("HwVFAT::configureCalPulseAllVFATs - calScaleFactor argument must be in range [0x0,0x3]")
 
-        return self.confCalPulse(self.parentOH.link, ch, toggleOn, currentPulse, calScaleFactor)
+        return self.confCalPulse(self.parentOH.link, mask, ch, toggleOn, currentPulse, calScaleFactor)
 
     def configureDACMonitor(self, dacSelect, mask=0x0):
         """
