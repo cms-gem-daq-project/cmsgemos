@@ -925,6 +925,27 @@ class HwAMC(object):
 
         return scaMonData
 
+    def setRunType(self,runType,debug=False):
+        """
+        Set the RUN_TYPE word, using convention:
+            https://github.com/cms-gem-daq-project/cmsgemos/issues/230
+
+        runType = 0x1 - Physics (Normal Operation)
+        runType = 0x2 - CFG_LATENCY Scan
+        runType = 0x3 - CFG_THR_ARM_DAC Scan
+        runType = 0x4 - CFG_CAL_DAC Scan (e.g. scurve)
+        """
+
+        return self.writeRegister("GEM_AMC.DAQ.EXT_CONTROL.RUN_TYPE",runType,debug)
+
+    def setRunParams(self,runParams,debug=False):
+        """
+        Set the RUN_PARAMS words with runParams, see convention:
+            https://github.com/cms-gem-daq-project/cmsgemos/issues/230
+        """
+
+        return self.writeRegister("GEM_AMC.DAQ.EXT_CONTROL.RUN_PARAMS",runParams,debug)
+
     def setShelf(self,shelf):
         self.shelf = shelf
         return
@@ -970,7 +991,6 @@ class HwAMC(object):
         """
         global gRetries
         nRetries = 0
-        #m_node = self.getNode(register)
         m_node = getNode(register)
         if m_node is None:
             print colors.MAGENTA,"NODE %s NOT FOUND"%(register),colors.ENDC
