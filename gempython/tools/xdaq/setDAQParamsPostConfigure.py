@@ -109,7 +109,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-s","--slotMask", help="Slot mask to apply, a 1 in the n^th bit indicates the n^th slot should be considered", type=parseInt)
+    parser.add_argument("-s","--slotMask", help="Slot mask to apply, a 1 in the N^th bit indicates the (N+1)^th slot should be considered", type=parseInt)
     parser.add_argument("--shelf", help="uTCA shelf number", type=int)
     parser.add_argument("-d", help="debug", action='store_true')
 

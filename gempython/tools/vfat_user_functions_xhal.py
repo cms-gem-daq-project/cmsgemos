@@ -40,6 +40,10 @@ class HwVFAT(object):
         self.confVFAT3s.argTypes = [ c_uint, c_uint ]
         self.confVFAT3s.restype = c_uint
 
+        self.confCalPulse = self.parentOH.parentAMC.lib.confCalPulse
+        self.confCalPulse.argTypes = [ c_uint, c_uint, c_uint, c_bool, c_bool, c_uint ]
+        self.confCalPulse.restype = c_uint 
+
         # Get all channel regs
         self.getChannelRegistersVFAT3 = self.parentOH.parentAMC.lib.getChannelRegistersVFAT3
         self.getChannelRegistersVFAT3.argTypes = [ c_uint, c_uint, POINTER(c_uint32), c_uint ]
@@ -110,6 +114,27 @@ class HwVFAT(object):
             self.writeAllVFATs(key,self.paramsDefVals[key],mask)
 
         return
+
+    def configureCalPulseAllVFATs(self, ch, toggleOn, mask=0x0, currentPulse=False,  calScaleFactor=0x0):
+        """
+        Configures calibration module for channel ch on all unmasked VFATs. If ch==128 and toggleOn == False this
+        will write the CALPULSE_ENABLE bit for all channels to 0x0 on all unmasked VFATs.
+
+        ch - VFAT channel of interest
+        toggleOn - If True (False) CALPULSE_ENABLE will be set to 0x1 (0x0)
+        mask - VFAT mask
+        currentPulse - If True (False) calibration module will perform current pulse (voltage step) injection
+        calScaleFactor - Scale factor for the calibration pulse in current pulse injection (0x0 = 25%, 0x1 = 50%, 0x2 = 75% and 0x3 = 100%)
+        """
+        
+        if ( ch == 128 and toggleOn == False):
+            print("HwVFAT::configureCalPulseAllVFATs - Disabling calpulse on all unmasked VFATs") 
+        elif ((ch < 0) or (ch > 127)):
+            raise RuntimeError("HwVFAT::configureCalPulseAllVFATs - ch argument must be in range [0,127] or ch argument must be 128 and toggleOn argument must be False")
+        if ((calScaleFactor < 0x0) or (calScaleFactor > 0x3)):
+            raise RuntimeError("HwVFAT::configureCalPulseAllVFATs - calScaleFactor argument must be in range [0x0,0x3]")
+
+        return self.confCalPulse(self.parentOH.link, ch, toggleOn, currentPulse, calScaleFactor)
 
     def configureDACMonitor(self, dacSelect, mask=0x0):
         """
