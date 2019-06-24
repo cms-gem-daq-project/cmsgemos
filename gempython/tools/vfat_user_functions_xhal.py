@@ -83,6 +83,11 @@ class HwVFAT(object):
                 "VThreshold2": 0x00,
                 "CalPhase":    0x00
                 }
+        else:
+            self.knownCalModes = { 0x0:"DISABLED",
+                                   0x1:"VOLTAGE_STEP_PULSE", 
+                                   0x2:"CURRENT_INJECTION"}
+            pass
 
         return
 
@@ -300,6 +305,20 @@ class HwVFAT(object):
 
         return self.stopCalPulses2AllChannels(self.parentOH.link, mask, chanMin, chanMax)
 
+    def setVFATCalDur(self, chip, calDur=0xA, debug=False):
+        if self.parentOH.parentAMC.fwVersion < 3:
+            raise RuntimeError("HwVFAT::setVFATCalDur not implemented for v2b electronics")
+
+        self.writeVFATRegisters(chip,{"CFG_CAL_DUR": (calDur)})
+        return
+
+    def setVFATCalDurAll(self, mask=0x0, calDur=0xA, debug=False):
+        if self.parentOH.parentAMC.fwVersion < 3:
+            raise RuntimeError("HwVFAT::setVFATCalDurAll not implemented for v2b electronics")
+
+        self.writeAllVFATs("CFG_CAL_DUR", calDur, mask)
+        return
+
     def setVFATCalHeight(self, chip, height, currentPulse=True, debug=False):
         if self.parentOH.parentAMC.fwVersion > 2:
             if currentPulse: #Current pulse, high CFG_CAL_DAC is a high injected charge amount
@@ -318,6 +337,26 @@ class HwVFAT(object):
                 self.writeAllVFATs("CFG_CAL_DAC", (256 - height), mask)
         else:
             self.writeAllVFATs("VCal", height, mask)
+        return
+
+    def setVFATCalMode(self, chip, calMode=0x1, debug=False):
+        if self.parentOH.parentAMC.fwVersion < 3:
+            raise RuntimeError("HwVFAT::setVFATCalMode not implemented for v2b electronics")
+
+        if calMode not in self.knownCalModes.keys():
+            raise RuntimeError("HwVFAT::setVFATCalMode - calMode 0x{:x} not recognized list of known modes are: {:s}".format([ "0x{:x}".format(mode) for mode in self.knownCalModes.keys()]))
+
+        self.writeVFATRegisters(chip,{"CFG_CAL_MODE": (calMode)})
+        return
+
+    def setVFATCalModeAll(self, mask=0x0, calMode=0x1, debug=False):
+        if self.parentOH.parentAMC.fwVersion < 3:
+            raise RuntimeError("HwVFAT::setVFATCalModeAll not implemented for v2b electronics")
+
+        if calMode not in self.knownCalModes.keys():
+            raise RuntimeError("HwVFAT::setVFATCalModeAll - calMode 0x{:x} not recognized list of known modes are: {:s}".format([ "0x{:x}".format(mode) for mode in self.knownCalModes.keys()]))
+
+        self.writeAllVFATs("CFG_CAL_MODE", calMode, mask)
         return
 
     def setVFATCalPhase(self, chip, phase, debug=False):
