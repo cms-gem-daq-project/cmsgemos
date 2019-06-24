@@ -212,6 +212,32 @@ class HwAMC(object):
         self.writeRegister("GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x0)
         return
 
+    def configureCalMode(self, enable, pulseDelay=30):
+        """
+        Enable/disable calibration mode of this AMC.
+
+        enable     - True/False; places AMC into calibration mode if True; in
+                     calibration mode an incoming L1A will trigger a calpulse to 
+                     be sent to the frontend followed by an L1A after a fixed delay.
+        pulseDelay - Defines the fixed delay between calpulse and L1A; note a 
+                     value of zero is invalid.  If another L1A comes in before 
+                     pulseDelay has passed it will restart the delay and result in
+                     the previous L1A to the frontend being cancelled; e.g. do
+                     not set this delay longer than consecutive L1A's from the AMC13
+        """
+        if enable:
+            self.writeRegister("GEM_AMC.TTC.GENERATOR.ENABLE",0x0)
+            self.writeRegister("GEM_AMC.TTC.CTRL.CALIBRATION_MODE",0x1)
+            if not (pulseDelay > 0):
+                raise ValueError("AMC::configureCalMode() - pulseDelay must be greater than zero!")
+            else:
+                self.writeRegister("GEM_AMC.TTC.CTRL.CALPULSE_L1A_DELAY",pulseDelay)
+        else:
+            self.writeRegister("GEM_AMC.TTC.CTRL.CALIBRATION_MODE",0x0)
+            pass
+
+        return
+
     def configureTTC(self, pulseDelay, L1Ainterval, ohN=0, mode=0, t1type=0,  nPulses=0, enable=True):
         """
         Default values reflects v3 electronics behavior
@@ -984,6 +1010,14 @@ class HwAMC(object):
         """
 
         return self.ttcGenToggle(ohN, enable)
+
+    def ttcCmdCntReset(self,debug=False):
+        """
+        Resets the TTC Command Counters
+        """
+
+        self.writeRegister("GEM_AMC.TTC.CTRL.CNT_RESET",0x1,debug)
+        return
 
     def writeRegister(self, register, value, debug=False):
         """
