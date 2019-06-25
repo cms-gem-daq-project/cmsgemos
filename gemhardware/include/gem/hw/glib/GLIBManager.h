@@ -6,7 +6,7 @@
 #include <array>
 
 #include "gem/base/GEMFSMApplication.h"
-//#include "gem/hw/glib/GLIBSettings.h"
+// #include "gem/hw/glib/GLIBSettings.h"
 
 #include "gem/hw/glib/exception/Exception.h"
 
@@ -21,14 +21,14 @@ namespace gem {
       class GLIBManagerWeb;
       class GLIBMonitor;
 
-      typedef std::shared_ptr<HwGLIB>  glib_shared_ptr;
-      typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
+      using glib_shared_ptr = std::shared_ptr<HwGLIB>;
+      using is_toolbox_ptr  = std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>;
 
       class GLIBManager : public gem::base::GEMFSMApplication
         {
 
           friend class GLIBManagerWeb;
-          //friend class GLIBMonitor;
+          // friend class GLIBMonitor;
 
         public:
           XDAQ_INSTANTIATOR();
@@ -52,15 +52,13 @@ namespace gem {
           virtual void stopAction()       throw (gem::hw::glib::exception::Exception) override;
           virtual void haltAction()       throw (gem::hw::glib::exception::Exception) override;
           virtual void resetAction()      throw (gem::hw::glib::exception::Exception) override;
-          //virtual void noAction()         throw (gem::hw::glib::exception::Exception) override;
+          // virtual void noAction()         throw (gem::hw::glib::exception::Exception) override;
 
-          virtual void failAction(toolbox::Event::Reference e)
+          void failAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
 
           virtual void resetAction(toolbox::Event::Reference e)
-            throw (toolbox::fsm::exception::Exception);
-
-	  /* bool is_initialized_, is_configured_, is_running_, is_paused_, is_resumed_; */ ///< FIXME REMOVE UNUSED
+            throw (toolbox::fsm::exception::Exception) override;
 
         protected:
           /**
@@ -77,8 +75,8 @@ namespace gem {
           void     createGLIBInfoSpaceItems(is_toolbox_ptr is_glib, glib_shared_ptr glib);
           uint16_t m_amcEnableMask;
 
-          toolbox::task::WorkLoop *p_amc_wl; ///< paralelize the calls to different AMCs
-          toolbox::BSem m_amc_wl_semaphore[MAX_AMCS_PER_CRATE]; // do we need a semaphore for the workloop or each of them?
+          toolbox::task::WorkLoop *p_amc_wl;                     ///< paralelize the calls to different AMCs
+          toolbox::BSem m_amc_wl_semaphore[MAX_AMCS_PER_CRATE];  ///< do we need a semaphore for the workloop or each of them?
 
           class GLIBInfo {
 
@@ -86,27 +84,16 @@ namespace gem {
             GLIBInfo();
             void registerFields(xdata::Bag<GLIBManager::GLIBInfo>* bag);
 
-            //monitoring information
-            xdata::Boolean present;
-            xdata::Integer crateID;
-            xdata::Integer slotID;
-            xdata::String  cardName; ///< FIXME USAGE cardname shoule be gem-shelfXX-amcYY from crateID and slotID
-            xdata::String  birdName; ///< FIXME REMOVE TEMPORARY
-
-            //configuration parameters
-            /* xdata::String controlHubAddress; */ ///< FIXME REMOVE OBSOLETE
-            /* xdata::String deviceIPAddress; */   ///< FIXME REMOVE OBSOLETE
-            /* xdata::String ipBusProtocol; */     ///< FIXME REMOVE OBSOLETE
-            /* xdata::String addressTable; */      ///< FIXME REMOVE OBSOLETE
+            // monitoring information
+            xdata::Boolean present;  ///< FIXME BAD USAGE
+            xdata::Integer crateID;  ///< Specifies the crate to which the OptoHybrid is connected
+            xdata::Integer slotID;   ///< Specifies the AMC slot to which the OptoHybrid is connected
 
             // list of GTX links to enable in the DAQ
             xdata::String            gtxLinkEnableList;
             xdata::UnsignedInteger32 gtxLinkEnableMask;
 
-            /* xdata::UnsignedInteger32 controlHubPort; */ ///< FIXME REMOVE OBSOLETE
-            /* xdata::UnsignedInteger32 ipBusPort; */      ///< FIXME REMOVE OBSOLETE
-
-            //registers to set
+            // registers to set
             xdata::Integer sbitSource;
             xdata::Boolean enableZS;
 
@@ -115,15 +102,6 @@ namespace gem {
               os << "present:"  << present.toString()  << std::endl
                  << "crateID:"  << crateID.toString()  << std::endl
                  << "slotID:"   << slotID.toString()   << std::endl
-                 << "cardName:" << cardName.toString() << std::endl
-                 << "birdName:" << birdName.toString() << std::endl
-
-                 /* << "controlHubAddress:" << controlHubAddress.toString() << std::endl */ ///< FIXME REMOVE OBSOLETE
-                 /* << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl */ ///< FIXME REMOVE OBSOLETE
-                 /* << "ipBusProtocol:"     << ipBusProtocol.toString()     << std::endl */ ///< FIXME REMOVE OBSOLETE
-                 /* << "addressTable:"      << addressTable.toString()      << std::endl */ ///< FIXME REMOVE OBSOLETE
-                 /* << "controlHubPort:"    << controlHubPort.value_        << std::endl */ ///< FIXME REMOVE OBSOLETE
-                 /* << "ipBusPort:"         << ipBusPort.value_             << std::endl */ ///< FIXME REMOVE OBSOLETE
 
                  << "gtxLinkEnableList:" << gtxLinkEnableList.toString() << std::endl
                  << "gtxLinkEnableMask:" << std::hex << gtxLinkEnableMask.value_ << std::dec << std::endl
@@ -135,20 +113,21 @@ namespace gem {
             };
           };
 
-          mutable gem::utils::Lock m_deviceLock;  // [MAX_AMCS_PER_CRATE];
+          mutable gem::utils::Lock m_deviceLock;  ///< [MAX_AMCS_PER_CRATE];
 
-          std::array<glib_shared_ptr, MAX_AMCS_PER_CRATE>              m_glibs;
-          std::array<std::shared_ptr<GLIBMonitor>, MAX_AMCS_PER_CRATE> m_glibMonitors;
-          std::array<is_toolbox_ptr, MAX_AMCS_PER_CRATE>               is_glibs;
+          std::array<glib_shared_ptr, MAX_AMCS_PER_CRATE> m_glibs;                      ///< HwGenericAMC pointers to be managed
+          std::array<std::shared_ptr<GLIBMonitor>, MAX_AMCS_PER_CRATE> m_glibMonitors;  ///< AMCMonito pointers to be managed
+          std::array<is_toolbox_ptr, MAX_AMCS_PER_CRATE> is_glibs;                      ///< AMC InfoSpace pointers to be managed
 
-          xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;  // [MAX_AMCS_PER_CRATE];
-          xdata::String                        m_amcSlots;
-          xdata::String                        m_connectionFile;
-          xdata::Boolean                       m_uhalPhaseShift; // FIXME OBSOLETE
-          xdata::Boolean                       m_bc0LockPhaseShift;
-          xdata::Boolean                       m_relockPhase;
+          xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;  ///< [MAX_AMCS_PER_CRATE];
+          xdata::String  m_amcSlots;           ///< 
+          xdata::String  m_connectionFile;     ///< 
+          xdata::Boolean m_doPhaseShift;       ///< Whether or not to do a phase shifting procedure during configuration
+          xdata::Boolean m_bc0LockPhaseShift;  ///< Use BC0 to find the best phase during the phase shifting procedure
+          xdata::Boolean m_relockPhase;        ///< Relock the phase during phase shifting
 
-	  uint32_t m_lastLatency, m_lastVT1, m_lastVT2;
+	  uint32_t m_lastLatency;         ///< Special variable for latency scan mode
+          uint32_t m_lastVT1, m_lastVT2;  ///< Special variable for threshold scan mode 
         };  // class GLIBManager
 
     }  // namespace gem::hw::glib

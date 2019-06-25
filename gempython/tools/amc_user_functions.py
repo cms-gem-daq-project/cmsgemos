@@ -1,12 +1,13 @@
 ## TODO: REWORK based on cmsgemos_gempython boosted
 # only a few helpers should remain, the rest are imported from the c++ library
-import sys, time, signal
-sys.path.append('${GEM_PYTHON_PATH}')
+import time
+# import sys, time, signal
+# sys.path.append('${GEM_PYTHON_PATH}')
 
 from gempython.utils.nesteddict import nesteddict
 from gempython.utils.registers_uhal import *
 from gempython.utils.gemlogger import colormsg,colors
-from gempython.core._cmsgemos_gempython import *
+from gempython.core._cmsgemos_gempython import HwGenericAMC
 
 import logging
 amclogger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ def getAMCObject(slot,shelf=1,ctrlhubhost=None,use_connection_file=False,debug=F
 
     if use_connection_file:
         connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
-        amc             = HwGenericAMC( hostname, connection_file )
+        amc             = HwGenericAMC(hostname, connection_file)
     else:
         addresstable = "file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_amc.xml"
         if ctrlhubhost:
@@ -41,11 +42,14 @@ def getAMCObject(slot,shelf=1,ctrlhubhost=None,use_connection_file=False,debug=F
             proto = "ipbustcp-2.0"
             uri   = "{}://{}:{}".format(proto,hostname,port)
 
-        amc = HwGenericAMC( hostname, uri, addresstable )
+        amc = HwGenericAMC(hostname, uri, addresstable)
 
     if checkAMCBoard(amc):
+        msg = "%s: Success!"%(amc)
+        amclogger.info(colormsg(msg,logging.INFO))
         return amc
     else:
+        msg = "%s: Failed to create AMC object"%(amc)
         raise Exception
 
 def checkAMCBoard(device,debug=False):

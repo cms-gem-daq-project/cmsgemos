@@ -15,32 +15,17 @@ namespace gem {
       {
       public:
 
-        /* // FIXME, THIS SHOULD NOT BE HARDCODED, move out of class? */
-        /* static constexpr uint8_t N_GTX = 12; ///< maximum number of GTX links on the GenericAMC */
-
         /**
-         * @struct AMCIPBusCounters
+         * @struct AMCIPBusCounters FIXME UPDATE FOR V3
          * @brief This structure stores retrieved counters related to the GenericAMC IPBus transactions
-         * @var AMCIPBusCounters::OptoHybridStrobe
-         * OptoHybridStrobe is a counter for the number of errors on the tracking data link
-         * @var AMCIPBusCounters::OptoHybridAck
-         * OptoHybridAck is a counter for the number of errors on the trigger data link
-         * @var AMCIPBusCounters::TrackingStrobe
-         * TrackingStrobe is a counter for the number of errors on the tracking data link
-         * @var AMCIPBusCounters::TrackingAck
-         * TrackingAck is a counter for the number of errors on the trigger data link
-         * @var AMCIPBusCounters::CounterStrobe
-         * CounterStrobe is a counter for the number of errors on the tracking data link
-         * @var AMCIPBusCounters::CounterAck
-         * CounterAck is a counter for the number of errors on the trigger data link
          */
         typedef struct AMCIPBusCounters {
-          uint32_t OptoHybridStrobe;
-          uint32_t OptoHybridAck   ;
-          uint32_t TrackingStrobe  ;
-          uint32_t TrackingAck     ;
-          uint32_t CounterStrobe   ;
-          uint32_t CounterAck      ;
+          uint32_t OptoHybridStrobe; ///< OptoHybridStrobe is a counter for the number of errors on the tracking data link
+          uint32_t OptoHybridAck   ; ///< OptoHybridAck is a counter for the number of errors on the trigger data link
+          uint32_t TrackingStrobe  ; ///< TrackingStrobe is a counter for the number of errors on the tracking data link
+          uint32_t TrackingAck     ; ///< TrackingAck is a counter for the number of errors on the trigger data link
+          uint32_t CounterStrobe   ; ///< CounterStrobe is a counter for the number of errors on the tracking data link
+          uint32_t CounterAck      ; ///< CounterAck is a counter for the number of errors on the trigger data link
 
         AMCIPBusCounters() :
           OptoHybridStrobe(0),OptoHybridAck(0),
@@ -84,66 +69,92 @@ namespace gem {
         /** GEM system information **/
         /****************************/
         /**
-         * Read the board ID registers
+         * @brief Read the board ID register (should be reimplemented in derived HW, e.g., GLIB)
+         * @param legacy determines whether to read the legacy system board ID (GLIB)
+         *        or the GEM_AMC board ID
          * @returns the AMC board ID as a std::string
          */
-        virtual std::string getBoardID();
+        virtual std::string getBoardIDString(bool const legacy=false);
 
         /**
-         * Read the board ID registers
+         * @brief Read the board ID register (should be reimplemented in derived HW, e.g., GLIB)
+         * @param legacy determines whether to read the legacy system board ID ('GLIB' as ASCII characters)
+         *        or the GEM_AMC board ID (0xbeef as uint32_t)
          * @returns the AMC board ID as 32 bit unsigned value
          */
-        virtual uint32_t getBoardIDRaw();
+        virtual uint32_t getBoardID(bool const legacy=false);
 
         /**
-         * Check how many OptoHybrids the AMC FW can support
+         * @brief Read the board type register (should be reimplemented in derived HW, e.g., GLIB)
+         * @param legacy determines whether to read the legacy system board type (GLIB)
+         *        or the GEM_AMC board type
+         * @returns the AMC board type as a std::string
+         */
+        virtual std::string getBoardTypeString(bool const legacy=false);
+
+        /**
+         * @brief Read the board type register (should be reimplemented in derived HW, e.g., GLIB)
+         * @param legacy determines whether to read the legacy system board type ('GLIB' as ASCII characters)
+         *        or the GEM_AMC board type (0xbeef as uint32_t)
+         * @returns the AMC board type as 32 bit unsigned value
+         */
+        virtual uint32_t getBoardType(bool const legacy=false);
+
+        /**
+         * @brief Read the system ID register (should be reimplemented in derived HW, e.g., GLIB)
+         * @param legacy determines whether to read the legacy system system ID (GLIB)
+         *        or the GEM_AMC system ID
+         * @returns the AMC system ID as a std::string
+         */
+        virtual std::string getSystemIDString(bool const legacy=false);
+
+        /**
+         * @brief Read the system ID register (should be reimplemented in derived HW, e.g., GLIB)
+         * @param legacy determines whether to read the legacy system system ID ('20v1' as ASCII characters)
+         *        or the GEM_AMC board type (0x1 as uint32_t)
+         * @returns the AMC system ID as 32 bit unsigned value
+         */
+        virtual uint32_t getSystemID(bool const legacy=false);
+
+        /**
+         * @brief Check how many OptoHybrids the AMC FW can support
          * @returns the number of OptoHybrid boards supported by the FW
          */
-        uint32_t getSupportedOptoHybrids() {
-          return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.NUM_OF_OH"); }
-
-        /**
-         * FIXME: OBSOLETE
-         * Check if the AMC FW supports GBT communication
-         * @returns whether or not the AMC FW supports GBT communication
-         */
-        uint32_t supportsGBTLink() {
-          return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.USE_GBT"); }
+        uint32_t getSupportedOptoHybrids();
 
         /**
          * Check if the AMC FW supports trigger links
          * @returns whether or not the AMC FW supports trigger links
          */
-        uint32_t supportsTriggerLink() {
-          return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.USE_TRIG_LINKS"); }
+        uint32_t supportsTriggerLink();
 
         /**
          * Read the AMC FW register
          * @param system determines whether to read the system (default) or user FW register
          * @returns a string corresponding to AMC FW version
          */
-        virtual std::string getFirmwareVer(bool const& system=true);
+        virtual std::string getFirmwareVerString(bool const& system=true);
 
         /**
          * Read the AMC FW register
          * @param system determines whether to read the system (default) or user FW register
          * @returns the AMC FW version as a 32 bit unsigned
          */
-        virtual uint32_t getFirmwareVerRaw(bool const& system=true);
+        virtual uint32_t getFirmwareVer(bool const& system=true);
 
         /**
          * Read the AMC FW register
          * @param system determines whether to read the system (default) or user FW register
          * @returns a string corresponding to the build date dd-mm-yyyy
          */
-        virtual std::string getFirmwareDate(bool const& system=true);
+        virtual std::string getFirmwareDateString(bool const& system=true);
 
         /**
          * Read the AMC FW register
          * @param system determines whether to read the system (default) or user FW register
          * @returns the build date as a 32 bit unsigned
          */
-        virtual uint32_t getFirmwareDateRaw(bool const& system=true);
+        virtual uint32_t getFirmwareDate(bool const& system=true);
 
         //user core functionality
         /**
@@ -177,37 +188,6 @@ namespace gem {
 
       public:
         /**
-         * Read the gtx status registers, store the information in a struct
-         * @param gtx is the number of the gtx to query
-         * @retval _status a struct containing the status bits of the optical link
-         * @throws gem::hw::exception::InvalidLink if the gtx number is outside of 0-N_GTX
-         */
-        virtual GEMHwDevice::OpticalLinkStatus LinkStatus(uint8_t const& gtx);
-
-        /**
-         * Reset the gtx status registers
-         * @param uint8_t gtx is the number of the gtx to query
-         * @param uint8_t resets control which bits to reset
-         * bit 1 - GTX_TRK_ErrCnt         0x1
-         * bit 2 - GTX_TRG_ErrCnt         0x2
-         * bit 3 - GTX_Data_Rec           0x4
-         * bit 4 - GBT_TRK_ErrCnt         0x8
-         * bit 5 - GBT_Data_Rec           0x10
-         * @throws gem::hw::exception::InvalidLink if the gtx number is outside of 0-N_GTX
-         * FIXME: OBSOLETE IN V2/V3, reimplement to remove linkReset/ResetLinks duplication?
-         */
-        virtual void LinkReset(uint8_t const& gtx, uint8_t const& resets);
-
-        /**
-         * Reset the all gtx status registers
-         * @param uint8_t resets control which bits to reset
-         */
-        virtual void ResetLinks(uint8_t const& resets) {
-          for (auto gtx = v_activeLinks.begin(); gtx != v_activeLinks.end(); ++gtx)
-            LinkReset(gtx->first,resets);
-        }
-
-        /**
          * Set the trigger source to the front end
          * @param uint8_t mode 0 from software, 1 from TTC decoder (AMC13), 2 from both
          * OBSOLETE in V2 firmware, taken care of in the OptoHybrid
@@ -239,20 +219,6 @@ namespace gem {
 
         ///Counters
         /**
-         * Get the recorded number of IPBus signals sent/received by the GenericAMC
-         * @param uint8_t gtx which GTX
-         * @param uint8_t mode which counter
-         * bit 1 OptoHybridStrobe
-         * bit 2 OptoHybridAck
-         * bit 3 TrackingStrobe
-         * bit 4 TrackingAck
-         * bit 5 CounterStrobe
-         * bit 6 CounterAck
-         * @returns AMCIPBusCounters struct, with updated values for the ones specified in the mask
-         */
-        virtual AMCIPBusCounters getIPBusCounters(uint8_t const& gtx, uint8_t const& mode);
-
-        /**
          * Get the recorded number of L1A signals received from the TTC decoder
          */
         uint32_t getL1ACount() { return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.L1A"); }
@@ -273,18 +239,6 @@ namespace gem {
         uint32_t getBC0Count() { return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.BC0"); }
 
         ///Counter resets
-        /**
-         * Get the recorded number of IPBus signals sent/received by the GenericAMC
-         * @param uint8_t gtx which GTX
-         * @param uint8_t mode which counter
-         * bit 0 OptoHybridStrobe
-         * bit 1 OptoHybridAck
-         * bit 2 TrackingStrobe
-         * bit 3 TrackingAck
-         * bit 4 CounterStrobe
-         * bit 5 CounterAck
-         */
-        virtual void resetIPBusCounters(uint8_t const& gtx, uint8_t const& mode);
 
         /** FIXME specific counter resets from legacy, counter resets are module wide now  **/
         /**
@@ -475,7 +429,7 @@ namespace gem {
          * @returns Returns the the 32-bit word corresponding DAQ status for the specified link
          */
         // FIXME: renamed from DAQLink to LinkDAQ
-        uint32_t getLinkDAQStatus(   uint8_t const& gtx);
+        uint32_t getLinkDAQStatus(uint8_t const& gtx);
 
         /**
          * @param gtx is the input link counter to query
@@ -483,7 +437,7 @@ namespace gem {
          * @returns Returns the link counter for the specified mode
          */
         // FIXME: renamed from DAQLink to LinkDAQ
-        uint32_t getLinkDAQCounters( uint8_t const& gtx, uint8_t const& mode);
+        uint32_t getLinkDAQCounters(uint8_t const& gtx, uint8_t const& mode);
 
         /**
          * @param gtx is the input link status to query
@@ -797,13 +751,10 @@ namespace gem {
         std::vector<AMCIPBusCounters> m_ipBusCounters; /** for each gtx, IPBus counters */
 
       protected:
-        //GenericAMCMonitor *monGenericAMC_;
-
-        bool b_links[gem::hw::utils::N_GTX]; // have to figure out how to make this dynamic, or if we can just drop it... FIXME
         uint32_t m_links;    ///< Connected links mask
         uint32_t m_maxLinks; ///< Maximum supported OptoHybrids as reported by the firmware
 
-        std::vector<linkStatus> v_activeLinks; ///< vector keeping track of the active links
+        /* std::vector<linkStatus> v_activeLinks; ///< vector keeping track of the active links */
 
         /**
          * @brief sets the expected board ID string to be matched when reading from the firmware
@@ -812,9 +763,6 @@ namespace gem {
         void setExpectedBoardID(std::string const& boardID) { m_boardID = boardID; }
 
         std::string m_boardID;  ///< expected boardID in the firmware
-
-        int m_crate;  ///< Crate number the AMC is housed in
-        int m_slot;   ///< Slot number in the uTCA shelf the AMC is sitting in
 
       private:
         // Do not use default constructor. HwGenericAMC object should only be made using

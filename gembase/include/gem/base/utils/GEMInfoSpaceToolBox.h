@@ -41,33 +41,33 @@ namespace gem {
         /**
          * ItemType controls the type of item to store in the info space
          */
-        enum ItemType { UINT8,      //!< Used for VFAT registers, 8-bits only
-                        UINT16,     //!< Used for certain VFAT registers, 16-bits only, e.g., ChipID
-                        UINT24,     //!< Used for certain VFAT registers, 24-bits only, e.g., HitCount
-                        UINT32,     //!< Generic 32-bit hardware register
-                        UINT64,     //!< Combines two 32-bit registers into a 64-bit value
-                        BOOL,       //!< boolean type
-                        INTEGER,    //!< integer type
-                        INTEGER32,  //!< integer32 type
-                        INTEGER64,  //!< integer64 type
-                        DOUBLE,     //!< double type
-                        STRING,     //!< string type
-                        INFOSPACE   //!< embedded InfoSpace type
+        enum ItemType { UINT8,      ///< Used for VFAT registers, 8-bits only
+                        UINT16,     ///< Used for certain VFAT registers, 16-bits only, e.g., ChipID
+                        UINT24,     ///< Used for certain VFAT registers, 24-bits only, e.g., HitCount
+                        UINT32,     ///< Generic 32-bit hardware register
+                        UINT64,     ///< Combines two 32-bit registers into a 64-bit value
+                        BOOL,       ///< boolean type
+                        INTEGER,    ///< integer type
+                        INTEGER32,  ///< integer32 type
+                        INTEGER64,  ///< integer64 type
+                        DOUBLE,     ///< double type
+                        STRING,     ///< string type
+                        INFOSPACE   ///< embedded InfoSpace type
         };
 
         /**
          * UpdateType controls the type of update to perform on the value stored in the info space
          */
-        enum UpdateType { HW8,      //!< Used for VFAT registers, 8-bits only
-                          HW16,     //!< Used for certain VFAT registers, 16-bits only, e.g., ChipID
-                          HW24,     //!< Used for certain VFAT registers, 24-bits only, e.g., HitCount
-                          HW32,     //!< Generic 32-bit hardware register
-                          HW64,     //!< Combines two 32-bit registers into a 64-bit value
-                          I2CSTAT,  //!< Takes care of registers which have a strobe/acknowlege counter
-                          PROCESS,  //!< Copied from Ferol, not sure of the use case
-                          SOAP,     //!< Do a ParameterGet request on update
-                          TRACKER,  //!< Copied from Ferol, not sure of the use case
-                          NOUPDATE  //!< Value is not to be updated
+        enum UpdateType { HW8,      ///< Used for VFAT registers, 8-bits only
+                          HW16,     ///< Used for certain VFAT registers, 16-bits only, e.g., ChipID
+                          HW24,     ///< Used for certain VFAT registers, 24-bits only, e.g., HitCount
+                          HW32,     ///< Generic 32-bit hardware register
+                          HW64,     ///< Combines two 32-bit registers into a 64-bit value
+                          I2CSTAT,  ///< Takes care of registers which have a strobe/acknowlege counter
+                          PROCESS,  ///< Copied from Ferol, not sure of the use case
+                          SOAP,     ///< Do a ParameterGet request on update
+                          TRACKER,  ///< Copied from Ferol, not sure of the use case
+                          NOUPDATE  ///< Value is not to be updated
         };
 
         class GEMInfoSpaceItem

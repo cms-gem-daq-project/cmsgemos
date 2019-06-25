@@ -61,7 +61,6 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
 //   // setLogLevelTo(uhal::Error());  // Minimise uHAL logging
 
 //   for (unsigned li = 0; li < N_GTX; ++li) {
-//     b_links[li] = false;
 //     AMCIPBusCounters tmpGTXCounter;
 //     m_ipBusCounters.push_back(tmpGTXCounter);
 //   }
@@ -73,16 +72,16 @@ gem::hw::glib::HwGLIB::~HwGLIB()
 {
 }
 
-std::string gem::hw::glib::HwGLIB::getBoardID()
+std::string gem::hw::glib::HwGLIB::getBoardIDString()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board ID consists of four characters encoded as a 32-bit unsigned int
   std::string res = "N/A";
-  res = gem::utils::uint32ToString(getBoardIDRaw());
+  res = gem::utils::uint32ToString(getBoardID());
   return res;
 }
 
-uint32_t gem::hw::glib::HwGLIB::getBoardIDRaw()
+uint32_t gem::hw::glib::HwGLIB::getBoardID()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board ID consists of four characters encoded as a 32-bit unsigned int
@@ -90,16 +89,16 @@ uint32_t gem::hw::glib::HwGLIB::getBoardIDRaw()
   return val;
 }
 
-std::string gem::hw::glib::HwGLIB::getSystemID()
+std::string gem::hw::glib::HwGLIB::getSystemIDString()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The system ID consists of four characters encoded as a 32-bit unsigned int
   std::string res = "N/A";
-  res = gem::utils::uint32ToString(getSystemIDRaw());
+  res = gem::utils::uint32ToString(getSystemID());
   return res;
 }
 
-uint32_t gem::hw::glib::HwGLIB::getSystemIDRaw()
+uint32_t gem::hw::glib::HwGLIB::getSystemID()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The system ID consists of four characters encoded as a 32-bit unsigned int
@@ -107,32 +106,32 @@ uint32_t gem::hw::glib::HwGLIB::getSystemIDRaw()
   return val;
 }
 
-std::string gem::hw::glib::HwGLIB::getIPAddress()
+std::string gem::hw::glib::HwGLIB::getIPAddressString()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::string res = "N/A";
-  res = gem::utils::uint32ToDottedQuad(getIPAddressRaw());
+  res = gem::utils::uint32ToDottedQuad(getIPAddress());
   return res;
 }
 
-uint32_t gem::hw::glib::HwGLIB::getIPAddressRaw()
+uint32_t gem::hw::glib::HwGLIB::getIPAddress()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   uint32_t val = readReg(getDeviceBaseNode(), "GLIB_SYSTEM.SYSTEM.IP_INFO");
   return val;
 }
 
-std::string gem::hw::glib::HwGLIB::getMACAddress()
+std::string gem::hw::glib::HwGLIB::getMACAddressString()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::string res = "N/A";
-  uint64_t val = getMACAddressRaw();
+  uint64_t val = getMACAddress();
   res = gem::utils::uint32ToGroupedHex((val>>32)&0xffffffff,val&0xffffffff);
   // res = gem::utils::uint64ToGroupedHex(val);
   return res;
 }
 
-uint64_t gem::hw::glib::HwGLIB::getMACAddressRaw()
+uint64_t gem::hw::glib::HwGLIB::getMACAddress()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   uint32_t val1 = readReg(getDeviceBaseNode(), "GLIB_SYSTEM.SYSTEM.MAC.UPPER");

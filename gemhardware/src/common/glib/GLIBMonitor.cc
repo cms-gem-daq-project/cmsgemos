@@ -89,12 +89,6 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  std::make_pair("CPLD_LOCK", "GLIB_SYSTEM.SYSTEM.STATUS.CDCE_LOCK"),
                  GEMUpdateType::HW32, "hex");
 
-  /*
-   * not present in generic firmware
-  addMonitorableSet("IPBus",     "HWMonitoring");
-  addMonitorableSet("GTX_LINKS", "HWMonitoring");
-  addMonitorableSet("GBT_LINKS", "HWMonitoring");
-  */
   addMonitorableSet("COUNTERS", "HWMonitoring");
   addMonitorable("COUNTERS", "HWMonitoring",
                  std::make_pair("L1A", "TTC.CMD_COUNTERS.L1A"),
@@ -184,24 +178,21 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  GEMUpdateType::HW32, "hex");
 
   addMonitorableSet("TTC", "HWMonitoring");
-  //addMonitorable("TTC", "HWMonitoring",
-  //               std::make_pair("TTC_CONTROL", "GLIB.TTC.CONTROL"),
-  //               GEMUpdateType::HW32, "hex");
-  // addMonitorable("TTC", "HWMonitoring",
-  //                std::make_pair("TTC_SPY", "TTC.TTC_SPY_BUFFER"),
-  //                GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("TTC_SPY", "TTC.TTC_SPY_BUFFER"),
+                 GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
                  std::make_pair("MMCM_LOCKED", "TTC.STATUS.CLK.MMCM_LOCKED"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
                  std::make_pair("BC0_LOCKED", "TTC.STATUS.BC0.LOCKED"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("PHASE_LOCKED", "TTC.STATUS.CLK.PHASE_LOCKED"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("SYNC_DONE", "TTC.STATUS.CLK.SYNC_DONE"),
-                 GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("PHASE_LOCKED", "TTC.STATUS.CLK.PHASE_LOCKED"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("SYNC_DONE", "TTC.STATUS.CLK.SYNC_DONE"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
                  std::make_pair("L1A_RATE", "TTC.L1A_RATE"),
                  GEMUpdateType::HW32, "hex");
@@ -211,102 +202,103 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
   addMonitorable("TTC", "HWMonitoring",
                  std::make_pair("BC0_UNLOCK_CNT", "TTC.STATUS.BC0.UNLOCK_CNT"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("PHASE_UNLOCK_CNT", "TTC.STATUS.CLK.PHASE_UNLOCK_CNT"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("PHASE_UNLOCK_TIME", "TTC.STATUS.CLK.PHASE_UNLOCK_TIME"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("SYNC_DONE_TIME", "TTC.STATUS.CLK.SYNC_DONE_TIME"),
-                 GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("PHASE_UNLOCK_CNT", "TTC.STATUS.CLK.PHASE_UNLOCK_CNT"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("PHASE_UNLOCK_TIME", "TTC.STATUS.CLK.PHASE_UNLOCK_TIME"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("SYNC_DONE_TIME", "TTC.STATUS.CLK.SYNC_DONE_TIME"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
                  std::make_pair("BC0_OVERFLOW_CNT", "TTC.STATUS.BC0.OVERFLOW_CNT"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
                  std::make_pair("BC0_UNDERFLOW_CNT", "TTC.STATUS.BC0.UNDERFLOW_CNT"),
                  GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("PA_PLL_LOCK_WINDOW", "TTC.STATUS.CLK.PA_PLL_LOCK_WINDOW"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("PA_PHASE_SHIFT_CNT", "TTC.STATUS.CLK.PA_PHASE_SHIFT_CNT"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("PA_PLL_LOCK_CLOCKS", "TTC.STATUS.CLK.PA_PLL_LOCK_CLOCKS"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("PA_FSM_STATE", "TTC.STATUS.CLK.PA_FSM_STATE"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("TTC_PM_PHASE", "TTC.STATUS.CLK.TTC_PM_PHASE"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("TTC_PM_PHASE_MEAN", "TTC.STATUS.CLK.TTC_PM_PHASE_MEAN"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("TTC_PM_PHASE_MAX", "TTC.STATUS.CLK.TTC_PM_PHASE_MAX"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("TTC_PM_PHASE_MIN", "TTC.STATUS.CLK.TTC_PM_PHASE_MIN"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("TTC_PM_PHASE_JUMP_CNT", "TTC.STATUS.CLK.TTC_PM_PHASE_JUMP_CNT"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("TTC_PM_PHASE_JUMP_SIZE", "TTC.STATUS.CLK.TTC_PM_PHASE_JUMP_SIZE"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("TTC_PM_PHASE_JUMP_TIME", "TTC.STATUS.CLK.TTC_PM_PHASE_JUMP_TIME"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("GTH_PM_PHASE", "TTC.STATUS.CLK.GTH_PM_PHASE"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("GTH_PM_PHASE_MEAN", "TTC.STATUS.CLK.GTH_PM_PHASE_MEAN"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("GTH_PM_PHASE_MAX", "TTC.STATUS.CLK.GTH_PM_PHASE_MAX"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("GTH_PM_PHASE_MIN", "TTC.STATUS.CLK.GTH_PM_PHASE_MIN"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("GTH_PM_PHASE_JUMP_CNT", "TTC.STATUS.CLK.GTH_PM_PHASE_JUMP_CNT"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("GTH_PM_PHASE_JUMP_SIZE", "TTC.STATUS.CLK.GTH_PM_PHASE_JUMP_SIZE"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+  // FIXME NOT YET PRESENT // addMonitorable("TTC", "HWMonitoring",
+  // FIXME NOT YET PRESENT //                std::make_pair("GTH_PM_PHASE_JUMP_TIME", "TTC.STATUS.CLK.GTH_PM_PHASE_JUMP_TIME"),
+  // FIXME NOT YET PRESENT //                GEMUpdateType::HW32, "hex");
+
   addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("PA_PLL_LOCK_WINDOW", "TTC.STATUS.CLK.PA_PLL_LOCK_WINDOW"),
+                 std::make_pair("BC0_CMD", "TTC.CONFIG.CMD_BC0"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("PA_PHASE_SHIFT_CNT", "TTC.STATUS.CLK.PA_PHASE_SHIFT_CNT"),
+                 std::make_pair("EC0_CMD", "TTC.CONFIG.CMD_EC0"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("PA_PLL_LOCK_CLOCKS", "TTC.STATUS.CLK.PA_PLL_LOCK_CLOCKS"),
+                 std::make_pair("RESYNC_CMD", "TTC.CONFIG.CMD_RESYNC"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("PA_FSM_STATE", "TTC.STATUS.CLK.PA_FSM_STATE"),
+                 std::make_pair("OC0_CMD", "TTC.CONFIG.CMD_OC0"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("TTC_PM_PHASE", "TTC.STATUS.CLK.TTC_PM_PHASE"),
+                 std::make_pair("HARD_RESET_CMD", "TTC.CONFIG.CMD_HARD_RESET"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("TTC_PM_PHASE_MEAN", "TTC.STATUS.CLK.TTC_PM_PHASE_MEAN"),
+                 std::make_pair("CALPULSE_CMD", "TTC.CONFIG.CMD_CALPULSE"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("TTC_PM_PHASE_MAX", "TTC.STATUS.CLK.TTC_PM_PHASE_MAX"),
+                 std::make_pair("START_CMD", "TTC.CONFIG.CMD_START"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("TTC_PM_PHASE_MIN", "TTC.STATUS.CLK.TTC_PM_PHASE_MIN"),
+                 std::make_pair("STOP_CMD", "TTC.CONFIG.CMD_STOP"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("TTC_PM_PHASE_JUMP_CNT", "TTC.STATUS.CLK.TTC_PM_PHASE_JUMP_CNT"),
+                 std::make_pair("TEST_SYNC_CMD", "TTC.CONFIG.CMD_TEST_SYNC"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("TTC_PM_PHASE_JUMP_SIZE", "TTC.STATUS.CLK.TTC_PM_PHASE_JUMP_SIZE"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("TTC_PM_PHASE_JUMP_TIME", "TTC.STATUS.CLK.TTC_PM_PHASE_JUMP_TIME"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("GTH_PM_PHASE", "TTC.STATUS.CLK.GTH_PM_PHASE"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("GTH_PM_PHASE_MEAN", "TTC.STATUS.CLK.GTH_PM_PHASE_MEAN"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("GTH_PM_PHASE_MAX", "TTC.STATUS.CLK.GTH_PM_PHASE_MAX"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("GTH_PM_PHASE_MIN", "TTC.STATUS.CLK.GTH_PM_PHASE_MIN"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("GTH_PM_PHASE_JUMP_CNT", "TTC.STATUS.CLK.GTH_PM_PHASE_JUMP_CNT"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("GTH_PM_PHASE_JUMP_SIZE", "TTC.STATUS.CLK.GTH_PM_PHASE_JUMP_SIZE"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("GTH_PM_PHASE_JUMP_TIME", "TTC.STATUS.CLK.GTH_PM_PHASE_JUMP_TIME"),
-                 GEMUpdateType::HW32, "hex");
-  // addMonitorable("TTC", "HWMonitoring",
-  //                std::make_pair("BC0_CMD", "TTC.CONFIG.CMD_BC0"),
-  //                GEMUpdateType::HW32, "hex");
-  // addMonitorable("TTC", "HWMonitoring",
-  //                std::make_pair("EC0_CMD", "TTC.CONFIG.CMD_EC0"),
-  //                GEMUpdateType::HW32, "hex");
-  // addMonitorable("TTC", "HWMonitoring",
-  //                std::make_pair("RESYNC_CMD", "TTC.CONFIG.CMD_RESYNC"),
-  //                GEMUpdateType::HW32, "hex");
-  // addMonitorable("TTC", "HWMonitoring",
-  //                std::make_pair("OC0_CMD", "TTC.CONFIG.CMD_OC0"),
-  //                GEMUpdateType::HW32, "hex");
-  // addMonitorable("TTC", "HWMonitoring",
-  //                std::make_pair("HARD_RESET_CMD", "TTC.CONFIG.CMD_HARD_RESET"),
-  //                GEMUpdateType::HW32, "hex");
-  // addMonitorable("TTC", "HWMonitoring",
-  //                std::make_pair("CALPULSE_CMD", "TTC.CONFIG.CMD_CALPULSE"),
-  //                GEMUpdateType::HW32, "hex");
-  // addMonitorable("TTC", "HWMonitoring",
-  //                std::make_pair("START_CMD", "TTC.CONFIG.CMD_START"),
-  //                GEMUpdateType::HW32, "hex");
-  // addMonitorable("TTC", "HWMonitoring",
-  //                std::make_pair("STOP_CMD", "TTC.CONFIG.CMD_STOP"),
-  //                GEMUpdateType::HW32, "hex");
-  // addMonitorable("TTC", "HWMonitoring",
-  //                std::make_pair("TEST_SYNC_CMD", "TTC.CONFIG.CMD_TEST_SYNC"),
-  //                GEMUpdateType::HW32, "hex");
 
   addMonitorableSet("Trigger Status", "HWMonitoring");
   for (uint8_t oh = 0; oh < p_glib->getSupportedOptoHybrids(); ++oh) {
@@ -348,12 +340,12 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
       addMonitorable("Trigger Status", "HWMonitoring",
                      std::make_pair(ohname.str()+"_"+cluname.str()+"_CNT", "TRIGGER."+ohname.str()+"."+cluname.str()+"_CNT"),
                      GEMUpdateType::HW32, "hex");
-      cluname.str("");
-      cluname.clear();
-      cluname << "DEBUG_LAST_CLUSTER_" << cluster;
-      addMonitorable("Trigger Status", "HWMonitoring",
-                     std::make_pair(ohname.str()+"_"+cluname.str(), "TRIGGER."+ohname.str()+"."+cluname.str()),
-                     GEMUpdateType::HW32, "hex");
+      // cluname.str("");
+      // cluname.clear();
+      // cluname << "DEBUG_LAST_CLUSTER_" << cluster;
+      // addMonitorable("Trigger Status", "HWMonitoring",
+      //                std::make_pair(ohname.str()+"_"+cluname.str(), "TRIGGER."+ohname.str()+"."+cluname.str()),
+      //                GEMUpdateType::HW32, "hex");
     }
   }
   updateMonitorables();

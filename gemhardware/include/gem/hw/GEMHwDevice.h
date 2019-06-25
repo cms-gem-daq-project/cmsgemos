@@ -6,13 +6,8 @@
 #include <iomanip>
 #include <memory>
 
-/* #include "xdata/String.h" */
-/* #include "xdata/UnsignedLong.h" */
-/* #include "xdata/UnsignedInteger32.h" */
 // can we decouple completely from these?
 #include "toolbox/string.h"
-/* #include "toolbox/mem/Reference.h" */
-/* #include "toolbox/mem/Pool.h" */
 
 #include "uhal/uhal.hpp"
 /* #include "uhal/Utilities.hpp"  /\* removed in 2.5 or 2.6 *\/ */
@@ -69,44 +64,7 @@ namespace gem {
          so it helps to retry a few times in the case of a failure
          that is recognized
       */
-      static const unsigned MAX_IPBUS_RETRIES = 5;
-
-      /** TODO: REMOVE
-       * @struct OpticalLinkStatus
-       * @brief This structure stores retrieved counters related to the optical links
-       * @var OpticalLinkStatus::GTX_TRK_Errors
-       * GTX_TRK_Errors is a counter for the number of errors on the 8b10b tracking data link
-       * @var OpticalLinkStatus::GTX_TRG_Errors
-       * GTX_TRG_Errors is a counter for the number of errors on the 8b10b trigger data link
-       * @var OpticalLinkStatus::GTX_Data_Packets
-       * GTX_Data_Packets is a counter for the number of data packets transferred on the 8b10b tracking data link
-       * @var OpticalLinkStatus::GBT_TRK_Errors
-       * GBT_TRK_Errors is a counter for the number of errors on the GBT tracking data link
-       * @var OpticalLinkStatus::GBT_Data_Packets
-       * GBT_Data_Packets is a counter for the number of data packets transferred on the GBT tracking data link
-       */
-      typedef struct OpticalLinkStatus {
-        uint32_t GTX_TRK_Errors  ;
-        uint32_t GTX_TRG_Errors  ;
-        uint32_t GTX_Data_Packets;
-        uint32_t GBT_TRK_Errors  ;
-        uint32_t GBT_Data_Packets;
-
-      OpticalLinkStatus() :
-        GTX_TRK_Errors(0),
-          GTX_TRG_Errors(0),
-          GTX_Data_Packets(0),
-          GBT_TRK_Errors(0),
-          GBT_Data_Packets(0) {};
-
-        void reset() {
-          GTX_TRK_Errors=0;
-          GTX_TRG_Errors=0;
-          GTX_Data_Packets=0;
-          GBT_TRK_Errors=0;
-          GBT_Data_Packets=0;
-          return; };
-      } OpticalLinkStatus;
+      static constexpr uint8_t MAX_IPBUS_RETRIES = 5;
 
       /** TODO: REMOVE or REDESIGN
        * @struct DeviceErrors
@@ -129,10 +87,6 @@ namespace gem {
       DeviceErrors() : BadHeader(0),ReadError(0),Timeout(0),ControlHubErr(0) {};
         void reset() { BadHeader=0; ReadError=0; Timeout=0; ControlHubErr=0; return; };
       } DeviceErrors;
-
-      // TODO: REDESIGN
-      typedef std::pair<uint8_t, OpticalLinkStatus>  linkStatus;
-      //typedef std::vector<linkStatus>                linkStatus;
 
       /**
        * @brief GEMHwDevice constructor based on hostname and connection file
@@ -187,7 +141,6 @@ namespace gem {
       */
       virtual ~GEMHwDevice();
 
-      /* FIXME REMOVE virtual bool isHwConnected() { return p_gemHW != 0; }; */
       virtual bool isHwConnected() { return true; }; /*FIXME make pure virutal, non-virtual?*/
 
       ///////////////////////////////////////////////////////////////////////////////////////
@@ -205,7 +158,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a register identified by a register name
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName name of the register to read
        *
@@ -217,7 +170,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a register identified by a raw address
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regAddr address of the register to read
        *
@@ -229,7 +182,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a register identified by an address, with the supplied mask
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regAddr address of the register to read
        * @param regMask mask of the register to read
@@ -242,7 +195,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a register identified by prefix.name in the address table
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regPrefix prefix in the address table, possibly root nodes
        * @param regName name of the register to read from the address table
@@ -282,7 +235,7 @@ namespace gem {
        * @brief read list of registers in a single transaction (one dispatch call)
        *        into the supplied vector regList
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regList list of register address and uint32_t value to store the result
        * @param freq integer number of transactions to bundle (-1 for all)
@@ -294,7 +247,7 @@ namespace gem {
        * @brief read list of registers in a single transaction (one dispatch call)
        *        into the supplied vector regList
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regList list of register address/mask pair and uint32_t value to store the result
        * @param freq integer number of transactions to bundle (-1 for all)
@@ -305,7 +258,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief write to a register identified by a register name
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName name of the register to read
        * @param val value to write to the register
@@ -316,7 +269,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief write to a register identified by a raw address
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regAddr address of the register to read
        * @param val value to write to the register
@@ -327,7 +280,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief write to a register identified by prefix.name in the address table
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regPrefix prefix in the address table to the register
        * @param regName name of the register to write to
@@ -340,7 +293,7 @@ namespace gem {
        * @brief write list of registers in a single transaction (one dispatch call)
        *        using the supplied vector regList
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regList std::vector of a pairs of register names and values to write
        * @param freq integer number of transactions to bundle (-1 for all)
@@ -352,7 +305,7 @@ namespace gem {
        * @brief write single value to a list of registers in a single transaction
        *        (one dispatch call) using the supplied vector regList
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regList list of registers to write a value to
        * @param regValue uint32_t value to write to the list of registers
@@ -364,7 +317,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief write zero to a single register
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName register to zero
        */
@@ -375,7 +328,7 @@ namespace gem {
        * @brief write zero to a list of registers in a single transaction (one dispatch call)
        *        using the supplied vector regNames
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regNames list of registers to zero
        */
@@ -385,7 +338,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a memory block
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName fixed size memory block to read from
        */
@@ -395,7 +348,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a memory block
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName name of memory block to read from
        * @param nWords size of the memory block to read
@@ -408,7 +361,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a memory block
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName name of memory block to read from
        * @param buffer a pointer to an array containing the read values
@@ -437,7 +390,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief write to a memory block
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName name of memory block to write to
        * @param values list of 32-bit words to write into the memory block
@@ -448,7 +401,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief write zeros to a block of memory
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName block or memory to zero
        */
@@ -458,7 +411,7 @@ namespace gem {
        * @ingroup uhalwrappers FIXME, isn't this a block, not a FIFO?
        * @brief readFIFO(std::string const& regName) read from a FIFO/memory port
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName fixed size memory block to read from
        */
@@ -469,7 +422,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief read from a FIFO/memory port a fixed amount of data
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName FIFO to read from
        * @param nWords number of words to read from the FIFO
@@ -482,7 +435,7 @@ namespace gem {
        * @ingroup uhalwrappers
        * @brief write to a FIFO
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName FIFO to write to
        * @param values list of 32-bit words to write into the FIFO
@@ -493,7 +446,7 @@ namespace gem {
        * @ingroup uhalwrappers FIXME: does this even make semantic sense?
        * @brief reset a FIFO
        *
-       * @usage
+       * @usage FILLME
        *
        * @param regName FIFO to zero
        */
@@ -503,32 +456,19 @@ namespace gem {
       // These methods provide access to the member variables
       // specifying the `uhal` address table name and the IPbus protocol
       // version.
-      //getters
-      const std::string getControlHubIPAddress()  const { return m_controlHubIPAddress;};
-      const std::string getDeviceIPAddress()      const { return m_deviceIPAddress;    };
-      const std::string getIPBusProtocolVersion() const { return m_ipBusProtocol;      };
-      const std::string getAddressTableFileName() const { return m_addressTable;       };
-
+      /**
+         FIXME getters
+      */
+      const std::string getAddressTableFileName() const { return m_addressTable;   };
       const std::string getDeviceBaseNode()       const { return m_deviceBaseNode; };
       const std::string getDeviceID()             const { return m_deviceID;       };
 
-      const uint32_t getControlHubPort() const { return m_controlHubPort;};
-      const uint32_t getIPBusPort()      const { return m_ipBusPort;     };
-
-      //setters, should maybe be private/protected? defeats the purpose?
-      void setControlHubIPAddress( std::string const& ipAddress) { m_controlHubIPAddress = ipAddress; };
-      void setIPBusProtocolVersion(std::string const& version) { m_ipBusProtocol = version; };
-      void setDeviceIPAddress(     std::string const& deviceIPAddr) { m_deviceIPAddress = deviceIPAddr; };
+      /**
+         FIXME setters, should maybe be private/protected? defeats the purpose?
+      */
       void setAddressTableFileName(std::string const& name) { m_addressTable = "file://${GEM_ADDRESS_TABLE_PATH}/"+name; };
-
       void setDeviceBaseNode(std::string const& deviceBase) { m_deviceBaseNode = deviceBase; };
-      void setDeviceID(      std::string const& deviceID) { m_deviceID = deviceID; };
-
-      void setControlHubPort(uint32_t const& port) { m_controlHubPort = port; };
-      void setIPBusPort(     uint32_t const& port) { m_ipBusPort = port; };
-
-      /* uhal::HwInterface& getGEMHwInterface() const; */
-
+      void setDeviceID(std::string const& deviceID)         { m_deviceID = deviceID; };
 
       ///////////////////////////////////////////////////////////////////////////////////////
       //******************* Generic properties of the GEMHwDevice object ******************//
@@ -536,43 +476,40 @@ namespace gem {
 
       std::string getLoggerName() const { return m_gemLogger.getName(); };
 
-      void updateErrorCounters(std::string const& errCode);
+      void updateErrorCounters(std::string const& errCode) const;
 
       virtual std::string printErrorCounts() const;
 
       /**
        * @brief performs a general reset of the GLIB
        *
-       * @usage
+       * @usage FILLME
        *
        */
-      virtual void generalReset();
+      virtual void generalReset()=0;
 
       /**
-       * @brief performs a reset of the GLIB counters
+       * @brief performs a reset of the counters
        *
-       * @usage
+       * @usage FILLME
        *
        */
-      virtual void counterReset();
+      virtual void counterReset()=0;
 
       /**
        * @brief performs a reset of the GLIB link
        *
-       * @usage
+       * @usage FILLME
        *
        * @param link is the link to perform the reset on
        */
-      virtual void linkReset(uint8_t const& link);
+      virtual void linkReset(uint8_t const& link)=0;
 
-      DeviceErrors m_ipBusErrs;
+      mutable DeviceErrors m_ipBusErrs;
 
       bool b_is_connected;
 
     protected:
-      /* std::shared_ptr<uhal::ConnectionManager> p_gemConnectionManager; */
-      /* std::shared_ptr<uhal::HwInterface> p_gemHW; */
-
       log4cplus::Logger m_gemLogger;
 
       mutable gem::utils::Lock m_hwLock;
@@ -581,9 +518,26 @@ namespace gem {
        * @brief Performs basic setup for the device
        * sets connection details (OBSOLETE)
        * sets logging level to Error
-       * Not inherited
+       * Not inherited, but calls a pure virtual function (connectRPC)
        **/
       void setup(std::string const& deviceName);
+
+      /**
+       * @brief Performs a check on the RPC response to verify whether there is an `error` key set
+       *        Every method that makes an RPC call *must* use this function to check the response
+       *
+       * @param caller should be the name of the function, only used in the error message
+       **/
+      void checkRPCResponse(std::string const& caller) const;
+
+      /**
+       * @brief Extracts the device parameters from the device name
+       *
+       * @param deviceName should be of the format: gem-shelfXX-amcYY
+       *        optionally including -optohybridZZ
+       * @param index selects which of XX, YY, ZZ to return
+       **/
+      static uint8_t extractDeviceID(std::string const& deviceName, uint8_t const& index);
 
     private:
       // Do Not use default constructor. GEMHwDevice object should only be made using
@@ -598,36 +552,22 @@ namespace gem {
        * @brief loads the necessary modules into the RPC module manager
        * @details pure virtual, must be implemented in derived classes
        *
-       * @usage
+       * @usage FILLME
        *
        * @param should reconnect in the case of an already connected manager
        */
       virtual void connectRPC(bool reconnect=false)=0;
 
-      std::string m_controlHubIPAddress;  //!<
-      std::string m_addressTable;         //!<
-      std::string m_ipBusProtocol;        //!<
-      std::string m_deviceIPAddress;      //!<
+      std::string m_addressTable;   ///< FILLME
+      std::string m_deviceBaseNode; ///< FILLME
+      std::string m_deviceID;       ///< FILLME
 
-      std::string m_deviceBaseNode;       //!<
-      std::string m_deviceID;             //!<
-
-      uint32_t m_controlHubPort;          //!<
-      uint32_t m_ipBusPort;               //!<
-
-      /** FIXME removed when infospace was dropped
-      //infospace im(ex)portables
-      xdata::String xs_controlHubIPAddress;  //!<
-      xdata::String xs_deviceIPAddress;      //!<
-      xdata::String xs_ipBusProtocol;        //!<
-      xdata::String xs_addressTable;         //!<
-
-      xdata::UnsignedInteger32 xs_controlHubPort;  //!<
-      xdata::UnsignedInteger32 xs_ipBusPort;       //!<
-      **/
+      // All GEMHwDevice objects should have these properties
+      uint8_t m_crate;  ///< Crate number the AMC is housed in
+      uint8_t m_slot;   ///< Slot number in the uTCA shelf the AMC is sitting in
 
       bool knownErrorCode(std::string const& errCode) const;
-      //std::string registerToChar(uint32_t value) const;
+
     };  // class GEMHwDevice
   }  // namespace gem::hw
 }  // namespace gem

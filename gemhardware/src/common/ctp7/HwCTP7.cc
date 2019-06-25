@@ -131,7 +131,7 @@ bool gem::hw::ctp7::HwCTP7::isHwConnected()
     tmp_activeLinks.reserve(N_GTX);
     for (unsigned int gtx = 0; gtx < N_GTX; ++gtx) {
       // this no longer will work as desired, how to get whether the GTX is active?
-      if ((this->getBoardID()).rfind("CTP7") != std::string::npos ) {
+      if ((this->getBoardIDString()).rfind("CTP7") != std::string::npos ) {
         // somehow need to actually check that the specified link is present
         b_links[gtx] = true;
         CMSGEMOS_DEBUG("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
@@ -140,8 +140,8 @@ bool gem::hw::ctp7::HwCTP7::isHwConnected()
         b_links[gtx] = false;
         CMSGEMOS_INFO("gtx" << gtx << " not reachable (unable to find 2 or 5 or 201 in the firmware string, "
              << "or 'CTP7' in the board ID)"
-             << " board ID "              << this->getBoardID()
-             << " user firmware version " << this->getFirmwareVer());
+             << " board ID "              << this->getBoardIDString()
+             << " user firmware version " << this->getFirmwareVerString());
       }
     }
     v_activeLinks = tmp_activeLinks;
@@ -161,7 +161,7 @@ bool gem::hw::ctp7::HwCTP7::isHwConnected()
   }
 }
 
-std::string gem::hw::ctp7::HwCTP7::getBoardID()
+std::string gem::hw::ctp7::HwCTP7::getBoardIDString()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board ID consists of four characters encoded as a 32-bit unsigned int
@@ -171,7 +171,7 @@ std::string gem::hw::ctp7::HwCTP7::getBoardID()
   return res;
 }
 
-uint32_t gem::hw::ctp7::HwCTP7::getBoardIDRaw()
+uint32_t gem::hw::ctp7::HwCTP7::getBoardID()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board ID consists of four characters encoded as a 32-bit unsigned int
@@ -179,7 +179,7 @@ uint32_t gem::hw::ctp7::HwCTP7::getBoardIDRaw()
   return val;
 }
 
-std::string gem::hw::ctp7::HwCTP7::getSystemID()
+std::string gem::hw::ctp7::HwCTP7::getSystemIDString()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The system ID consists of four characters encoded as a 32-bit unsigned int
@@ -189,7 +189,7 @@ std::string gem::hw::ctp7::HwCTP7::getSystemID()
   return res;
 }
 
-uint32_t gem::hw::ctp7::HwCTP7::getSystemIDRaw()
+uint32_t gem::hw::ctp7::HwCTP7::getSystemID()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The system ID consists of four characters encoded as a 32-bit unsigned int
@@ -197,7 +197,7 @@ uint32_t gem::hw::ctp7::HwCTP7::getSystemIDRaw()
   return val;
 }
 
-std::string gem::hw::ctp7::HwCTP7::getIPAddress()
+std::string gem::hw::ctp7::HwCTP7::getIPAddressString()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::string res = "N/A";
@@ -206,14 +206,14 @@ std::string gem::hw::ctp7::HwCTP7::getIPAddress()
   return res;
 }
 
-uint32_t gem::hw::ctp7::HwCTP7::getIPAddressRaw()
+uint32_t gem::hw::ctp7::HwCTP7::getIPAddress()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   uint32_t val = readReg(getDeviceBaseNode(), "SYSTEM.IP_INFO");
   return val;
 }
 
-std::string gem::hw::ctp7::HwCTP7::getMACAddress()
+std::string gem::hw::ctp7::HwCTP7::getMACAddressString()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::string res = "N/A";
@@ -223,7 +223,7 @@ std::string gem::hw::ctp7::HwCTP7::getMACAddress()
   return res;
 }
 
-uint64_t gem::hw::ctp7::HwCTP7::getMACAddressRaw()
+uint64_t gem::hw::ctp7::HwCTP7::getMACAddress()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   uint32_t val1 = readReg(getDeviceBaseNode(), "SYSTEM.MAC.UPPER");
@@ -231,7 +231,7 @@ uint64_t gem::hw::ctp7::HwCTP7::getMACAddressRaw()
   return ((uint64_t)val1 << 32) + val2;
 }
 
-std::string gem::hw::ctp7::HwCTP7::getFirmwareDate(bool const& system)
+std::string gem::hw::ctp7::HwCTP7::getFirmwareDateString(bool const& system)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream res;
@@ -243,7 +243,7 @@ std::string gem::hw::ctp7::HwCTP7::getFirmwareDate(bool const& system)
   return res.str();
 }
 
-uint32_t gem::hw::ctp7::HwCTP7::getFirmwareDateRaw(bool const& system)
+uint32_t gem::hw::ctp7::HwCTP7::getFirmwareDate(bool const& system)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   if (system)
@@ -252,7 +252,7 @@ uint32_t gem::hw::ctp7::HwCTP7::getFirmwareDateRaw(bool const& system)
     return readReg(getDeviceBaseNode(), "SYSTEM.FIRMWARE.DATE");
 }
 
-std::string gem::hw::ctp7::HwCTP7::getFirmwareVer(bool const& system)
+std::string gem::hw::ctp7::HwCTP7::getFirmwareVerString(bool const& system)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream res;

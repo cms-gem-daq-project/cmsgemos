@@ -2,23 +2,17 @@
 
 #include <iomanip>
 
-// // define the consts
-// const unsigned gem::hw::HwGenericAMC::N_GTX;
-
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     std::string const& connectionFile) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice, connectionFile),
   m_links(0),
-  m_maxLinks(gem::hw::utils::N_GTX),
-  m_crate(-1),
-  m_slot(-1)
+  m_maxLinks(gem::hw::utils::N_GTX)
 {
   CMSGEMOS_INFO("HwGenericAMC ctor");
   this->setup(amcDevice);
   this->setDeviceBaseNode("GEM_AMC");
 
   for (unsigned li = 0; li < gem::hw::utils::N_GTX; ++li) {
-    b_links[li] = false;
     AMCIPBusCounters tmpGTXCounter;
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
@@ -31,15 +25,12 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     std::string const& addressTable) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice, connectionURI, addressTable),
   m_links(0),
-  m_maxLinks(gem::hw::utils::N_GTX),
-  m_crate(-1),
-  m_slot(-1)
+  m_maxLinks(gem::hw::utils::N_GTX)
 {
   CMSGEMOS_INFO("trying to create HwGenericAMC(" << amcDevice << "," << connectionURI << "," <<addressTable);
   this->setup(amcDevice);
   this->setDeviceBaseNode("GEM_AMC");
   for (unsigned li = 0; li < gem::hw::utils::N_GTX; ++li) {
-    b_links[li] = false;
     AMCIPBusCounters tmpGTXCounter;
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
@@ -51,21 +42,12 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     uhal::HwInterface& uhalDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice,uhalDevice),
   m_links(0),
-  m_maxLinks(gem::hw::utils::N_GTX),
-  m_crate(-1),
-  m_slot(-1)
+  m_maxLinks(gem::hw::utils::N_GTX)
 {
   this->setup(amcDevice);
   this->setDeviceBaseNode("GEM_AMC"); // needed?
-  if (isConnected) {
-    this->loadModule("amc", "amc v1.0.1");
-    CMSGEMOS_DEBUG("HwGenericAMC::HwGenericAMC amc module loaded");
-  } else {
-    CMSGEMOS_WARN("HwGenericAMC::HwGenericAMC RPC interface failed to connect");
-  }
 
   for (unsigned li = 0; li < gem::hw::utils::N_GTX; ++li) {
-    b_links[li] = false;
     AMCIPBusCounters tmpGTXCounter;
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
@@ -106,70 +88,136 @@ bool gem::hw::HwGenericAMC::isHwConnected()
     return true;
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     CMSGEMOS_INFO("basic check: HwGenericAMC pointer valid");
-    std::vector<linkStatus> tmp_activeLinks; // FIXME SHOULD BE READ FROM FW, WHAT IS THIS USED FOR?
     m_maxLinks = this->getSupportedOptoHybrids();
-    tmp_activeLinks.reserve(m_maxLinks);
-    if ((this->getBoardID()).rfind("GLIB") != std::string::npos ) {
+    // FIXME needs update for V3
+    if (((this->getBoardIDString()).rfind("GLIB") != std::string::npos) ||
+        ((this->getBoardIDString()).rfind("beef") != std::string::npos)) {
       CMSGEMOS_INFO("HwGenericAMC found boardID");
-      for (unsigned int gtx = 0; gtx < m_maxLinks; ++gtx) {
-        // FIXME!!! somehow need to actually check that the specified link is present
-        b_links[gtx] = true;
+      for (uint8_t gtx = 0; gtx < m_maxLinks; ++gtx) {
+        // FIXME OBSOLETE!!! somehow need to actually check that the specified link is present
+        // check GBT status?
         CMSGEMOS_INFO("m_links 0x" << std::hex << std::setw(8) << std::setfill('0')
                       << m_links
                       << " 0x1 << gtx = " << std::setw(8) << std::setfill('0') << (0x1<<gtx)
                       << std::dec);
         m_links |= (0x1<<gtx);
-        CMSGEMOS_INFO("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
+        CMSGEMOS_INFO("gtx" << static_cast<int>(gtx) << " present("
+                      << this->getFirmwareVer() << ")"); // FIXME get link FW?
         CMSGEMOS_INFO("m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
                       << m_links << std::dec);
-        tmp_activeLinks.push_back(std::make_pair(gtx,this->LinkStatus(gtx)));
         CMSGEMOS_INFO("m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
                       << m_links << std::dec);
       }
     } else {
       CMSGEMOS_WARN("Device not reachable (unable to find 'GLIB' in the board ID)"
-                    << " board ID "              << this->getBoardID()
+                    << " board ID "              << this->getBoardIDString()
                     << " user firmware version " << this->getFirmwareVer());
       return false;
     }
 
-    v_activeLinks = tmp_activeLinks;
-    if (!v_activeLinks.empty()) {
-      b_is_connected = true;
-      CMSGEMOS_DEBUG("checked gtxs: HwGenericAMC connection good");
-      return true;
-    } else {
-      b_is_connected = false;
-      return false;
-    }
+    // FIXME NEED TO PROPERLY OBTAIN THE ACTIVE LINKS
+    // v_activeLinks = tmp_activeLinks;
+    // if (!v_activeLinks.empty()) {
+    //   b_is_connected = true;
+    //   CMSGEMOS_DEBUG("checked gtxs: HwGenericAMC connection good");
+    //   return true;
+    // } else {
+    //   b_is_connected = false;
+    //   return false;
+    // }
   } else {
     return false;
   }
 }
 
-std::string gem::hw::HwGenericAMC::getBoardID()
+std::string gem::hw::HwGenericAMC::getBoardIDString(bool const legacy)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board ID consists of four characters encoded as a 32-bit unsigned int
-  std::string res = "???";
-  res = gem::utils::uint32ToString(getBoardIDRaw());
+  std::string res = "N/A";
+  uint32_t brdID = getBoardID(legacy);
+
+  if (legacy)
+    res = gem::utils::uint32ToString(brdID);
+  else
+    res = toolbox::toString("%x",brdID);
   return res;
 }
 
-uint32_t gem::hw::HwGenericAMC::getBoardIDRaw()
+uint32_t gem::hw::HwGenericAMC::getBoardID(bool const legacy)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board ID consists of four characters encoded as a 32-bit unsigned int
-  uint32_t val = readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_ID");
-  return val;
+  if (legacy)
+    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.LEGACY_SYSTEM.BOARD_ID");
+  else
+    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_ID");
 }
 
-std::string gem::hw::HwGenericAMC::getFirmwareDate(bool const& system)
+std::string gem::hw::HwGenericAMC::getBoardTypeString(bool const legacy)
+{
+  // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  // The board ID consists of four characters encoded as a 32-bit unsigned int
+  std::string res = "N/A";
+  uint32_t brdID = getBoardType(legacy);
+
+  if (legacy)
+    res = gem::utils::uint32ToString(brdID);
+  else
+    res = toolbox::toString("%x",brdID);
+  return res;
+}
+
+uint32_t gem::hw::HwGenericAMC::getBoardType(bool const legacy)
+{
+  // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  // The board type consists of four characters encoded as a 32-bit unsigned int
+  if (legacy)
+    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_TYPE");
+  else
+    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_TYPE");
+}
+
+std::string gem::hw::HwGenericAMC::getSystemIDString(bool const legacy)
+{
+  // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  // The system ID consists of four characters encoded as a 32-bit unsigned int
+  std::string res = "N/A";
+  uint32_t sysID = getSystemID(legacy);
+
+  if (legacy)
+    res = gem::utils::uint32ToString(sysID);
+  else
+    res = toolbox::toString("%x",sysID);
+  return res;
+}
+
+uint32_t gem::hw::HwGenericAMC::getSystemID(bool const legacy)
+{
+  // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  // The system ID consists of four characters encoded as a 32-bit unsigned int
+  if (legacy)
+    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.LEGACY_SYSTEM.SYSTEM_ID");
+  else
+    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_TYPE");
+}
+
+uint32_t gem::hw::HwGenericAMC::getSupportedOptoHybrids()
+{
+  return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.NUM_OF_OH");
+}
+
+uint32_t gem::hw::HwGenericAMC::supportsTriggerLink()
+{
+  return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.USE_TRIG_LINKS");
+}
+
+std::string gem::hw::HwGenericAMC::getFirmwareDateString(bool const& system)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream res;
   std::stringstream regName;
-  uint32_t fwid = getFirmwareDateRaw(system);
+  uint32_t fwid = getFirmwareDate(system);
 
   // GLIB system FW 0x1f0222b7
   res <<         std::setfill('0') <<std::setw(2) << (fwid&0x1f)       // day
@@ -179,7 +227,7 @@ std::string gem::hw::HwGenericAMC::getFirmwareDate(bool const& system)
   return res.str();
 }
 
-uint32_t gem::hw::HwGenericAMC::getFirmwareDateRaw(bool const& system)
+uint32_t gem::hw::HwGenericAMC::getFirmwareDate(bool const& system)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   if (system)
@@ -188,7 +236,7 @@ uint32_t gem::hw::HwGenericAMC::getFirmwareDateRaw(bool const& system)
     return readReg(getDeviceBaseNode(), "GEM_SYSTEM.RELEASE.DATE");
 }
 
-std::string gem::hw::HwGenericAMC::getFirmwareVer(bool const& system)
+std::string gem::hw::HwGenericAMC::getFirmwareVerString(bool const& system)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream res;
@@ -196,7 +244,7 @@ std::string gem::hw::HwGenericAMC::getFirmwareVer(bool const& system)
   uint32_t fwid;
 
   // GLIB system FW 0x1f0222b7
-  fwid = getFirmwareVerRaw(system);
+  fwid = getFirmwareVer(system);
   res << ((fwid>>16)&0xff) << "."
       << ((fwid>>8) &0xff) << "."
       << ((fwid)    &0xff);
@@ -204,7 +252,7 @@ std::string gem::hw::HwGenericAMC::getFirmwareVer(bool const& system)
   return res.str();
 }
 
-uint32_t gem::hw::HwGenericAMC::getFirmwareVerRaw(bool const& system)
+uint32_t gem::hw::HwGenericAMC::getFirmwareVer(bool const& system)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   if (system)
@@ -238,7 +286,6 @@ bool gem::hw::HwGenericAMC::linkCheck(uint8_t const& gtx, std::string const& opM
     CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::exception::InvalidLink,msg);
     return false;
-    //  } else if (!b_links[gtx]) {
   } else if (!((m_links>>gtx)&0x1)) {
     CMSGEMOS_INFO("linkCheck:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
                   << m_links << std::dec);
@@ -253,91 +300,39 @@ bool gem::hw::HwGenericAMC::linkCheck(uint8_t const& gtx, std::string const& opM
   return true;
 }
 
-gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::HwGenericAMC::LinkStatus(uint8_t const& gtx)
-{
-  gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus;
-  // FIXME moved to OH GEM_AMC.OH.OH0.FPGA.GBT.RX.CNT_LINK_ERR
-  CMSGEMOS_INFO("LinkStatus:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
-                << m_links << std::dec);
-  if (linkCheck(gtx, "Link status")) {
-    linkStatus.GTX_TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.TRACK_LINK_ERROR_CNT", gtx));
-    linkStatus.GTX_TRG_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("TRIGGER.OH%d.LINK0_MISSED_COMMA_CNT",gtx));
-    linkStatus.GTX_Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.VFAT_BLOCK_CNT",       gtx));
-    linkStatus.GBT_TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.TRACK_LINK_ERROR_CNT", gtx));
-    linkStatus.GBT_Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.VFAT_BLOCK_CNT",       gtx));
-  }
-  CMSGEMOS_INFO("LinkStatus:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
-                << m_links << std::dec);
-  return linkStatus;
-}
+// FIXME UPDATE //
+// gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::HwGenericAMC::LinkStatus(uint8_t const& gtx)
+// {
+//   gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus;
+//   // FIXME moved to OH GEM_AMC.OH.OH0.FPGA.GBT.RX.CNT_LINK_ERR
+//   CMSGEMOS_INFO("LinkStatus:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+//                 << m_links << std::dec);
+//   if (linkCheck(gtx, "Link status")) {
+//     linkStatus.GTX_TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.TRACK_LINK_ERROR_CNT", gtx));
+//     linkStatus.GTX_TRG_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("TRIGGER.OH%d.LINK0_MISSED_COMMA_CNT",gtx));
+//     linkStatus.GTX_Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.VFAT_BLOCK_CNT",       gtx));
+//     linkStatus.GBT_TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.TRACK_LINK_ERROR_CNT", gtx));
+//     linkStatus.GBT_Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.VFAT_BLOCK_CNT",       gtx));
+//   }
+//   CMSGEMOS_INFO("LinkStatus:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+//                 << m_links << std::dec);
+//   return linkStatus;
+// }
 
-void gem::hw::HwGenericAMC::LinkReset(uint8_t const& gtx, uint8_t const& resets)
-{
-  // FIXME changed in V3 firmware
-  // req = wisc::RPCMsg("amc.linkReset");
-  // req.set_word("NOH",NOH);
-  // try {
-  //   rsp = rpc.call_method(req);
-  // } STANDARD_CATCH;
+// FIXME UPDATE //
+// void gem::hw::HwGenericAMC::LinkReset(uint8_t const& gtx, uint8_t const& resets)
+// {
+//   // FIXME right now this just resets the counters, but we need to be able to "reset" the link too
+//   if (linkCheck(gtx, "Link reset")) {
+//     if (resets&0x1)
+//       writeReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.CTRL.CNT_RESET"), gtx);
+//     if (resets&0x2)
+//       writeReg(getDeviceBaseNode(),toolbox::toString("TRIGGER.CTRL.CNT_RESET"),  gtx);
+//     if (resets&0x4)
+//       writeReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.CTRL.CNT_RESET"), gtx);
+//   }
+// }
 
-  // try {
-  //   if (rsp.get_key_exists("error")) {
-  //     ERROR("LinkReset error: " << rsp.get_string("error").c_str());
-  //     //throw xhal::utils::XHALException("DAQ_TRIGGER_MAIN update failed");
-  //   }
-  // } STANDARD_CATCH;
-
-  // right now this just resets the counters, but we need to be able to "reset" the link too
-  if (linkCheck(gtx, "Link reset")) {
-    if (resets&0x1)
-      writeReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.CTRL.CNT_RESET"), gtx);
-    if (resets&0x2)
-      writeReg(getDeviceBaseNode(),toolbox::toString("TRIGGER.CTRL.CNT_RESET"),  gtx);
-    if (resets&0x4)
-      writeReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.CTRL.CNT_RESET"), gtx);
-  }
-}
-
-
-gem::hw::HwGenericAMC::AMCIPBusCounters gem::hw::HwGenericAMC::getIPBusCounters(uint8_t const& gtx,
-                                                                                uint8_t const& mode)
-{
-  // FIXME removed in V3 firmware
-  if (linkCheck(gtx, "IPBus counter")) {
-    if (mode&0x01)
-      m_ipBusCounters.at(gtx).OptoHybridStrobe = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.OptoHybrid_%d",gtx));
-    if (mode&0x02)
-      m_ipBusCounters.at(gtx).OptoHybridAck    = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.OptoHybrid_%d",gtx));
-    if (mode&0x04)
-      m_ipBusCounters.at(gtx).TrackingStrobe   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.OptoHybrid_%d",gtx));
-    if (mode&0x08)
-      m_ipBusCounters.at(gtx).TrackingAck      = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.OptoHybrid_%d",gtx));
-    if (mode&0x10)
-      m_ipBusCounters.at(gtx).CounterStrobe    = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.Counters"));
-    if (mode&0x20)
-      m_ipBusCounters.at(gtx).CounterAck       = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.Counters"));
-  }
-  return m_ipBusCounters.at(gtx);
-}
-
-void gem::hw::HwGenericAMC::resetIPBusCounters(uint8_t const& gtx, uint8_t const& resets)
-{
-  // FIXME removed in V3 firmware
-  if (linkCheck(gtx, "Reset IPBus counters")) {
-    if (resets&0x01)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.OptoHybrid_%d.Reset",gtx), 0x1);
-    if (resets&0x02)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.OptoHybrid_%d.Reset",   gtx), 0x1);
-    if (resets&0x04)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.TRK_%d.Reset",       gtx), 0x1);
-    if (resets&0x08)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.TRK_%d.Reset",          gtx), 0x1);
-    if (resets&0x10)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.Counters.Reset"),          0x1);
-    if (resets&0x20)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.Counters.Reset"),             0x1);
-  }
-}
 
 uint32_t gem::hw::HwGenericAMC::readTriggerFIFO(uint8_t const& gtx)
 {
@@ -447,12 +442,6 @@ void gem::hw::HwGenericAMC::resetDAQLink(uint32_t const& davTO, uint32_t const& 
     }
      */
   } GEM_CATCH_RPC_ERROR("HwGenericAMC::enableDAQLink", gem::hw::exception::Exception);
-
-  /**
-     need to wrap any exceptions into gem::hw::exception exceptions, or handle them as STANDARD_CATCH simply throws:
-     xhal::utils::XHALRPCNotConnectedException
-     xhal::utils::XHALRPCException
-   */
 }
 
 uint32_t gem::hw::HwGenericAMC::getDAQLinkControl()
@@ -462,7 +451,6 @@ uint32_t gem::hw::HwGenericAMC::getDAQLinkControl()
 
 uint32_t gem::hw::HwGenericAMC::getDAQLinkStatus()
 {
-  // FIXME: can't read non-terminal register by node name in rwreg
   return readReg(getDeviceBaseNode(), "DAQ.STATUS");
 }
 
@@ -943,9 +931,6 @@ void gem::hw::HwGenericAMC::counterReset()
   // reset all counters
   resetT1Counters();
 
-  for (unsigned gtx = 0; gtx < m_maxLinks; ++gtx)
-    resetIPBusCounters(gtx, 0xff);
-
   linkCounterReset();
 
   return;
@@ -956,10 +941,6 @@ void gem::hw::HwGenericAMC::resetT1Counters()
   // TODO: CTP7 module candidate
   // FIXME: OBSOLETE in V3
   CMSGEMOS_WARN("HwGenericAMC::resetT1Counters is obsolete and will be removed in a future release");
-  writeReg(getDeviceBaseNode(), "T1.L1A.RESET",      0x1);
-  writeReg(getDeviceBaseNode(), "T1.CalPulse.RESET", 0x1);
-  writeReg(getDeviceBaseNode(), "T1.Resync.RESET",   0x1);
-  writeReg(getDeviceBaseNode(), "T1.BC0.RESET",      0x1);
   return;
 }
 
@@ -974,7 +955,19 @@ void gem::hw::HwGenericAMC::linkCounterReset()
 void gem::hw::HwGenericAMC::linkReset(uint8_t const& gtx)
 {
   // TODO: CTP7 module candidate
-  // FIXME: OBSOLETE in V3?
+  // req = wisc::RPCMsg("amc.linkReset");
+  // req.set_word("NOH", static_cast<uint32_t>(gtx));
+  // try {
+  //   rsp = rpc.call_method(req);
+  // } STANDARD_CATCH;
+
+  // try {
+  //   if (rsp.get_key_exists("error")) {
+  //     ERROR("LinkReset error: " << rsp.get_string("error").c_str());
+  //     //throw xhal::utils::XHALException("DAQ_TRIGGER_MAIN update failed");
+  //   }
+  // } STANDARD_CATCH;
+
   CMSGEMOS_WARN("HwGenericAMC::linkReset: not yet implemented");
   linkCounterReset();
   return;
