@@ -807,7 +807,7 @@ class HwAMC(object):
     def readADCsMultiLink(self, adcDataAll, useExtRefADC=False, ohMask=None, debug=False):
         """
         Reads the ADC value from all unmasked VFATs
-        adcDataAll - Array of type c_uint32 of size self.NVFAT*12=288
+        adcDataAll - Array of type c_uint32 of size self.NVFAT*12 (288 for GE1/1 or 144 for GE2/1)
         useExtRefADC - True (False) use the externally (internally) referenced ADC
         ohMask - Mask which defines which OH's to query; 12 bit number where
                  having a 1 in the N^th bit means to query the N^th optohybrid.
