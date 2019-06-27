@@ -262,7 +262,7 @@ class HwVFAT(object):
                 self.writeAllVFATs("ContReg0", 0x36, mask)
         return
 
-    def stopCalPulses(self, mask=0x0, chanMin=0, chanMax=128):
+    def stopCalPulses(self, mask=0x0, chanMin=0, chanMax=127):
         """
         Turns the cal pulse off for [chanMin, chanMax] for all vfats not in mask
         v2b electronics only
