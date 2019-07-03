@@ -84,6 +84,12 @@ namespace gem {
           xoap::MessageReference disableTriggers(xoap::MessageReference mns);
 
 	  void endScanPoint();
+	  void stopLocalTriggers();
+	  void startLocalTriggers();
+	  void sendSingleBGO(uint32_t cmd);
+	  void enableLocalBGOs();
+	  void disableLocalBGOs();
+	  void configureLocalBGOs();
 
 	  virtual void timeExpired(toolbox::task::TimerEvent& event);
 
@@ -236,7 +242,8 @@ namespace gem {
 
           amc13_ptr p_amc13;
 
-	  toolbox::task::Timer* p_timer;    // timer for general info space updates
+	  toolbox::task::Timer* p_timer;       ///< timer for general info space updates
+	  toolbox::task::Timer* resync_timer;  ///< timer for general info space updates
 
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
           xdata::Integer m_crateID, m_slot;

@@ -16,6 +16,9 @@
 #include "gem/utils/soap/GEMSOAPToolBox.h"
 #include "gem/utils/exception/Exception.h"
 
+#include <chrono>
+#include <thread>
+
 XDAQ_INSTANTIATOR_IMPL(gem::hw::amc13::AMC13Manager);
 
 gem::hw::amc13::AMC13Manager::BGOInfo::BGOInfo()
@@ -139,7 +142,8 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   throw (xdaq::exception::Exception) :
   gem::base::GEMFSMApplication(stub),
   m_amc13Lock(toolbox::BSem::FULL, true),
-  p_timer(NULL)
+  p_timer(NULL),
+  resync_timer(NULL)
 {
   m_bgoConfig.setSize(4);
 
@@ -171,6 +175,7 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   xoap::bind(this, &gem::hw::amc13::AMC13Manager::disableTriggers, "disableTriggers",  XDAQ_NS_URI );
 
   p_timer = toolbox::task::getTimerFactory()->createTimer("AMC13ScanTriggerCounter");
+  resync_timer = toolbox::task::getTimerFactory()->createTimer("AMC13AutomaticResync");
 
   m_updatedL1ACount = 0;
 }
@@ -215,9 +220,9 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
     DEBUG("AMC13Manager::actionPerformed BGO channels "
           << m_amc13Params.bag.bgoConfig.size());
 
-    for (auto bconf = m_amc13Params.bag.bgoConfig.begin(); bconf != m_amc13Params.bag.bgoConfig.end(); ++bconf)
-      if (bconf->bag.channel > -1)
-        m_bgoConfig.at(bconf->bag.channel) = *bconf;
+    for (auto const& bconf : m_amc13Params.bag.bgoConfig)
+      if (bconf.bag.channel > -1)
+        m_bgoConfig.at(bconf.bag.channel) = bconf;
 
     if (m_bgoConfig.size() > 0) {
       m_bgoChannel         = 0;
@@ -408,24 +413,7 @@ void gem::hw::amc13::AMC13Manager::configureAction()
   m_L1Aburst = m_localTriggerConfig.bag.l1Aburst.value_;
   p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
 
-  if (m_enableLocalTTC) {
-    DEBUG("AMC13Manager::configureAction configuring BGO channels "
-          << m_bgoConfig.size());
-    for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan) {
-      DEBUG("AMC13Manager::configureAction channel "
-            << bchan->bag.channel.value_);
-      if (bchan->bag.channel.value_ > -1) {
-        if (bchan->bag.isLong.value_)
-          p_amc13->configureBGOLong(bchan->bag.channel.value_, bchan->bag.cmd.value_, bchan->bag.bx.value_,
-                                    bchan->bag.prescale.value_, bchan->bag.repeat.value_);
-        else
-          p_amc13->configureBGOShort(bchan->bag.channel.value_, bchan->bag.cmd.value_, bchan->bag.bx.value_,
-                                     bchan->bag.prescale.value_, bchan->bag.repeat.value_);
-
-        p_amc13->getBGOConfig(bchan->bag.channel.value_);
-      }
-    }
-  }
+  configureLocalBGOs();
   // set the settings from the config options
   // usleep(10); // just for testing the timing of different applications
   INFO("AMC13Manager::configureAction end");
@@ -450,27 +438,10 @@ void gem::hw::amc13::AMC13Manager::startAction()
 
   p_amc13->startRun();
 
-  if (m_enableLocalTTC) {
-    for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
-      if (bchan->bag.channel.value_ > -1) {
-        INFO("AMC13Manager::startAction enabling BGO channel " << bchan->bag.channel.value_);
-	if (bchan->bag.repeat.value_)
-          p_amc13->enableBGORepeat(bchan->bag.channel.value_);
-	else
-          p_amc13->enableBGOSingle(bchan->bag.channel.value_);
-      }
-    p_amc13->sendBGO();
-  }
+  enableLocalBGOs();
 
   if (m_enableLocalL1A) {
-    if (m_enableLEMO) {
-      DEBUG("AMC13Manager::startAction enabling LEMO trigger " << m_enableLEMO);
-      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0x1);
-    }
-    if (m_startL1AGen) {
-      DEBUG("AMC13Manager::startAction enabling local generator triggers " << m_startL1AGen);
-      p_amc13->startContinuousL1A();
-    }
+    startLocalTriggers();
   } else {
     /*
     // HACK
@@ -483,18 +454,9 @@ void gem::hw::amc13::AMC13Manager::startAction()
     DEBUG("AMC13Manager::startAction Sending continuous triggers for ScanRoutines ");
     // p_amc13->enableLocalL1A(m_enableLocalL1A);
 
-    // if (m_enableLocalL1A) {
-    //   p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-    //   if (m_enableLEMO)
-    //     p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
-    //   else
-    //     p_amc13->startContinuousL1A();
-    // } else {
-    //   p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-    // }
-
     try {
       p_timer->stop();
+      resync_timer->stop();
     } catch (toolbox::task::exception::NotActive const& ex) {
       WARN("AMC13Manager::start could not stop timer " << ex.what());
     }
@@ -504,6 +466,18 @@ void gem::hw::amc13::AMC13Manager::startAction()
     start = toolbox::TimeVal::gettimeofday();
     p_timer->scheduleAtFixedRate(start, this, interval, 0, "" );
   }  // end scan type
+
+  try {
+    resync_timer->stop();
+  } catch (toolbox::task::exception::NotActive const& ex) {
+    WARN("AMC13Manager::start could not stop timer " << ex.what());
+  }
+  resync_timer->start();
+  toolbox::TimeInterval interval(30,0);  // period of 30 seconds
+  // toolbox::TimeInterval interval(30*60,0);  // period of 30 minutes
+  toolbox::TimeVal start;
+  start = toolbox::TimeVal::gettimeofday();
+  resync_timer->scheduleAtFixedRate(start, this, interval, 0, "" );
   INFO("AMC13Manager::startAction end");
 }
 
@@ -519,90 +493,24 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
     INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
   }
 
-  if (m_enableLocalL1A) {
-    if (m_enableLEMO) {
-      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
-    }
-    if (m_startL1AGen) {
-      // what if using both local triggers and LEMO triggers?
-      p_amc13->stopContinuousL1A();
-    }
-  } else {
-    /*
-    // HACK
-    // when using external triggers, they should be stopped upstream of the AMC13 with a pause
-    p_amc13->configureLocalL1A(true, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-    p_amc13->enableLocalL1A(true);  // is this fine to switch to local L1A as a way to fake turning off upstream?
-    */
-  }
+  stopLocalTriggers();
 
-  if (m_enableLocalTTC)
-    for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
-      if (bchan->bag.channel.value_ > -1) {
-        DEBUG("AMC13Manager::pauseAction disabling BGO channel " << bchan->bag.channel.value_);
-        p_amc13->disableBGO(bchan->bag.channel.value_);
-      }
-
-  // need to ensure that all BGO channels are disabled, rather than just the ones in the config
-  for (int bchan = 0; bchan < 4; ++bchan)
-    p_amc13->disableBGO(bchan);
-
+  disableLocalBGOs();
   INFO("AMC13Manager::pauseAction end");
 }
 
 void gem::hw::amc13::AMC13Manager::resumeAction()
 {
   // undo the actions taken in pauseAction
-  if (m_enableLocalTTC) {
-    bool sendLocalBGO = false;
-    for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
-      if (bchan->bag.channel.value_ > -1) {
-        sendLocalBGO = true;
-        DEBUG("AMC13Manager::resumeAction enabling BGO channel " << bchan->bag.channel.value_);
-	if (bchan->bag.repeat.value_)
-          p_amc13->enableBGORepeat(bchan->bag.channel.value_);
-	else
-          p_amc13->enableBGOSingle(bchan->bag.channel.value_);
-      }
-
-    if (sendLocalBGO)
-      p_amc13->sendBGO();
-  }
+  enableLocalBGOs();
 
   if (m_enableLocalL1A) {
     p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
     p_amc13->enableLocalL1A(m_enableLocalL1A);
 
-    if (m_enableLEMO) {
-      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
-    }
-    if (m_startL1AGen) {
-      p_amc13->startContinuousL1A();  // only if we want to send triggers continuously
-    }
-  } else {
-    /*
-    // HACK
-    // when using external triggers, they should be enabled upstream of the AMC13 with a resume
-    p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-    */
+    startLocalTriggers();
   }
 
-  // if (m_scanType.value_ == 2 || m_scanType.value_ == 3) {
-  //   DEBUG("AMC13Manager::resumeAction enabling triggers for scan");
-
-  //   if (m_enableLocalL1A) {
-  //     p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-  //     p_amc13->enableLocalL1A(m_enableLocalL1A);
-
-  //     if (m_enableLEMO)
-  //       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
-  //     else
-  //       p_amc13->startContinuousL1A();
-  //   } else {
-  //     p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-  //   }
-  // }
-  // usleep(10);
   INFO("AMC13Manager::resumeAction end");
 }
 
@@ -617,35 +525,13 @@ void gem::hw::amc13::AMC13Manager::stopAction()
     p_timer->stop();
   }
 
-  if (m_enableLocalL1A) {
-    // p_amc13->enableLocalL1A(false);
-    if (m_enableLEMO) {
-      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
-    }
-    if (m_startL1AGen) {
-      p_amc13->stopContinuousL1A();
-    }
-  } else {
-    /*
-    // HACK
-    // when using external triggers, they should be stopped upstream of the AMC13 with a stop
-    p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-    p_amc13->enableLocalL1A(true);
-    */
-  }
+  resync_timer->stop();
 
-  if (m_enableLocalTTC)
-    for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
-      if (bchan->bag.channel.value_ > -1) {
-        DEBUG("AMC13Manager::stopAction disabling BGO channel " << bchan->bag.channel.value_);
-        p_amc13->disableBGO(bchan->bag.channel.value_);
-      }
+  stopLocalTriggers();
 
-  // need to ensure that all BGO channels are disabled, rather than just the ones in the config
-  for (int bchan = 0; bchan < 4; ++bchan)
-    p_amc13->disableBGO(bchan);
+  disableLocalBGOs();
 
- // usleep(10);
+  // usleep(10);
   p_amc13->endRun();
   INFO("AMC13Manager::stopAction end");
 }
@@ -661,6 +547,14 @@ void gem::hw::amc13::AMC13Manager::resetAction()
 {
   // what is necessary for a reset on the AMC13?
   DEBUG("Entering AMC13Manager::resetAction()");
+
+  if (resync_timer) {
+    try {
+      resync_timer->stop();
+    } catch (toolbox::task::exception::NotActive const& ex) {
+      WARN("AMC13Manager::start could not stop timer " << ex.what());
+    }
+  }
 
   if (p_timer) {
     try {
@@ -821,6 +715,20 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
 
 void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
 {
+  uint32_t orbit = 3564*25;
+  // Resync point timer action
+
+  if (m_enableLocalTTC) {
+    stopLocalTriggers();  // stop triggers
+    std::this_thread::sleep_for(std::chrono::nanoseconds(255*orbit));  // wait 255 orbits
+    sendSingleBGO(0x4);  // resync
+    std::this_thread::sleep_for(std::chrono::nanoseconds(64*orbit));  // wait 64 orbits
+    sendSingleBGO(0x2);  // EC0
+    std::this_thread::sleep_for(std::chrono::nanoseconds(1*orbit));  // wait 1 orbit
+    startLocalTriggers();  // reenable triggers
+  }
+
+  // Scan point timer action
   uint64_t currentTrigger = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount;
 
   DEBUG("AMC13Manager::timeExpried, NTriggerRequested = " << m_nScanTriggers.value_
@@ -856,4 +764,131 @@ void gem::hw::amc13::AMC13Manager::endScanPoint()
   gem::utils::soap::GEMSOAPToolBox::sendCommand("EndScanPoint",
                                                 p_appContext,p_appDescriptor,//getApplicationContext(),this->getApplicationDescriptor(),
                                                 const_cast<xdaq::ApplicationDescriptor*>(p_appZone->getApplicationDescriptor("gem::supervisor::GEMSupervisor", 0)));  // this should not be hard coded
+}
+
+void gem::hw::amc13::AMC13Manager::stopLocalTriggers()
+{
+  if (m_enableLocalL1A) {
+    if (m_enableLEMO) {
+      DEBUG("AMC13Manager::stopLocalTriggers disabling LEMO trigger");
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG", 0);
+    }
+    if (m_startL1AGen) {
+      DEBUG("AMC13Manager::stopLocalTriggers disabling local generator triggers");
+      p_amc13->stopContinuousL1A();
+    }
+  }
+}
+
+void gem::hw::amc13::AMC13Manager::startLocalTriggers()
+{
+  if (m_enableLocalL1A) {
+    if (m_enableLEMO) {
+      DEBUG("AMC13Manager::startLocalTriggers enabling LEMO trigger");
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0x1);
+    }
+    if (m_startL1AGen) {
+      DEBUG("AMC13Manager::startLocalTriggers enabling local generator triggers");
+      p_amc13->startContinuousL1A();
+    }
+  }
+}
+
+void gem::hw::amc13::AMC13Manager::sendSingleBGO(uint32_t cmd)
+{
+  for (int bchan = 0; bchan < 4; ++bchan)
+    p_amc13->disableBGO(bchan);
+  
+  // GEM_AMC.TTC.CONFIG.CMD_BC0                              0x00000001
+  // GEM_AMC.TTC.CONFIG.CMD_EC0                              0x00000002
+  // GEM_AMC.TTC.CONFIG.CMD_RESYNC                           0x00000004
+  // GEM_AMC.TTC.CONFIG.CMD_OC0                              0x00000008
+  // GEM_AMC.TTC.CONFIG.CMD_HARD_RESET                       0x00000010
+  // GEM_AMC.TTC.CONFIG.CMD_CALPULSE                         0x00000014
+  // GEM_AMC.TTC.CONFIG.CMD_START                            0x00000018
+  // GEM_AMC.TTC.CONFIG.CMD_STOP                             0x0000001c
+  // GEM_AMC.TTC.CONFIG.CMD_TEST_SYNC                        0x00000020
+
+  p_amc13->configureBGOShort(4, cmd, 100, 1, 0);
+  p_amc13->enableBGOSingle(4);
+  p_amc13->sendBGO();
+
+  // restore B-Go configuration
+  configureLocalBGOs();
+  if (m_enableLocalTTC) {
+    bool sendLocalBGO = false;
+    for (auto const& bchan : m_bgoConfig)
+      if (bchan.bag.channel.value_ > -1) {
+        sendLocalBGO = true;
+        DEBUG("AMC13Manager::sendSingleBGO  enabling BGO channel " << bchan.bag.channel.value_);
+	if (bchan.bag.repeat.value_)
+          p_amc13->enableBGORepeat(bchan.bag.channel.value_);
+	else
+          p_amc13->enableBGOSingle(bchan.bag.channel.value_);
+      }
+
+    if (sendLocalBGO)
+      p_amc13->sendBGO();
+  }
+}
+
+void gem::hw::amc13::AMC13Manager::enableLocalBGOs()
+{
+  if (m_enableLocalTTC) {
+    bool sendLocalBGO = false;
+    for (auto const& bchan : m_bgoConfig)
+      if (bchan.bag.channel.value_ > -1) {
+        sendLocalBGO = true;
+        DEBUG("AMC13Manager::enableLocalBGOs enabling BGO channel " << bchan.bag.channel.value_);
+	if (bchan.bag.repeat.value_)
+          p_amc13->enableBGORepeat(bchan.bag.channel.value_);
+	else
+          p_amc13->enableBGOSingle(bchan.bag.channel.value_);
+      }
+
+    if (sendLocalBGO)
+      p_amc13->sendBGO();
+  }
+}
+
+void gem::hw::amc13::AMC13Manager::disableLocalBGOs()
+{
+  if (m_enableLocalTTC)
+    for (auto const& bchan : m_bgoConfig)
+      if (bchan.bag.channel.value_ > -1) {
+        DEBUG("AMC13Manager::disableLocalBGOs disabling BGO channel " << bchan.bag.channel.value_);
+        p_amc13->disableBGO(bchan.bag.channel.value_);
+      }
+
+  // need to ensure that all BGO channels are disabled, rather than just the ones in the config?
+  for (int bchan = 0; bchan < 4; ++bchan)
+    p_amc13->disableBGO(bchan);
+}
+
+void gem::hw::amc13::AMC13Manager::configureLocalBGOs()
+{
+  if (m_enableLocalTTC) {
+    DEBUG("AMC13Manager::configureLocalBGOs configuring BGO channels "
+          << m_bgoConfig.size());
+    for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan) {
+      DEBUG("AMC13Manager::configureLocalBGOs channel "
+            << bchan->bag.channel.value_);
+      if (bchan->bag.channel.value_ > -1) {
+        if (bchan->bag.isLong.value_)
+          p_amc13->configureBGOLong(bchan->bag.channel.value_,
+                                    bchan->bag.cmd.value_,
+                                    bchan->bag.bx.value_,
+                                    bchan->bag.prescale.value_,
+                                    bchan->bag.repeat.value_);
+        else
+          p_amc13->configureBGOShort(bchan->bag.channel.value_,
+                                     bchan->bag.cmd.value_,
+                                     bchan->bag.bx.value_,
+                                     bchan->bag.prescale.value_,
+                                     bchan->bag.repeat.value_);
+
+        p_amc13->getBGOConfig(bchan->bag.channel.value_);
+      }
+    }
+  }
 }
