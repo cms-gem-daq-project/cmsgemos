@@ -86,7 +86,7 @@ namespace gem {
 	  void endScanPoint();
 	  void stopLocalTriggers();
 	  void startLocalTriggers();
-	  void sendSingleBGO(uint32_t cmd);
+	  void sendSingleBGO(uint32_t cmd, uint32_t bx=100);
 	  void enableLocalBGOs();
 	  void disableLocalBGOs();
 	  void configureLocalBGOs();

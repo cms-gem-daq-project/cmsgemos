@@ -436,9 +436,26 @@ void gem::hw::amc13::AMC13Manager::startAction()
   p_amc13->resetCounters();
   m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
 
-  p_amc13->startRun();
+  p_amc13->startRun(); // Resets Virtex
 
   enableLocalBGOs();
+
+  if (m_enableLocalTTC) {
+    INFO("AMC13Manager::startAction localTTC start B-Go sequence started");
+    uint32_t orbit = 3564*25;
+    stopLocalTriggers();   // Pause the system and wait 1 orbit
+    std::this_thread::sleep_for(std::chrono::nanoseconds(1*orbit));
+    sendSingleBGO(0x4);    // B-go Resync and wait 8 orbits
+    std::this_thread::sleep_for(std::chrono::nanoseconds(8*orbit));
+    sendSingleBGO(0x8);    // B-go OC0
+    sendSingleBGO(0x0);    // B-go LumiNibble wait 8 orbits, necessary?
+    std::this_thread::sleep_for(std::chrono::nanoseconds(8*orbit));
+    sendSingleBGO(0x18);   // B-go Start and wait 1 orbit
+    std::this_thread::sleep_for(std::chrono::nanoseconds(1*orbit));
+    sendSingleBGO(0x2);    // B-go EC0 and wait 1 orbit
+    std::this_thread::sleep_for(std::chrono::nanoseconds(1*orbit));
+    INFO("AMC13Manager::startAction localTTC start B-Go sequence ended");
+  }
 
   if (m_enableLocalL1A) {
     startLocalTriggers();
@@ -490,7 +507,7 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
     INFO("AMC13Manager::pauseAction disabling triggers for scan, triggers seen this point = "
 	 << p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount);
     m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
-    INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
+    INFO("AMC13Manager::pauseAction, total triggers seen = " << m_updatedL1ACount);
   }
 
   stopLocalTriggers();
@@ -529,9 +546,16 @@ void gem::hw::amc13::AMC13Manager::stopAction()
 
   stopLocalTriggers();
 
+  if (m_enableLocalTTC) {
+    INFO("AMC13Manager::stopAction localTTC stop B-Go sequence started");
+    uint32_t orbit = 3564*25;
+    std::this_thread::sleep_for(std::chrono::nanoseconds(1*orbit));  // Stop triggers and wait 1 orbit
+    sendSingleBGO(0x1c);  // B-Go Stop
+    INFO("AMC13Manager::stopAction localTTC stop B-Go sequence ended");
+  }
+
   disableLocalBGOs();
 
-  // usleep(10);
   p_amc13->endRun();
   INFO("AMC13Manager::stopAction end");
 }
@@ -715,10 +739,13 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
 
 void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
 {
+  INFO("AMC13Manager::timeExpired received event: " << event.type());
+
   uint32_t orbit = 3564*25;
   // Resync point timer action
 
   if (m_enableLocalTTC) {
+    INFO("AMC13Manager::timeExpired sending automatic resync");
     stopLocalTriggers();  // stop triggers
     std::this_thread::sleep_for(std::chrono::nanoseconds(255*orbit));  // wait 255 orbits
     sendSingleBGO(0x4);  // resync
@@ -726,36 +753,37 @@ void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
     sendSingleBGO(0x2);  // EC0
     std::this_thread::sleep_for(std::chrono::nanoseconds(1*orbit));  // wait 1 orbit
     startLocalTriggers();  // reenable triggers
+    INFO("AMC13Manager::timeExpired triggers reenabled");
   }
 
-  // Scan point timer action
-  uint64_t currentTrigger = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount;
+  // // Scan point timer action
+  // uint64_t currentTrigger = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount;
 
-  DEBUG("AMC13Manager::timeExpried, NTriggerRequested = " << m_nScanTriggers.value_
-        << " currentT = " << currentTrigger << " triggercounter final =  " << m_updatedL1ACount );
+  // DEBUG("AMC13Manager::timeExpired, NTriggerRequested = " << m_nScanTriggers.value_
+  //       << " currentT = " << currentTrigger << " triggercounter final =  " << m_updatedL1ACount );
 
-  if (currentTrigger >=  m_nScanTriggers.value_){
-    if (m_enableLocalL1A) {
-      if (m_enableLEMO) {
-	p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
-      } else {
-	p_amc13->stopContinuousL1A();
-      }
-    } else {
-      /*
-      // HACK
-      // when using external triggers, they should be stopped upstream of the AMC13 with a stop
-      // how do I hate thee? let me count the ways...
-      p_amc13->configureLocalL1A(true, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-      p_amc13->enableLocalL1A(true);  // is this fine to switch to local L1A as a way to fake turning off upstream?
-      */
-    }
-    INFO("AMC13Manager::timeExpried, triggers seen this point = "
-	 << p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount);
-    // m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
-    // INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
-    endScanPoint();
-  }
+  // if (currentTrigger >=  m_nScanTriggers.value_){
+  //   if (m_enableLocalL1A) {
+  //     if (m_enableLEMO) {
+  //       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
+  //     } else {
+  //       p_amc13->stopContinuousL1A();
+  //     }
+  //   } else {
+  //     /*
+  //     // HACK
+  //     // when using external triggers, they should be stopped upstream of the AMC13 with a stop
+  //     // how do I hate thee? let me count the ways...
+  //     p_amc13->configureLocalL1A(true, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
+  //     p_amc13->enableLocalL1A(true);  // is this fine to switch to local L1A as a way to fake turning off upstream?
+  //     */
+  //   }
+  //   INFO("AMC13Manager::timeExpired, triggers seen this point = "
+  //        << p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount);
+  //   // m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
+  //   // INFO("AMC13Manager::timeExpired, total triggers seen = " << m_updatedL1ACount);
+  //   endScanPoint();
+  // }
 }
 
 void gem::hw::amc13::AMC13Manager::endScanPoint()
@@ -794,11 +822,12 @@ void gem::hw::amc13::AMC13Manager::startLocalTriggers()
   }
 }
 
-void gem::hw::amc13::AMC13Manager::sendSingleBGO(uint32_t cmd)
+void gem::hw::amc13::AMC13Manager::sendSingleBGO(uint32_t cmd, uint32_t bx)
 {
+  INFO("AMC13Manager::sendSingleBGO disabling all B-Go channels");
   for (int bchan = 0; bchan < 4; ++bchan)
     p_amc13->disableBGO(bchan);
-  
+
   // GEM_AMC.TTC.CONFIG.CMD_BC0                              0x00000001
   // GEM_AMC.TTC.CONFIG.CMD_EC0                              0x00000002
   // GEM_AMC.TTC.CONFIG.CMD_RESYNC                           0x00000004
@@ -809,8 +838,8 @@ void gem::hw::amc13::AMC13Manager::sendSingleBGO(uint32_t cmd)
   // GEM_AMC.TTC.CONFIG.CMD_STOP                             0x0000001c
   // GEM_AMC.TTC.CONFIG.CMD_TEST_SYNC                        0x00000020
 
-  p_amc13->configureBGOShort(4, cmd, 100, 1, 0);
-  p_amc13->enableBGOSingle(4);
+  p_amc13->configureBGOShort(3, cmd, bx, 1, 0);
+  p_amc13->enableBGOSingle(3);
   p_amc13->sendBGO();
 
   // restore B-Go configuration
