@@ -1,5 +1,5 @@
 from ctypes import *
-from gempython.tools.hw_constants import maxVfat3DACSize,gbtsPerGemVariant
+from gempython.tools.hw_constants import maxVfat3DACSize, gbtsPerGemVariant, vfatsPerGemVariant
 from gempython.utils.gemlogger import colors, printRed, printYellow
 from gempython.utils.wrappers import runCommand, runCommandWithOutput
 
@@ -104,7 +104,7 @@ class HwAMC(object):
 
         # Define Link Monitoring
         self.getmonGBTLink = self.lib.getmonGBTLink
-        self.getmonGBTLink.argTypes = [ OHLinkMonitorArrayType, c_uint, c_uint, c_bool ]
+        self.getmonGBTLink.argTypes = [ OHLinkMonitorArrayType, c_uint, c_uint, c_bool, c_uint]
         self.getmonGBTLink.restype = c_uint
 
         self.getmonOHLink = self.lib.getmonOHLink
@@ -125,11 +125,11 @@ class HwAMC(object):
         self.confDacMonitorMulti.restype = c_uint
 
         self.readADCsMulti = self.lib.readVFAT3ADCMultiLink
-        self.readADCsMulti.argTypes = [ c_uint, POINTER(c_uint32), POINTER(c_uint), c_bool ]
+        self.readADCsMulti.argTypes = [ c_uint, POINTER(c_uint32), POINTER(c_uint), c_bool, c_uint ]
         self.readADCsMulti.restype = c_uint
 
         self.dacScanMulti = self.lib.dacScanMultiLink
-        self.dacScanMulti.argTypes = [ c_uint, c_uint, c_uint, c_uint, c_bool, POINTER(c_uint) ]
+        self.dacScanMulti.argTypes = [ c_uint, c_uint, c_uint, c_uint, c_bool, POINTER(c_uint), c_uint ]
         self.dacScanMulti.restype = c_uint
 
         # Define SCA & Sysmon Monitoring
@@ -165,7 +165,7 @@ class HwAMC(object):
         self.readSBits.restype = c_uint
 
         self.sbitRateScanMulti = self.lib.sbitRateScan
-        self.sbitRateScanMulti.argTypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_char_p, POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32)]
+        self.sbitRateScanMulti.argTypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_char_p, POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), c_uint]
         self.sbitRateScanMulti.restype = c_uint
 
         # Parse XML
@@ -182,6 +182,12 @@ class HwAMC(object):
         #Determine the number of GBTs based on the gemType
         if gemType in gbtsPerGemVariant.keys():
             self.NGBT = gbtsPerGemVariant[gemType]
+        else:
+            raise KeyError("Unrecognized gemType {0}".format(gemType))
+
+        #Determine the number of VFATs per geb based on the gemType
+        if gemType in vfatsPerGemVariant.keys():
+            self.nVFATs = vfatsPerGemVariant[gemType]
         else:
             raise KeyError("Unrecognized gemType {0}".format(gemType))
 
@@ -278,13 +284,14 @@ class HwAMC(object):
             ohMask = self.getOHMask(callingMthd="getGBTLinkStatus")
 
         gbtMonData = OHLinkMonitorArrayType()
-        self.getmonGBTLink(gbtMonData, self.nOHs, ohMask, doReset)
+        self.getmonGBTLink(gbtMonData, self.nOHs, ohMask, doReset, self.NGBT)
 
         if printSummary:
             print("--=======================================--")
             print("-> GEM SYSTEM GBT INFORMATION")
             print("--=======================================--")
             print("")
+            print("Number of GBTs per optical link: %s" %(self.NGBT))
             hfmt   = "{:4s}"
             dfmt   = "{}{:4d}{}"
             gbtfmt = []
@@ -346,7 +353,7 @@ class HwAMC(object):
     def getLinkVFATMask(self,ohN):
         """
         V3 electronics only
-        Returns a 24 bit number that can be used as the VFAT Mask
+        Returns a self.nVFATs bit number that can be used as the VFAT Mask
         for the Optohybrid ohN
         """
         if self.fwVersion < 3:
@@ -585,7 +592,7 @@ class HwAMC(object):
             colw = len(max([colors.GREEN,colors.RED],key=len))+len(colors.ENDC)+4
             xfmt = "{}0x{:1x}{}"
 
-            vfatsyncfmt = ["VFAT{}.SYNC_ERR_CNT".format(vfat) for vfat in range(24) ]
+            vfatsyncfmt = ["VFAT{}.SYNC_ERR_CNT".format(vfat) for vfat in range(self.nVFATs) ]
 
             lines = [[] for x in range(len(vfatsyncfmt)+1)]
             lines[0].append("{}".format(" "*(len(max(vfatsyncfmt,key=len)))))
@@ -603,7 +610,7 @@ class HwAMC(object):
                 # print("----------OH{0}----------".format(ohN))
                 pass
 
-            for vfatN in range(24):
+            for vfatN in range(self.nVFATs):
                 nSyncErrors = vfatMonData[ohN].syncErrCnt[vfatN]
                 totalSyncErrors += nSyncErrors
 
@@ -656,12 +663,12 @@ class HwAMC(object):
             exit(os.EX_USAGE)
 
         # Check length of results container
-        lenExpected = self.nOHs * (maxVfat3DACSize[dacSelect][0] - 0+1)*24 / dacStep
+        lenExpected = self.nOHs * (maxVfat3DACSize[dacSelect][0] - 0+1)*self.nVFATs / dacStep
         if (len(dacDataAll) != lenExpected):
             printRed("HwAMC::performDacScanMultiLink(): I expected container of length {0} but provided 'dacDataAll' has length {1}",format(lenExpected, len(dacDataAll)))
             exit(os.EX_USAGE)
 
-        return self.dacScanMulti(ohMask, self.nOHs, dacSelect, dacStep, useExtRefADC, dacDataAll)
+        return self.dacScanMulti(ohMask, self.nOHs, dacSelect, dacStep, useExtRefADC, dacDataAll, self.nVFATs)
 
     def performSBITRateScanMultiLink(self, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, chan=128, dacMin=0, dacMax=254, dacStep=1, ohMask=None, scanReg="THR_ARM_DAC"):
         """
@@ -674,7 +681,7 @@ class HwAMC(object):
         outDataTrigRate         - As outDataDacVal but for trigger rate
         outDataTrigRatePerVFAT  - As outDataTrigRate but for each VFAT, array size
                                   must be:
-                                  (24 * (12 * (dacMax - dacMin + 1) / stepSize))
+                                  (self.nVFATs * (12 * (dacMax - dacMin + 1) / stepSize))
         chan                    - VFAT channel to be considered, for all channels
                                   set to 128
         dacMin                  - Starting dac value of the scan
@@ -713,11 +720,11 @@ class HwAMC(object):
             exit(os.EX_USAGE)
 
         # Check length of results container - outDataTrigRatePerVFAT
-        if (len(outDataTrigRatePerVFAT) != (24*lenExpected)):
-            printRed("HwAMC::performSBITRateScanMultiLink(): I expected container of length {0} but provided 'outDataTrigRatePerVFAT' has length {1}".format(24*lenExpected, len(outDataTrigRatePerVFAT)))
+        if (len(outDataTrigRatePerVFAT) != (self.nVFATs*lenExpected)):
+            printRed("HwAMC::performSBITRateScanMultiLink(): I expected container of length {0} but provided 'outDataTrigRatePerVFAT' has length {1}".format(self.nVFATs*lenExpected, len(outDataTrigRatePerVFAT)))
             exit(os.EX_USAGE)
 
-        return self.sbitRateScanMulti(ohMask, dacMin, dacMax, dacStep, chan, scanReg, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT)
+        return self.sbitRateScanMulti(ohMask, dacMin, dacMax, dacStep, chan, scanReg, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, self.nVFATs)
 
     def programAllOptohybridFPGAs(self, maxIter=5, ohMask=None):
         """
@@ -800,7 +807,7 @@ class HwAMC(object):
     def readADCsMultiLink(self, adcDataAll, useExtRefADC=False, ohMask=None, debug=False):
         """
         Reads the ADC value from all unmasked VFATs
-        adcDataAll - Array of type c_uint32 of size 24*12=288
+        adcDataAll - Array of type c_uint32 of size self.nVFATs*12 (288 for GE1/1 or 144 for GE2/1)
         useExtRefADC - True (False) use the externally (internally) referenced ADC
         ohMask - Mask which defines which OH's to query; 12 bit number where
                  having a 1 in the N^th bit means to query the N^th optohybrid.
@@ -821,7 +828,7 @@ class HwAMC(object):
             for ohN in range(0,12):
                 print("| {0} | 0x{1:x} |".format(ohN, ohVFATMaskArray[ohN]))
 
-        return self.readADCsMulti(ohMask,ohVFATMaskArray, adcDataAll, useExtRefADC)
+        return self.readADCsMulti(ohMask,ohVFATMaskArray, adcDataAll, useExtRefADC, self.nVFATs)
 
     def readBlock(register, nwords, debug=False):
         """

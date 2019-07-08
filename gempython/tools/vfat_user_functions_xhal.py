@@ -1,5 +1,5 @@
 from gempython.tools.optohybrid_user_functions_xhal import *
-from gempython.tools.hw_constants import gemVariants
+from gempython.tools.hw_constants import gemVariants, vfatsPerGemVariant
 from gempython.utils.gemlogger import colormsg
 
 import logging
@@ -20,7 +20,9 @@ class HwVFAT(object):
 
         if detType not in gemVariants[gemType]:
             raise OHTypeException("HwVFAT: detType '{0}' not in the list of known detector types for gemType {1}; list of known detector types: {2}".format(detType, gemType, gemVariants[gemType]), os.EX_USAGE)
-        
+
+        self.gemType = gemType
+
         # Optohybrid
         self.parentOH = HwOptoHybrid(cardName, link, debug, gemType, detType)
 
@@ -30,7 +32,7 @@ class HwVFAT(object):
         self.confDacMonitor.restype = c_uint
 
         self.readADCs = self.parentOH.parentAMC.lib.readVFAT3ADC
-        self.readADCs.argTypes = [ c_uint, POINTER(c_uint32), c_uint, c_uint ]
+        self.readADCs.argTypes = [ c_uint, POINTER(c_uint32), c_bool, c_uint, c_uint ]
         self.readADCs.restype = c_uint
 
         # Define VFAT3 Configuration
@@ -40,12 +42,12 @@ class HwVFAT(object):
 
         # Get all channel regs
         self.getChannelRegistersVFAT3 = self.parentOH.parentAMC.lib.getChannelRegistersVFAT3
-        self.getChannelRegistersVFAT3.argTypes = [ c_uint, c_uint, POINTER(c_uint32) ]
+        self.getChannelRegistersVFAT3.argTypes = [ c_uint, c_uint, POINTER(c_uint32), c_uint ]
         self.getChannelRegistersVFAT3.restype = c_uint
 
         # Get VFAT ChipID
         self.getVFAT3ChipIDs = self.parentOH.parentAMC.lib.getVFAT3ChipIDs
-        self.getVFAT3ChipIDs.argTypes = [ POINTER(c_uint32), c_uint, c_uint, c_bool ]
+        self.getVFAT3ChipIDs.argTypes = [ POINTER(c_uint32), c_uint, c_uint, c_bool, c_uint]
         self.getVFAT3ChipIDs.restype = c_uint
 
         # Turn off calpulses
@@ -55,7 +57,7 @@ class HwVFAT(object):
 
         # Write all channel regs
         self.setChannelRegistersVFAT3 = self.parentOH.parentAMC.lib.setChannelRegistersVFAT3
-        self.setChannelRegistersVFAT3.argTypes = [ c_uint, c_uint, POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32) ]
+        self.setChannelRegistersVFAT3.argTypes = [ c_uint, c_uint, POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), c_uint ]
         self.setChannelRegistersVFAT3.restype = c_uint
 
         # Set default parameters
@@ -79,7 +81,7 @@ class HwVFAT(object):
                 }
 
         return
-    
+
     def biasAllVFATs(self, mask=0x0, enable=False):
         # HW Dependent Configuration
         if self.parentOH.parentAMC.fwVersion > 2:
@@ -99,7 +101,7 @@ class HwVFAT(object):
                 #what about leaving any other settings?
                 #not now, want a reproducible routine
                 self.writeAllVFATs("ContReg0",    0x36, mask=mask)
-        
+
         # User specified values - rely on the user to load self.paramsDefVals
         for key in self.paramsDefVals.keys():
             self.writeAllVFATs(key,self.paramsDefVals[key],mask)
@@ -124,18 +126,18 @@ class HwVFAT(object):
         rawID - If true returns the rawID and does not apply the Reed-Muller decoding
         """
 
-        chipIDData = (c_uint32 * 24)()
-        
-        rpcResp = self.getVFAT3ChipIDs(chipIDData, self.parentOH.link, mask, rawID)
+        chipIDData = (c_uint32 * vfatsPerGemVariant[self.gemType])()
+
+        rpcResp = self.getVFAT3ChipIDs(chipIDData, self.parentOH.link, mask, rawID, vfatsPerGemVariant[self.gemType])
         if rpcResp != 0:
             raise Exception("RPC response was non-zero, failed to get chipID data for OH{0}".format(self.parentOH.link))
-        
+
         return chipIDData
 
     def getAllChannelRegisters(self, mask=0x0):
         chanRegData = (c_uint32 * 3072)()
 
-        rpcResp = self.getChannelRegistersVFAT3(self.parentOH.link, mask, chanRegData)
+        rpcResp = self.getChannelRegistersVFAT3(self.parentOH.link, mask, chanRegData, vfatsPerGemVariant[self.gemType])
         if rpcResp != 0:
             raise Exception("RPC response was non-zero, failed to get channel data for OH{0}".format(self.parentOH.link))
         return chanRegData
@@ -149,7 +151,7 @@ class HwVFAT(object):
         mask - VFAT Mask
         """
 
-        return self.readADCs(self.parentOH.link, adcData, useExtRefADC, mask)
+        return self.readADCs(self.parentOH.link, adcData, useExtRefADC, mask, vfatsPerGemVariant[self.gemType])
 
     def readAllVFATs(self, reg, mask=0x0):
         vfatVals = self.parentOH.broadcastRead(reg,mask)
@@ -242,13 +244,13 @@ class HwVFAT(object):
         if trimZCCPol is None:
             trimZCCPol = (c_uint32 * 3072)()
 
-        return self.setChannelRegistersVFAT3(self.parentOH.link, vfatMask, pulse, chMask, trimARM, trimARMPol, trimZCC, trimZCCPol)
+        return self.setChannelRegistersVFAT3(self.parentOH.link, vfatMask, pulse, chMask, trimARM, trimARMPol, trimZCC, trimZCCPol, vfatsPerGemVariant[self.gemType])
 
     def setDebug(self, debug):
         self.debug = debug
         self.parentOH.setDebug(debug)
         return
-    
+
     def setRunModeAll(self, mask=0x0, enable=True, debug=False):
         if self.parentOH.parentAMC.fwVersion > 2:
             if (enable):
@@ -303,7 +305,7 @@ class HwVFAT(object):
         else:
             self.writeAllVFATs("CalPhase", phase, mask)
         return
-    
+
     def setVFATLatency(self, chip, lat, debug=False):
         if self.parentOH.parentAMC.fwVersion > 2:
             self.writeVFATRegisters(chip,{"CFG_LATENCY": lat})
@@ -318,7 +320,7 @@ class HwVFAT(object):
             self.writeAllVFATs("Latency",lat,mask)
 
         return
-    
+
     def setVFATMSPLAll(self, mask=0x0, mspl=4, debug=False):
         if self.parentOH.parentAMC.fwVersion > 2:
             self.writeAllVFATs("CFG_PULSE_STRETCH",mspl,mask)
@@ -342,10 +344,10 @@ class HwVFAT(object):
             self.writeAllVFATs("VThreshold2",vt2,mask)
 
         return
-    
+
     def writeAllVFATs(self, reg, value, mask=0x0):
         return self.parentOH.broadcastWrite(reg,value,mask)
-    
+
     def writeVFAT(self, chip, reg, value, debug=False):
         baseNode = ""
         if self.parentOH.parentAMC.fwVersion > 2:

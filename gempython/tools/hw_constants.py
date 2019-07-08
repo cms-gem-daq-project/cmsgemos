@@ -11,7 +11,7 @@ vfatsPerGemVariant = {
 
 gbtsPerGemVariant = {
             "ge11":3,
-            "ge21":1,
+            "ge21":2,
             "me0":0}
 
 # Size of VFAT3 DAC's
@@ -56,6 +56,62 @@ for ge11Type in gemVariants["ge11"]:
 for ge21Type in gemVariants["ge21"]:
     vfat3GBTPhaseLookupTable["ge21"][ge21Type] = [ 0 for x in range(0,vfatsPerGemVariant["ge21"]) ]
 vfat3GBTPhaseLookupTable["me0"]["null"] = [ 0 for x in range(0,vfatsPerGemVariant["me0"]) ]
+
+# Fill Info for GE21 - m1
+vfat3GBTPhaseLookupTable["ge21"]["m1"][0]  = 6  #VFAT0
+vfat3GBTPhaseLookupTable["ge21"]["m1"][1]  = 10 #VFAT1
+vfat3GBTPhaseLookupTable["ge21"]["m1"][2]  = 6  #VFAT2
+vfat3GBTPhaseLookupTable["ge21"]["m1"][3]  = 9  #VFAT3
+vfat3GBTPhaseLookupTable["ge21"]["m1"][4]  = 8  #VFAT4
+vfat3GBTPhaseLookupTable["ge21"]["m1"][5]  = 7  #VFAT5
+vfat3GBTPhaseLookupTable["ge21"]["m1"][6]  = 4  #VFAT6
+vfat3GBTPhaseLookupTable["ge21"]["m1"][7]  = 8  #VFAT7
+vfat3GBTPhaseLookupTable["ge21"]["m1"][8]  = 12 #VFAT8
+vfat3GBTPhaseLookupTable["ge21"]["m1"][9]  = 9  #VFAT9
+vfat3GBTPhaseLookupTable["ge21"]["m1"][10] = 9  #VFAT10
+vfat3GBTPhaseLookupTable["ge21"]["m1"][11] = 8  #VFAT11
+
+# Fill Info for GE21 - m2
+vfat3GBTPhaseLookupTable["ge21"]["m2"][0]  = 6  #VFAT0
+vfat3GBTPhaseLookupTable["ge21"]["m2"][1]  = 6  #VFAT1
+vfat3GBTPhaseLookupTable["ge21"]["m2"][2]  = 10 #VFAT2
+vfat3GBTPhaseLookupTable["ge21"]["m2"][3]  = 7  #VFAT3
+vfat3GBTPhaseLookupTable["ge21"]["m2"][4]  = 8  #VFAT4
+vfat3GBTPhaseLookupTable["ge21"]["m2"][5]  = 7  #VFAT5
+vfat3GBTPhaseLookupTable["ge21"]["m2"][6]  = 4  #VFAT6
+vfat3GBTPhaseLookupTable["ge21"]["m2"][7]  = 8  #VFAT7
+vfat3GBTPhaseLookupTable["ge21"]["m2"][8]  = 7  #VFAT8
+vfat3GBTPhaseLookupTable["ge21"]["m2"][9]  = 5  #VFAT9
+vfat3GBTPhaseLookupTable["ge21"]["m2"][10] = 8  #VFAT10
+vfat3GBTPhaseLookupTable["ge21"]["m2"][11] = 7  #VFAT11
+
+# Fill Info for GE21 - m3
+vfat3GBTPhaseLookupTable["ge21"]["m3"][0]  = 7  #VFAT0
+vfat3GBTPhaseLookupTable["ge21"]["m3"][1]  = 5  #VFAT1
+vfat3GBTPhaseLookupTable["ge21"]["m3"][2]  = 7  #VFAT2
+vfat3GBTPhaseLookupTable["ge21"]["m3"][3]  = 10 #VFAT3
+vfat3GBTPhaseLookupTable["ge21"]["m3"][4]  = 9  #VFAT4
+vfat3GBTPhaseLookupTable["ge21"]["m3"][5]  = 7  #VFAT5
+vfat3GBTPhaseLookupTable["ge21"]["m3"][6]  = 8  #VFAT6
+vfat3GBTPhaseLookupTable["ge21"]["m3"][7]  = 10 #VFAT7
+vfat3GBTPhaseLookupTable["ge21"]["m3"][8]  = 7  #VFAT8
+vfat3GBTPhaseLookupTable["ge21"]["m3"][9]  = 10 #VFAT9
+vfat3GBTPhaseLookupTable["ge21"]["m3"][10] = 6  #VFAT10
+vfat3GBTPhaseLookupTable["ge21"]["m3"][11] = 4  #VFAT11
+
+# Fill Info for GE21 - m4
+vfat3GBTPhaseLookupTable["ge21"]["m4"][0]  = 3  #VFAT0
+vfat3GBTPhaseLookupTable["ge21"]["m4"][1]  = 3  #VFAT1
+vfat3GBTPhaseLookupTable["ge21"]["m4"][2]  = 3  #VFAT2
+vfat3GBTPhaseLookupTable["ge21"]["m4"][3]  = 9  #VFAT3
+vfat3GBTPhaseLookupTable["ge21"]["m4"][4]  = 4  #VFAT4
+vfat3GBTPhaseLookupTable["ge21"]["m4"][5]  = 3  #VFAT5
+vfat3GBTPhaseLookupTable["ge21"]["m4"][6]  = 8  #VFAT6
+vfat3GBTPhaseLookupTable["ge21"]["m4"][7]  = 8  #VFAT7
+vfat3GBTPhaseLookupTable["ge21"]["m4"][8]  = 11 #VFAT8
+vfat3GBTPhaseLookupTable["ge21"]["m4"][9]  = 6  #VFAT9
+vfat3GBTPhaseLookupTable["ge21"]["m4"][10] = 6  #VFAT10
+vfat3GBTPhaseLookupTable["ge21"]["m4"][11] = 4  #VFAT11
 
 # Fill Info for GE11 - Short
 # FIXME It would be great if this was in the DB and I could just load it from there...

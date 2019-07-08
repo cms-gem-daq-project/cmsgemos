@@ -31,7 +31,7 @@ class HwOptoHybrid(object):
         """
         # Debug flag
         self.debug = debug
-        
+
         # Logger
         self.ohlogger = logging.getLogger(__name__)
 
@@ -49,18 +49,18 @@ class HwOptoHybrid(object):
         self.vfatGBTPhases = vfat3GBTPhaseLookupTable[gemType][detType]
         self.typeDet = detType
         self.typeGEM = gemType
-        self.parentAMC = HwAMC(cardName, debug)
+        self.parentAMC = HwAMC(cardName, debug, gemType)
 
         # Define broadcast read
         self.bRead = self.parentAMC.lib.broadcastRead
-        self.bRead.argtypes = [c_uint, c_char_p, c_uint, POINTER(c_uint32)]
+        self.bRead.argtypes = [c_uint, c_char_p, c_uint, POINTER(c_uint32), c_uint]
         self.bRead.restype = c_uint
 
         # Define broadcast write
         self.bWrite = self.parentAMC.lib.broadcastWrite
         self.bWrite.argtypes = [c_uint, c_char_p, c_uint, c_uint]
         self.bWrite.restype = c_uint
-       
+
         # Define the sbit mapping scan modules
         self.sbitMappingWithCalPulse = self.parentAMC.lib.checkSbitMappingWithCalPulse
         self.sbitMappingWithCalPulse.restype = c_uint
@@ -80,17 +80,17 @@ class HwOptoHybrid(object):
         self.genScan.restype = c_uint
         self.genScan.argtypes = [c_uint, c_uint, c_uint, c_uint,
                                  c_uint, c_uint, c_bool, c_bool, c_uint, c_uint,
-                                 c_char_p, c_bool, c_bool, POINTER(c_uint32)]
+                                 c_char_p, c_bool, c_bool, POINTER(c_uint32), c_uint]
         self.genChannelScan = self.parentAMC.lib.genChannelScan
         self.genChannelScan.restype = c_uint
         self.genChannelScan.argtypes = [c_uint, c_uint, c_uint, c_uint,
                                         c_uint, c_uint, c_bool, c_bool,
                                         c_uint, c_bool, c_char_p, c_bool,
-                                        POINTER(c_uint32)]
+                                        POINTER(c_uint32), c_uint]
 
         self.dacScan = self.parentAMC.lib.dacScan
         self.dacScan.restype = c_uint
-        self.dacScan.argtypes = [ c_uint, c_uint, c_uint, c_uint, c_bool, POINTER(c_uint32) ]
+        self.dacScan.argtypes = [ c_uint, c_uint, c_uint, c_uint, c_bool, POINTER(c_uint32), c_uint]
 
         # Define the known V2b electronics scan registers
         self.KnownV2bElScanRegs = [
@@ -111,7 +111,7 @@ class HwOptoHybrid(object):
         outData = (c_uint32 * self.nVFATs)()
 
         try:
-            rpcResp = self.bRead(self.link, register, mask, outData)
+            rpcResp = self.bRead(self.link, register, mask, outData, self.nVFATs)
         except Exception as e:
             print e
             pass
@@ -120,13 +120,13 @@ class HwOptoHybrid(object):
             raise OHRPCException("broadcastRead failed for device %i; reg: %s; with mask %x"%(self.link,register,mask), os.EX_SOFTWARE)
 
         return outData
-    
+
     def broadcastWrite(self,register,value,mask=0xff000000):
         """
         Perform a broadcast RPC write on the VFATs specified by mask
         Will return when operation has completed
         """
-        
+
         rpcResp = 0
 
         try:
@@ -163,7 +163,7 @@ class HwOptoHybrid(object):
         L1AInterval - Number of BX's inbetween L1A's
         mask        - VFAT mask to use for excluding vfats from the trigger
         nevts       - Number of events for each dac value in scan
-        outData     - Pointer to an array of size (24*128*8*nevts) which
+        outData     - Pointer to an array of size (self.nVFATs*128*8*nevts) which
                       stores the results of the scan:
                             bits [0,7] channel pulsed,
                             bits [8:15] sbit observed,
@@ -334,7 +334,7 @@ class HwOptoHybrid(object):
         else:
             print("HwOptoHybrid.getTriggerSource() - No support for v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
-    
+
     def getType(self):
         return (self.typeGEM,self.typeDet)
 
@@ -342,7 +342,7 @@ class HwOptoHybrid(object):
         """
         V3 electronics only
 
-        Returns a 24 bit number that should be used as the VFAT Mask
+        Returns a self.nVFATs bit number that should be used as the VFAT Mask
         """
 
         return self.parentAMC.getLinkVFATMask(self.link)
@@ -370,7 +370,7 @@ class HwOptoHybrid(object):
         mask        - VFAT mask to use
         nevts       - Number of events for each dac value in scan
         outData     - Array of type c_uint32, if chan >= 0 array size
-                      must be: ((dacMax - dacMin + 1) / stepSize) * 24.
+                      must be: ((dacMax - dacMin + 1) / stepSize) * self.nVFATs.
                       The first ((dacMax - dacMin + 1) / stepSize)
                       array positions are for VFAT0, the next
                       ((dacMax - dacMin + 1) / stepSize) are for VFAT1,
@@ -454,9 +454,9 @@ class HwOptoHybrid(object):
             useExtTrig = kwargs["useExtTrig"]
 
         if chan < 0:
-            return self.genChannelScan(nevts, self.link, mask, dacMin, dacMax, stepSize, enableCal, currentPulse, calSF, useExtTrig, scanReg, useUltra, kwargs["outData"])
+            return self.genChannelScan(nevts, self.link, mask, dacMin, dacMax, stepSize, enableCal, currentPulse, calSF, useExtTrig, scanReg, useUltra, kwargs["outData"], self.nVFATs)
         else:
-            return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, currentPulse, calSF, mask, scanReg, useUltra, useExtTrig, kwargs["outData"])
+            return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, currentPulse, calSF, mask, scanReg, useUltra, useExtTrig, kwargs["outData"], self.nVFATs)
 
     def performDacScan(self, outData, dacSelect, dacStep=1, mask=0x0, useExtRefADC=False):
         """
@@ -483,12 +483,12 @@ class HwOptoHybrid(object):
             exit(os.EX_USAGE)
 
         #Check length of results container
-        lenExpected = (maxVfat3DACSize[dacSelect][0] - 0+1)*24 / dacStep
+        lenExpected = (maxVfat3DACSize[dacSelect][0] - 0+1)*self.nVFATs / dacStep
         if (len(outData) != lenExpected):
             print("HwOptoHybrid::performDacScan(): I expected container of lenght {0} but provided 'outData' has length {1}",format(lenExpected, len(outData)))
             exit(os.EX_USAGE)
 
-        return self.dacScan(self.link, dacSelect, dacStep, mask, useExtRefADC, outData)
+        return self.dacScan(self.link, dacSelect, dacStep, mask, useExtRefADC, outData, self.nVFATs)
 
     def setDebug(self, debug):
         self.debug = debug
@@ -500,7 +500,7 @@ class HwOptoHybrid(object):
 
         Sets the sbit mask in the OH FPGA
         """
-        
+
         if self.parentAMC.fwVersion < 3:
             print("Parent AMC Major FW Version: %i"%(self.parentAMC.fwVersion))
             print("Only implemented for v3 electronics, exiting")
@@ -530,7 +530,7 @@ class HwOptoHybrid(object):
         """
         Set the trigger throttle
         """
-       
+
         if self.parentAMC.fwVersion < 3:
             return self.parentAMC.writeRegister("GEM_AMC.OH.OH%d.CONTROL.TRIGGER.THROTTLE"%(self.link),throttle)
         else:
@@ -539,7 +539,7 @@ class HwOptoHybrid(object):
 
     def setType(self, gemType, detType):
         """
-        Sets the GEM type and detector type, updates the number of VFATs expected 
+        Sets the GEM type and detector type, updates the number of VFATs expected
         and changes the VFAT GBT Phase lookup table
 
         gemType - string specifying gemType, expexted to be a key in gemVariants dictionary
