@@ -1,6 +1,6 @@
 from gempython.tools.optohybrid_user_functions_xhal import *
 from gempython.tools.hw_constants import gemVariants, vfatsPerGemVariant
-from gempython.utils.gemlogger import colormsg
+from gempython.utils.gemlogger import colormsg, printRed
 
 import logging
 
@@ -86,7 +86,10 @@ class HwVFAT(object):
         # HW Dependent Configuration
         if self.parentOH.parentAMC.fwVersion > 2:
             # Baseline config
-            self.confVFAT3s(self.parentOH.link,mask)
+            rpcResp = self.confVFAT3s(self.parentOH.link,mask)
+            if rpcResp != 0:
+                printRed("RPC response was non-zero, failed to configure VFATs on OH{}".format(self.parentOH.link))
+                raise Exception("RPC response was non-zero, failed to configure VFATs on OH{}".format(self.parentOH.link))
 
             # Run mode
             if(enable):
