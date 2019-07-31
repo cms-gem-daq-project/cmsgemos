@@ -71,7 +71,7 @@ def setScanParamsLatency(args):
         if sum(badreg) > 0:
             printRed("OH{} :: {} VFATs do not match expectation 0x{:02x}".format(ohN,sum(badreg),wval))
         
-    amc.getNode("GEM_AMC.DAQ.EXT_CONTROL.RUN_TYPE").write(0x3)
+    amc.getNode("GEM_AMC.DAQ.EXT_CONTROL.RUN_TYPE").write(0x2)
     amc.getNode("GEM_AMC.DAQ.EXT_CONTROL.RUN_PARAMS").write((wval<<16)|(rparm&0xffff))
     rtype = amc.getNode("GEM_AMC.DAQ.EXT_CONTROL.RUN_TYPE").read()
     rparm = amc.getNode("GEM_AMC.DAQ.EXT_CONTROL.RUN_PARAMS").read()
