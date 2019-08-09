@@ -9,101 +9,53 @@ dict_scanRegsByRunType = {
             0x4:"CFG_CAL_DAC"
         }
 
-def buildRunParamRegV3(runType,scanReg,supportReg,pulseStretch=0x3,scanMode=0x0):
-    """
-    Builds the 24 bit number to be set to GEM_AMC.DAQ.EXT_CONTROL.RUN_PARAMS
-    using the following rules:
-
-    runType = 0x2: Latency Scan
-        [23:21] scanMode - isCurrentPulse (0 = False, 1 = True)
-        [20:13] supportReg - CFG_CAL_DAC
-        [12:10] pulseStretch - CFG_PULSE_STRETCH
-        [9:0]   scanReg - CFG_LATENCY
-    
-    runType = 0x3: Threshold Scan
-        [23:21] scanMode - CFG_SEL_COMP_MODE (0 = CFG; 1 = ARM; 2 = ZCC)
-        [20:13] scanReg - CFG_THR_ARM_DAC
-        [12:10] pulseStretch - CFG_PULSE_STRETCH
-        [9:0]   supportReg - CFG_THR_ZCC_DAC
-
-    runType = 0x4: Scurve
-        [23:21] scanMode - isCurrentPulse (0 = False, 1 = True)
-        [20:13] scanReg - CFG_CAL_DAC
-        [12:10] pulseStretch - CFG_PULSE_STRETCH
-        [9:0]   supportReg - CFG_LATENCY
-    """
-
-    if runType == 0x2:
-        return ( ((scanMode&0x7)<<21) | ((supportReg&0xff)<<13) | ((pulseStretch&0x7)<<10) | (scanReg&0x3ff) )
-    elif runType == 0x3:
-        return ( ((scanMode&0x7)<<21) | ((scanReg&0xff)<<13) | ((pulseStretch&0x7)<<10) | (supportReg&0x3ff) )
-    elif runType == 0x4:
-        return ( ((scanMode&0x7)<<21) | ((scanReg&0xff)<<13) | ((pulseStretch&0x7)<<10) | (supportReg&0x3ff) )
-
-def toggleSettings4DAQ(amcMask, chan, dict_ohMasks, dict_amcBoards, dict_vfatBoards, dict_vfatMasks, runParams, runType, enableCal=True, enableRun=True):
+def toggleSettings4DAQ(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=True, enableRun=True):
     """
     Toggles both DAQ settings and calpulse settings of VFAT3s.
     Triggers should be stopped before calling this method
 
-    amcMask         - 12 bit number specifying which AMC's to use, if the N^th bit is 1 this means use 
-                      the (N+1)^th AMC slot
     chan            - VFAT Channel to configure calpulse for
     dict_ohMasks    - dictionary of integers where the keys are AMC slot numbers and the values are
                       a 12 bit number representing the ohMask; a 1 in the N^th bit means use the N^th
                       optohybrid
-    dict_amcBoards  - dictionary of uhal._core.HwInterface objects where the key values are AMC Slot Numbers
     dict_vfatBoards - dictionary of HwVFAT objects where the key values are AMC Slot Numbers 
     dict_vfatMasks  - dictionary of ctype arrays; each ctype array has a size of 12 and each array 
                       position stores the vfatmask values to use with the optohybrid at (slot,link).
                       Here each vfatmask is a 24 bit number; if the N^th bit is 1 this means skip 
                       the N^th VFAT.
-    runParams       - Run Parameters words to insert
-    runType         - Run Type word to insert
     enableCal       - If True (False) enables (disables) the calibration pulse to chan on all unmasked VFATs
     enableRun       - If True (False) places all unmasked VFATs into Run (Sleep) mode
     """
 
     # Loop over all AMCs
-    for amcN in range(12):
-        # Skip masked AMC's        
-        if( not ((amcMask >> amcN) & 0x1)):
-            continue
-
-        # Update the slot number
-        thisSlot = amcN+1
-
-        # Update RunParams and RunType words
-        dict_amcBoards[thisSlot].getNode("GEM_AMC.DAQ.EXT_CONTROL.RUN_PARAMS").write(runParams)
-        dict_amcBoards[thisSlot].getNode("GEM_AMC.DAQ.EXT_CONTROL.RUN_TYPE").write(runType)
-        dict_amcBoards[thisSlot].dispatch()
-
+    for amcSlot,vfatBoard in dict_vfatBoards.iteritems():
         # Loop Over OH's on this AMC and CalPulse to this chan and set VFATs to run mode
-        for ohN in range(dict_vfatBoards[thisSlot].parentOH.parentAMC.nOHs):
-            if ((dict_ohMasks[thisSlot] >> ohN) & 0x0):
+        for ohN in range(vfatBoard.parentOH.parentAMC.nOHs):
+            if ((dict_ohMasks[amcSlot] >> ohN) & 0x0):
                 continue
 
-            # Set the link in dict_vfatBoards[thisSlot]
-            dict_vfatBoards[thisSlot].parentOH.link = ohN
+            # Set the link in vfatBoard
+            vfatBoard.parentOH.link = ohN
 
             # Update the calibration pulse setting for this chan
-            dict_vfatBoards[thisSlot].configureCalPulseAllVFATs(chan,toggleOn=enableCal,mask=dict_vfatMasks[thisSlot][ohN])
+            vfatBoard.configureCalPulseAllVFATs(chan,toggleOn=enableCal,mask=dict_vfatMasks[amcSlot][ohN])
 
             # Place these VFATs into Run Mode?
-            dict_vfatBoards[thisSlot].setRunModeAll(mask=dict_vfatMasks[thisSlot][ohN], enable=enableRun)
+            vfatBoard.setRunModeAll(mask=dict_vfatMasks[amcSlot][ohN], enable=enableRun)
 
             ## Order Matters as SlowControl commands are not prioritized in run mode
             #if enableRun: # Place VFATs into Run Mode, first perform slow control
             #    # Update the calibration pulse setting for this chan
-            #    dict_vfatBoards[thisSlot].configureCalPulseAllVFATs(chan,toggleOn=enableCal,mask=dict_vfatMasks[thisSlot][ohN])
+            #    vfatBoard.configureCalPulseAllVFATs(chan,toggleOn=enableCal,mask=dict_vfatMasks[amcSlot][ohN])
             #    
             #    # Place these VFATs into Run Mode
-            #    dict_vfatBoards[thisSlot].setRunModeAll(mask=dict_vfatMasks[thisSlot][ohN])
+            #    vfatBoard.setRunModeAll(mask=dict_vfatMasks[amcSlot][ohN])
             #else:         # Place VFATs into Sleep Mode, first do that then try other slow control cmds
             #    # Take these VFATs out of Run Mode
-            #    dict_vfatBoards[thisSlot].setRunModeAll(mask=dict_vfatMasks[thisSlot][ohN],enable=False)
+            #    vfatBoard.setRunModeAll(mask=dict_vfatMasks[amcSlot][ohN],enable=False)
             #    
             #    # Update the calibration pulse setting for this chan
-            #    dict_vfatBoards[thisSlot].configureCalPulseAllVFATs(chan,toggleOn=enableCal,mask=dict_vfatMasks[thisSlot][ohN])
+            #    vfatBoard.configureCalPulseAllVFATs(chan,toggleOn=enableCal,mask=dict_vfatMasks[amcSlot][ohN])
             #    pass
             pass # End Loop over OH's
         pass # End Loop over AMCs
@@ -111,38 +63,40 @@ def toggleSettings4DAQ(amcMask, chan, dict_ohMasks, dict_amcBoards, dict_vfatBoa
 
 def trackingDataScan(args, runType):
     """
-    Notes
+    Performs a calibration scan with the intent of using the full data path.  The type of scan
+    is based on runType and for each runType the following VFAT3 register will be scanned:
 
-    args needs to have:
+        runType - 0x2:"CFG_LATENCY",
+        runType - 0x3:"CFG_THR_ARM_DAC",
+        runType - 0x4:"CFG_CAL_DAC"
 
-        args.amc13SendsCalPulses true/false, if true use BGO's if False use evka85's FW (3.8.4 or higher...?)
-        args.amcMask ... ? this should be a 12 bit number but the N^th bit corresponds to amc slot N+1
-        args.debug
-        ~~args.detType~~
-        ~~args.gemType~~
-        args.shelf
+    For scurve scans the channel register configuration will be retrieved and stored; then the
+    channel mask bit (bit 14) will be set to 1 for all channels on all links before the scan
+    is started.  After the scan the original channel reigster configuration will be restored
+
+    The args namespace is expected to have the following parameters:    
+
+        amc13SendsCalPulses True (False) AMC13 BGO generator (CTP7 calibration mode) sends calibration pulse commands
+        amcMask             This should be a 12 bit number where the N^th bit corresponds to amc slot N+1
+        debug               If true prints additional debugging info
+        detType             String that defines the detector type within GEM variants
+        gemType             String that defines the GEM variant being used
+        shelf               uTCA shelf number to be used
 
         # VFAT Specific Parameters (should come from an argument group...?)
-        args.latency
-        args.pulseStretch (default 0x3)
-        args.calPhase (default 0x0)
-        args.ZSMode ...? Something about zero suppression?
+        latency             CFG_LATENCY value that will be applied for scurves
+        pulseStretch        CFG_PULSE_STRETCH value that will be applied at the start of all scans
+        calPhase            CFG_CAL_PHI value that will be applied at the start of all scans
 
         # Scan settings
-        args.chMax, default 127
-        args.chMin, default 0
-        args.dacMax, default 255
-        args.dacMin, default 0
-        args.dacStep, default 1
-        args.nevts, default 100
-
-    Additional options:
-
-        runType - integer, see https://github.com/cms-gem-daq-project/cmsgemos/issues/230
-                  Maybe we should declare a class for the possibilities here...? 
-
+        chMax               Maximum channel to be scanned
+        chMin               Minimum channel to be scanned
+        dacMax              Maximum DAC value to be used in the scan
+        dacMin              Minimum DAC value to be used in the scan
+        dacStep             Step size to use in the scan
+        nevts               Number of events taken at every scan point
     """
-    from time import sleep
+    from ctypes import c_uint32
 
     from gempython.utils.gracefulKiller import GracefulKiller
     killer = GracefulKiller()
@@ -164,13 +118,15 @@ def trackingDataScan(args, runType):
 
     # Declare the following dictionaries
     from gempython.utils.nesteddict import nesteddict as ndict
-    dict_amcBoardsUHAL = ndict() # dict_amcBoardsUHAL[slot] = uhal._core.HwInterface(slot,args.shelf)
     dict_vfatBoards = ndict() # dict_vfatBoards[slot] = HwVFAT(args.shelf,slot, dummyLink) for this (args.shelf,slot)
     dict_ohMasks = ndict() # dict_ohMasks[slot] = ohMask for this (args.shelf,slot)
     dict_vfatMasks = ndict() #dict_vfatMasks[slot][link] = vfatmask for this (args.shelf,slot,link)
+    dict_origChanRegs = ndict() #dict_origChanRegs[slot][link] = c_uint32 array 3072 in length fo this (args.shelf,slot,link)
 
     # Create an AMC13 class object, stop triggers and reset counters
-    import amc13, os, uhal
+    import amc13
+    import os
+    import uhal
     uhal.setLogLevelTo( uhal.LogLevel.FATAL )
     connection_file = "%s/connections.xml"%(os.getenv("GEM_ADDRESS_TABLE_PATH"))
     amc13base  = "gem.shelf%02d.amc13"%(args.shelf)
@@ -185,21 +141,25 @@ def trackingDataScan(args, runType):
     import logging
     gemlogger = getGEMLogger(__name__)
     gemlogger.setLevel(logging.ERROR)
+    isCurrent = False
+    selCompMode = None
     for amcN in range(12):
         # Skip masked AMC's        
         if( not ((args.amcMask >> amcN) & 0x1)):
             continue
         thisSlot = amcN+1
        
-        # Open connection to the AMC - uHAL
-        dict_amcBoardsUHAL[thisSlot] = getAMCObject(thisSlot,args.shelf,args.debug)
-
         # Open connection to the AMC - RPC
         cardName = "gem-shelf%02d-amc%02d"%(args.shelf,thisSlot)
         dict_vfatBoards[thisSlot] = HwVFAT(cardName, -1, args.debug, args.gemType, args.detType) # Assign a dummy link for now
 
+        # Set the RUN TYPE for this AMC
+        dict_vfatBoards[thisSlot].parentOH.parentAMC.writeRegister("GEM_AMC.DAQ.EXT_CONTROL.RUN_TYPE",runType)
+
         # Determine OH's present
         dict_ohMasks[thisSlot] = dict_vfatBoards[thisSlot].parentOH.parentAMC.getOHMask()
+        if args.debug:
+            print("ohMask for AMC{:d} determined to be 0x{:x}".format(thisSlot,dict_ohMasks[thisSlot]))
        
         # Reset TTC Command Counters
         dict_vfatBoards[thisSlot].parentOH.parentAMC.ttcCmdCntReset()
@@ -207,7 +167,7 @@ def trackingDataScan(args, runType):
         # Determine which VFATs to use for all OH's on this AMC
         dict_vfatMasks[thisSlot] = dict_vfatBoards[thisSlot].parentOH.parentAMC.getMultiLinkVFATMask(dict_ohMasks[thisSlot])
         for ohN in range(dict_vfatBoards[thisSlot].parentOH.parentAMC.nOHs):
-            if ((dict_ohMasks[thisSlot] >> ohN) & 0x0):
+            if (not ((dict_ohMasks[thisSlot] >> ohN) & 0x1)):
                 continue
 
             # Set the link in dict_vfatBoards[thisSlot]
@@ -219,10 +179,44 @@ def trackingDataScan(args, runType):
             # Set initial register parameters
             dict_vfatBoards[thisSlot].setVFATLatencyAll(mask=dict_vfatMasks[thisSlot][ohN], lat=args.latency)
             dict_vfatBoards[thisSlot].setVFATMSPLAll(mask=dict_vfatMasks[thisSlot][ohN], mspl=args.pulseStretch)
-            dict_vfatBoards[thisSlot].setVFATCalPhaseAll(mask=dict_vfatMasks[thisSlot][ohN], phase =args.calPhase)
+            dict_vfatBoards[thisSlot].setVFATCalPhaseAll(mask=dict_vfatMasks[thisSlot][ohN], phase=args.calPhase)
             if runType == 0x2: # Only for Latency scan
+                # Set calpulse height
                 dict_vfatBoards[thisSlot].setVFATCalHeightAll(mask=dict_vfatMasks[thisSlot][ohN], currentPulse=False, height=250)
                 pass # End runType == 0x2 (latency scan)
+            elif runType == 0x3: # Only for Threshold scan
+                # Set comparator mode
+                if args.compModeARM:
+                    selCompMode = 0x1
+                    dict_vfatBoards[thisSlot].writeAllVFATs("CFG_SEL_COMP_MODE",selCompMode,dict_vfatMasks[thisSlot][ohN])
+                elif args.compModeZCC:
+                    selCompMode = 0x2
+                    dict_vfatBoards[thisSlot].writeAllVFATs("CFG_SEL_COMP_MODE",selCompMode,dict_vfatMasks[thisSlot][ohN])
+                else:
+                    print("Setting CFG_SEL_COMP_MODE of VFATs on (shelf,slot,link)=({:d},{:d},{:d}) to 0x0 (CFD Mode)".format(
+                        args.shelf,
+                        dict_vfatBoards[thisSlot].parentOH.parentAMC.slot,
+                        ohN) )
+                    selCompMode = 0x0
+                    dict_vfatBoards[thisSlot].writeAllVFATs("CFG_SEL_COMP_MODE",selCompMode,dict_vfatMasks[thisSlot][ohN])
+                    pass
+            elif runType == 0x4: # Only for Scurve
+                # Get original channel mask
+                dict_origChanRegs[thisSlot][ohN] = dict_vfatBoards[thisSlot].getAllChannelRegisters(mask=dict_vfatMasks[thisSlot][ohN])
+
+                # Set the mask bit of all channel registers to 0x1
+                print("Masking all channels on (shelf,slot,link)=({:d},{:d},{:d})".format(
+                    args.shelf,
+                    dict_vfatBoards[thisSlot].parentOH.parentAMC.slot,
+                    ohN) )
+                tmpChanArray = (c_uint32 * 3072)()
+                for chan in range(3072):
+                    tmpChanArray[chan] = (0x1 << 14) | dict_origChanRegs[thisSlot][ohN][chan]
+                    pass
+
+                # Update the channel registers
+                dict_vfatBoards[thisSlot].setAllChannelRegisters(chMask=tmpChanArray,vfatMask=dict_vfatMasks[thisSlot][ohN])
+                pass
             pass # End loop over OH's on this AMC
         pass # End loop over AMC's
 
@@ -242,15 +236,8 @@ def trackingDataScan(args, runType):
         # Only valid for GEM_AMC FW >= 3.8.4
         # implement new features of: https://github.com/evka85/GEM_AMC/releases/tag/v3.8.4
         if ((runType == 0x2) or (runType == 0x4)):
-            for amcN in range(12):
-                # Skip masked AMC's        
-                if( not ((args.amcMask >> amcN) & 0x1)):
-                    continue
-                
-                # Set the slot number as amcN+1
-                thisSlot = amcN+1
-
-                dict_vfatBoards[thisSlot].parentOH.parentAMC.configureCalMode(enable=True)
+            for vfatBoard in dict_vfatBoards.values():
+                vfatBoard.parentOH.parentAMC.configureCalMode(enable=True)
                 pass
             pass
 
@@ -266,7 +253,14 @@ def trackingDataScan(args, runType):
     # Perform the scan
     from gempython.tools.hw_constants import vfatsPerGemVariant
     vfatList = [x for x in range(vfatsPerGemVariant[args.gemType])]
-    msg = "%11s:: fedID n_L1A slot ohN %s"%('','   '.join(map(str, vfatList)))
+    if args.debug:
+        print("SCAN_REG: {:s}".format(scanReg))
+        print("DAC MIN:  {:d}".format(args.dacMin))
+        print("DAC MAX:  {:d}".format(args.dacMax))
+        print("DAC STEP: {:d}".format(args.dacStep))
+        pass
+
+    msg = "%11s:: amc13_nL1A amc_nL1A amc_nCalPulse slot ohN %s"%('','   '.join(map(str, vfatList)))
     print(msg)
     for dacVal in range(args.dacMin,args.dacMax+args.dacStep,args.dacStep):
         # stop triggers coming from AMC13
@@ -278,37 +272,41 @@ def trackingDataScan(args, runType):
         # Get Last L1A ID
         lastL1A = amc13board.read(amc13board.Board(0),"STATUS.TTC.L1A_COUNTER") # readT2 in AMC13Tool
 
-        # Loop over all AMCs and mark data as bad with RUN_TYPE and RUN_PARAMS words
-        for amcN in range(12):
-            # Skip masked AMC's 
-            if( not ((args.amcMask >> amcN) & 0x1)):
-                continue
+        # Loop over all AMCs and set the dacVal and update the RUN_PARAMS words
+        for amcSlot,vfatBoard in dict_vfatBoards.iteritems():
+            # Update RunParams word
+            if runType == 0x2:
+                runParams = ( (0x1 << 22) | (0x0 << 21) | (0x6 << 13) | ((args.pulseStretch & 0x7) << 10) | (dacVal) )
+                pass
+            elif runType == 0x3:
+                runParams = ( ((selCompMode & 0x3) << 21 | ((dacVal & 0xff) << 13) | ((args.pulseStretch & 0x7) << 10) | 0xA) )
+                pass
+            elif runType == 0x4:
+                runParams = ( (0x0 << 21) | ((dacVal & 0xff) << 13) | ((args.pulseStretch & 0x7) << 10) | 0x64)
+                pass
+            vfatBoard.parentOH.parentAMC.writeRegister("GEM_AMC.DAQ.EXT_CONTROL.RUN_PARAMS",runParams)
 
-            # Set the slot number as amcN+1
-            thisSlot = amcN+1
-
-            # Mark data as invalid
-            dict_amcBoardsUHAL[thisSlot].getNode("GEM_AMC.DAQ.EXT_CONTROL.RUN_PARAMS").write(0)
-            dict_amcBoardsUHAL[thisSlot].getNode("GEM_AMC.DAQ.EXT_CONTROL.RUN_TYPE").write(0xf)
-            dict_amcBoardsUHAL[thisSlot].dispatch()
+            # Get TTC Command Counters
+            lastL1A_AMC = vfatBoard.parentOH.parentAMC.readRegister("GEM_AMC.TTC.CMD_COUNTERS.L1A")
+            lastCalPulse_AMC = vfatBoard.parentOH.parentAMC.readRegister("GEM_AMC.TTC.CMD_COUNTERS.CALPULSE")
 
             # Loop Over OH's on this AMC and set the scanReg to the reg of interest
-            for ohN in range(dict_vfatBoards[thisSlot].parentOH.parentAMC.nOHs):
-                if (not ((dict_ohMasks[thisSlot] >> ohN) & 0x1)):
+            for ohN in range(vfatBoard.parentOH.parentAMC.nOHs):
+                if (not ((dict_ohMasks[amcSlot] >> ohN) & 0x1)):
                     continue
 
-                # Set the link in dict_vfatBoards[thisSlot]
-                dict_vfatBoards[thisSlot].parentOH.link = ohN
+                # Set the link in vfatBoard
+                vfatBoard.parentOH.link = ohN
 
                 # Write the DAC Value
-                dict_vfatBoards[thisSlot].writeAllVFATs(scanReg,dacVal,dict_vfatMasks[thisSlot][ohN])
+                vfatBoard.writeAllVFATs(scanReg,dacVal,dict_vfatMasks[amcSlot][ohN])
                 
                 # Print current status to user
-                readBackVals = dict_vfatBoards[thisSlot].readAllVFATs(scanReg,dict_vfatMasks[thisSlot][ohN])
+                readBackVals = vfatBoard.readAllVFATs(scanReg,dict_vfatMasks[amcSlot][ohN])
                 badreg = map(lambda isbad: 0 if isbad == dacVal else 1, readBackVals)
                 perreg = "%s0x%02x%s"
                 regmap = map(lambda currentVal: perreg%((colors.GREEN,currentVal&0xffff,colors.ENDC) if currentVal&0xffff==dacVal else (colors.RED,currentVal&0xffff,colors.ENDC) ), readBackVals)
-                msg = "%11s:: 0x%x 0x%x %2d %2d  %s"%("CurrentStep",sourceID,lastL1A,thisSlot,ohN,'   '.join(map(str, regmap)))
+                msg = "%11s:: 0x%x 0x%x 0x%x %2d %2d  %s"%("CurrentStep",lastL1A,lastL1A_AMC,lastCalPulse_AMC,amcSlot,ohN,'   '.join(map(str, regmap)))
                 print(msg)
 
                 pass # End Loop over all OH's on this slot
@@ -323,17 +321,13 @@ def trackingDataScan(args, runType):
         elif ((runType == 0x2) or (runType == 0x4)): #Latency Scan or Scurve
             for chan in range(args.chMin,args.chMax+1):
                 # Set this channel to pulse for all VFATs and place all VFATs into run mode
-                # FIXME RunParam value is not set correctly
-                toggleSettings4DAQ(args.amcMask, chan, dict_ohMasks, dict_amcBoardsUHAL, dict_vfatBoards, dict_vfatMasks, dacVal, runType, enableCal=True, enableRun=True)
+                toggleSettings4DAQ(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=True, enableRun=True)
 
                 # Send Triggers
                 amc13board.sendL1ABurst()
-                # FIXME something not right about this sleep...? makes this take way longer than I thought
-                sleep(args.nevts/rate) # Sleep for the time it takes for the L1A's to be sent
-                #sleep(1.05 * (args.nevts/rate)) # Sleep for the time it takes for the L1A's to be sent plus 5% of that time
 
                 # Stop calpulse to this channel for all VFATs and take VFATs out of run mode
-                toggleSettings4DAQ(args.amcMask, chan, dict_ohMasks, dict_amcBoardsUHAL, dict_vfatBoards, dict_vfatMasks, 0x0, 0xf, enableCal=False, enableRun=False)
+                toggleSettings4DAQ(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=False, enableRun=False)
                 pass # End Loop over VFAT Channels
             pass # End if-elif statement
         pass # End Loop over DAC Range
@@ -346,28 +340,38 @@ def trackingDataScan(args, runType):
     if (args.amc13SendsCalPulses):    # Calpulses sent by AMC13 as BGO commands
         if ((runType == 0x2) or (runType == 0x4)):
             # Disable BGO for channel 0
+            amc13board.configureBGOShort(0, 0x0, 450, 0, False)
             amc13board.disableBGO(0)
             pass
     else:
-        for amcN in range(12):
-            # Skip masked AMC's        
-            if( not ((args.amcMask >> amcN) & 0x1)):
-                continue
-            
-            # Open connection to the AMC
-            thisSlot = amcN+1
-
-            dict_vfatBoards[thisSlot].parentOH.parentAMC.configureCalMode(enable=False)
+        for vfatBoard in dict_vfatBoards.values():
+            vfatBoard.parentOH.parentAMC.configureCalMode(enable=True)
             pass
         pass
 
-    return
+    # Restore original channel configuration to frontend
+    for amcSlot,vfatBoard in dict_vfatBoards.iteritems():
+        for ohN in range(vfatBoard.parentOH.parentAMC.nOHs):
+            if ( not (dict_ohMasks[amcSlot] >> ohN) & 0x1):
+                continue
+            
+            # Set the link in vfatBoard
+            vfatBoard.parentOH.link = ohN
+        
+            # Restore original channel number
+            vfatBoard.setAllChannelRegisters(chanRegData=dict_origChanRegs[amcSlot][ohN],vfatMask=dict_vfatMasks[amcSlot][ohN])
+            pass
+        pass
+
+    return 0
 
 if __name__ == '__main__':
     from reg_utils.reg_interface.common.reg_xml_parser import parseInt
     
     import argparse
     parser = argparse.ArgumentParser()
+
+    import sys
 
     # Required Parameters
     parser.add_argument("amcMask", help="Slot mask to apply, a 1 in the N^th bit indicates the (N+1)^th slot should be considered", type=parseInt)
@@ -383,12 +387,15 @@ if __name__ == '__main__':
     parser.add_argument("--detType",type=str,help="String that defines the detector type within the GEM variant, available from the list: {0}".format(gemVariants.values()),default="short")
     parser.add_argument("--gemType",type=str,help="String that defines the GEM variant, available from the list: {0}".format(gemVariants.keys()),default="ge11")
     parser.add_argument("--shelf", help="uTCA shelf number", type=int, default=1)
-    # FIXME complete the parser
 
     vfatParamsGroup = parser.add_argument_group(title="VFAT3 Parameters for Scan", description="Settings for the VFATs that need to be applied at runtime")
+    vfatParamsGroup.add_argument("-c","--calPhase", help="Value to write to CFG_CAL_PHI", type=int, default=0x0)
     vfatParamsGroup.add_argument("-l","--latency", help="Value to write to CFG_LATENCY during an scurve", type=int, default=500) 
     vfatParamsGroup.add_argument("-p","--pulseStretch", help="Value to write to CFG_PULSE_STRETCH", type=int, default=0x3)
-    vfatParamsGroup.add_argument("-c","--calPhase", help="Value to write to CFG_CAL_PHI", type=int, default=0x0)
+    vfatCompMode = vfatParamsGroup.add_mutually_exclusive_group(required=False)
+    #vfatCompMode.add_argument("--compModeCFD", action="store_true", help="Set the comparator mode on all VFATs to CFD Mode (CFG_SEL_COMP_MODE = 0x0)")
+    vfatCompMode.add_argument("--compModeARM", action="store_true", help="Set the comparator mode on all VFATs to ARM Mode (CFG_SEL_COMP_MODE = 0x1)")
+    vfatCompMode.add_argument("--compModeZCC", action="store_true", help="Set the comparator mode on all VFATs to ZCC Mode (CFG_SEL_COMP_MODE = 0x2)")
 
     scanParamsGroup = parser.add_argument_group(title="Scan Parameters", description="Settings that determine the range of channels and DACs for the scan")
     scanParamsGroup.add_argument("--chMax", help="Maximum VFAT Channel to be scanned", type=int, default=127)
@@ -425,6 +432,10 @@ if __name__ == '__main__':
     if args.debug:
         print("Executing Scan: {:s}".format(dict_scanRegsByRunType[runType]))
 
-    trackingDataScan(args, runType)
+    try:
+        trackingDataScan(args, runType)
+    except KeyboardInterrupt as err:
+        printYellow("Keyboard Interrupt; scan is terminating.  Please note your frontend configuration may no longer match expectation and a re-configuration may be required")
+        sys.exit(0)
 
     print("Scan finished. Goodbye")
