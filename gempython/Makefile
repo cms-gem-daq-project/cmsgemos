@@ -85,6 +85,7 @@ _rpmprep: _all
 	@cp -rf tests/*.py $(ScriptDir)
 	@cp -rf tools/xdaq/set_scanParams_latency.py $(ScriptDir)
 	@cp -rf tools/xdaq/setDAQParamsPostConfigure.py $(ScriptDir)
+	@cp -rf tools/xdaq/trackingDataCalibrationScan.py $(ScriptDir)
 	-cp -rf README.md LICENSE CHANGELOG.md MANIFEST.in requirements.txt $(PackageDir)
 	-cp -rf README.md LICENSE CHANGELOG.md MANIFEST.in requirements.txt pkg
 	@echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > pkg/$(Namespace)/__init__.py

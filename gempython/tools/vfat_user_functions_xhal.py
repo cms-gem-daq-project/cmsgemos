@@ -64,6 +64,10 @@ class HwVFAT(object):
         self.setChannelRegistersVFAT3.argTypes = [ c_uint, c_uint, POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), c_uint ]
         self.setChannelRegistersVFAT3.restype = c_uint
 
+        self.setChannelRegistersVFAT3Simple = self.parentOH.parentAMC.lib.setChannelRegistersVFAT3Simple
+        self.setChannelRegistersVFAT3Simple.argTypes = [ c_uint, c_uint, POINTER(c_uint32) ]
+        self.setChannelRegistersVFAT3Simple.restype = c_uint
+
         # Set default parameters
         self.paramsDefVals = {}
         if self.parentOH.parentAMC.fwVersion < 3:
@@ -250,7 +254,7 @@ class HwVFAT(object):
             self.setChannelRegister(vfat, chan, chMask, pulse, trimARM, trimARMPol, trimZCC, trimZCCPol, debug)
         return
 
-    def setAllChannelRegisters(self, chMask=None, pulse=None, trimARM=None, trimARMPol=None, trimZCC=None, trimZCCPol=None, vfatMask=0x0, debug=False):
+    def setAllChannelRegisters(self, chanRegData=None, chMask=None, pulse=None, trimARM=None, trimARMPol=None, trimZCC=None, trimZCCPol=None, vfatMask=0x0, debug=False):
         """
         Sets all channel registers for all VFAT3s on the detector
 
@@ -264,20 +268,26 @@ class HwVFAT(object):
         debug - print debug information
         """
 
-        if chMask is None:
-            chMask = (c_uint32 * 3072)()
-        if pulse is None:
-            pulse = (c_uint32 * 3072)()
-        if trimARM is None:
-            trimARM = (c_uint32 * 3072)()
-        if trimARMPol is None:
-            trimARMPol = (c_uint32 * 3072)()
-        if trimZCC is None:
-            trimZCC = (c_uint32 * 3072)()
-        if trimZCCPol is None:
-            trimZCCPol = (c_uint32 * 3072)()
+        if chanRegData is not None:
+            if len(chanRegData) != 3072:
+                raise RuntimeError("HwVFAT::setAllChannelRegisters - chanRegData is expected to be either None or a ctype array of c_uint32 objects 3072 in length; current length: {:d}".format(len(chanRegData)))
 
-        return self.setChannelRegistersVFAT3(self.parentOH.link, vfatMask, pulse, chMask, trimARM, trimARMPol, trimZCC, trimZCCPol, vfatsPerGemVariant[self.gemType])
+            return self.setChannelRegistersVFAT3Simple(self.parentOH.link, vfatMask, chanRegData)
+        else:
+            if chMask is None:
+                chMask = (c_uint32 * 3072)()
+            if pulse is None:
+                pulse = (c_uint32 * 3072)()
+            if trimARM is None:
+                trimARM = (c_uint32 * 3072)()
+            if trimARMPol is None:
+                trimARMPol = (c_uint32 * 3072)()
+            if trimZCC is None:
+                trimZCC = (c_uint32 * 3072)()
+            if trimZCCPol is None:
+                trimZCCPol = (c_uint32 * 3072)()
+
+            return self.setChannelRegistersVFAT3(self.parentOH.link, vfatMask, pulse, chMask, trimARM, trimARMPol, trimZCC, trimZCCPol, vfatsPerGemVariant[self.gemType])
 
     def setDebug(self, debug):
         self.debug = debug
