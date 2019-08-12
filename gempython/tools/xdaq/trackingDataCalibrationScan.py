@@ -9,9 +9,29 @@ dict_scanRegsByRunType = {
             0x4:"CFG_CAL_DAC"
         }
 
-def toggleSettings4DAQ(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=True, enableRun=True):
+def toggleRunMode(dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableRun=True):
     """
-    Toggles both DAQ settings and calpulse settings of VFAT3s.
+    Function documentation goes here
+    """
+    
+    # Loop over all AMCs
+    for amcSlot, vfatBoard in dict_vfatBoards.iteritems():
+        for ohN in range(vfatBoard.parentOH.parentAMC.nOHs):
+            if ((dict_ohMasks[amcSlot] >> ohN) & 0x0):
+                continue
+            
+            # Set the link in vfatBoard
+            vfatBoard.parentOH.link = ohN
+            
+            # Place these VFATs into Run Mode?
+            vfatBoard.setRunModeAll(mask=dict_vfatMasks[amcSlot][ohN], enable=enableRun)
+            pass # End Loop over OH's
+        pass # End Loop over AMCs
+    return
+
+def toggleCalPulseAndRunMode(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=True, enableRun=True):
+    """
+    Toggles calpulse on all VFATs for channel of interest; will also toggle run mode on all VFATs
     Triggers should be stopped before calling this method
 
     chan            - VFAT Channel to configure calpulse for
@@ -200,6 +220,9 @@ def trackingDataScan(args, runType):
                     selCompMode = 0x0
                     dict_vfatBoards[thisSlot].writeAllVFATs("CFG_SEL_COMP_MODE",selCompMode,dict_vfatMasks[thisSlot][ohN])
                     pass
+
+                # Ensure calpulse is disabled on all VFATs
+                dict_vfatBoards[thisSlot].configureCalPulseAllVFATs(ch=0,toggleOn=False,mask=dict_vfatMasks[thisSlot][ohN])
             elif runType == 0x4: # Only for Scurve
                 # Get original channel mask
                 dict_origChanRegs[thisSlot][ohN] = dict_vfatBoards[thisSlot].getAllChannelRegisters(mask=dict_vfatMasks[thisSlot][ohN])
@@ -316,18 +339,24 @@ def trackingDataScan(args, runType):
         amc13board.enableLocalL1A(True)
 
         if runType == 0x3:  # Threshold Scan
-            # placeholder
-            raise RuntimeError("trackingDataScan(): Mode Not Implemented Yet")
+            # Place VFATs into run mode
+            toggleRunMode(dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableRun=True)
+
+            # Send Triggers
+            amc13board.sendL1ABurst()
+
+            # Take VFATs out of run mode
+            toggleRunMode(dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableRun=False)
         elif ((runType == 0x2) or (runType == 0x4)): #Latency Scan or Scurve
             for chan in range(args.chMin,args.chMax+1):
                 # Set this channel to pulse for all VFATs and place all VFATs into run mode
-                toggleSettings4DAQ(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=True, enableRun=True)
+                toggleCalPulseAndRunMode(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=True, enableRun=True)
 
                 # Send Triggers
                 amc13board.sendL1ABurst()
 
                 # Stop calpulse to this channel for all VFATs and take VFATs out of run mode
-                toggleSettings4DAQ(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=False, enableRun=False)
+                toggleCalPulseAndRunMode(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=False, enableRun=False)
                 pass # End Loop over VFAT Channels
             pass # End if-elif statement
         pass # End Loop over DAC Range
@@ -350,16 +379,18 @@ def trackingDataScan(args, runType):
         pass
 
     # Restore original channel configuration to frontend
-    for amcSlot,vfatBoard in dict_vfatBoards.iteritems():
-        for ohN in range(vfatBoard.parentOH.parentAMC.nOHs):
-            if ( not (dict_ohMasks[amcSlot] >> ohN) & 0x1):
-                continue
+    if runType == 0x4:
+        for amcSlot,vfatBoard in dict_vfatBoards.iteritems():
+            for ohN in range(vfatBoard.parentOH.parentAMC.nOHs):
+                if ( not (dict_ohMasks[amcSlot] >> ohN) & 0x1):
+                    continue
+                
+                # Set the link in vfatBoard
+                vfatBoard.parentOH.link = ohN
             
-            # Set the link in vfatBoard
-            vfatBoard.parentOH.link = ohN
-        
-            # Restore original channel number
-            vfatBoard.setAllChannelRegisters(chanRegData=dict_origChanRegs[amcSlot][ohN],vfatMask=dict_vfatMasks[amcSlot][ohN])
+                # Restore original channel number
+                vfatBoard.setAllChannelRegisters(chanRegData=dict_origChanRegs[amcSlot][ohN],vfatMask=dict_vfatMasks[amcSlot][ohN])
+                pass
             pass
         pass
 
