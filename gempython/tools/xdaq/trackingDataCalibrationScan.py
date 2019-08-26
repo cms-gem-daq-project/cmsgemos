@@ -29,7 +29,7 @@ def toggleRunMode(dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableRun=True)
         pass # End Loop over AMCs
     return
 
-def toggleCalPulseAndRunMode(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=True, enableRun=True):
+def toggleCalPulseAndRunMode(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=True, enableCalDF=True, enableRun=True):
     """
     Toggles calpulse on all VFATs for channel of interest; will also toggle run mode on all VFATs
     Triggers should be stopped before calling this method
@@ -44,11 +44,20 @@ def toggleCalPulseAndRunMode(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks
                       Here each vfatmask is a 24 bit number; if the N^th bit is 1 this means skip 
                       the N^th VFAT.
     enableCal       - If True (False) enables (disables) the calibration pulse to chan on all unmasked VFATs
+    enableCalDF     - If True (False) enables (disables) the calibration data format during the event building
     enableRun       - If True (False) places all unmasked VFATs into Run (Sleep) mode
     """
 
     # Loop over all AMCs
     for amcSlot,vfatBoard in dict_vfatBoards.iteritems():
+        # Set the calibration channel
+        if(enableCal):
+            try:
+                vfatBoard.parentOH.parentAMC.configureCalDataFormat(chan, enableCalDF)
+            except RuntimeError as err:
+                printYellow(err.message)
+                pass
+
         # Loop Over OH's on this AMC and CalPulse to this chan and set VFATs to run mode
         for ohN in range(vfatBoard.parentOH.parentAMC.nOHs):
             if ((dict_ohMasks[amcSlot] >> ohN) & 0x0):
@@ -126,6 +135,7 @@ def trackingDataScan(args, runType):
     envCheck('GEM_ADDRESS_TABLE_PATH')
 
     import os
+    import sys
     try:
         scanReg = dict_scanRegsByRunType[runType]
     except KeyError as err:
@@ -260,7 +270,12 @@ def trackingDataScan(args, runType):
         # implement new features of: https://github.com/evka85/GEM_AMC/releases/tag/v3.8.4
         if ((runType == 0x2) or (runType == 0x4)):
             for vfatBoard in dict_vfatBoards.values():
-                vfatBoard.parentOH.parentAMC.configureCalMode(enable=True)
+                try:
+                    vfatBoard.parentOH.parentAMC.configureCalMode(enable=True)
+                except RuntimeError as err:
+                    printRed(err.message)
+                    printRed("Please re-launch with option --amc13SendsCalPulses")
+                    sys.exit(os.EX_CONFIG)
                 pass
             pass
 
@@ -339,24 +354,35 @@ def trackingDataScan(args, runType):
         amc13board.enableLocalL1A(True)
 
         if runType == 0x3:  # Threshold Scan
-            # Place VFATs into run mode
-            toggleRunMode(dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableRun=True)
+            if args.doNotUseCalDataFormat:
+                # Place VFATs into run mode
+                toggleRunMode(dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableRun=True)
 
-            # Send Triggers
-            amc13board.sendL1ABurst()
+                # Send Triggers
+                amc13board.sendL1ABurst()
 
-            # Take VFATs out of run mode
-            toggleRunMode(dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableRun=False)
+                # Take VFATs out of run mode
+                toggleRunMode(dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableRun=False)
+            else:
+                for chan in range(args.chMin,args.chMax+1):
+                    # Place VFATs into run mode
+                    toggleCalPulseAndRunMode(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=False, enableCalDF=True, enableRun=True)
+
+                    # Send Triggers
+                    amc13board.sendL1ABurst()
+
+                    # Take VFATs out of run mode
+                    toggleCalPulseAndRunMode(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=False, enableCalDF=True, enableRun=False)
         elif ((runType == 0x2) or (runType == 0x4)): #Latency Scan or Scurve
             for chan in range(args.chMin,args.chMax+1):
                 # Set this channel to pulse for all VFATs and place all VFATs into run mode
-                toggleCalPulseAndRunMode(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=True, enableRun=True)
+                toggleCalPulseAndRunMode(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=True, enableCalDF=(not args.doNotUseCalDataFormat), enableRun=True)
 
                 # Send Triggers
                 amc13board.sendL1ABurst()
 
                 # Stop calpulse to this channel for all VFATs and take VFATs out of run mode
-                toggleCalPulseAndRunMode(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=False, enableRun=False)
+                toggleCalPulseAndRunMode(chan, dict_ohMasks, dict_vfatBoards, dict_vfatMasks, enableCal=False, enableCalDF=(not args.doNotUseCalDataFormat), enableRun=False)
                 pass # End Loop over VFAT Channels
             pass # End if-elif statement
         pass # End Loop over DAC Range
@@ -374,7 +400,14 @@ def trackingDataScan(args, runType):
             pass
     else:
         for vfatBoard in dict_vfatBoards.values():
-            vfatBoard.parentOH.parentAMC.configureCalMode(enable=True)
+            vfatBoard.parentOH.parentAMC.configureCalMode(enable=False)
+            pass
+        pass
+
+    # Turn off calibration data format if it was used
+    if not args.doNotUseCalDataFormat:
+        for amcSlot,vfatBoard in dict_vfatBoards.iteritems():
+            vfatBoard.parentOH.parentAMC.configureCalDataFormat(0,False)
             pass
         pass
 
@@ -416,6 +449,7 @@ if __name__ == '__main__':
     parser.add_argument("-a","--amc13SendsCalPulses",help="If provided AMC13 will generate calpulse commands.  Otherwise the CTP7's will delay the original L1A received and generate a calpulse", action="store_true")
     parser.add_argument("-d","--debug", help="prints additional debugging information", action="store_true")
     parser.add_argument("--detType",type=str,help="String that defines the detector type within the GEM variant, available from the list: {0}".format(gemVariants.values()),default="short")
+    parser.add_argument("--doNotUseCalDataFormat",action="store_true",help="If provided the full GEM data format will be used instead of the GEM calibration data format")
     parser.add_argument("--gemType",type=str,help="String that defines the GEM variant, available from the list: {0}".format(gemVariants.keys()),default="ge11")
     parser.add_argument("--shelf", help="uTCA shelf number", type=int, default=1)
 
