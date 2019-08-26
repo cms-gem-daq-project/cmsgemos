@@ -176,8 +176,15 @@ class HwAMC(object):
         rpc_connect(self.name)
         self.nOHs = self.readRegister("GEM_AMC.GEM_SYSTEM.CONFIG.NUM_OF_OH")
         self.fwVersion = self.readRegister("GEM_AMC.GEM_SYSTEM.RELEASE.MAJOR")
+
+        fwMajor = self.fwVersion
+        fwMinor = self.readRegister("GEM_AMC.GEM_SYSTEM.RELEASE.MINOR")
+        fwBuild = self.readRegister("GEM_AMC.GEM_SYSTEM.RELEASE.BUILD")
+        self.getFullFWVersion = lambda x,y,z : ((x & 0xff) << 16) | ((y & 0xff) << 8) | (z & 0xff)
+        self.fwVersionFull = self.getFullFWVersion(fwMajor, fwMinor, fwBuild)
         if debug:
-            print "My FW release major = ", self.fwVersion
+            print("My FW release is {:d}.{:d}.{:d}".format(fwMajor, fwMinor, fwBuild))
+            pass
 
         #Determine the number of GBTs based on the gemType
         if gemType in gbtsPerGemVariant.keys():
@@ -212,6 +219,26 @@ class HwAMC(object):
         self.writeRegister("GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x0)
         return
 
+    def configureCalDataFormat(self, chan, enable=True):
+        """
+        Turns on the calibration data format and sets the channel to be 
+        placed in the output data
+        Only valid in GEM_AMC > 3.9.0
+
+        chan    - channel to record in the calibration data format
+        enable  - Turns the calibration data format On (Off) if value is True (False)
+        """
+        if self.fwVersionFull >= self.getFullFWVersion(3,9,0):
+            self.writeRegister("GEM_AMC.DAQ.CONTROL.CALIBRATION_MODE_CHAN",chan)
+            self.writeRegister("GEM_AMC.DAQ.CONTROL.CALIBRATION_MODE_EN",enable)
+        else:
+            raise RuntimeError("AMC::configureCalChannel() - not implemented for FW Version {:d}.{:d}.{:d}".format(
+                (self.fwVersionFull >> 16) & 0xff,
+                (self.fwVersionFull >> 8) & 0xff,
+                self.fwVersionFull & 0xff))
+
+        return
+
     def configureCalMode(self, enable, pulseDelay=30):
         """
         Enable/disable calibration mode of this AMC.
@@ -226,14 +253,30 @@ class HwAMC(object):
                      not set this delay longer than consecutive L1A's from the AMC13
         """
         if enable:
-            self.writeRegister("GEM_AMC.TTC.GENERATOR.ENABLE",0x0)
-            self.writeRegister("GEM_AMC.TTC.CTRL.CALIBRATION_MODE",0x1)
-            if not (pulseDelay > 0):
-                raise ValueError("AMC::configureCalMode() - pulseDelay must be greater than zero!")
+
+            # Configure the Calibration Mode
+            if self.fwVersionFull >= self.getFullFWVersion(3,8,4):
+                self.writeRegister("GEM_AMC.TTC.GENERATOR.ENABLE",0x0)
+                self.writeRegister("GEM_AMC.TTC.CTRL.CALIBRATION_MODE",0x1)
+                
+                # Check if pulseDelay makes sense
+                if not (pulseDelay > 0):
+                    raise ValueError("AMC::configureCalMode() - pulseDelay must be greater than zero!")
+                else:
+                    self.writeRegister("GEM_AMC.TTC.CTRL.CALPULSE_L1A_DELAY",pulseDelay)
             else:
-                self.writeRegister("GEM_AMC.TTC.CTRL.CALPULSE_L1A_DELAY",pulseDelay)
+                raise RuntimeError("AMC::configureCalMode() - not implemented for FW Version {:d}.{:d}.{:d}".format(
+                    (self.fwVersionFull >> 16) & 0xff,
+                    (self.fwVersionFull >> 8) & 0xff,
+                    self.fwVersionFull & 0xff))
         else:
-            self.writeRegister("GEM_AMC.TTC.CTRL.CALIBRATION_MODE",0x0)
+            if self.fwVersionFull >= self.getFullFWVersion(3,8,4):
+                self.writeRegister("GEM_AMC.TTC.CTRL.CALIBRATION_MODE",0x0)
+            else:
+                raise RuntimeError("AMC::configureCalMode() - not implemented for FW Version {:d}.{:d}.{:d}".format(
+                    (self.fwVersionFull >> 16) & 0xff,
+                    (self.fwVersionFull >> 8) & 0xff,
+                    self.fwVersionFull & 0xff))
             pass
 
         return
