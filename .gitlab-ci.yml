@@ -34,7 +34,7 @@ stages:
   BUILD_HOME:             /builds/${CI_PROJECT_NAMESPACE}
   XDAQ_OS:                linux
   XDAQ_ROOT:              /opt/xdaq
-  LD_LIBRARY_PATH:        /opt/xdaq/lib
+  LD_LIBRARY_PATH:        /opt/xdaq/lib:/opt/cactus/lib
   PACKAGE_NAME:           ${CI_PROJECT_NAME}
   ARTIFACTS_DIR:          artifacts
   GIT_SUBMODULE_STRATEGY: normal
@@ -95,15 +95,10 @@ variables: *common_variables
   
 ##### ------------------- Run compilation ------------------- #####
 .compile_artifacts: &compile_artifacts
-  ## take all compile artifacts and save
   untracked: true
   <<: *common_artifacts
   # paths:
   #   - ${ARTIFACTS_DIR}
-  #   - gem*/src/**/*.d
-  #   - gem*/src/**/*.o
-  #   - gem*/lib/**/*.so
-  #   - gempython/pkg
 
 .before_compile: &before_compile
   - mkdir -p ${ARTIFACTS_DIR}
@@ -240,7 +235,7 @@ test:cc7:
   coverage: '/Test coverage: \d+\.\d+/'
 
 ##### ------------------- Package generated files into RPMs and tarballs ------------------- #####
-.rpm_artifacts: &rpm_artifacts
+.package_artifacts: &package_artifacts
   ## take all packaging artifacts and save
   <<: *common_artifacts
   # paths:
@@ -287,7 +282,7 @@ test:cc7:
     - ls -la ${ARTIFACTS_DIR}
     - ls -la ${ARTIFACTS_DIR}/repos
   artifacts:
-    <<: *rpm_artifacts
+    <<: *package_artifacts
   
 package:cc7:unstable:
   <<: *cc7setup

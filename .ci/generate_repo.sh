@@ -2,7 +2,7 @@
 
 ## all variables should come from the parent shell
 ## will fail for unset or unbound variables
-RELEASE_PLATFORM=${XDAQ_PLATFORM}
+RELEASE_PLATFORM=${1}
 BUILD_COMPILER=${COMPILER}$(${COMPILER} -dumpfullversion -dumpversion | sed -e 's|\.|_|g')
 PYTHON_VERSION=${PYEXE}$(${PYEXE} -c "import sys; sys.stdout.write(sys.version[:3])")
 RELEASE_PLATFORM=${RELEASE_PLATFORM}_${BUILD_COMPILER}
