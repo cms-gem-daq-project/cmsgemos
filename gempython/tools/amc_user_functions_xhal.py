@@ -696,7 +696,7 @@ class HwAMC(object):
 
         return self.dacScanMulti(ohMask, self.nOHs, dacSelect, dacStep, useExtRefADC, dacDataAll, self.nVFATs)
 
-    def performSBITRateScanMultiLink(self, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, chan=128, dacMin=0, dacMax=254, dacStep=1, ohMask=None, scanReg="THR_ARM_DAC", waitTime=1000):
+    def performSBITRateScanMultiLink(self, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, chan=128, dacMin=0, dacMax=254, dacStep=1, ohMask=None, scanReg="THR_ARM_DAC", waitTime=1):
         """
         Measures the rate of sbits sent by all unmasked optobybrids on this AMC
         V3 electronics only.
