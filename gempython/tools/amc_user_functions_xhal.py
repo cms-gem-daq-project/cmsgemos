@@ -165,7 +165,7 @@ class HwAMC(object):
         self.readSBits.restype = c_uint
 
         self.sbitRateScanMulti = self.lib.sbitRateScan
-        self.sbitRateScanMulti.argTypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_char_p, POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), c_uint]
+        self.sbitRateScanMulti.argTypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_char_p, POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), c_uint, c_uint]
         self.sbitRateScanMulti.restype = c_uint
 
         # Parse XML
@@ -696,7 +696,7 @@ class HwAMC(object):
 
         return self.dacScanMulti(ohMask, self.nOHs, dacSelect, dacStep, useExtRefADC, dacDataAll, self.nVFATs)
 
-    def performSBITRateScanMultiLink(self, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, chan=128, dacMin=0, dacMax=254, dacStep=1, waitTime=1000, ohMask=None, scanReg="THR_ARM_DAC"):
+    def performSBITRateScanMultiLink(self, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, chan=128, dacMin=0, dacMax=254, dacStep=1, ohMask=None, scanReg="THR_ARM_DAC", waitTime=1000):
         """
         Measures the rate of sbits sent by all unmasked optobybrids on this AMC
         V3 electronics only.
@@ -713,7 +713,7 @@ class HwAMC(object):
         dacMin                  - Starting dac value of the scan
         dacMax                  - Ending dac value of the scan
         dacStep                 - Step size for moving from dacMin to dacMax
-        waitTime                - Length of the time window within which the rate is measured, in milliseconds
+        waitTime                - Length of the time window within which the rate is measured, in seconds
         ohMask - Mask which defines which OH's to query; 12 bit number where
                  having a 1 in the N^th bit means to query the N^th optohybrid.
                  If None will be determined automatically using HwAMC::getOHMask()
@@ -751,7 +751,7 @@ class HwAMC(object):
             printRed("HwAMC::performSBITRateScanMultiLink(): I expected container of length {0} but provided 'outDataTrigRatePerVFAT' has length {1}".format(self.nVFATs*lenExpected, len(outDataTrigRatePerVFAT)))
             exit(os.EX_USAGE)
 
-        return self.sbitRateScanMulti(ohMask, waitTime, dacMin, dacMax, dacStep, chan, scanReg, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, self.nVFATs)
+        return self.sbitRateScanMulti(ohMask, dacMin, dacMax, dacStep, chan, scanReg, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT, self.nVFATs, waitTime)
 
     def programAllOptohybridFPGAs(self, maxIter=5, ohMask=None):
         """
