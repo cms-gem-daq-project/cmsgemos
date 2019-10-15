@@ -410,7 +410,7 @@ class HwAMC(object):
         if ohMask is None:
             ohMask = self.getOHMask(callingMthd="getMultiLinkVFATMask")
 
-        vfatMaskArray = (c_uint32 * self.nOHs)()
+        vfatMaskArray = (c_uint32 * 12)()
         rpcResp = self.getOHVFATMaskMultiLink(ohMask, vfatMaskArray)
 
         if rpcResp != 0:
