@@ -410,7 +410,7 @@ class HwAMC(object):
         if ohMask is None:
             ohMask = self.getOHMask(callingMthd="getMultiLinkVFATMask")
 
-        vfatMaskArray = (c_uint32 * self.nOHs)()
+        vfatMaskArray = (c_uint32 * 12)()
         rpcResp = self.getOHVFATMaskMultiLink(ohMask, vfatMaskArray)
 
         if rpcResp != 0:
@@ -736,7 +736,7 @@ class HwAMC(object):
             exit(os.EX_USAGE)
 
         # Check length of results container - outDataDacVal
-        lenExpected = self.nOHs * (dacMax - dacMin + 1) / dacStep
+        lenExpected = 12 * (dacMax - dacMin + 1) / dacStep
         if (len(outDataDacVal) != lenExpected):
             printRed("HwAMC::performSBITRateScanMultiLink(): I expected container of length {0} but provided 'outDataDacVal' has length {1}".format(lenExpected, len(outDataDacVal)))
             exit(os.EX_USAGE)
