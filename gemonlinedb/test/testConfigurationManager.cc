@@ -1,3 +1,4 @@
+#include <atomic>
 #include <chrono>
 #include <stdlib.h> // setenv
 #include <thread>
@@ -50,17 +51,30 @@ BOOST_AUTO_TEST_CASE(SharedRead)
         setenv("CMSGEMOS_CONFIG_PATH", "xml/examples", 1);
 
         auto start = std::chrono::system_clock::now();
+        std::atomic<std::exception_ptr> eptr;
 
         std::vector<std::thread> threads;
         for (int i = 0; i < 10; ++i) {
-            threads.emplace_back([] {
-                auto lock = ConfigurationManager::makeReadLock();
-                ConfigurationManager::getConfiguration(lock); // Locks
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            threads.emplace_back([&eptr] {
+                try {
+                    auto lock = ConfigurationManager::makeReadLock();
+                    ConfigurationManager::getConfiguration(lock); // Locks
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                } catch (...) {
+                    // Exceptions cannot pass thread boundaries, so save the
+                    // current one to rethrow it later.
+                    eptr = std::current_exception();
+                }
             });
         }
         for (auto &t : threads) {
             t.join();
+        }
+
+        // If there was an exception, rethrow it (if there were several, only
+        // throw the last one.
+        if (eptr != nullptr) {
+            std::rethrow_exception(eptr);
         }
 
         auto duration = std::chrono::system_clock::now() - start;
@@ -80,19 +94,38 @@ BOOST_AUTO_TEST_CASE(WriteBlockRead)
         setenv("CMSGEMOS_CONFIG_PATH", "xml/examples", 1);
 
         auto start = std::chrono::system_clock::now();
+        std::atomic<std::exception_ptr> eptr;
 
-        std::thread writer([] {
-            auto lock = ConfigurationManager::makeEditLock();
-            ConfigurationManager::getConfiguration(lock); // Locks
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::thread writer([&eptr] {
+            try {
+                auto lock = ConfigurationManager::makeEditLock();
+                ConfigurationManager::getConfiguration(lock); // Locks
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            } catch (...) {
+                // Exceptions cannot pass thread boundaries, so save the
+                // current one to rethrow it later.
+                eptr = std::current_exception();
+            }
         });
-        std::thread reader([] {
-            auto lock = ConfigurationManager::makeReadLock();
-            ConfigurationManager::getConfiguration(lock); // Locks
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::thread reader([&eptr] {
+            try {
+                auto lock = ConfigurationManager::makeReadLock();
+                ConfigurationManager::getConfiguration(lock); // Locks
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            } catch (...) {
+                // Exceptions cannot pass thread boundaries, so save the
+                // current one to rethrow it later.
+                eptr = std::current_exception();
+            }
         });
         writer.join();
         reader.join();
+
+        // If there was an exception, rethrow it (if there were several, only
+        // throw the last one.
+        if (eptr != nullptr) {
+            std::rethrow_exception(eptr);
+        }
 
         auto duration = std::chrono::system_clock::now() - start;
         BOOST_CHECK(duration > std::chrono::milliseconds(200));
