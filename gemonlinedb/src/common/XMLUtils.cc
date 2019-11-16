@@ -12,6 +12,9 @@ namespace gem {
 
             std::string transcode(const XMLCh * const xercesStr)
             {
+                if (__builtin_expect(xercesStr == nullptr, 0)) {
+                    return "";
+                }
                 char *transcoded = xercesc::XMLString::transcode(xercesStr);
                 std::string result(transcoded);
                 xercesc::XMLString::release(&transcoded);

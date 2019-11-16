@@ -113,6 +113,10 @@ namespace gem {
             /**
              * @brief Takes care of initializing and finalizing the Xerces
              *        library.
+             *
+             * @note Exceptions thrown by Xerces rely on the library being
+             *       loaded. Code guarded by this class needs to catch
+             *       exceptions.
              */
             class XercesGuard
             {
@@ -132,18 +136,37 @@ namespace gem {
 
             /**
              * @brief Xerces error handler that throws on every error or warning.
+             * @throws exception::ParseError
              */
             class XercesAlwaysThrowErrorHandler : public xercesc::ErrorHandler
             {
             public:
                 void warning(const xercesc::SAXParseException &e) override
-                { throw e; };
+                {
+                    XCEPT_RAISE(exception::ParseError,
+                        transcode(e.getPublicId()) + ": " +
+                        std::to_string(e.getLineNumber()) + ":" +
+                        std::to_string(e.getColumnNumber()) + ": " +
+                        transcode(e.getMessage()));
+                };
 
                 void error(const xercesc::SAXParseException &e) override
-                { throw e; };
+                {
+                    XCEPT_RAISE(exception::ParseError,
+                        transcode(e.getPublicId()) + ": " +
+                        std::to_string(e.getLineNumber()) + ":" +
+                        std::to_string(e.getColumnNumber()) + ": " +
+                        transcode(e.getMessage()));
+                };
 
                 void fatalError(const xercesc::SAXParseException &e) override
-                { throw e; };
+                {
+                    XCEPT_RAISE(exception::ParseError,
+                        transcode(e.getPublicId()) + ": " +
+                        std::to_string(e.getLineNumber()) + ":" +
+                        std::to_string(e.getColumnNumber()) + ": " +
+                        transcode(e.getMessage()));
+                };
 
                 void resetErrors() override {};
             };
@@ -151,6 +174,8 @@ namespace gem {
             /**
              * @brief Turns Xerces exceptions thrown by a function or functor
              *        object into @ref ParseError.
+             *
+             * This function creates a @ref XercesGuard.
              */
             template<class F, class... Args>
             auto xercesExceptionsToXcept(F f, Args... args) ->
@@ -180,6 +205,8 @@ namespace gem {
             /**
              * @brief Turns Xerces exceptions thrown by a function or functor
              *        object into @ref std::runtime_error.
+             *
+             * This function creates a @ref XercesGuard.
              */
             template<class F, class... Args>
             auto xercesExceptionsToStd(F f, Args... args) ->
