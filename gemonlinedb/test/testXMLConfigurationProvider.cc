@@ -75,4 +75,13 @@ BOOST_AUTO_TEST_CASE(LoadVFAT3Channel)
     provider.getVFAT3ChannelConfiguration({ "2940" });
 }
 
+BOOST_AUTO_TEST_CASE(LoadNonCompliant)
+{
+    XMLConfigurationProvider provider;
+    // xml/tests/NonCompliantFile.xml doesn't comply with the schema
+    BOOST_CHECK_THROW(
+        provider.loadAMC13("xml/tests/NonCompliantFile.xml"),
+        exception::ParseError);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -5,6 +5,7 @@
 !xml/schema/common.xsd
 !xml/schema/system-topology.xsd
 !xml/examples/*.xml
+!xml/tests/*.xml
 !xml/*.xml
 
 # Do ignore auto-generated files

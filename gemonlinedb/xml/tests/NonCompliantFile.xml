@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<!-- This file doesn't comply with the schema. It is used to test that trying to
+     load a non-compliant file throws an exception. -->
+<ROOT>
+    <NON_COMPLIANT/>
+</ROOT>
