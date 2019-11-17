@@ -1,7 +1,8 @@
 #
 # Makefile for gembase package
 #
-BUILD_HOME:=$(shell pwd)/..
+
+BUILD_HOME?= $(shell dirname `cd ../; pwd`)
 
 ifndef BUILD_SUPPORT
 BUILD_SUPPORT=build
@@ -18,12 +19,15 @@ LongPackage=gembase
 ShortPackage=base
 PackageName=base
 
+ProjectBase = $(BUILD_HOME)
+CfgDir      = $(ProjectBase)/config
+
 GEMBASE_VER_MAJOR=0
 GEMBASE_VER_MINOR=0
 GEMBASE_VER_PATCH=0
 
-include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
+include $(CfgDir)/mfDefsGEM.mk
+include $(CfgDir)/mfPythonDefsGEM.mk
 
 Sources =version.cc
 Sources+=GEMApplication.cc GEMFSMApplication.cc GEMFSM.cc
@@ -40,8 +44,7 @@ DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraries+=gemutils
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
-include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
-
+include $(CfgDir)/mfRPMDefsGEM.mk
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

@@ -2,7 +2,7 @@
 # Makefile for gemsupervisor package
 #
 
-BUILD_HOME:=$(shell pwd)/..
+BUILD_HOME?= $(shell dirname `cd ../; pwd`)
 
 ifndef BUILD_SUPPORT
 BUILD_SUPPORT=build
@@ -19,12 +19,15 @@ LongPackage=gemsupervisor
 ShortPackage=supervisor
 PackageName=supervisor
 
+ProjectBase = $(BUILD_HOME)
+CfgDir      = $(ProjectBase)/config
+
 GEMSUPERVISOR_VER_MAJOR=1
 GEMSUPERVISOR_VER_MINOR=0
 GEMSUPERVISOR_VER_PATCH=1
 
-include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
+include $(CfgDir)/mfDefsGEM.mk
+include $(CfgDir)/mfPythonDefsGEM.mk
 
 Sources =version.cc
 Sources+=GEMSupervisor.cc GEMSupervisorWeb.cc GEMSupervisorMonitor.cc GEMGlobalState.cc
@@ -58,8 +61,7 @@ DependentLibraries =gemhwmanagers gemhwdevices xdaq2rc
 Libraries =
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
-include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
-
+include $(CfgDir)/mfRPMDefsGEM.mk
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

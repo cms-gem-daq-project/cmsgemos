@@ -2,7 +2,7 @@
 # Makefile for gemdaqmonitor package
 #
 
-BUILD_HOME:=$(shell pwd)/..
+BUILD_HOME?= $(shell dirname `cd ../; pwd`)
 
 ifndef BUILD_SUPPORT
 BUILD_SUPPORT=build
@@ -19,12 +19,15 @@ LongPackage=gemdaqmonitor
 ShortPackage=daqmon
 PackageName=daqmonitor
 
+ProjectBase = $(BUILD_HOME)
+CfgDir      = $(ProjectBase)/config
+
 GEMDAQMONITOR_VER_MAJOR=1
 GEMDAQMONITOR_VER_MINOR=0
 GEMDAQMONITOR_VER_PATCH=0
 
-include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
+include $(CfgDir)/mfDefsGEM.mk
+include $(CfgDir)/mfPythonDefsGEM.mk
 
 Sources =version.cc
 Sources+=DaqMonitor.cc ShelfMonitor.cc ShelfMonitorWeb.cc
@@ -51,7 +54,7 @@ DependentLibraries+=gemhwdevices gemhwutils xhal-client
 DependentLibraries+=boost_iostreams
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
-include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
+include $(CfgDir)/mfRPMDefsGEM.mk
 
 # DependentLibraryList+=$(MySQLLIBS)
 # DependentLibraryList+=$(PYTHONLIBS)

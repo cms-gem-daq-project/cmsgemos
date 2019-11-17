@@ -2,7 +2,7 @@
 # Makefile for gemreadout package
 #
 
-BUILD_HOME:=$(shell pwd)/..
+BUILD_HOME?= $(shell dirname `cd ../; pwd`)
 
 ifndef BUILD_SUPPORT
 BUILD_SUPPORT=build
@@ -19,12 +19,15 @@ LongPackage=gemreadout
 ShortPackage=readout
 PackageName=readout
 
+ProjectBase = $(BUILD_HOME)
+CfgDir      = $(ProjectBase)/config
+
 GEMREADOUT_VER_MAJOR=1
 GEMREADOUT_VER_MINOR=0
 GEMREADOUT_VER_PATCH=1
 
-include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
+include $(CfgDir)/mfDefsGEM.mk
+include $(CfgDir)/mfPythonDefsGEM.mk
 
 Sources =version.cc
 #Sources+=GEMDataParker.cc
@@ -45,7 +48,7 @@ UserCFlags+=$(PYTHONCFLAGS)
 DependentLibraries =gembase
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
-include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
+include $(CfgDir)/mfRPMDefsGEM.mk
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

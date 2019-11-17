@@ -12,6 +12,9 @@ ifndef PROJECT_NAME
 PROJECT_NAME=cmsgemos
 endif
 
+ProjectBase = $(BUILD_HOME)
+CfgDir      = $(ProjectBase)/config
+
 SUBPACKAGES := \
         utils \
         devices \
@@ -95,11 +98,11 @@ devices: gemutils gemhardware/utils
 
 managers: gemutils gembase gemreadout gemhardware/devices
 
-include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
+include $(CfgDir)/mfDefsGEM.mk
+include $(CfgDir)/mfPythonDefsGEM.mk
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
-include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
+include $(CfgDir)/mfRPMDefsGEM.mk
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

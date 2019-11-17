@@ -19,12 +19,15 @@ LongPackage=gemutils
 ShortPackage=utils
 PackageName=utils
 
+ProjectBase = $(BUILD_HOME)
+CfgDir      = $(ProjectBase)/config
+
 GEMUTILS_VER_MAJOR=1
 GEMUTILS_VER_MINOR=0
 GEMUTILS_VER_PATCH=1
 
-include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
+include $(CfgDir)/mfDefsGEM.mk
+include $(CfgDir)/mfPythonDefsGEM.mk
 
 Sources =version.cc
 Sources+=Lock.cc
@@ -48,7 +51,7 @@ DependentLibraries+=asyncresolv uuid cgicc mimetic
 # UserDynamicLinkFlags+=
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
-include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
+include $(CfgDir)/mfRPMDefsGEM.mk
 
 ## hack to get the linking correctly done, *LibraryList is parsed in Makefile.rules
 DependentLibraryList+=$(MySQLLIBS)

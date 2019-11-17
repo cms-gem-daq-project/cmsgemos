@@ -73,7 +73,7 @@ DependentLibraries+=gemutils gembase gemreadout gemhwutils gemhwdevices
 Libraries =
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
-include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
+include $(CfgDir)/mfRPMDefsGEM.mk
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

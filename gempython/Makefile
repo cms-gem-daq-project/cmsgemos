@@ -2,7 +2,7 @@
 # Makefile for gempython package
 #
 
-BUILD_HOME:=$(shell pwd)/..
+BUILD_HOME?= $(shell dirname `cd ../; pwd`)
 
 ifndef BUILD_SUPPORT
 BUILD_SUPPORT=build
@@ -22,6 +22,9 @@ PackageName  := python
 PackageDir   := pkg/$(Namespace)
 ScriptDir    := pkg/$(Namespace)/scripts
 
+ProjectBase = $(BUILD_HOME)
+CfgDir   = $(ProjectBase)/config
+
 PythonModules = ["gempython.core", \
                  "gempython.tools", \
                  "gempython.utils" \
@@ -32,8 +35,8 @@ GEMPYTHON_VER_MAJOR=1
 GEMPYTHON_VER_MINOR=0
 GEMPYTHON_VER_PATCH=0
 
-include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
+include $(CfgDir)/mfDefsGEM.mk
+include $(CfgDir)/mfPythonDefsGEM.mk
 
 UserCFlags+= \
 	-ftemplate-depth-128 \
@@ -75,7 +78,7 @@ DependentLibraries+=boost_python
 # UserDynamicLinkFlags+=
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
-include $(BUILD_HOME)/config/mfPythonRPM.mk
+include $(CfgDir)/mfPythonRPM.mk
 
 # need to ensure that the python only stuff is packaged into RPMs
 #.PHONY: default
@@ -89,9 +92,11 @@ include $(BUILD_HOME)/config/mfPythonRPM.mk
 # 	@echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > pkg/$(Namespace)/__init__.py
 # 	@cp -rf __init__.py $(PackageDir)
 
-.PHONY: clean preprpm
-_rpmprep: _all
-	$(info "Running preprpm")
+$(PackageSetupFile): pkg/setup.py pkg/setup.cfg
+$(PackagePrepFile): $(PythonSources) Makefile | default
+#	@cp -rf $(CfgDir)/scriptlets/installrpm.sh pkg/
+#	@perl -pi -e "s|__PYTHON_SCRIPT_PATH__|$(INSTALL_PATH)/bin|g" pkg/installrpm.sh
+#	@perl -pi -e "s|__PYTHON_NAMESPACE__|$(Namespace)|g" pkg/installrpm.sh
 	$(MakeDir) $(PackageDir)/core
 #	@touch $(PackageDir)/core/__init__.py
 	@cp -rf $(BUILD_HOME)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
@@ -104,6 +109,23 @@ _rpmprep: _all
 	@cp -rf __init__.py $(PackageDir)/core
 	@echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > pkg/$(Namespace)/__init__.py
 #	@echo "include */*.so" > $(PackageDir)/MANIFEST.in
+	touch $@
+
+# .PHONY: clean preprpm
+# _rpmprep: _all
+# 	$(info "Running preprpm")
+# 	$(MakeDir) $(PackageDir)/core
+# #	@touch $(PackageDir)/core/__init__.py
+# 	@cp -rf $(ProjectBase)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
+# 	@cp -rf gempython.md README.md
+# 	@cp -rf utils tools $(PackageDir)
+# 	$(MakeDir) $(ScriptDir)
+# 	@cp -rf tests/*.py $(ScriptDir)
+# 	-cp -rf README.md LICENSE CHANGELOG.md MANIFEST.in requirements.txt $(PackageDir)
+# 	-cp -rf README.md LICENSE CHANGELOG.md MANIFEST.in requirements.txt pkg
+# 	@cp -rf __init__.py $(PackageDir)/core
+# 	@echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > pkg/$(Namespace)/__init__.py
+# #	@echo "include */*.so" > $(PackageDir)/MANIFEST.in
 
 clean:
 	$(info "Running clean target")

@@ -19,12 +19,15 @@ LongPackage=gemonlinedb
 ShortPackage=onlinedb
 PackageName=onlinedb
 
+ProjectBase = $(BUILD_HOME)
+CfgDir      = $(ProjectBase)/config
+
 GEMONLINEDB_VER_MAJOR=0
 GEMONLINEDB_VER_MINOR=1
 GEMONLINEDB_VER_PATCH=0
 
-include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
+include $(CfgDir)/mfDefsGEM.mk
+include $(CfgDir)/mfPythonDefsGEM.mk
 
 Sources = \
     AMC13Configuration.cc \
@@ -93,7 +96,7 @@ run-tests-ci: run-tests-simple
 
 # Common definitions
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
-include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
+include $(CfgDir)/mfRPMDefsGEM.mk
 
 # Auto-generated files
 include/gem/onlinedb/detail/%Gen.h src/common/%Gen.cc: defs/%.json parseDef.py

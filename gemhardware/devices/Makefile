@@ -61,7 +61,7 @@ DependentLibraries =cactus_uhal_uhal xhal-client
 DependentLibraries+=gemutils gemhwutils
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
-include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
+include $(CfgDir)/mfRPMDefsGEM.mk
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

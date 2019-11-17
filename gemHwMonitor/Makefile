@@ -2,7 +2,7 @@
 # Makefile for gemHwMonitor package
 #
 
-BUILD_HOME:=$(shell pwd)/..
+BUILD_HOME?= $(shell dirname `cd ../; pwd`)
 
 ifndef BUILD_SUPPORT
 BUILD_SUPPORT=build
@@ -19,11 +19,14 @@ LongPackage=gemHwMonitor
 ShortPackage=hwMonitor
 PackageName=hwMonitor
 
+ProjectBase = $(BUILD_HOME)
+CfgDir      = $(ProjectBase)/config
+
 GEMHWMONITOR_VER_MAJOR=1
 GEMHWMONITOR_VER_MINOR=0
 GEMHWMONITOR_VER_PATCH=0
 
-include $(BUILD_HOME)/config/mfDefsGEM.mk
+include $(CfgDir)/mfDefsGEM.mk
 
 Sources =version.cc
 Sources+=gemHwMonitorWeb.cc gemHwMonitorBase.cc
@@ -53,8 +56,7 @@ DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
 DependentLibraries+=gemutils gembase gemhardware
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
-include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
-
+include $(CfgDir)/mfRPMDefsGEM.mk
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
