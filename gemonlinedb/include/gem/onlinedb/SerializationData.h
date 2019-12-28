@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include <nlohmann/json.hpp>
+
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/dom/DOMXPathResult.hpp>
 
@@ -240,6 +242,31 @@ namespace gem {
                 }
             }
             return dom;
+        }
+
+        /**
+         * @brief Converts @ref SerializationData to JSON
+         *
+         * @see https://github.com/nlohmann/json#arbitrary-types-conversions
+         * @see https://github.com/valdasraps/cmsdbldr/blob/master/src/main/java/org/cern/cms/dbloader/model/serial/Root.java
+         * @related SerializationData
+         */
+        template<class ConfigurationTypeT>
+        void to_json(nlohmann::json &json, const SerializationData<ConfigurationTypeT> &data)
+        {
+            using Info = ConfigurationTraits<ConfigurationTypeT>;
+            json = {
+                { "Root", nlohmann::json({
+                    { "Header", nlohmann::json({
+                        { "Type", nlohmann::json({
+                            { "ExtensionTableName", Info::extTableName() },
+                            { "Name", Info::typeName() },
+                        })},
+                        { "Run", data.getRun() },
+                    })},
+                    { "Datasets", data.getDataSets() },
+                })},
+            };
         }
 
     } /* namespace onlinedb */
