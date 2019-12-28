@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include <nlohmann/json.hpp>
+
 namespace gem {
     namespace onlinedb {
 
@@ -23,6 +25,22 @@ namespace gem {
         };
 
         /**
+         * @brief Converts @ref PartReferenceBarcode to JSON
+         *
+         * @see https://github.com/nlohmann/json#arbitrary-types-conversions
+         * @see https://github.com/valdasraps/cmsdbldr/blob/master/src/main/java/org/cern/cms/dbloader/model/construct/Part.java
+         * @related SerializationData
+         */
+        inline void to_json(nlohmann::json &json, const PartReferenceBarcode &data)
+        {
+            json = {
+                { "Part", nlohmann::json({
+                    { "Barcode", data.barcode },
+                })}
+            };
+        }
+
+        /**
          * @brief References a part by its serial number.
          */
         struct PartReferenceSN
@@ -37,6 +55,22 @@ namespace gem {
                 return serialNumber == other.serialNumber;
             }
         };
+
+        /**
+         * @brief Converts @ref PartReferenceSN to JSON
+         *
+         * @see https://github.com/nlohmann/json#arbitrary-types-conversions
+         * @see https://github.com/valdasraps/cmsdbldr/blob/master/src/main/java/org/cern/cms/dbloader/model/construct/Part.java
+         * @related SerializationData
+         */
+        inline void to_json(nlohmann::json &json, const PartReferenceSN &data)
+        {
+            json = {
+                { "Part", nlohmann::json({
+                    { "SerialNumber", data.serialNumber },
+                })}
+            };
+        }
 
     } /* namespace onlinedb */
 } /* namespace gem */
