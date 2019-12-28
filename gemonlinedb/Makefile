@@ -48,6 +48,7 @@ SimpleTestExecutables = \
     test/testFileUtils.cc \
     test/testSystemTopology.cc \
     test/testVFAT3ChannelConfiguration.cc \
+    test/testVFAT3ChipConfiguration.cc \
     test/testXMLConfigurationProvider.cc \
     test/testXMLSerialization.cc \
 

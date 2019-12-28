@@ -197,6 +197,38 @@ class Field(object):
                                                      i)
             return code
 
+    def cppFromJSONImpl(self):
+        """
+        Returns the C++ code to add for this field in from_json()
+        """
+        if self.count == 1:
+            return '''
+                data.set{1}(json.at("{0}"));'''.format(self.name, self.cppName(True))
+        else:
+            code = ''
+            for i in range(self.count):
+                code += '''
+                data.set{1}({2}, json.at("{0}"));'''.format(self.name.format(i),
+                                                            self.cppName(True),
+                                                            i)
+            return code
+
+    def cppToJSONImpl(self):
+        """
+        Returns the C++ code to add for this field in to_json()
+        """
+        if self.count == 1:
+            return '''
+                json["{0}"] = data.get{1}();'''.format(self.name, self.cppName(True))
+        else:
+            code = ''
+            for i in range(self.count):
+                code += '''
+                json["{0}"] = data.get{1}({2});'''.format(self.name.format(i),
+                                                          self.cppName(True),
+                                                          i)
+            return code
+
     def __repr__(self):
         return 'Field:{}'.format(self.name)
 
@@ -244,6 +276,8 @@ def _makeHeader(config, className):
 
 #include <cstdint>
 
+#include <nlohmann/json.hpp>
+
 #include "gem/onlinedb/ConfigurationTraits.h"
 #include "gem/onlinedb/PartReference.h"
 #include "gem/onlinedb/detail/RegisterData.h"
@@ -265,6 +299,9 @@ namespace gem {{
                 bool operator== (const {baseName}Gen &other) const;
 {publicMembers}
             }};
+
+            void to_json(nlohmann::json &json, const {baseName}Gen &data);
+            void from_json(const nlohmann::json &json, {baseName}Gen &data);
         }} /* namespace detail */
 
         template<>
@@ -314,6 +351,8 @@ def _makeCpp(config, className):
  * Changes will be overwritten. Modify parseDef.py instead.
  */
 
+#include <nlohmann/json.hpp>
+
 #include "gem/onlinedb/detail/{baseName}Gen.h"
 
 namespace gem {{
@@ -335,6 +374,14 @@ namespace gem {{
             void {baseName}Gen::readRegisterData(const RegisterData &data)
             {{{readRegisterData}
             }}
+
+            void from_json(const nlohmann::json &json, {baseName}Gen &data)
+            {{{fromJSON}
+            }}
+
+            void to_json(nlohmann::json &json, const {baseName}Gen &data)
+            {{{toJSON}
+            }}
         }} /* namespace detail */
     }} /* namespace onlinedb */
 }} /* namespace gem */
@@ -349,6 +396,14 @@ namespace gem {{
     for f in filter(lambda f: not f.xsdOnly, fields):
         readRegisterData += f.cppReadRegisterData()
 
+    fromJSON = ''
+    for f in filter(lambda f: not f.xsdOnly, fields):
+        fromJSON += f.cppFromJSONImpl()
+
+    toJSON = ''
+    for f in filter(lambda f: not f.xsdOnly, fields):
+        toJSON += f.cppToJSONImpl()
+
     operatorEq = ''
     for f in filter(lambda f: not f.xsdOnly, fields):
         operatorEq += f.cppEq()
@@ -356,6 +411,8 @@ namespace gem {{
     return template.format(baseName = className,
                            getRegisterData = getRegisterData,
                            readRegisterData = readRegisterData,
+                           fromJSON = fromJSON,
+                           toJSON = toJSON,
                            operatorEq = operatorEq)
 
 if __name__ == '__main__':
