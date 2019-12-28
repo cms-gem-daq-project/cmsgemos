@@ -23,8 +23,8 @@ namespace gem {
              */
             enum class Source
             {
-                DB,  ///< Load configuration objects from the database.
-                XML, ///< Load configuration objects from XML files.
+                DB,   ///< Load configuration objects from the database.
+                FILE, ///< Load configuration objects from local files.
             };
 
             /**

@@ -1,7 +1,7 @@
-#include "gem/onlinedb/XMLConfigurationProvider.h"
+#include "gem/onlinedb/FileConfigurationProvider.h"
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE TestXMLConfigurationProvider
+#define BOOST_TEST_MODULE TestFileConfigurationProvider
 #include <boost/test/unit_test.hpp>
 
 #include <iostream>
@@ -16,17 +16,17 @@ config::PackageInfo xdaq::getPackageInfo()
 
 using namespace gem::onlinedb;
 
-BOOST_AUTO_TEST_SUITE(TestXMLConfigurationProvider)
+BOOST_AUTO_TEST_SUITE(TestFileConfigurationProvider)
 
 BOOST_AUTO_TEST_CASE(LoadAMC13)
 {
-    XMLConfigurationProvider provider;
+    FileConfigurationProvider provider;
     provider.loadAMC13("xml/examples/AMC13_Configuration.xml");
 }
 
 BOOST_AUTO_TEST_CASE(LoadAMC)
 {
-    XMLConfigurationProvider provider;
+    FileConfigurationProvider provider;
     provider.loadAMC("xml/examples/AMC_Configuration.xml");
 
     // SN "unknown" isn't present in the xml file
@@ -42,13 +42,13 @@ BOOST_AUTO_TEST_CASE(LoadAMC)
 
 BOOST_AUTO_TEST_CASE(LoadOHv3)
 {
-    XMLConfigurationProvider provider;
+    FileConfigurationProvider provider;
     provider.loadOHv3("xml/examples/OHv3_Configuration.xml");
 }
 
 BOOST_AUTO_TEST_CASE(LoadVFAT3Chip)
 {
-    XMLConfigurationProvider provider;
+    FileConfigurationProvider provider;
     provider.loadVFAT3Chip("xml/examples/VFAT3_Chip_Configuration.xml");
 
     // Barcode "unknown" isn't present in the xml file
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(LoadVFAT3Chip)
 
 BOOST_AUTO_TEST_CASE(LoadVFAT3Channel)
 {
-    XMLConfigurationProvider provider;
+    FileConfigurationProvider provider;
     provider.loadVFAT3Channel("xml/examples/VFAT3_Channel_Configuration.xml");
 
     // Barcode "unknown" isn't present in the xml file
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(LoadVFAT3Channel)
 
 BOOST_AUTO_TEST_CASE(LoadNonCompliant)
 {
-    XMLConfigurationProvider provider;
+    FileConfigurationProvider provider;
     // xml/tests/NonCompliantFile.xml doesn't comply with the schema
     BOOST_CHECK_THROW(
         provider.loadAMC13("xml/tests/NonCompliantFile.xml"),

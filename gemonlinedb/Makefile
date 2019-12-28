@@ -24,6 +24,7 @@ Sources = \
     ConfigurationLinker.cc \
     ConfigurationManager.cc \
     DBInterface.cc \
+    FileConfigurationProvider.cc \
     FileUtils.cc \
     GBTXConfigurationGen.cc \
     OHv3Configuration.cc \
@@ -34,7 +35,6 @@ Sources = \
     VFAT3ChannelConfiguration.cc \
     VFAT3ChipConfigurationGen.cc \
     version.cc \
-    XMLConfigurationProvider.cc \
     XMLUtils.cc \
     GEMOnlineDBManager.cc \
     GEMOnlineDBManagerWeb.cc
@@ -45,12 +45,12 @@ SimpleTestExecutables = \
     test/testAMC13Configuration.cc \
     test/testConfigurationLinker.cc \
     test/testConfigurationManager.cc \
+    test/testFileConfigurationProvider.cc \
     test/testFileUtils.cc \
     test/testSerializationData.cc \
     test/testSystemTopology.cc \
     test/testVFAT3ChannelConfiguration.cc \
     test/testVFAT3ChipConfiguration.cc \
-    test/testXMLConfigurationProvider.cc \
 
 DBTestExecutables = \
     test/testTStoreSerialization.cc \

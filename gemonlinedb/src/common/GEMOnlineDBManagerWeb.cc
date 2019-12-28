@@ -144,14 +144,14 @@ void gem::onlinedb::GEMOnlineDBManagerWeb::jsonUpdate(xgi::Input* in, xgi::Outpu
     // Topology
     answer["topology"] = {
       { "mode",
-        manager.getTopologySource() == ConfigurationManager::Source::DB ? "Database" : "XML" },
+        manager.getTopologySource() == ConfigurationManager::Source::DB ? "Database" : "Files" },
       { "sources", manager.getTopologySourceDetails() },
     };
 
     // Objects
     answer["objects"] = {
       { "mode",
-        manager.getObjectSource() == ConfigurationManager::Source::DB ? "Database" : "XML" },
+        manager.getObjectSource() == ConfigurationManager::Source::DB ? "Database" : "Files" },
       { "sources", manager.getObjectSourceDetails() },
     };
 

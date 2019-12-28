@@ -1,4 +1,4 @@
-#include "gem/onlinedb/XMLConfigurationProvider.h"
+#include "gem/onlinedb/FileConfigurationProvider.h"
 
 #include <boost/filesystem.hpp>
 
@@ -111,7 +111,7 @@ namespace gem {
 
         } // anonymous namespace
 
-        void XMLConfigurationProvider::load(const DOMDocumentPtr &document)
+        void FileConfigurationProvider::load(const DOMDocumentPtr &document)
         {
             auto systemEl = document->getDocumentElement();
             auto configEl = detail::findChildElement(systemEl, "gem:configuration");
@@ -136,7 +136,7 @@ namespace gem {
             }
         }
 
-        void XMLConfigurationProvider::loadAMC13(const std::string &filename)
+        void FileConfigurationProvider::loadAMC13(const std::string &filename)
         {
             // Find the file (throws if not found)
             auto path = detail::getFileInPath(filename, getSearchPath());
@@ -148,7 +148,7 @@ namespace gem {
             loadInternal(path, document, m_amc13Config);
         }
 
-        void XMLConfigurationProvider::loadAMC(const std::string &filename)
+        void FileConfigurationProvider::loadAMC(const std::string &filename)
         {
             // Find the file (throws if not found)
             auto path = detail::getFileInPath(filename, getSearchPath());
@@ -160,7 +160,7 @@ namespace gem {
             loadInternal(path, document, m_amcConfig);
         }
 
-        void XMLConfigurationProvider::loadGBTX(const std::string &filename)
+        void FileConfigurationProvider::loadGBTX(const std::string &filename)
         {
             // Find the file (throws if not found)
             auto path = detail::getFileInPath(filename, getSearchPath());
@@ -172,7 +172,7 @@ namespace gem {
             loadInternal(path, document, m_gbtxConfig);
         }
 
-        void XMLConfigurationProvider::loadOHv3(const std::string &filename)
+        void FileConfigurationProvider::loadOHv3(const std::string &filename)
         {
             // Find the file (throws if not found)
             auto path = detail::getFileInPath(filename, getSearchPath());
@@ -184,7 +184,7 @@ namespace gem {
             loadInternal(path, document, m_ohv3Config);
         }
 
-        void XMLConfigurationProvider::loadVFAT3Chip(const std::string &filename)
+        void FileConfigurationProvider::loadVFAT3Chip(const std::string &filename)
         {
             // Find the file (throws if not found)
             auto path = detail::getFileInPath(filename, getSearchPath());
@@ -196,7 +196,7 @@ namespace gem {
             loadInternal(path, document, m_vfat3ChipConfig);
         }
 
-        void XMLConfigurationProvider::loadVFAT3Channel(const std::string &filename)
+        void FileConfigurationProvider::loadVFAT3Channel(const std::string &filename)
         {
             // Find the file (throws if not found)
             auto path = detail::getFileInPath(filename, getSearchPath());
@@ -209,7 +209,7 @@ namespace gem {
         }
 
         std::shared_ptr<AMC13Configuration>
-        XMLConfigurationProvider::getAMC13Configuration(
+        FileConfigurationProvider::getAMC13Configuration(
             const ConfigurationTraits<AMC13Configuration>::PartType &reference) const
         {
             try {
@@ -221,7 +221,7 @@ namespace gem {
         }
 
         std::shared_ptr<AMCConfiguration>
-        XMLConfigurationProvider::getAMCConfiguration(
+        FileConfigurationProvider::getAMCConfiguration(
             const ConfigurationTraits<AMCConfiguration>::PartType &reference) const
         {
             try {
@@ -233,7 +233,7 @@ namespace gem {
         }
 
         std::shared_ptr<GBTXConfiguration>
-        XMLConfigurationProvider::getGBTXConfiguration(
+        FileConfigurationProvider::getGBTXConfiguration(
             const ConfigurationTraits<GBTXConfiguration>::PartType &reference) const
         {
             try {
@@ -245,7 +245,7 @@ namespace gem {
         }
 
         std::shared_ptr<OHv3Configuration>
-        XMLConfigurationProvider::getOHv3Configuration(
+        FileConfigurationProvider::getOHv3Configuration(
             const ConfigurationTraits<OHv3Configuration>::PartType &reference) const
         {
             try {
@@ -257,7 +257,7 @@ namespace gem {
         }
 
         std::shared_ptr<VFAT3ChipConfiguration>
-        XMLConfigurationProvider::getVFAT3ChipConfiguration(
+        FileConfigurationProvider::getVFAT3ChipConfiguration(
             const ConfigurationTraits<VFAT3ChipConfiguration>::PartType &reference) const
         {
             try {
@@ -269,7 +269,7 @@ namespace gem {
         }
 
         std::shared_ptr<VFAT3ChannelConfiguration>
-        XMLConfigurationProvider::getVFAT3ChannelConfiguration(
+        FileConfigurationProvider::getVFAT3ChannelConfiguration(
             const ConfigurationTraits<VFAT3ChannelConfiguration>::PartType &reference) const
         {
             try {
