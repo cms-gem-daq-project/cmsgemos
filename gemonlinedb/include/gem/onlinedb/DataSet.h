@@ -79,6 +79,14 @@ namespace gem {
             auto getData() const -> decltype(m_data) { return m_data; }
 
             /**
+             * @brief Sets configuration data.
+             */
+            void setData(const decltype(m_data) &data)
+            {
+                m_data = data;
+            }
+
+            /**
              * @brief Adds configuration data.
              */
             void addData(const ConfigurationType &configuration)
@@ -117,6 +125,27 @@ namespace gem {
             if (!data.getComment().empty()) {
                 json["Dataset"]["CommentDescription"] = data.getComment();
             };
+        }
+
+        /**
+         * @brief Converts JSON to @ref DataSet
+         *
+         * @see https://github.com/nlohmann/json#arbitrary-types-conversions
+         * @see https://github.com/valdasraps/cmsdbldr/blob/master/src/main/java/org/cern/cms/dbloader/model/condition/Dataset.java
+         * @related DataSet
+         */
+        template<class ConfigurationTypeT>
+        void from_json(const nlohmann::json &json, DataSet<ConfigurationTypeT> &data)
+        {
+            using PartReference = typename ConfigurationTraits<ConfigurationTypeT>::PartType;
+
+            auto dataSet = json.at("Dataset");
+            data.setVersion(dataSet.at("Version"));
+            data.setPart(dataSet.at("part").get<PartReference>());
+            data.setData(dataSet.at("Data").get<std::vector<ConfigurationTypeT>>());
+            if (dataSet.find("CommentDescription") != dataSet.end()) {
+                data.setComment(dataSet["CommentDescription"]);
+            }
         }
 
     } /* namespace onlinedb */
