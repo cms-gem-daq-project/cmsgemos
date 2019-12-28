@@ -14,5 +14,17 @@ namespace gem {
                 && initiatingUser == other.initiatingUser;
         }
 
+        void to_json(nlohmann::json &json, const Run &data)
+        {
+            json = {
+                { "RunNumber", data.number },
+                { "RunBeginTimestamp", data.begin },
+                { "RunEndTimestamp", data.end },
+                // { "Description", data.description }, FIXME
+                { "Location", data.location },
+                { "InitiatedByUser", data.initiatingUser },
+            };
+        }
+
     } /* namespace onlinedb */
 } /* namespace gem */

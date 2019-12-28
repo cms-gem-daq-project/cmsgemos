@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include <nlohmann/json.hpp>
+
 namespace gem {
     namespace onlinedb {
 
@@ -29,6 +31,15 @@ namespace gem {
              */
             bool operator== (const Run &other) const;
         };
+
+        /**
+         * @brief Converts @ref Run to JSON
+         *
+         * @see https://github.com/nlohmann/json#arbitrary-types-conversions
+         * @see https://github.com/valdasraps/cmsdbldr/blob/master/src/main/java/org/cern/cms/dbloader/model/condition/Run.java
+         * @related Run
+         */
+        void to_json(nlohmann::json &json, const Run &data);
 
     } /* namespace onlinedb */
 } /* namespace gem */
