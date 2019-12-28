@@ -1,5 +1,7 @@
 #include "gem/onlinedb/FileConfigurationProvider.h"
 
+#include <fstream>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
@@ -78,13 +80,10 @@ namespace gem {
             template<class ConfigurationType>
             void loadInternal(
                 const std::string &filename,
-                const DOMDocumentPtr &document,
+                const SerializationData<ConfigurationType> &serData,
                 std::map<std::string, std::shared_ptr<ConfigurationType>> &map)
             {
-                SerializationData<ConfigurationType> xmlData;
-                xmlData.readDOM(document);
-
-                auto dataSets = xmlData.getDataSets();
+                auto dataSets = serData.getDataSets();
                 for (const auto &set : dataSets) {
                     auto part = set.getPart();
                     if (map.count(toString(part)) > 0) {
@@ -108,6 +107,18 @@ namespace gem {
                             std::make_shared<ConfigurationType>(data.front());
                     }
                 }
+            }
+
+            /// @brief Common part to all loadXXX method (wrapper for XML)
+            template<class ConfigurationType>
+            void loadInternal(
+                const std::string &filename,
+                const DOMDocumentPtr &document,
+                std::map<std::string, std::shared_ptr<ConfigurationType>> &map)
+            {
+                SerializationData<ConfigurationType> xmlData;
+                xmlData.readDOM(document);
+                loadInternal(filename, xmlData, map);
             }
 
         } // anonymous namespace
@@ -164,6 +175,13 @@ namespace gem {
                 auto document = loadDOM(path, "AMCConfiguration.xsd");
 
                 loadInternal(path, document, m_amcConfig);
+            } else if (boost::algorithm::ends_with(path, ".json")) {
+                nlohmann::json json;
+                std::ifstream in(path);
+                in >> json;
+                loadInternal(path,
+                             json.get<SerializationData<AMCConfiguration>>(),
+                             m_amcConfig);
             } else {
                 XCEPT_RAISE(exception::ParseError, "Unknown file type");
             }
