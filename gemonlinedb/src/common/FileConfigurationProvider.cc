@@ -1,5 +1,6 @@
 #include "gem/onlinedb/FileConfigurationProvider.h"
 
+#include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
 #include <xercesc/dom/DOM.hpp>
@@ -142,10 +143,14 @@ namespace gem {
             auto path = detail::getFileInPath(filename, getSearchPath());
             m_sources.push_back(path);
 
-            detail::XercesGuard guard; // Make sure that Xerces is loaded
-            auto document = loadDOM(path, "AMC13Configuration.xsd");
+            if (boost::algorithm::ends_with(path, ".xml")) {
+                detail::XercesGuard guard; // Make sure that Xerces is loaded
+                auto document = loadDOM(path, "AMC13Configuration.xsd");
 
-            loadInternal(path, document, m_amc13Config);
+                loadInternal(path, document, m_amc13Config);
+            } else {
+                XCEPT_RAISE(exception::ParseError, "Unknown file type");
+            }
         }
 
         void FileConfigurationProvider::loadAMC(const std::string &filename)
@@ -154,10 +159,14 @@ namespace gem {
             auto path = detail::getFileInPath(filename, getSearchPath());
             m_sources.push_back(path);
 
-            detail::XercesGuard guard; // Make sure that Xerces is loaded
-            auto document = loadDOM(path, "AMCConfiguration.xsd");
+            if (boost::algorithm::ends_with(path, ".xml")) {
+                detail::XercesGuard guard; // Make sure that Xerces is loaded
+                auto document = loadDOM(path, "AMCConfiguration.xsd");
 
-            loadInternal(path, document, m_amcConfig);
+                loadInternal(path, document, m_amcConfig);
+            } else {
+                XCEPT_RAISE(exception::ParseError, "Unknown file type");
+            }
         }
 
         void FileConfigurationProvider::loadGBTX(const std::string &filename)
@@ -166,10 +175,14 @@ namespace gem {
             auto path = detail::getFileInPath(filename, getSearchPath());
             m_sources.push_back(path);
 
-            detail::XercesGuard guard; // Make sure that Xerces is loaded
-            auto document = loadDOM(path, "GBTXConfiguration.xsd");
+            if (boost::algorithm::ends_with(path, ".xml")) {
+                detail::XercesGuard guard; // Make sure that Xerces is loaded
+                auto document = loadDOM(path, "GBTXConfiguration.xsd");
 
-            loadInternal(path, document, m_gbtxConfig);
+                loadInternal(path, document, m_gbtxConfig);
+            } else {
+                XCEPT_RAISE(exception::ParseError, "Unknown file type");
+            }
         }
 
         void FileConfigurationProvider::loadOHv3(const std::string &filename)
@@ -178,10 +191,14 @@ namespace gem {
             auto path = detail::getFileInPath(filename, getSearchPath());
             m_sources.push_back(path);
 
-            detail::XercesGuard guard; // Make sure that Xerces is loaded
-            auto document = loadDOM(path, "OHv3Configuration.xsd");
+            if (boost::algorithm::ends_with(path, ".xml")) {
+                detail::XercesGuard guard; // Make sure that Xerces is loaded
+                auto document = loadDOM(path, "OHv3Configuration.xsd");
 
-            loadInternal(path, document, m_ohv3Config);
+                loadInternal(path, document, m_ohv3Config);
+            } else {
+                XCEPT_RAISE(exception::ParseError, "Unknown file type");
+            }
         }
 
         void FileConfigurationProvider::loadVFAT3Chip(const std::string &filename)
@@ -190,10 +207,14 @@ namespace gem {
             auto path = detail::getFileInPath(filename, getSearchPath());
             m_sources.push_back(path);
 
-            detail::XercesGuard guard; // Make sure that Xerces is loaded
-            auto document = loadDOM(path, "VFAT3ChipConfiguration.xsd");
+            if (boost::algorithm::ends_with(path, ".xml")) {
+                detail::XercesGuard guard; // Make sure that Xerces is loaded
+                auto document = loadDOM(path, "VFAT3ChipConfiguration.xsd");
 
-            loadInternal(path, document, m_vfat3ChipConfig);
+                loadInternal(path, document, m_vfat3ChipConfig);
+            } else {
+                XCEPT_RAISE(exception::ParseError, "Unknown file type");
+            }
         }
 
         void FileConfigurationProvider::loadVFAT3Channel(const std::string &filename)
@@ -202,10 +223,14 @@ namespace gem {
             auto path = detail::getFileInPath(filename, getSearchPath());
             m_sources.push_back(path);
 
-            detail::XercesGuard guard; // Make sure that Xerces is loaded
-            auto document = loadDOM(path, "VFAT3ChannelConfiguration.xsd");
+            if (boost::algorithm::ends_with(path, ".xml")) {
+                detail::XercesGuard guard; // Make sure that Xerces is loaded
+                auto document = loadDOM(path, "VFAT3ChannelConfiguration.xsd");
 
-            loadInternal(path, document, m_vfat3ChannelConfig);
+                loadInternal(path, document, m_vfat3ChannelConfig);
+            } else {
+                XCEPT_RAISE(exception::ParseError, "Unknown file type");
+            }
         }
 
         std::shared_ptr<AMC13Configuration>
