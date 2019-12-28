@@ -198,6 +198,13 @@ namespace gem {
                 auto document = loadDOM(path, "GBTXConfiguration.xsd");
 
                 loadInternal(path, document, m_gbtxConfig);
+            } else if (boost::algorithm::ends_with(path, ".json")) {
+                nlohmann::json json;
+                std::ifstream in(path);
+                in >> json;
+                loadInternal(path,
+                             json.get<SerializationData<GBTXConfiguration>>(),
+                             m_gbtxConfig);
             } else {
                 XCEPT_RAISE(exception::ParseError, "Unknown file type");
             }
