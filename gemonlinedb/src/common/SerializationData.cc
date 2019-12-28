@@ -1,4 +1,4 @@
-#include "gem/onlinedb/XMLSerializationData.h"
+#include "gem/onlinedb/SerializationData.h"
 
 #include <xercesc/dom/DOM.hpp>
 

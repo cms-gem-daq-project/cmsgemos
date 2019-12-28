@@ -1,5 +1,5 @@
-#ifndef GEM_ONLINEDB_XMLSERIALIZATIONDATA_H
-#define GEM_ONLINEDB_XMLSERIALIZATIONDATA_H
+#ifndef GEM_ONLINEDB_SERIALIZATIONDATA_H
+#define GEM_ONLINEDB_SERIALIZATIONDATA_H
 
 #include <cstdint>
 #include <memory>
@@ -30,7 +30,7 @@ namespace gem {
          *                            XML file.
          */
         template<class ConfigurationTypeT>
-        class XMLSerializationData
+        class SerializationData
         {
         public:
             /**
@@ -135,7 +135,7 @@ namespace gem {
         } /* namespace detail */
 
         template<class ConfigurationType>
-        void XMLSerializationData<ConfigurationType>::readDOM(
+        void SerializationData<ConfigurationType>::readDOM(
             const DOMDocumentPtr &dom)
         {
             using Traits = ConfigurationTraits<ConfigurationType>;
@@ -217,7 +217,7 @@ namespace gem {
         } /* namespace detail */
 
         template<class ConfigurationType>
-        DOMDocumentPtr XMLSerializationData<ConfigurationType>::makeDOM() const
+        DOMDocumentPtr SerializationData<ConfigurationType>::makeDOM() const
         {
             using Info = ConfigurationTraits<ConfigurationType>;
 
@@ -245,4 +245,4 @@ namespace gem {
     } /* namespace onlinedb */
 } /* namespace gem */
 
-#endif // GEM_ONLINEDB_XMLSERIALIZATIONDATA_H
+#endif // GEM_ONLINEDB_SERIALIZATIONDATA_H

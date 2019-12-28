@@ -29,12 +29,12 @@ Sources = \
     OHv3Configuration.cc \
     OHv3ConfigurationGen.cc \
     Run.cc \
+    SerializationData.cc \
     SystemTopology.cc \
     VFAT3ChannelConfiguration.cc \
     VFAT3ChipConfigurationGen.cc \
     version.cc \
     XMLConfigurationProvider.cc \
-    XMLSerializationData.cc \
     XMLUtils.cc \
     GEMOnlineDBManager.cc \
     GEMOnlineDBManagerWeb.cc
@@ -46,11 +46,11 @@ SimpleTestExecutables = \
     test/testConfigurationLinker.cc \
     test/testConfigurationManager.cc \
     test/testFileUtils.cc \
+    test/testSerializationData.cc \
     test/testSystemTopology.cc \
     test/testVFAT3ChannelConfiguration.cc \
     test/testVFAT3ChipConfiguration.cc \
     test/testXMLConfigurationProvider.cc \
-    test/testXMLSerialization.cc \
 
 DBTestExecutables = \
     test/testTStoreSerialization.cc \

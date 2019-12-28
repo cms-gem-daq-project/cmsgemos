@@ -8,7 +8,7 @@
 #include <xercesc/util/XMLString.hpp>
 
 #include "gem/onlinedb/AMC13Configuration.h"
-#include "gem/onlinedb/XMLSerializationData.h"
+#include "gem/onlinedb/SerializationData.h"
 #include "gem/onlinedb/detail/XMLUtils.h"
 
 #define BOOST_TEST_DYN_LINK
@@ -27,9 +27,9 @@ using namespace gem::onlinedb::detail::literals;
 
 BOOST_FIXTURE_TEST_SUITE(TestAMC13Configuration, detail::XercesGuard)
 
-XMLSerializationData<AMC13Configuration> createTestXMLSerializationData()
+SerializationData<AMC13Configuration> createTestSerializationData()
 {
-    XMLSerializationData<AMC13Configuration> builder;
+    SerializationData<AMC13Configuration> builder;
 
     Run r;
     r.location = "Brussels";
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(MakeDOM)
 {
     XERCES_CPP_NAMESPACE_USE
 
-    auto builder = createTestXMLSerializationData();
+    auto builder = createTestSerializationData();
     auto dom = builder.makeDOM();
 
     BOOST_CHECK(dom != nullptr);
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(MakeDOMXsdValidation)
 {
     XERCES_CPP_NAMESPACE_USE
 
-    auto builder = createTestXMLSerializationData();
+    auto builder = createTestSerializationData();
     auto dom = builder.makeDOM();
 
     detail::xercesExceptionsToStd([&]{
@@ -128,11 +128,11 @@ BOOST_AUTO_TEST_CASE(MakeDOMReadDOM)
 {
     XERCES_CPP_NAMESPACE_USE
 
-    auto data = createTestXMLSerializationData();
+    auto data = createTestSerializationData();
     auto dom = data.makeDOM();
 
     detail::xercesExceptionsToStd([&]{
-        auto data2 = XMLSerializationData<AMC13Configuration>();
+        auto data2 = SerializationData<AMC13Configuration>();
         data2.readDOM(dom);
 
         BOOST_REQUIRE(data.getRun() == data2.getRun());

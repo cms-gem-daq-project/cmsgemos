@@ -11,7 +11,7 @@ namespace gem {
 
         // Forward decl.
         template<class ConfigurationTypeT>
-        class XMLSerializationData;
+        class SerializationData;
 
         /**
          * @brief Represents a dataset to be stored in the XML file (a

@@ -5,11 +5,11 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 
 #include "gem/onlinedb/VFAT3ChipConfiguration.h"
-#include "gem/onlinedb/XMLSerializationData.h"
+#include "gem/onlinedb/SerializationData.h"
 #include "gem/onlinedb/detail/XMLUtils.h"
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE XMLSerialization
+#define BOOST_TEST_MODULE SerializationData
 #include <boost/test/unit_test.hpp>
 
 /* Needed to make the linker happy. */
@@ -22,11 +22,11 @@ config::PackageInfo xdaq::getPackageInfo()
 using namespace gem::onlinedb;
 using namespace gem::onlinedb::detail::literals;
 
-BOOST_FIXTURE_TEST_SUITE(XMLSerialization, detail::XercesGuard)
+BOOST_FIXTURE_TEST_SUITE(Serialization, detail::XercesGuard)
 
-XMLSerializationData<VFAT3ChipConfiguration> createTestXMLSerializationData()
+SerializationData<VFAT3ChipConfiguration> createTestSerializationData()
 {
-    XMLSerializationData<VFAT3ChipConfiguration> builder;
+    SerializationData<VFAT3ChipConfiguration> builder;
 
     Run r;
     r.location = "Brussels";
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(MakeDOM)
 {
     XERCES_CPP_NAMESPACE_USE
 
-    auto builder = createTestXMLSerializationData();
+    auto builder = createTestSerializationData();
     auto dom = builder.makeDOM();
 
     BOOST_CHECK(dom != nullptr);
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(MakeDOMXsdValidation)
 {
     XERCES_CPP_NAMESPACE_USE
 
-    auto builder = createTestXMLSerializationData();
+    auto builder = createTestSerializationData();
     auto dom = builder.makeDOM();
 
     detail::xercesExceptionsToStd([&]{
@@ -124,11 +124,11 @@ BOOST_AUTO_TEST_CASE(MakeDOMReadDOM)
 {
     XERCES_CPP_NAMESPACE_USE
 
-    auto data = createTestXMLSerializationData();
+    auto data = createTestSerializationData();
     auto dom = data.makeDOM();
 
     detail::xercesExceptionsToStd([&]{
-        auto data2 = XMLSerializationData<VFAT3ChipConfiguration>();
+        auto data2 = SerializationData<VFAT3ChipConfiguration>();
         data2.readDOM(dom);
 
         BOOST_REQUIRE(data.getRun() == data2.getRun());

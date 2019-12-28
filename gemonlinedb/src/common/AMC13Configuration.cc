@@ -4,7 +4,7 @@
 
 #include <xercesc/dom/DOMXPathResult.hpp>
 
-#include "gem/onlinedb/XMLSerializationData.h"
+#include "gem/onlinedb/SerializationData.h"
 #include "gem/onlinedb/detail/XMLUtils.h"
 #include "gem/onlinedb/exception/Exception.h"
 
@@ -20,7 +20,7 @@ namespace gem {
                 && getHostname() == other.getHostname();
         }
 
-        void XMLSerializationData<AMC13Configuration>::readDOM(
+        void SerializationData<AMC13Configuration>::readDOM(
             const DOMDocumentPtr &dom)
         {
             using namespace detail::literals;
@@ -78,7 +78,7 @@ namespace gem {
             }
         }
 
-        DOMDocumentPtr XMLSerializationData<AMC13Configuration>::makeDOM() const
+        DOMDocumentPtr SerializationData<AMC13Configuration>::makeDOM() const
         {
             using Info = ConfigurationTraits<ConfigurationType>;
 

@@ -15,7 +15,7 @@
 #include "gem/onlinedb/DataSet.h"
 #include "gem/onlinedb/PartReference.h"
 #include "gem/onlinedb/Run.h"
-#include "gem/onlinedb/XMLSerializationData.h"
+#include "gem/onlinedb/SerializationData.h"
 
 #include "gem/onlinedb/ConfigurationLinker.h"
 #include "gem/onlinedb/ConfigurationManager.h"
@@ -70,7 +70,7 @@
  *
  * Configuration objects can be stored to (and read back from) a standardized
  * XML format. The contents of XML documents is represented by
- * @ref XMLSerializationData.
+ * @ref SerializationData.
  *
  * ## The Configuration concept
  *

@@ -137,23 +137,23 @@ namespace gem {
 
         // Forward declaration
         template<class ConfigurationTypeT>
-        class XMLSerializationData;
+        class SerializationData;
 
         // Forward declaration
         using DOMDocumentPtr = std::unique_ptr<xercesc::DOMDocument>;
 
         /**
          * @brief
-         * Specializes @ref XMLSerializationData for @ref AMC13Configuration.
+         * Specializes @ref SerializationData for @ref AMC13Configuration.
          *
-         * @copydetails XMLSerializationData
+         * @copydetails SerializationData
          */
         template<>
-        class XMLSerializationData<AMC13Configuration>
+        class SerializationData<AMC13Configuration>
         {
         public:
             /**
-             * @copydoc XMLSerializationData::ConfigurationType
+             * @copydoc SerializationData::ConfigurationType
              */
             using ConfigurationType = AMC13Configuration;
 
@@ -163,34 +163,34 @@ namespace gem {
 
         public:
             /**
-             * @copydoc XMLSerializationData::getRun
+             * @copydoc SerializationData::getRun
              */
             Run getRun() const { return m_run; };
 
             /**
-             * @copydoc XMLSerializationData::setRun
+             * @copydoc SerializationData::setRun
              */
             void setRun(const Run &run) { m_run = run; };
 
             /**
-             * @copydoc XMLSerializationData::getDataSets
+             * @copydoc SerializationData::getDataSets
              */
             std::vector<DataSet<ConfigurationType>> getDataSets() const {
                 return m_dataSets; };
 
             /**
-             * @copydoc XMLSerializationData::addDataSet
+             * @copydoc SerializationData::addDataSet
              */
             void addDataSet(const DataSet<ConfigurationType> &dataSet) {
                 m_dataSets.push_back(dataSet); };
 
             /**
-             * @copydoc XMLSerializationData::readDOM
+             * @copydoc SerializationData::readDOM
              */
             void readDOM(const DOMDocumentPtr &dom);
 
             /**
-             * @copydoc XMLSerializationData::makeDOM
+             * @copydoc SerializationData::makeDOM
              */
             DOMDocumentPtr makeDOM() const;
         };

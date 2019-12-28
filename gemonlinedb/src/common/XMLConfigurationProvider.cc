@@ -5,7 +5,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 
-#include "gem/onlinedb/XMLSerializationData.h"
+#include "gem/onlinedb/SerializationData.h"
 #include "gem/onlinedb/detail/FileUtils.h"
 #include "gem/onlinedb/detail/XMLUtils.h"
 #include "gem/onlinedb/exception/Exception.h"
@@ -80,7 +80,7 @@ namespace gem {
                 const DOMDocumentPtr &document,
                 std::map<std::string, std::shared_ptr<ConfigurationType>> &map)
             {
-                XMLSerializationData<ConfigurationType> xmlData;
+                SerializationData<ConfigurationType> xmlData;
                 xmlData.readDOM(document);
 
                 auto dataSets = xmlData.getDataSets();
