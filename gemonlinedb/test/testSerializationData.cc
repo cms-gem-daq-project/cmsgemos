@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <memory>
 
 #include <xercesc/dom/DOM.hpp>
@@ -134,6 +135,15 @@ BOOST_AUTO_TEST_CASE(MakeDOMReadDOM)
         BOOST_REQUIRE(data.getRun() == data2.getRun());
         BOOST_REQUIRE(data.getDataSets() == data2.getDataSets());
     });
+}
+
+BOOST_AUTO_TEST_CASE(ToJSON)
+{
+    auto data = createTestSerializationData();
+    nlohmann::json json = data;
+
+    BOOST_CHECK(json["Root"]["Header"]["Run"]["InitiatedByUser"] == "lmoureau");
+    BOOST_CHECK(json["Root"]["Datasets"][0]["Dataset"]["Data"].size() == 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
