@@ -41,6 +41,15 @@ namespace gem {
          */
         void to_json(nlohmann::json &json, const Run &data);
 
+        /**
+         * @brief Converts JSON to @ref Run
+         *
+         * @see https://github.com/nlohmann/json#arbitrary-types-conversions
+         * @see https://github.com/valdasraps/cmsdbldr/blob/master/src/main/java/org/cern/cms/dbloader/model/condition/Run.java
+         * @related Run
+         */
+        void from_json(const nlohmann::json &json, Run &data);
+
     } /* namespace onlinedb */
 } /* namespace gem */
 
