@@ -29,7 +29,7 @@ namespace gem {
          *
          * @see https://github.com/nlohmann/json#arbitrary-types-conversions
          * @see https://github.com/valdasraps/cmsdbldr/blob/master/src/main/java/org/cern/cms/dbloader/model/construct/Part.java
-         * @related SerializationData
+         * @related PartReferenceBarcode
          */
         inline void to_json(nlohmann::json &json, const PartReferenceBarcode &data)
         {
@@ -38,6 +38,18 @@ namespace gem {
                     { "Barcode", data.barcode },
                 })}
             };
+        }
+
+        /**
+         * @brief Converts JSON to @ref PartReferenceBarcode
+         *
+         * @see https://github.com/nlohmann/json#arbitrary-types-conversions
+         * @see https://github.com/valdasraps/cmsdbldr/blob/master/src/main/java/org/cern/cms/dbloader/model/construct/Part.java
+         * @related PartReferenceBarcode
+         */
+        inline void from_json(const nlohmann::json &json, PartReferenceBarcode &data)
+        {
+            data.barcode = json.at("Part").at("Barcode");
         }
 
         /**
@@ -61,7 +73,7 @@ namespace gem {
          *
          * @see https://github.com/nlohmann/json#arbitrary-types-conversions
          * @see https://github.com/valdasraps/cmsdbldr/blob/master/src/main/java/org/cern/cms/dbloader/model/construct/Part.java
-         * @related SerializationData
+         * @related PartReferenceSN
          */
         inline void to_json(nlohmann::json &json, const PartReferenceSN &data)
         {
@@ -70,6 +82,18 @@ namespace gem {
                     { "SerialNumber", data.serialNumber },
                 })}
             };
+        }
+
+        /**
+         * @brief Converts JSON to @ref PartReferenceSN
+         *
+         * @see https://github.com/nlohmann/json#arbitrary-types-conversions
+         * @see https://github.com/valdasraps/cmsdbldr/blob/master/src/main/java/org/cern/cms/dbloader/model/construct/Part.java
+         * @related PartReferenceSN
+         */
+        inline void from_json(const nlohmann::json &json, PartReferenceSN &data)
+        {
+            data.serialNumber = json.at("Part").at("SerialNumber");
         }
 
     } /* namespace onlinedb */
