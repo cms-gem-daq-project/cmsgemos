@@ -221,6 +221,13 @@ namespace gem {
                 auto document = loadDOM(path, "OHv3Configuration.xsd");
 
                 loadInternal(path, document, m_ohv3Config);
+            } else if (boost::algorithm::ends_with(path, ".json")) {
+                nlohmann::json json;
+                std::ifstream in(path);
+                in >> json;
+                loadInternal(path,
+                             json.get<SerializationData<OHv3Configuration>>(),
+                             m_ohv3Config);
             } else {
                 XCEPT_RAISE(exception::ParseError, "Unknown file type");
             }
