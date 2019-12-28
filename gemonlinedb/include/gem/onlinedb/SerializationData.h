@@ -64,6 +64,14 @@ namespace gem {
             }
 
             /**
+             * @brief Sets the list of datasets.
+             */
+            void setDataSets(const std::vector<DataSet<ConfigurationType>> &dataSets)
+            {
+                m_dataSets = dataSets;
+            }
+
+            /**
              * @brief Adds a dataset to be serialized
              */
             void addDataSet(const DataSet<ConfigurationType> &dataSet)
@@ -267,6 +275,31 @@ namespace gem {
                     { "Datasets", data.getDataSets() },
                 })},
             };
+        }
+
+        /**
+         * @brief Converts JSON to @ref SerializationData
+         *
+         * @throws exception::ParseError if the JSON data isn't of the expected type.
+         * @throws nlohmann::json::exception if the JSON data doesn't match the expected format.
+         * @see https://github.com/nlohmann/json#arbitrary-types-conversions
+         * @see https://github.com/valdasraps/cmsdbldr/blob/master/src/main/java/org/cern/cms/dbloader/model/serial/Root.java
+         * @related SerializationData
+         */
+        template<class ConfigurationTypeT>
+        void from_json(const nlohmann::json &json, SerializationData<ConfigurationTypeT> &data)
+        {
+            using Info = ConfigurationTraits<ConfigurationTypeT>;
+            auto header = json.at("Root").at("Header");
+            auto type = header.at("Type");
+            if (type.at("ExtensionTableName") != Info::extTableName()
+                || type.at("Name") != Info::typeName()) {
+                XCEPT_RAISE(exception::ParseError, "JSON data is not of the expected type");
+            }
+            data.setRun(header.at("Run").get<Run>());
+            data.setDataSets(json.at("Root")
+                                 .at("Datasets")
+                                 .get<std::vector<DataSet<ConfigurationTypeT>>>());
         }
 
     } /* namespace onlinedb */
