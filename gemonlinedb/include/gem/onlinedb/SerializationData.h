@@ -95,6 +95,13 @@ namespace gem {
             DOMDocumentPtr makeDOM() const;
         };
 
+        template<class ConfigurationTypeT>
+        bool operator== (const SerializationData<ConfigurationTypeT> &lhs,
+                         const SerializationData<ConfigurationTypeT> &rhs)
+        {
+            return lhs.getRun() == rhs.getRun() && lhs.getDataSets() == rhs.getDataSets();
+        }
+
         // Utility functions for readDOM
         namespace detail {
 

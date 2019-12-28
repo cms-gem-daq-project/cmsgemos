@@ -146,4 +146,12 @@ BOOST_AUTO_TEST_CASE(ToJSON)
     BOOST_CHECK(json["Root"]["Datasets"][0]["Dataset"]["Data"].size() == 2);
 }
 
+BOOST_AUTO_TEST_CASE(JSONRoundTrip)
+{
+    auto data = createTestSerializationData();
+    nlohmann::json json = data;
+    auto roundTrip = json.get<SerializationData<VFAT3ChipConfiguration>>();
+    BOOST_CHECK(data == roundTrip);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
