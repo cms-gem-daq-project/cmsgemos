@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include <nlohmann/json.hpp>
+
 #include "gem/onlinedb/ConfigurationTraits.h"
 
 namespace gem {
@@ -93,6 +95,28 @@ namespace gem {
                 && m_version == other.m_version
                 && m_part == other.m_part
                 && m_data == other.m_data;
+        }
+
+        /**
+         * @brief Converts @ref DataSet to JSON
+         *
+         * @see https://github.com/nlohmann/json#arbitrary-types-conversions
+         * @see https://github.com/valdasraps/cmsdbldr/blob/master/src/main/java/org/cern/cms/dbloader/model/condition/Dataset.java
+         * @related DataSet
+         */
+        template<class ConfigurationTypeT>
+        void to_json(nlohmann::json &json, const DataSet<ConfigurationTypeT> &data)
+        {
+            json = {
+                { "Dataset", nlohmann::json({
+                    { "Version", data.getVersion() },
+                    { "part", data.getPart() },
+                    { "Data", data.getData() },
+                })},
+            };
+            if (!data.getComment().empty()) {
+                json["Dataset"]["CommentDescription"] = data.getComment();
+            };
         }
 
     } /* namespace onlinedb */
