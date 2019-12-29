@@ -19,6 +19,7 @@ include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
 Sources = \
     AMC13Configuration.cc \
+    AMC13ConfigurationGen.cc \
     AMCConfiguration.cc \
     AMCConfigurationGen.cc \
     ConfigurationLinker.cc \
@@ -93,10 +94,11 @@ xml/schema/%.xsd include/gem/onlinedb/%Gen.h src/common/%Gen.cc: defs/%.json par
 
 # XML schemas
 .PHONY: xsd
-xsd: xml/schema/AMCConfiguration.xsd xml/schema/VFAT3ChipConfiguration.xsd xml/schema/OHv3Configuration.xsd xml/schema/GBTXConfiguration.xsd
+xsd: xml/schema/AMC13Configuration.xsd xml/schema/AMCConfiguration.xsd xml/schema/VFAT3ChipConfiguration.xsd xml/schema/OHv3Configuration.xsd xml/schema/GBTXConfiguration.xsd
 
 .PHONY: clean-xsd
 clean-xsd:
+	$(RM) xml/schema/AMC13Configuration.xsd
 	$(RM) xml/schema/AMCConfiguration.xsd
 	$(RM) xml/schema/VFAT3ChipConfiguration.xsd
 	$(RM) xml/schema/OHv3Configuration.xsd

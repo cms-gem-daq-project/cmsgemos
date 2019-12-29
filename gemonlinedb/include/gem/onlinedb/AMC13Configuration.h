@@ -13,6 +13,8 @@
 #include "gem/onlinedb/PartReference.h"
 #include "gem/onlinedb/Run.h"
 
+#include "gem/onlinedb/detail/AMC13ConfigurationGen.h"
+
 namespace gem {
     namespace onlinedb {
 
@@ -29,55 +31,12 @@ namespace gem {
          *
          * @note Modifying objects of this class doesn't affect hardware.
          */
-        class AMC13Configuration
+        class AMC13Configuration : public detail::AMC13ConfigurationGen
         {
         private:
-            int m_fedId;
-            bool m_enableLocalTTC;
-            std::string m_hostname;
-
             std::vector<std::shared_ptr<AMCConfiguration>> m_AMCConfigs;
 
         public:
-            /**
-             * @brief Compares two AMC configurations for equality.
-             */
-            bool operator== (const AMC13Configuration &other) const;
-
-            ////////////////////////////////////////////////////////////////////
-
-            /**
-             * @brief Retrieves the id of the attached FED.
-             */
-            int getFEDId() const { return m_fedId; };
-
-            /**
-             * @brief Modifies the id of the attached FED.
-             */
-            void setFEDId(int id) { m_fedId = id; };
-
-            /**
-             * @brief Retrieves whether local TTC is enabled.
-             */
-            int isLocalTTCEnabled() const { return m_enableLocalTTC; };
-
-            /**
-             * @brief Enables or disables local TTC.
-             */
-            void setLocalTTCEnabled(bool enable) { m_enableLocalTTC = enable; };
-
-            /**
-             * @brief Retrieves the hostname.
-             */
-            std::string getHostname() const { return m_hostname; };
-
-            /**
-             * @brief Modifies the hostname.
-             */
-            void setHostname(const std::string &hostname) { m_hostname = hostname; };
-
-            ////////////////////////////////////////////////////////////////////
-
             /**
              * @name Child AMC configuration
              * @{
@@ -177,6 +136,12 @@ namespace gem {
              */
             std::vector<DataSet<ConfigurationType>> getDataSets() const {
                 return m_dataSets; };
+
+            /**
+             * @copydoc SerializationData::setDataSets
+             */
+            void setDataSets(const std::vector<DataSet<ConfigurationType>> &ds) {
+                m_dataSets = ds; };
 
             /**
              * @copydoc SerializationData::addDataSet

@@ -13,13 +13,6 @@ XERCES_CPP_NAMESPACE_USE
 namespace gem {
     namespace onlinedb {
 
-        bool AMC13Configuration::operator== (const AMC13Configuration &other) const
-        {
-            return getFEDId() == other.getFEDId()
-                && isLocalTTCEnabled() == other.isLocalTTCEnabled()
-                && getHostname() == other.getHostname();
-        }
-
         void SerializationData<AMC13Configuration>::readDOM(
             const DOMDocumentPtr &dom)
         {
@@ -68,7 +61,7 @@ namespace gem {
                     auto config = AMC13Configuration();
                     config.setFEDId(
                         std::stoi(detail::transcode(FEDIdNode->getTextContent())));
-                    config.setLocalTTCEnabled(
+                    config.setEnableLocalTTC(
                         std::stoi(detail::transcode(TTCNode->getTextContent())));
                     config.setHostname(
                         detail::transcode(hostnameNode->getTextContent()));
@@ -107,7 +100,7 @@ namespace gem {
 
                     auto localTTCElement = appendChildElement(data, "ENABLE_LOCALTTC");
                     appendChildText(localTTCElement,
-                                    std::to_string((int) entry.isLocalTTCEnabled()));
+                                    std::to_string((int) entry.getEnableLocalTTC()));
 
                     auto hostnameElement = appendChildElement(data, "HOSTNAME");
                     appendChildText(hostnameElement, entry.getHostname());
@@ -123,7 +116,7 @@ namespace gem {
             AMC13Configuration config;
 
             config.setFEDId(toInt(row, "FED_ID"));
-            config.setLocalTTCEnabled(toInt(row, "ENABLE_LOCALTTC"));
+            config.setEnableLocalTTC(toInt(row, "ENABLE_LOCALTTC"));
 
             auto value = row.getField("HOSTNAME");
             if (value == nullptr) {
