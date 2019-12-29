@@ -7,7 +7,7 @@
 "fields": [
     {
         "name": "CFG_CHANNEL_{}",
-        "count": 128,
+        "count": [ 128 ],
         "cpp name": "cfgChannel",
         "cpp type": "ChannelRegisterValue",
         "xsd type": "xs:unsignedInt"

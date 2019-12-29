@@ -1,6 +1,6 @@
 #! /usr/bin/env python2
 
-import xml.etree.ElementTree as ET
+import itertools as it
 
 def _checkedJsonGet(json, fieldName, targetType):
     """
@@ -40,9 +40,9 @@ class Field(object):
             self.childNames = []
 
         if 'count' in json:
-            self.count = _checkedJsonGet(json, 'count', int)
+            self.count = _checkedJsonGet(json, 'count', list)
         else:
-            self.count = 1
+            self.count = None
 
         if 'cpp name' in json:
             self._cppName = _checkedJsonGet(json, 'cpp name', unicode)
@@ -67,16 +67,19 @@ class Field(object):
         """
         Returns the C++ type to use for this field
         """
-        if self.count == 1:
+        if self.count is None:
             return self._cppType
-        else:
-            return 'std::array<{}, {}>'''.format(self._cppType, self.count)
+
+        code = '{}'
+        for n in self.count:
+            code = code.format('std::array<{{}}, {}>'.format(n))
+        return code.format(self._cppType)
 
     def cppField(self):
         """
         Returns a declaration for this field in C++
         """
-        if self.count == 1:
+        if self.count is None:
             return '''
                 {} m_{};'''.format(self.cppType(), self.cppName())
         else:
@@ -88,50 +91,85 @@ class Field(object):
         """
         Returns the declaration of C++ get() functions for this field
         """
-        if self.count == 1:
+        if self.count is None:
             return '''
                 {2} get{1}() const {{ return m_{0}; }};'''.format(self.cppName(False),
                                                                   self.cppName(True),
                                                                   self.cppType())
         else:
-            return '''
+            code = '''
                 const {2} &get{1}s() const {{ return m_{0}s; }};
-                {2} &get{1}s() {{ return m_{0}s; }};
-                {3} get{1}(std::size_t i) const {{ return m_{0}s.at(i); }};'''.format(
+                {2} &get{1}s() {{ return m_{0}s; }};'''.format(
                     self.cppName(False),
                     self.cppName(True),
-                    self.cppType(),
-                    self._cppType)
+                    self.cppType())
+            code += '''
+                {} get{}({}) const {{ return m_{}s{}; }};'''.format(
+                    self._cppType,
+                    self.cppName(True),
+                    self.indices('decl'),
+                    self.cppName(False),
+                    self.indices('at'))
+            return code
 
     def cppSetters(self):
         """
         Returns the declaration of C++ set() functions for this field
         """
-        if self.count == 1:
+        if self.count is None:
             return '''
                 void set{1}({2} value) {{ m_{0} = value; }};'''.format(
                     self.cppName(False),
                     self.cppName(True),
                     self._cppType)
         else:
-            return '''
-                void set{1}s(const {2} &value) {{ m_{0}s = value; }};
-                void set{1}(std::size_t i, {3} value) {{ m_{0}s.at(i) = value; }};'''.format(
-                    self.cppName(False),
+            code = '''
+                void set{}s(const {} &value) {{ m_{}s = value; }};'''.format(
                     self.cppName(True),
                     self.cppType(),
-                    self._cppType)
+                    self.cppName(False))
+            code += '''
+                void set{}({}, {} value) {{ m_{}s{} = value; }};'''.format(
+                    self.cppName(True),
+                    self.indices('decl'),
+                    self._cppType,
+                    self.cppName(False),
+                    self.indices('at'))
+            return code
 
     def cppEq(self):
         """
         Returns the C++ code to add for this field in operator==
         """
-        if self.count == 1:
+        if self.count is None:
             return '''
                     && get{0}() == other.get{0}()'''.format(self.cppName(True))
         else:
             return '''
                     && get{0}s() == other.get{0}s()'''.format(self.cppName(True))
+
+    def ranges(self):
+        """
+        Returns the list of ranges in which a multidimensional variable iterates
+        """
+        if self.count is None:
+            return []
+        else:
+            return [range(n) for n in self.count]
+
+    def indices(self, mode, arg=None):
+        """
+        Returns the list of indices used for this field
+        """
+        names = ['i', 'j', 'k']
+        if mode == 'at':
+            return ''.join('.at({})'.format(n) for n in names[:len(self.count)])
+        if mode == 'use':
+            return ', '.join(['{}'.format(a) for a in arg])
+        elif mode == 'decl':
+            return ', '.join(['std::size_t ' + n for n in names][:len(self.count)])
+        else:
+            assert(False)
 
     def cppReadRegisterData(self):
         """
@@ -140,16 +178,16 @@ class Field(object):
         if self._cppType != 'std::uint32_t':
             return '''
                 // {}: type not supported'''.format(self.name)
-        if self.count == 1:
+        if self.count is None:
             return '''
                 set{1}(data.at("{0}"));'''.format(self.name, self.cppName(True))
         else:
             code = ''
-            for i in range(self.count):
+            for ijk in it.product(*self.ranges()):
                 code += '''
-                set{1}({2}, data.at("{0}"));'''.format(self.name.format(i),
+                set{1}({2}, data.at("{0}"));'''.format(self.name.format(*ijk),
                                                        self.cppName(True),
-                                                       i)
+                                                       self.indices('use', ijk))
             return code
 
     def cppGetRegisterData(self):
@@ -159,48 +197,49 @@ class Field(object):
         if self._cppType != 'std::uint32_t':
             return '''
                 // {}: type not supported'''.format(self.name)
-        if self.count == 1:
+        if self.count is None:
             return '''
                 data["{0}"] = get{1}();'''.format(self.name, self.cppName(True))
         else:
             code = ''
-            for i in range(self.count):
+            print self.count
+            for ijk in it.product(*self.ranges()):
                 code += '''
-                data["{0}"] = get{1}({2});'''.format(self.name.format(i),
+                data["{0}"] = get{1}({2});'''.format(self.name.format(*ijk),
                                                      self.cppName(True),
-                                                     i)
+                                                     self.indices('use', ijk))
             return code
 
     def cppFromJSONImpl(self):
         """
         Returns the C++ code to add for this field in from_json()
         """
-        if self.count == 1:
+        if self.count is None:
             return '''
                 data.set{1}(json.at("{0}"));'''.format(self.name, self.cppName(True))
         else:
             code = ''
-            for i in range(self.count):
+            for ijk in it.product(*self.ranges()):
                 code += '''
-                data.set{1}({2}, json.at("{0}"));'''.format(self.name.format(i),
+                data.set{1}({2}, json.at("{0}"));'''.format(self.name.format(*ijk),
                                                             self.cppName(True),
-                                                            i)
+                                                            self.indices('use', ijk))
             return code
 
     def cppToJSONImpl(self):
         """
         Returns the C++ code to add for this field in to_json()
         """
-        if self.count == 1:
+        if self.count is None:
             return '''
                 json["{0}"] = data.get{1}();'''.format(self.name, self.cppName(True))
         else:
             code = ''
-            for i in range(self.count):
+            for ijk in it.product(*self.ranges()):
                 code += '''
-                json["{0}"] = data.get{1}({2});'''.format(self.name.format(i),
+                json["{0}"] = data.get{1}({2});'''.format(self.name.format(*ijk),
                                                           self.cppName(True),
-                                                          i)
+                                                          self.indices('use', ijk))
             return code
 
     def __repr__(self):

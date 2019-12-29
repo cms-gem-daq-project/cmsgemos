@@ -7,35 +7,35 @@
     {
         "name": "CK_CTR{}",
         "cpp name": "ckCtr",
-        "count": 51
+        "count": [ 51 ]
     }, {
         "name": "TTC_CTR{}",
         "cpp name": "ttcCtr",
-        "count": 27
+        "count": [ 27 ]
     }, {
         "name": "SER_CTR0",
         "cpp name": "serCtr"
     }, {
         "name": "TX_CTR{}",
         "cpp name": "txCtr",
-        "count": 6
+        "count": [ 6 ]
     }, {
         "name": "DES_CTR0",
         "cpp name": "desCtr"
     }, {
         "name": "RX_CTR{}",
         "cpp name": "rxCtr",
-        "count": 15
+        "count": [ 15 ]
     }, {
         "name": "WDOG_CTR{}",
         "cpp name": "wdogCtr",
-        "count": 5
+        "count": [ 5 ]
     }, {
         "name": "CONFIG_DONE"
     }, {
         "name": "GBLD_W{}",
         "cpp name": "gbldW",
-        "count": 6
+        "count": [ 6 ]
     }, {
         "name": "GBLD_ID"
     }, {
@@ -45,7 +45,7 @@
     }, {
         "name": "IN_EPORT_CTR{}",
         "cpp name": "inEportCtr",
-        "count": 199
+        "count": [ 199 ]
     }, {
         "name": "FUSE_BLOW_ADDRESS_LSB"
     }, {
@@ -55,7 +55,7 @@
     }, {
         "name": "OUT_EPORT_CTR{}",
         "cpp name": "outEportCtr",
-        "count": 50
+        "count": [ 50 ]
     }
 ]
 }

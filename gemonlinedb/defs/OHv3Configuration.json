@@ -9,15 +9,15 @@
     }, {
         "name": "HDMI_SBIT_MODE{}",
         "cpp name": "hdmiSBitMode",
-        "count": 8
+        "count": [ 8 ]
     }, {
         "name": "HDMI_SBIT_SEL{}",
         "cpp name": "hdmiSBitSel",
-        "count": 8
+        "count": [ 8 ]
     }, {
         "name": "SOT_TAP_DELAY_VFAT{}",
         "cpp name": "sotTapDelay",
-        "count": 24
+        "count": [ 24 ]
     }, {
         "name": "TRIG_CTRL_VFAT_MASK"
     }, {
