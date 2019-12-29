@@ -21,13 +21,13 @@ BOOST_AUTO_TEST_SUITE(TestFileConfigurationProvider)
 BOOST_AUTO_TEST_CASE(LoadAMC13)
 {
     FileConfigurationProvider provider;
-    provider.loadAMC13("xml/examples/AMC13_Configuration.xml");
+    provider.loadAMC13("xml/examples/AMC13_Configuration.json");
 }
 
 BOOST_AUTO_TEST_CASE(LoadAMC)
 {
     FileConfigurationProvider provider;
-    provider.loadAMC("xml/examples/AMC_Configuration.xml");
+    provider.loadAMC("xml/examples/AMC_Configuration.json");
 
     // SN "unknown" isn't present in the xml file
     BOOST_CHECK_THROW(provider.getAMCConfiguration({ "unknown" }),
@@ -43,13 +43,13 @@ BOOST_AUTO_TEST_CASE(LoadAMC)
 BOOST_AUTO_TEST_CASE(LoadOHv3)
 {
     FileConfigurationProvider provider;
-    provider.loadOHv3("xml/examples/OHv3_Configuration.xml");
+    provider.loadOHv3("xml/examples/OHv3_Configuration.json");
 }
 
 BOOST_AUTO_TEST_CASE(LoadVFAT3Chip)
 {
     FileConfigurationProvider provider;
-    provider.loadVFAT3Chip("xml/examples/VFAT3_Chip_Configuration.xml");
+    provider.loadVFAT3Chip("xml/examples/VFAT3_Chip_Configuration.json");
 
     // Barcode "unknown" isn't present in the xml file
     BOOST_CHECK_THROW(provider.getVFAT3ChipConfiguration({ "unknown" }),
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(LoadVFAT3Chip)
 BOOST_AUTO_TEST_CASE(LoadVFAT3Channel)
 {
     FileConfigurationProvider provider;
-    provider.loadVFAT3Channel("xml/examples/VFAT3_Channel_Configuration.xml");
+    provider.loadVFAT3Channel("xml/examples/VFAT3_Channel_Configuration.json");
 
     // Barcode "unknown" isn't present in the xml file
     BOOST_CHECK_THROW(provider.getVFAT3ChannelConfiguration({ "unknown" }),
@@ -78,10 +78,10 @@ BOOST_AUTO_TEST_CASE(LoadVFAT3Channel)
 BOOST_AUTO_TEST_CASE(LoadNonCompliant)
 {
     FileConfigurationProvider provider;
-    // xml/tests/NonCompliantFile.xml doesn't comply with the schema
+    // xml/tests/NonCompliantFile.json doesn't comply with the schema
     BOOST_CHECK_THROW(
-        provider.loadAMC13("xml/tests/NonCompliantFile.xml"),
-        exception::ParseError);
+        provider.loadAMC13("xml/tests/NonCompliantFile.json"),
+        nlohmann::json::out_of_range);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
