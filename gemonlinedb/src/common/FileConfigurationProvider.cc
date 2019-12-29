@@ -244,6 +244,13 @@ namespace gem {
                 auto document = loadDOM(path, "VFAT3ChipConfiguration.xsd");
 
                 loadInternal(path, document, m_vfat3ChipConfig);
+            } else if (boost::algorithm::ends_with(path, ".json")) {
+                nlohmann::json json;
+                std::ifstream in(path);
+                in >> json;
+                loadInternal(path,
+                             json.get<SerializationData<VFAT3ChipConfiguration>>(),
+                             m_vfat3ChipConfig);
             } else {
                 XCEPT_RAISE(exception::ParseError, "Unknown file type");
             }
