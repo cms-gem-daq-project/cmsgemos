@@ -159,6 +159,13 @@ namespace gem {
                 auto document = loadDOM(path, "AMC13Configuration.xsd");
 
                 loadInternal(path, document, m_amc13Config);
+            } else if (boost::algorithm::ends_with(path, ".json")) {
+                nlohmann::json json;
+                std::ifstream in(path);
+                in >> json;
+                loadInternal(path,
+                             json.get<SerializationData<AMC13Configuration>>(),
+                             m_amc13Config);
             } else {
                 XCEPT_RAISE(exception::ParseError, "Unknown file type");
             }
