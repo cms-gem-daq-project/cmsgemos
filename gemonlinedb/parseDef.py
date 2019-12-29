@@ -54,51 +54,6 @@ class Field(object):
         else:
             self._cppType = 'std::uint32_t'
 
-        if 'xsd only' in json:
-            self.xsdOnly = _checkedJsonGet(json, 'xsd only', bool)
-        else:
-            self.xsdOnly = False
-
-        if 'xsd type' in json:
-            self._xsdType = _checkedJsonGet(json, 'xsd type', unicode)
-        else:
-            self._xsdType = 'xs:unsignedInt'
-
-    def subElement(self, parent):
-        """
-        Creates subElements of parent defining this field in XSD syntax
-        """
-        if len(self.childNames) == 0:
-            if self.count == 1:
-                ET.SubElement(parent, 'xs:element', {
-                    'name': self.name,
-                    'type': self._xsdType
-                })
-            else:
-                for i in range(self.count):
-                    ET.SubElement(parent, 'xs:element', {
-                        'name': self.name.format(i),
-                        'type': self._xsdType
-                    })
-        else:
-            # FIELD_NAME element
-            element = ET.SubElement(parent, 'xs:element', {
-                'name': '{}_NAME'.format(self.name),
-            })
-            simpleT = ET.SubElement(element, 'xs:simpleType')
-            restriction = ET.SubElement(simpleT, 'xs:restriction', {
-                'base': 'xs:string'
-            })
-            for childName in self.childNames:
-                ET.SubElement(restriction, 'xs:enumeration', {
-                    'value': childName
-                })
-            # FIELD_VALUE element
-            ET.SubElement(parent, 'xs:element', {
-                'name': '{}_VALUE'.format(self.name),
-                'type': 'xs:unsignedInt'
-            })
-
     def cppName(self, capitalizeFirstLetter = False):
         """
         Returns the name used to represent this C++ code
@@ -251,38 +206,6 @@ class Field(object):
     def __repr__(self):
         return 'Field:{}'.format(self.name)
 
-def _makeXml(config):
-    extTableName = _checkedJsonGet(config, 'extension table name', unicode)
-    kindOfPart = _checkedJsonGet(config, 'kind of part', unicode)
-    fields = [ Field(f) for f in _checkedJsonGet(config, 'fields', list) ]
-
-    schema = ET.Element('xs:schema', {
-        'xmlns:xs': 'http://www.w3.org/2001/XMLSchema'
-    })
-
-    # Include common definitions
-    redef = ET.SubElement(schema, 'xs:redefine', {'schemaLocation': 'common.xsd'})
-
-    # Redefine the ExtensionTableName type to restrict its contents to extTableName
-    simpleT = ET.SubElement(redef, 'xs:simpleType', {'name': 'ExtensionTableName'})
-    restrict = ET.SubElement(simpleT, 'xs:restriction', {'base': 'ExtensionTableName'})
-    ET.SubElement(restrict, 'xs:enumeration', {'value': extTableName})
-
-    # Redefine the KindOfPart type to restrict its contents to kindOfPart
-    simpleT = ET.SubElement(redef, 'xs:simpleType', {'name': 'KindOfPart'})
-    restrict = ET.SubElement(simpleT, 'xs:restriction', {'base': 'KindOfPart'})
-    ET.SubElement(restrict, 'xs:enumeration', {'value': kindOfPart})
-
-    # Extend the Data type with elements for all fields
-    cplxType = ET.SubElement(redef, 'xs:complexType', {'name': 'Data'})
-    cplxContent = ET.SubElement(cplxType, 'xs:complexContent')
-    extension = ET.SubElement(cplxContent, 'xs:extension', {'base': 'Data'})
-    sequence = ET.SubElement(extension, 'xs:all')
-    for f in fields:
-        f.subElement(sequence)
-
-    return ET.ElementTree(schema)
-
 def _makeHeader(config, className):
     template = '''/*
  * THIS FILE WAS GENERATED
@@ -341,11 +264,11 @@ namespace gem {{
     fields = [ Field(f) for f in _checkedJsonGet(config, 'fields', list) ]
 
     privateMembers = ''
-    for f in filter(lambda f: not f.xsdOnly, fields):
+    for f in fields:
         privateMembers += f.cppField()
 
     publicMembers = ''
-    for f in filter(lambda f: not f.xsdOnly, fields):
+    for f in fields:
         publicMembers += f.cppGetters()
         publicMembers += "\n"
         publicMembers += f.cppSetters()
@@ -416,23 +339,23 @@ namespace gem {{
     fields = [ Field(f) for f in _checkedJsonGet(config, 'fields', list) ]
 
     getRegisterData = ''
-    for f in filter(lambda f: not f.xsdOnly, fields):
+    for f in fields:
         getRegisterData += f.cppGetRegisterData()
 
     readRegisterData = ''
-    for f in filter(lambda f: not f.xsdOnly, fields):
+    for f in fields:
         readRegisterData += f.cppReadRegisterData()
 
     fromJSON = ''
-    for f in filter(lambda f: not f.xsdOnly, fields):
+    for f in fields:
         fromJSON += f.cppFromJSONImpl()
 
     toJSON = ''
-    for f in filter(lambda f: not f.xsdOnly, fields):
+    for f in fields:
         toJSON += f.cppToJSONImpl()
 
     operatorEq = ''
-    for f in filter(lambda f: not f.xsdOnly, fields):
+    for f in fields:
         operatorEq += f.cppEq()
 
     return template.format(baseName = className,
@@ -457,9 +380,6 @@ if __name__ == '__main__':
 
     # Get the file name without extension nor base path (ie bar in /foo/bar.ext)
     baseFileName = os.path.splitext(os.path.basename(args.inputFile.name))[0]
-
-    print('-- Generating: xml/schema/{}.xsd'.format(baseFileName))
-    _makeXml(config).write('xml/schema/{}.xsd'.format(baseFileName), encoding='UTF-8')
 
     headerFileName = 'include/gem/onlinedb/detail/{}Gen.h'.format(baseFileName)
     with open(headerFileName, 'w') as f:
