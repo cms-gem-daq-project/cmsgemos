@@ -49,10 +49,20 @@ class Field(object):
         else:
             self._cppName = _toCamelCase(self.name)
 
+        if 'cpp type' in json:
+            self._cppType = _checkedJsonGet(json, 'cpp type', unicode)
+        else:
+            self._cppType = 'std::uint32_t'
+
         if 'xsd only' in json:
             self.xsdOnly = _checkedJsonGet(json, 'xsd only', bool)
         else:
             self.xsdOnly = False
+
+        if 'xsd type' in json:
+            self._xsdType = _checkedJsonGet(json, 'xsd type', unicode)
+        else:
+            self._xsdType = 'xs:unsignedInt'
 
     def subElement(self, parent):
         """
@@ -62,13 +72,13 @@ class Field(object):
             if self.count == 1:
                 ET.SubElement(parent, 'xs:element', {
                     'name': self.name,
-                    'type': 'xs:unsignedInt'
+                    'type': self._xsdType
                 })
             else:
                 for i in range(self.count):
                     ET.SubElement(parent, 'xs:element', {
                         'name': self.name.format(i),
-                        'type': 'xs:unsignedInt'
+                        'type': self._xsdType
                     })
         else:
             # FIELD_NAME element
@@ -103,9 +113,9 @@ class Field(object):
         Returns the C++ type to use for this field
         """
         if self.count == 1:
-            return 'std::uint32_t'
+            return self._cppType
         else:
-            return 'std::array<std::uint32_t, {}>'''.format(self.count)
+            return 'std::array<{}, {}>'''.format(self._cppType, self.count)
 
     def cppField(self):
         """
@@ -132,10 +142,11 @@ class Field(object):
             return '''
                 const {2} &get{1}s() const {{ return m_{0}s; }};
                 {2} &get{1}s() {{ return m_{0}s; }};
-                std::uint32_t get{1}(std::size_t i) const {{ return m_{0}s.at(i); }};'''.format(
+                {3} get{1}(std::size_t i) const {{ return m_{0}s.at(i); }};'''.format(
                     self.cppName(False),
                     self.cppName(True),
-                    self.cppType())
+                    self.cppType(),
+                    self._cppType)
 
     def cppSetters(self):
         """
@@ -143,16 +154,18 @@ class Field(object):
         """
         if self.count == 1:
             return '''
-                void set{1}(std::uint32_t value) {{ m_{0} = value; }};'''.format(
+                void set{1}({2} value) {{ m_{0} = value; }};'''.format(
                     self.cppName(False),
-                    self.cppName(True))
+                    self.cppName(True),
+                    self._cppType)
         else:
             return '''
                 void set{1}s(const {2} &value) {{ m_{0}s = value; }};
-                void set{1}(std::size_t i, std::uint32_t value) {{ m_{0}s.at(i) = value; }};'''.format(
+                void set{1}(std::size_t i, {3} value) {{ m_{0}s.at(i) = value; }};'''.format(
                     self.cppName(False),
                     self.cppName(True),
-                    self.cppType())
+                    self.cppType(),
+                    self._cppType)
 
     def cppEq(self):
         """
@@ -169,6 +182,9 @@ class Field(object):
         """
         Returns the C++ code to add for this field in readRegisterData()
         """
+        if self._cppType != 'std::uint32_t':
+            return '''
+                // {}: type not supported'''.format(self.name)
         if self.count == 1:
             return '''
                 set{1}(data.at("{0}"));'''.format(self.name, self.cppName(True))
@@ -185,6 +201,9 @@ class Field(object):
         """
         Returns the C++ code to add for this field in getRegisterData()
         """
+        if self._cppType != 'std::uint32_t':
+            return '''
+                // {}: type not supported'''.format(self.name)
         if self.count == 1:
             return '''
                 data["{0}"] = get{1}();'''.format(self.name, self.cppName(True))
