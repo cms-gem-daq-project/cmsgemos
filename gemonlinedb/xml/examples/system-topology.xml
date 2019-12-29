@@ -1,11 +1,11 @@
 <gem:system xmlns:gem="https://github.com/cms-gem-daq-project/cmsgemos/tree/master/gemonlinedb/xml/schema/system-topology.xsd">
     <gem:configuration>
-        <gem:vfat3-channel-file>VFAT3_Channel_Configuration.xml</gem:vfat3-channel-file>
-        <gem:vfat3-chip-file>VFAT3_Chip_Configuration.xml</gem:vfat3-chip-file>
-        <gem:gbtx-file>GBTX_Configuration.xml</gem:gbtx-file>
-        <gem:ohv3-file>OHv3_Configuration.xml</gem:ohv3-file>
-        <gem:amc-file>AMC_Configuration.xml</gem:amc-file>
-        <gem:amc13-file>AMC13_Configuration.xml</gem:amc13-file>
+        <gem:vfat3-channel-file>VFAT3_Channel_Configuration.json</gem:vfat3-channel-file>
+        <gem:vfat3-chip-file>VFAT3_Chip_Configuration.json</gem:vfat3-chip-file>
+        <gem:gbtx-file>GBTX_Configuration.json</gem:gbtx-file>
+        <gem:ohv3-file>OHv3_Configuration.json</gem:ohv3-file>
+        <gem:amc-file>AMC_Configuration.json</gem:amc-file>
+        <gem:amc13-file>AMC13_Configuration.json</gem:amc13-file>
     </gem:configuration>
     <gem:topology>
         <gem:amc13 gem:serial-number="0002">
