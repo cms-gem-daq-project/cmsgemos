@@ -34,6 +34,7 @@ Sources = \
     SerializationData.cc \
     SystemTopology.cc \
     VFAT3ChannelConfiguration.cc \
+    VFAT3ChannelConfigurationGen.cc \
     VFAT3ChipConfigurationGen.cc \
     version.cc \
     XMLUtils.cc \
@@ -94,12 +95,13 @@ xml/schema/%.xsd include/gem/onlinedb/%Gen.h src/common/%Gen.cc: defs/%.json par
 
 # XML schemas
 .PHONY: xsd
-xsd: xml/schema/AMC13Configuration.xsd xml/schema/AMCConfiguration.xsd xml/schema/VFAT3ChipConfiguration.xsd xml/schema/OHv3Configuration.xsd xml/schema/GBTXConfiguration.xsd
+xsd: xml/schema/AMC13Configuration.xsd xml/schema/AMCConfiguration.xsd xml/schema/VFAT3ChannelConfiguration.xsd xml/schema/VFAT3ChipConfiguration.xsd xml/schema/OHv3Configuration.xsd xml/schema/GBTXConfiguration.xsd
 
 .PHONY: clean-xsd
 clean-xsd:
 	$(RM) xml/schema/AMC13Configuration.xsd
 	$(RM) xml/schema/AMCConfiguration.xsd
+	$(RM) xml/schema/VFAT3ChannelConfiguration.xsd
 	$(RM) xml/schema/VFAT3ChipConfiguration.xsd
 	$(RM) xml/schema/OHv3Configuration.xsd
 	$(RM) xml/schema/GBTXConfiguration.xsd
