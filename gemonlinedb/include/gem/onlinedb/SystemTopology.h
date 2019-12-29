@@ -13,6 +13,8 @@
 #include "gem/onlinedb/ConfigurationTraits.h"
 #include "gem/onlinedb/PartReference.h"
 
+#include "gem/onlinedb/detail/XMLUtils.h"
+
 namespace gem {
     namespace onlinedb {
 

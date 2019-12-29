@@ -1,13 +1,7 @@
-#include <iomanip>
 #include <memory>
-
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/framework/MemBufInputSource.hpp>
-#include <xercesc/parsers/XercesDOMParser.hpp>
 
 #include "gem/onlinedb/VFAT3ChipConfiguration.h"
 #include "gem/onlinedb/SerializationData.h"
-#include "gem/onlinedb/detail/XMLUtils.h"
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE SerializationData
@@ -21,9 +15,8 @@ config::PackageInfo xdaq::getPackageInfo()
 }
 
 using namespace gem::onlinedb;
-using namespace gem::onlinedb::detail::literals;
 
-BOOST_FIXTURE_TEST_SUITE(Serialization, detail::XercesGuard)
+BOOST_AUTO_TEST_SUITE(Serialization)
 
 SerializationData<VFAT3ChipConfiguration> createTestSerializationData()
 {
@@ -43,98 +36,6 @@ SerializationData<VFAT3ChipConfiguration> createTestSerializationData()
     builder.addDataSet(ds);
 
     return builder;
-}
-
-BOOST_AUTO_TEST_CASE(MakeDOM)
-{
-    XERCES_CPP_NAMESPACE_USE
-
-    auto builder = createTestSerializationData();
-    auto dom = builder.makeDOM();
-
-    BOOST_CHECK(dom != nullptr);
-
-    auto root = dom->getDocumentElement();
-
-    BOOST_CHECK(root != nullptr);
-    BOOST_CHECK(root->getChildNodes()->getLength() == 2);
-
-    BOOST_CHECK(detail::transcode(root->getFirstChild()->getNodeName()) ==
-                std::string("HEADER"));
-    BOOST_CHECK(detail::transcode(root->getLastChild()->getNodeName()) ==
-                std::string("DATA_SET"));
-}
-
-BOOST_AUTO_TEST_CASE(MakeDOMXsdValidation)
-{
-    XERCES_CPP_NAMESPACE_USE
-
-    auto builder = createTestSerializationData();
-    auto dom = builder.makeDOM();
-
-    detail::xercesExceptionsToStd([&]{
-        // In principle, DOM 3 has an API to validate documents. One should
-        // modify the configuration of the document (getDOMConfig) and call
-        // normalizeDocument().
-        // However, the DOMImplementation available in Xerces doesn't implement
-        // this particular feature (an exception is thrown when trying to use
-        // it). Documents can, however, be validated at load time.
-        // So below we serialize the document to a memory buffer and validate it
-        // by reading it back.
-
-        // Get an implementation
-        auto impl = DOMImplementationRegistry::getDOMImplementation("LS"_xml);
-        BOOST_REQUIRE(impl != nullptr);
-
-        auto implLS = dynamic_cast<DOMImplementationLS *>(impl);
-
-        // Create the serializer, write and delete it
-        auto lsser = std::unique_ptr<DOMLSSerializer>();
-        lsser.reset(implLS->createLSSerializer());
-        BOOST_REQUIRE(lsser != nullptr);
-
-        // Serialize
-        auto buffer = lsser->writeToString(dom->getDocumentElement());
-        BOOST_REQUIRE(buffer != nullptr);
-        BOOST_REQUIRE(XMLString::stringLen(buffer) > 0);
-
-        // Create an input source and a parser
-        MemBufInputSource source(
-            reinterpret_cast<XMLByte *>(buffer),
-            XMLString::stringLen(buffer) * 2, // * 2 because of UTF-16 encoding
-            "fake"_xml, // Doc says it's used as a "fake system id"
-            true); // The buffer will be freed automatically
-        source.setEncoding("UTF-16"_xml);
-
-        auto errorHandler = std::make_shared<detail::XercesAlwaysThrowErrorHandler>();
-
-        XercesDOMParser parser;
-        parser.setErrorHandler(errorHandler.get());
-        parser.setExternalNoNamespaceSchemaLocation("xml/schema/VFAT3ChipConfiguration.xsd");
-        parser.setValidationScheme(XercesDOMParser::Val_Always);
-        parser.setDoNamespaces(true);
-        parser.setDoSchema(true);
-        parser.setValidationSchemaFullChecking(true);
-
-        // Validate
-        parser.parse(source);
-    });
-}
-
-BOOST_AUTO_TEST_CASE(MakeDOMReadDOM)
-{
-    XERCES_CPP_NAMESPACE_USE
-
-    auto data = createTestSerializationData();
-    auto dom = data.makeDOM();
-
-    detail::xercesExceptionsToStd([&]{
-        auto data2 = SerializationData<VFAT3ChipConfiguration>();
-        data2.readDOM(dom);
-
-        BOOST_REQUIRE(data.getRun() == data2.getRun());
-        BOOST_REQUIRE(data.getDataSets() == data2.getDataSets());
-    });
 }
 
 BOOST_AUTO_TEST_CASE(ToJSON)

@@ -31,7 +31,6 @@ Sources = \
     OHv3Configuration.cc \
     OHv3ConfigurationGen.cc \
     Run.cc \
-    SerializationData.cc \
     SystemTopology.cc \
     VFAT3ChannelConfiguration.cc \
     VFAT3ChannelConfigurationGen.cc \

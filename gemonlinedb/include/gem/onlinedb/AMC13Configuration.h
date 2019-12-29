@@ -24,11 +24,6 @@ namespace gem {
         /**
          * @brief Describes the configuration of an AMC13.
          *
-         * @note Due to the presence of configuration variables of non-integral
-         *       types, this class doesn't realize the @c Configuration concept.
-         *       Serialization is achieved by specializing the relevant template
-         *       classes.
-         *
          * @note Modifying objects of this class doesn't affect hardware.
          */
         class AMC13Configuration : public detail::AMC13ConfigurationGen
@@ -85,79 +80,9 @@ namespace gem {
         };
 
         template<>
-        class ConfigurationTraits<AMC13Configuration>
+        class ConfigurationTraits<AMC13Configuration>:
+            public ConfigurationTraits<detail::AMC13ConfigurationGen>
         {
-        public:
-            static std::string extTableName() { return "GEM_AMC13_CONFIGURATION"; };
-            static std::string typeName() { return "GEM AMC13 Conf Lookup Table"; };
-            static std::string kindOfPart() { return "GEM AMC13"; };
-            using PartType = PartReferenceSN;
-        };
-
-        // Forward declaration
-        template<class ConfigurationTypeT>
-        class SerializationData;
-
-        // Forward declaration
-        using DOMDocumentPtr = std::unique_ptr<xercesc::DOMDocument>;
-
-        /**
-         * @brief
-         * Specializes @ref SerializationData for @ref AMC13Configuration.
-         *
-         * @copydetails SerializationData
-         */
-        template<>
-        class SerializationData<AMC13Configuration>
-        {
-        public:
-            /**
-             * @copydoc SerializationData::ConfigurationType
-             */
-            using ConfigurationType = AMC13Configuration;
-
-        private:
-            Run m_run;
-            std::vector<DataSet<ConfigurationType>> m_dataSets;
-
-        public:
-            /**
-             * @copydoc SerializationData::getRun
-             */
-            Run getRun() const { return m_run; };
-
-            /**
-             * @copydoc SerializationData::setRun
-             */
-            void setRun(const Run &run) { m_run = run; };
-
-            /**
-             * @copydoc SerializationData::getDataSets
-             */
-            std::vector<DataSet<ConfigurationType>> getDataSets() const {
-                return m_dataSets; };
-
-            /**
-             * @copydoc SerializationData::setDataSets
-             */
-            void setDataSets(const std::vector<DataSet<ConfigurationType>> &ds) {
-                m_dataSets = ds; };
-
-            /**
-             * @copydoc SerializationData::addDataSet
-             */
-            void addDataSet(const DataSet<ConfigurationType> &dataSet) {
-                m_dataSets.push_back(dataSet); };
-
-            /**
-             * @copydoc SerializationData::readDOM
-             */
-            void readDOM(const DOMDocumentPtr &dom);
-
-            /**
-             * @copydoc SerializationData::makeDOM
-             */
-            DOMDocumentPtr makeDOM() const;
         };
 
         template<>
