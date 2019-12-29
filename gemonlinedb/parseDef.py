@@ -297,6 +297,7 @@ def _makeHeader(config, className):
 
 #include <nlohmann/json.hpp>
 
+{extraIncludesCode}
 #include "gem/onlinedb/ConfigurationTraits.h"
 #include "gem/onlinedb/PartReference.h"
 #include "gem/onlinedb/detail/RegisterData.h"
@@ -349,6 +350,12 @@ namespace gem {{
         publicMembers += "\n"
         publicMembers += f.cppSetters()
 
+    extraIncludesCode = ''
+    if 'extra includes' in config:
+        extraIncludes = _checkedJsonGet(config, 'extra includes', list)
+        for inc in extraIncludes:
+            extraIncludesCode += '#include {}\n'.format(inc);
+
     extTableName = _checkedJsonGet(config, 'extension table name', unicode)
     typeName = _checkedJsonGet(config, 'type name', unicode)
     kindOfPart = _checkedJsonGet(config, 'kind of part', unicode)
@@ -361,7 +368,8 @@ namespace gem {{
                            extTableName = extTableName,
                            typeName = typeName,
                            kindOfPart = kindOfPart,
-                           partReference = partReference)
+                           partReference = partReference,
+                           extraIncludesCode = extraIncludesCode)
 
 def _makeCpp(config, className):
     template = '''/*
