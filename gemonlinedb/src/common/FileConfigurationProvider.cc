@@ -5,12 +5,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/parsers/XercesDOMParser.hpp>
-
 #include "gem/onlinedb/SerializationData.h"
 #include "gem/onlinedb/detail/FileUtils.h"
-#include "gem/onlinedb/detail/XMLUtils.h"
 #include "gem/onlinedb/exception/Exception.h"
 
 XERCES_CPP_NAMESPACE_USE
@@ -34,46 +30,6 @@ namespace gem {
                 const PartReferenceSN &reference)
             {
                 return reference.serialNumber;
-            }
-
-            /// @brief Loads and validates a document.
-            DOMDocumentPtr loadDOM(const std::string &path,
-                                   const std::string &schema)
-            {
-                using namespace detail::literals;
-
-                // Find the schema (throws if not found)
-                auto schemaPath = detail::getFileInPath(
-                    schema, "xml/schema:/opt/cmsgemos/share/gemonlinedb/xml/schema");
-
-                // Make the paths absolute
-                auto absPath = boost::filesystem::canonical(path).string();
-                schemaPath = boost::filesystem::canonical(schemaPath).string();
-
-                // Get a DOM implementation
-                auto impl = DOMImplementationRegistry::getDOMImplementation("LS"_xml);
-                if (impl == nullptr) {
-                    throw std::logic_error("Cannot find a DOM implementation");
-                }
-
-                auto errorHandler =
-                    std::make_shared<detail::XercesAlwaysThrowErrorHandler>();
-
-                XercesDOMParser parser;
-                parser.setErrorHandler(errorHandler.get());
-                parser.setExternalNoNamespaceSchemaLocation(
-                    detail::XercesString(schemaPath));
-                parser.setValidationScheme(XercesDOMParser::Val_Always);
-                parser.setDoNamespaces(true);
-                parser.setDoSchema(true);
-                parser.setValidationSchemaFullChecking(true);
-
-                // Parse and validate
-                parser.parse(detail::XercesString(absPath));
-
-                DOMDocumentPtr document;
-                document.reset(parser.adoptDocument());
-                return document;
             }
 
             /// @brief Common part to all loadXXX methods
@@ -109,18 +65,6 @@ namespace gem {
                 }
             }
 
-            /// @brief Common part to all loadXXX method (wrapper for XML)
-            template<class ConfigurationType>
-            void loadInternal(
-                const std::string &filename,
-                const DOMDocumentPtr &document,
-                std::map<std::string, std::shared_ptr<ConfigurationType>> &map)
-            {
-                SerializationData<ConfigurationType> xmlData;
-                xmlData.readDOM(document);
-                loadInternal(filename, xmlData, map);
-            }
-
         } // anonymous namespace
 
         void FileConfigurationProvider::load(const DOMDocumentPtr &document)
@@ -154,12 +98,7 @@ namespace gem {
             auto path = detail::getFileInPath(filename, getSearchPath());
             m_sources.push_back(path);
 
-            if (boost::algorithm::ends_with(path, ".xml")) {
-                detail::XercesGuard guard; // Make sure that Xerces is loaded
-                auto document = loadDOM(path, "AMC13Configuration.xsd");
-
-                loadInternal(path, document, m_amc13Config);
-            } else if (boost::algorithm::ends_with(path, ".json")) {
+            if (boost::algorithm::ends_with(path, ".json")) {
                 nlohmann::json json;
                 std::ifstream in(path);
                 in >> json;
@@ -177,12 +116,7 @@ namespace gem {
             auto path = detail::getFileInPath(filename, getSearchPath());
             m_sources.push_back(path);
 
-            if (boost::algorithm::ends_with(path, ".xml")) {
-                detail::XercesGuard guard; // Make sure that Xerces is loaded
-                auto document = loadDOM(path, "AMCConfiguration.xsd");
-
-                loadInternal(path, document, m_amcConfig);
-            } else if (boost::algorithm::ends_with(path, ".json")) {
+            if (boost::algorithm::ends_with(path, ".json")) {
                 nlohmann::json json;
                 std::ifstream in(path);
                 in >> json;
@@ -200,12 +134,7 @@ namespace gem {
             auto path = detail::getFileInPath(filename, getSearchPath());
             m_sources.push_back(path);
 
-            if (boost::algorithm::ends_with(path, ".xml")) {
-                detail::XercesGuard guard; // Make sure that Xerces is loaded
-                auto document = loadDOM(path, "GBTXConfiguration.xsd");
-
-                loadInternal(path, document, m_gbtxConfig);
-            } else if (boost::algorithm::ends_with(path, ".json")) {
+            if (boost::algorithm::ends_with(path, ".json")) {
                 nlohmann::json json;
                 std::ifstream in(path);
                 in >> json;
@@ -223,12 +152,7 @@ namespace gem {
             auto path = detail::getFileInPath(filename, getSearchPath());
             m_sources.push_back(path);
 
-            if (boost::algorithm::ends_with(path, ".xml")) {
-                detail::XercesGuard guard; // Make sure that Xerces is loaded
-                auto document = loadDOM(path, "OHv3Configuration.xsd");
-
-                loadInternal(path, document, m_ohv3Config);
-            } else if (boost::algorithm::ends_with(path, ".json")) {
+            if (boost::algorithm::ends_with(path, ".json")) {
                 nlohmann::json json;
                 std::ifstream in(path);
                 in >> json;
@@ -246,12 +170,7 @@ namespace gem {
             auto path = detail::getFileInPath(filename, getSearchPath());
             m_sources.push_back(path);
 
-            if (boost::algorithm::ends_with(path, ".xml")) {
-                detail::XercesGuard guard; // Make sure that Xerces is loaded
-                auto document = loadDOM(path, "VFAT3ChipConfiguration.xsd");
-
-                loadInternal(path, document, m_vfat3ChipConfig);
-            } else if (boost::algorithm::ends_with(path, ".json")) {
+            if (boost::algorithm::ends_with(path, ".json")) {
                 nlohmann::json json;
                 std::ifstream in(path);
                 in >> json;
@@ -269,12 +188,7 @@ namespace gem {
             auto path = detail::getFileInPath(filename, getSearchPath());
             m_sources.push_back(path);
 
-            if (boost::algorithm::ends_with(path, ".xml")) {
-                detail::XercesGuard guard; // Make sure that Xerces is loaded
-                auto document = loadDOM(path, "VFAT3ChannelConfiguration.xsd");
-
-                loadInternal(path, document, m_vfat3ChannelConfig);
-            } else if (boost::algorithm::ends_with(path, ".json")) {
+            if (boost::algorithm::ends_with(path, ".json")) {
                 nlohmann::json json;
                 std::ifstream in(path);
                 in >> json;
