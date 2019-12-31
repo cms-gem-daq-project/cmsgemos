@@ -83,7 +83,7 @@ doc:
 #	@git commit -m "generating doxygen" ./doc/html  > /dev/null 2>&1
 #	@git tag ./doc/html  > /dev/null 2>&1
 
-install: $(LIBDIR) $(SUBPACKAGES) $(SUBPACKAGES.INSTALL)
+install: $(SUBPACKAGES) $(SUBPACKAGES.INSTALL)
 
 rpm: $(SUBPACKAGES) $(SUBPACKAGES.RPM)
 
@@ -125,7 +125,7 @@ $(SUBPACKAGES.CLEANRPM):
 # 	$(MAKE) -C $(patsubst %.debug,%, $@) debug
 
 $(SUBPACKAGES.INSTALL):
-	-find  $(patsubst %.install,%, $@)/lib -name *.so -print -exec cp {} ${LIBDIR} \;
+	$(MAKE) -C $(patsubst %.install,%, $@) install
 
 $(SUBPACKAGES.CLEAN):
 	$(MAKE) -C $(patsubst %.clean,%, $@) clean
