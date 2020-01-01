@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 ## Script to extract versioning information from a git tag
 usage(){
@@ -9,12 +9,18 @@ usage(){
     * Major is the current major version number
     * Minor is the current minor version number
     * Patch is the current patch version number
-    * Version(version) is the base X.Y.Z version of the tag which is the parent of the commit being built
     * Release(relver) is the release version added to an RPM i.e., X.Y.Z-relver (see https://fedoraproject.org/wiki/Package_Versioning_Examples for examples)
+    * Version(version) is the base X.Y.Z version of the tag which is the parent of the commit being built
     * FullVersion
     * TagVersion is the full name of the tag which is a parent of this commit
+    * BuildTag: 
     * Revision(gitrev) is the git revision hash of the commit
     * GitVersion(gitver) e.g., v0.99.0-pre10-2-g47878f-dirty
+    * Revision:${gitrev}
+    * GitVersion:${gitver}
+    * NextMajorVer:${NextMajorVer}
+    * NextMinorVer:${NextMinorVer}
+    * NextPatchVer:${NextPatchVer}
 Major:0 Minor:99 Patch:0 Release:0.3.pre10 Version:0.99.0 FullVersion:v0.99.0-pre10 TagVersion:v0.99.0 Revision:47878ff GitVersion:v0.99.0-pre10-2-g47878f-dirty
 
   Description:
@@ -56,6 +62,9 @@ Major:0 Minor:99 Patch:0 Release:0.3.pre10 Version:0.99.0 FullVersion:v0.99.0-pr
 #    Minor: 0.3.0
 #    Patch: 0.2.3
 
+# if there are no tags, version string should be
+#    0.0.0-untagged-<shorthash>git
+#    or maybe just untagged-<shorthash>git
 # probably better to try to use setuptools_scm, which does this natively, but want something generically applicable
 
 if [ -z ${1+x} ]
@@ -69,15 +78,21 @@ relver=1
 gitrev=$(git rev-parse --short HEAD 2>/dev/null)
 gitver=$(git describe --abbrev=6 --dirty --always --tags 2>/dev/null)
 
-## can fail if no tags are present, robustify
 tagcommit=$(git rev-list --tags --max-count=1 2>/dev/null)
-lasttag=$(git describe --tags ${tagcommit}  2>/dev/null)
+if [ ! -n ${tagcommit+x} ]
+then
+    lasttag=$(git describe --tags ${tagcommit} 2> /dev/null)
+else
+    ## In the case that there are no tags, set lasttag to the initial commit
+    lasttag=$(git rev-list --max-parents=0 HEAD 2> /dev/null)
+fi
 
 revision=0
 if [ ! -z ${lasttag+x} ]
 then
     revision=$(git rev-list ${lasttag}.. --count  2>/dev/null)
 fi
+
 if [ -z ${revision+x} ]
 then
     revision=0
@@ -94,7 +109,7 @@ then
     basever=$version
     if [ ${revision} = "0" ]
     then
-        relver=1
+        buildtag="-final"
     else
         ## needs a version bump somehow
         # relver=0.0.$revision.dev
@@ -102,7 +117,7 @@ then
         relver=1.0.${revision}.dev
         buildtag="-final.dev${revision}"
     fi
-elif [[ $version =~ $vre ]]
+elif [[ $version =~ $vre* ]]
 then
     pretag=""
 
@@ -154,25 +169,27 @@ then
 
     if  [[ ${prerel} =~ ^rc ]]
     then
-        # because setuptools rewrites 'pre' as 'rc', need to count the number of 'pre' tags prior to addign the number of 'rc' tags
+        # because setuptools rewrites 'pre' as 'rc', need to count the number of 'pre' tags prior to adding the number of 'rc' tags
         # or we enforce that 'pre' and 'rc' are the "same" class, 'rc'>'pre',
         # and must numerically increase e.g., pre1->pre2->pre3->rc4->rc5
         pretags=( $(git tag -l "*${basever}-pre*") )
         npretags=$((${#pretags[@]}))
         ntags=$((ntags+npretags))
     fi
-    
+
     if [ ${revision} = "0" ]
     then
-        relver=0.${relnum}.${ntags}
+        relver=0.${relnum}.${ntags}.${prerel}
         buildtag="${pretag}${ntags}"
     else
-        relver=0.${relnum}.${ntags}.${revision}
+        relver=0.${relnum}.${ntags}.${revision}.${prerel}
         buildtag="${pretag}${ntags}.dev${revision}"
     fi
 else
     basever=untagged
     buildtag="-dev${revision}"
+    relver=0.0.${revision}
+    buildtag="untagged.dev${revision}"
 fi
 
 if ! [[ ${basever} =~ "untagged" ]]
@@ -192,12 +209,12 @@ else
     patch=0
 fi
 
-relver=${relver}.cmsgemos_${basever##*v}
 NextMajorVer=$((major+1)).0.0
 NextMinorVer=${major}.$((minor+1)).0
 NextPatchVer=${major}.${minor}.$((patch+1))
 
 ## Output a single parseable line? or output multiple lines?
+#-relver=${relver}.cmsgemos_${basever##*v}
 echo Major:${major} \
      Minor:${minor} \
      Patch:${patch} \

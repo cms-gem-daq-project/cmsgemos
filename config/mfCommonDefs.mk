@@ -13,6 +13,7 @@ endif
 PROJECT_NAME=cmsgemos
 
 CMSGEMOS_PLATFORM := $(shell python -c "import platform; print(platform.platform())")
+CMSGEMOS_ARCH     := $(shell uname -m)
 CMSGEMOS_OS       := "unknown.os"
 
 GIT_VERSION  := $(shell git describe --dirty --always --tags)
@@ -71,6 +72,12 @@ $(info PREREL_VERSION $(PREREL_VERSION))
 PACKAGE_FULL_VERSION ?= $(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)
 PACKAGE_NOARCH_RELEASE ?= $(BUILD_VERSION).$(GITREV)git
 PACKAGE_FULL_RELEASE ?= $(PACKAGE_NOARCH_RELEASE).$(CMSGEMOS_OS)
+
+$(info BUILD_VERSION is $(BUILD_VERSION))
+$(info PREREL_VERSION is $(PREREL_VERSION))
+$(info PACKAGE_FULL_VERSION is $(PACKAGE_FULL_VERSION))
+$(info PACKAGE_NOARCH_RELEASE is $(PACKAGE_NOARCH_RELEASE))
+$(info PACKAGE_FULL_RELEASE is $(PACKAGE_FULL_RELEASE))
 
 .PHONY: default all _all
 

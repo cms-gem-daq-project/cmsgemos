@@ -1,5 +1,9 @@
 ## redefined from /opt/xdaq/config/mfRPM.rules
 
+CMSGEMOS_PLATFORM := $(shell python -c "import platform; print(platform.platform())")
+CMSGEMOS_ARCH     := $(shell uname -m)
+CMSGEMOS_OS?=$(XDAQ_OS)
+
 rpm: $(PackageListLoop)
 
 installrpm: $(PackageListLoop)
@@ -16,6 +20,8 @@ GID = 1050
 UID = $(GID)
 ProjectPath  = $(BUILD_HOME)
 PackagePath  = $(ProjectPath)/$(LongPackage)
+RPM_DIR?=$(PackagePath)/rpm
+RPMBUILD_DIR:=$(RPM_DIR)/RPMBUILD
 PWD          = $(shell pwd)
 GITREV       = $(shell git rev-parse --short HEAD)
 BUILD_DATE   = $(shell date -u +"%d%m%Y")
@@ -70,9 +76,14 @@ ifndef BUILD_DISTRIBUTION
 BUILD_DISTRIBUTION := $(shell $(XDAQ_ROOT)/$(BUILD_SUPPORT)/checkos.sh)
 endif
 
+ifndef PACKAGE_NOARCH_RELEASE
+# would like to use the correct %?{dist}
+PACKAGE_NOARCH_RELEASE = $(BUILD_VERSION).$(GITREV)git
+endif
+
 ifndef PACKAGE_FULL_RELEASE
 # would like to use the correct %?{dist}
-PACKAGE_FULL_RELEASE = $(BUILD_VERSION).$(GITREV)git.$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER)
+PACKAGE_FULL_RELEASE = $(PACKAGE_NOARCH_RELEASE).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER)
 endif
 
 REQUIRES_LIST=0
@@ -80,6 +91,7 @@ ifneq ($(PACKAGE_REQUIRED_PACKAGE_LIST),)
 REQUIRES_LIST=1
 endif
 
+PACKAGE_ABI_VERSION?=$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR)
 #
 # Extract summary, description and authors
 #
@@ -112,14 +124,10 @@ _rpmall: fail
 fail:
 	$(error Unable to extract a valid version X.Y.Z from Makefile or version.h in package '$(Package)')
 else
-_rpmall: spec_update makerpm
+_rpmall: makerpm
 endif
 
 
-# if for package makefile only if endif
-#else
-#_rpmall:
-#	@echo "*** "$(Package) I am in the else
 endif
 
 # 	rpmbuild  -bb -bl --target $(XDAQ_PLATFORM) --define  "_topdir $(PackagePath)/rpm/RPMBUILD" \
@@ -127,25 +135,61 @@ endif
 
 
 .PHONY: makerpm
-makerpm:
-	$(MakeDir) $(PackagePath)/rpm/RPMBUILD/{RPMS/$(XDAQ_PLATFORM)_$(BUILD_COMPILER),SPECS,BUILD,SOURCES,SRPMS}
-	@echo BUILD_VERSION $(BUILD_VERSION)
-	@echo PACKAGE_FULL_VERSION $(PACKAGE_FULL_VERSION)
-	@echo PACKAGE_RELEASE $(PACKAGE_RELEASE)
-	@echo PACKAGE_FULL_RELEASE $(PACKAGE_FULL_RELEASE)
-	@echo BUILD_DISTRIBUTION $(BUILD_DISTRIBUTION)
-	@echo BUILD_COMPILER $(BUILD_COMPILER)
-	@echo PackagePath $(PackagePath)
-	@tar -P -X $(XDAQ_ROOT)/$(BUILD_SUPPORT)/src.exclude --exclude="*.tbz2" -jcf \
-		$(PackagePath)/rpm/RPMBUILD/SOURCES/$(Project)-$(PackageName)-$(PACKAGE_FULL_VERSION)-$(PACKAGE_FULL_RELEASE).tbz2 \
-		$(PackagePath)
-	@rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" \
-		--define  "_topdir $(PackagePath)/rpm/RPMBUILD" \
-		$(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
-	@find  $(PackagePath)/rpm/RPMBUILD -name "*.rpm" -exec mv {} $(PackagePath)/rpm \;
+makerpm: _rpmbuild _rpmharvest
 
-.PHONY: spec_update
-spec_update:
+TargetSRPMName=$(RPM_DIR)/$(PackageName).src.rpm
+TargetRPMName=$(RPM_DIR)/$(PackageName).$(CMSGEMOS_ARCH).rpm
+PackageSourceTarball=$(RPM_DIR)/$(Project)-$(PackageName)-$(PACKAGE_FULL_VERSION)-$(PACKAGE_FULL_RELEASE).tbz2
+#PackageSourceTarball=$(RPM_DIR)/$(Project)-$(PackageName)-$(PACKAGE_FULL_VERSION)-$(PACKAGE_NOARCH_RELEASE).tbz2
+PackageSpecFile=$(RPM_DIR)/$(PackageName).spec
+
+PackagingTargets=$(TargetSRPMName)
+PackagingTargets+=$(TargetRPMName)
+
+.PHONY: rpm rpmprep specificspecupdate
+## @rpm performs all steps necessary to generate RPM packages
+rpm: _rpmbuild _rpmharvest
+
+## @rpm Perform any specific setup before packaging, is an implicit dependency of `rpm`
+rpmprep: | $(PackageSourceTarball)
+	$(MakeDir) $(RPMBUILD_DIR)/SOURCES
+	cp -rfp $(PackageSourceTarball) $(RPMBUILD_DIR)/SOURCES
+
+.PHONY: _rpmbuild _rpmharvest
+_rpmbuild: $(PackageSourceTarball) $(PackagingTargets)
+
+_rpmharvest: $(PackagingTargets)
+	$(ProjectPath)/.ci/generate_repo.sh $(CMSGEMOS_OS) $(CMSGEMOS_ARCH) $(RPM_DIR) $(RPMBUILD_DIR) $(Project)
+
+$(PackageSourceTarball):
+	$(MakeDir) $(RPM_DIR)
+	@tar -P -X $(XDAQ_ROOT)/config/src.exclude \
+	    --exclude="*.tbz2" -jcf $@ \
+	    $(PackagePath)
+
+$(TargetSRPMName): $(PackageSpecFile) | specificspecupdate rpmprep
+	rpmbuild --quiet -bs -bl \
+	    --buildroot=$(RPMBUILD_DIR)/BUILDROOT \
+	    --define "_requires $(REQUIRES_LIST)" \
+	    --define "_release $(PACKAGE_NOARCH_RELEASE)" \
+	    --define "_build_requires $(BUILD_REQUIRES_LIST)" \
+	    --define  "_topdir $(RPMBUILD_DIR)" \
+	    $(RPM_DIR)/$(LongPackage).spec \
+	    $(RPM_OPTIONS) --target "$(CMSGEMOS_ARCH)";
+	touch $@
+
+$(TargetRPMName): $(PackageSpecFile) | specificspecupdate rpmprep
+	rpmbuild --quiet -bb -bl \
+	    --buildroot=$(RPMBUILD_DIR)/BUILDROOT \
+	    --define "_requires $(REQUIRES_LIST)" \
+	    --define "_release $(PACKAGE_FULL_RELEASE)" \
+	    --define "_build_requires $(BUILD_REQUIRES_LIST)" \
+	    --define  "_topdir $(RPMBUILD_DIR)" \
+	    $(RPM_DIR)/$(LongPackage).spec \
+	    $(RPM_OPTIONS) --target "$(CMSGEMOS_ARCH)";
+	touch $@
+
+$(PackageSpecFile): $(ProjectPath)/config/build/cmsgemos.spec.template $(PackageSourceTarball)
 	$(info "Executing GEM specific spec_update")
 	@mkdir -p $(PackagePath)/rpm
 	if [ -e $(PackagePath)/spec.template ]; then \
