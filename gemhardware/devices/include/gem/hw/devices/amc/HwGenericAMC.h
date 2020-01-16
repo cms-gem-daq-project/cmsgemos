@@ -6,7 +6,7 @@
 #include "gem/hw/devices/GEMHwDevice.h"
 
 #include "gem/hw/devices/exception/Exception.h"
-#include "gem/hw/devices/GenericAMCSettingsEnums.h"
+#include "gem/hw/devices/amc/GenericAMCSettingsEnums.h"
 
 namespace gem {
   namespace hw {

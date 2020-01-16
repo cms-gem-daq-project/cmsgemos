@@ -2,13 +2,13 @@
 #include "gempython/cmsgemos_enums.h"
 
 // gemhardware enum includes
-#include "gem/hw/GenericAMCSettingsEnums.h"
-#include "gem/hw/optohybrid/OptoHybridSettingsEnums.h"
-#include "gem/hw/amc13/AMC13SettingsEnums.h"
-#include "gem/hw/glib/GLIBSettingsEnums.h"
-// #include "gem/hw/ctp7/CTP7SettingsEnums.h"
-// #include "gem/hw/vfat/VFAT2SettingsEnums.h"
-// #include "gem/hw/vfat/VFAT3SettingsEnums.h"
+#include "gem/hw/devices/amc/GenericAMCSettingsEnums.h"
+#include "gem/hw/devices/optohybrid/OptoHybridSettingsEnums.h"
+#include "gem/hw/devices/amc13/AMC13SettingsEnums.h"
+#include "gem/hw/devices/glib/GLIBSettingsEnums.h"
+// #include "gem/hw/devices/ctp7/CTP7SettingsEnums.h"
+// #include "gem/hw/devices/vfat/VFAT2SettingsEnums.h"
+// #include "gem/hw/devices/vfat/VFAT3SettingsEnums.h"
 
 namespace bpy = boost::python;
 

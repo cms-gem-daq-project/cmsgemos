@@ -4,8 +4,6 @@
 #define GEM_HW_OPTOHYBRID_OPTOHYBRIDMONITOR_H
 
 #include "gem/base/GEMMonitor.h"
-#include "gem/hw/optohybrid/exception/Exception.h"
-#include "gem/hw/optohybrid/HwOptoHybrid.h"
 
 namespace gem {
   namespace hw {
@@ -46,7 +44,7 @@ namespace gem {
          */
         void buildOtherCounterTable(xgi::Output* out);
 
-        std::string getDeviceID() { return p_optohybrid->getDeviceID(); }
+        std::string getDeviceID();
 
       private:
         std::shared_ptr<HwOptoHybrid> p_optohybrid;

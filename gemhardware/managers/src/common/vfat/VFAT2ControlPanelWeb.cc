@@ -1,4 +1,4 @@
-#include "gem/hw/vfat/VFAT2Manager.h"
+#include "gem/hw/managers/vfat/VFAT2Manager.h"
 
 //#include <boost/lexical_cast.hpp>
 //#include <boost/format.hpp>

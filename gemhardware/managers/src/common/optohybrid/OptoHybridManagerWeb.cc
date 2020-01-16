@@ -1,15 +1,16 @@
 // OptoHybridManagerWeb.cc
 
-#include "gem/hw/optohybrid/OptoHybridManagerWeb.h"
+#include "gem/hw/managers/optohybrid/OptoHybridManagerWeb.h"
 
 #include <memory>
+#include <iomanip>
 
 #include "xcept/tools.h"
 
-#include "gem/hw/optohybrid/OptoHybridManager.h"
-#include "gem/hw/optohybrid/OptoHybridMonitor.h"
+#include "gem/hw/managers/optohybrid/OptoHybridManager.h"
+#include "gem/hw/managers/optohybrid/OptoHybridMonitor.h"
 
-#include "gem/hw/optohybrid/exception/Exception.h"
+#include "gem/hw/managers/optohybrid/exception/Exception.h"
 
 gem::hw::optohybrid::OptoHybridManagerWeb::OptoHybridManagerWeb(gem::hw::optohybrid::OptoHybridManager* optohybridApp) :
   gem::base::GEMWebApplication(optohybridApp)

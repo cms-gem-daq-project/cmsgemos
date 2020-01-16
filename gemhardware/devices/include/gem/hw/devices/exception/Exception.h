@@ -99,22 +99,22 @@ GEM_HW_DEFINE_ALARM(MonitoringFailureAlarm)
  */
 
 // FIXME: SHOULD I BE A MACRO OR A FUNCTION ELSEWHERE?
-#define GEM_CATCH_RPC_ERROR(MSG_BASE, EX_TYPE)                 \
-catch (xhal::utils::XHALRPCNotConnectedException const& e) {   \
-  std::stringstream errmsg;                                    \
-  errmsg << e.what();                                          \
-  CMSGEMOS_ERROR(MSG_BASE << "error: " << errmsg.str());       \
-  XCEPT_RAISE(EX_TYPE, errmsg.str());                          \
-} catch (xhal::utils::XHALRPCException const& e) {             \
-  std::stringstream errmsg;                                    \
-  errmsg << e.what();                                          \
-  CMSGEMOS_ERROR(MSG_BASE << "error: " << errmsg.str());       \
-  XCEPT_RAISE(EX_TYPE, errmsg.str());                          \
-} catch (gem::hw::exception::RPCMethodError const& e) {        \
-  std::stringstream errmsg;                                    \
-  errmsg << e.what();                                          \
-  CMSGEMOS_ERROR(MSG_BASE << "error: " << errmsg.str());       \
-  XCEPT_RAISE(EX_TYPE, errmsg.str());                          \
+#define GEM_CATCH_RPC_ERROR(MSG_BASE, EX_TYPE)                   \
+catch (xhal::utils::XHALRPCNotConnectedException const& e) {     \
+  std::stringstream errmsg;                                      \
+  errmsg << e.what();                                            \
+  CMSGEMOS_ERROR(MSG_BASE << "error: " << errmsg.str());         \
+  XCEPT_RAISE(EX_TYPE, errmsg.str());                            \
+} catch (xhal::utils::XHALRPCException const& e) {               \
+  std::stringstream errmsg;                                      \
+  errmsg << e.what();                                            \
+  CMSGEMOS_ERROR(MSG_BASE << "error: " << errmsg.str());         \
+  XCEPT_RAISE(EX_TYPE, errmsg.str());                            \
+} catch (gem::hw::devices::exception::RPCMethodError const& e) { \
+  std::stringstream errmsg;                                      \
+  errmsg << e.what();                                            \
+  CMSGEMOS_ERROR(MSG_BASE << "error: " << errmsg.str());         \
+  XCEPT_RAISE(EX_TYPE, errmsg.str());                            \
 }
 
 // FIXME: SHOULD I BE A MACRO OR A FUNCTION ELSEWHERE

@@ -34,12 +34,16 @@ DynamicLibrary=gemsupervisor
 IncludeDirs+=$(BUILD_HOME)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/gemutils/include
-IncludeDirs+=$(BUILD_HOME)/gemhardware/include
+IncludeDirs+=$(BUILD_HOME)/gemhardware/devices/include
+IncludeDirs+=$(BUILD_HOME)/gemhardware/utils/include
+IncludeDirs+=$(BUILD_HOME)/gemhardware/managers/include
 IncludeDirs+=$(BUILD_HOME)/gemreadout/include
 IncludeDirs+=$(uHALROOT)/include
 IncludeDirs+=$(XHAL_ROOT)/include
 
-DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/devices/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/utils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/managers/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gemreadout/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
@@ -49,7 +53,7 @@ DependentLibraryDirs+=$(XHAL_ROOT)/lib
 UserCFlags  +=$(PYTHONCFLAGS)
 UserCCFlags +=$(PYTHONCFLAGS)
 
-DependentLibraries =gemhardware_managers xdaq2rc
+DependentLibraries =gemhwmanagers gemhwdevices xdaq2rc
 
 ## not building an exe
 Libraries =

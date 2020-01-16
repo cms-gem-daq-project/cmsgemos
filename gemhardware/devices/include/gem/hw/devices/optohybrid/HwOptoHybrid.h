@@ -5,7 +5,7 @@
 
 #include "gem/hw/devices/GEMHwDevice.h"
 
-#include "gem/hw/devices/optohybrid/exception/Exception.h"
+#include "gem/hw/devices/exception/Exception.h"
 #include "gem/hw/devices/optohybrid/OptoHybridSettingsEnums.h"
 
 namespace gem {

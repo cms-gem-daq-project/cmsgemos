@@ -18,11 +18,11 @@
 #include "gem/hw/GEMHwDevice.h"
 #include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
-#include "gem/hw/vfat/HwVFAT2.h"
-#include "gem/hw/vfat/VFAT2Settings.h"
-#include "gem/hw/vfat/VFAT2SettingsEnums.h"
-#include "gem/hw/vfat/VFAT2Enums2Strings.h"
-#include "gem/hw/vfat/VFAT2Strings2Enums.h"
+#include "gem/hw/devices/vfat/HwVFAT2.h"
+#include "gem/hw/devices/vfat/VFAT2Settings.h"
+#include "gem/hw/devices/vfat/VFAT2SettingsEnums.h"
+#include "gem/hw/devices/vfat/VFAT2Enums2Strings.h"
+#include "gem/hw/devices/vfat/VFAT2Strings2Enums.h"
 
 namespace cgicc {
   BOOLEAN_ELEMENT(section, "section");

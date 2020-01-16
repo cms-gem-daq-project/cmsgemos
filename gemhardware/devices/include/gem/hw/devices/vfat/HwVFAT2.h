@@ -3,15 +3,15 @@
 #ifndef GEM_HW_VFAT_HWVFAT2_H
 #define GEM_HW_VFAT_HWVFAT2_H
 
-#include "gem/hw/GEMHwDevice.h"
+#include "gem/hw/devices/GEMHwDevice.h"
 
-#include "gem/hw/vfat/VFAT2Settings.h"
-#include "gem/hw/vfat/VFAT2SettingsEnums.h"
-#include "gem/hw/vfat/VFAT2Enums2Strings.h"
-#include "gem/hw/vfat/VFAT2Strings2Enums.h"
-//#include "gem/hw/vfat/VFAT2EnumStrings.h"
+#include "gem/hw/devices/vfat/VFAT2Settings.h"
+#include "gem/hw/devices/vfat/VFAT2SettingsEnums.h"
+#include "gem/hw/devices/vfat/VFAT2Enums2Strings.h"
+#include "gem/hw/devices/vfat/VFAT2Strings2Enums.h"
+//#include "gem/hw/devices/vfat/VFAT2EnumStrings.h"
 
-#include "gem/hw/vfat/exception/Exception.h"
+#include "gem/hw/devices/exception/Exception.h"
 
 typedef std::pair<std::string, uint8_t> vfat_reg_pair;
 typedef std::vector<vfat_reg_pair>      vfat_reg_pair_list;

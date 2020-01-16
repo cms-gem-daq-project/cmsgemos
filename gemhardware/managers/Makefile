@@ -42,6 +42,8 @@ Sources+=optohybrid/OptoHybridManager.cc optohybrid/OptoHybridManagerWeb.cc opto
 DynamicLibrary=gemhwmanagers
 
 IncludeDirs+=$(BUILD_HOME)/$(Package)/include
+IncludeDirs+=$(BUILD_HOME)/gemhardware/devices/include
+IncludeDirs+=$(BUILD_HOME)/gemhardware/utils/include
 IncludeDirs+=$(BUILD_HOME)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/gemreadout/include
@@ -49,27 +51,32 @@ IncludeDirs+=$(uHALROOT)/include
 IncludeDirs+=$(XHAL_ROOT)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/devices/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/utils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gemreadout/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(uHALROOT)/lib
 DependentLibraryDirs+=$(XHAL_ROOT)/lib
 
+LibraryDirs+=$(BUILD_HOME)/gemhardware/devices/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+LibraryDirs+=$(BUILD_HOME)/gemhardware/utils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+
 UserCFlags  +=$(PYTHONCFLAGS)
 UserCCFlags +=$(PYTHONCFLAGS)
 
-DependentLibraries =gemreadout gemhardware_devices
+DependentLibraries =gemreadout gemhwutils gemhwdevices
 DependentLibraries+=cactus_amc13_amc13 cactus_amc13_tools
 
 DependentLibraries+=cactus_amc13_tools
-DependentLibraries+=gemutils gembase gemreadout gemhardware_devices
+DependentLibraries+=gemutils gembase gemreadout gemhwutils gemhwdevices
 
 Libraries =
 
-UserCFlags+=-O0 -g3 -fno-inline
-UserCCFlags+=-O0 -g3 -fno-inline
-CFlags+=-O0 -g3 -fno-inline
-CCFlags+=-O0 -g3 -fno-inline
+# UserCFlags+=-O0 -g3 -fno-inline
+# UserCCFlags+=-O0 -g3 -fno-inline
+# CFlags+=-O0 -g3 -fno-inline
+# CCFlags+=-O0 -g3 -fno-inline
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
 include $(BUILD_HOME)/config/mfRPMDefsGEM.mk

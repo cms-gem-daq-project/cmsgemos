@@ -3,9 +3,9 @@
 #ifndef GEM_HW_VFAT_VFAT2SETTINGS_H
 #define GEM_HW_VFAT_VFAT2SETTINGS_H
 
-#include "gem/hw/vfat/VFAT2SettingsEnums.h"
-#include "gem/hw/vfat/VFAT2Enums2Strings.h"
-#include "gem/hw/vfat/VFAT2Strings2Enums.h"
+#include "gem/hw/devices/vfat/VFAT2SettingsEnums.h"
+#include "gem/hw/devices/vfat/VFAT2Enums2Strings.h"
+#include "gem/hw/devices/vfat/VFAT2Strings2Enums.h"
 
 #include "xdata/UnsignedShort.h"
 #include "xdata/Vector.h"

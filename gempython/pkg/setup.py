@@ -59,7 +59,7 @@ __builddate__='{6:s}'
     # return '{0:s}{1:s}'.format(__version__,__prerel__)
     return '{0:s}'.format(__version__)
 
-setup(name             = '__packagename__',
+setup(name             = '__project_____package__',
       version          = getVersion(),
       # use_scm_version  = True,
       description      = '__description__',

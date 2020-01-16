@@ -160,7 +160,7 @@ gemonlinedb: gemutils gembase
 
 gemreadout: gemutils gembase gemhardware/devices
 
-gemdaqmonitor: gembase gemhwdevices
+gemdaqmonitor: gembase gemhardware/devices gemhardware/utils
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

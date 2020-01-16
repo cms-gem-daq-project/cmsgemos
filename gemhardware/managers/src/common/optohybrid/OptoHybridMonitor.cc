@@ -6,14 +6,16 @@
  * date:
  */
 
-#include "gem/hw/optohybrid/HwOptoHybrid.h"
+#include "gem/hw/managers/optohybrid/OptoHybridMonitor.h"
 
 #include <algorithm>
 #include <array>
 #include <iterator>
 
-#include "gem/hw/optohybrid/OptoHybridMonitor.h"
-#include "gem/hw/optohybrid/OptoHybridManager.h"
+#include "gem/hw/devices/optohybrid/HwOptoHybrid.h"
+
+#include "gem/hw/managers/optohybrid/OptoHybridManager.h"
+
 #include "gem/base/GEMApplication.h"
 #include "gem/base/GEMFSMApplication.h"
 
@@ -377,6 +379,11 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildOtherCounterTable(xgi::Output*
 
     *out << "</tr>"   << std::endl;
   }
+}
+
+std::string gem::hw::optohybrid::OptoHybridMonitor::getDeviceID()
+{
+  return p_optohybrid->getDeviceID();
 }
 
 void gem::hw::optohybrid::OptoHybridMonitor::reset()

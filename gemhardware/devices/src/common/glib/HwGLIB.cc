@@ -2,6 +2,8 @@
 
 #include "gem/hw/glib/HwGLIB.h"
 
+#include "gem/hw/devices/exception/Exception.h"
+
 gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
                               std::string const& connectionFile) :
   gem::hw::HwGenericAMC::HwGenericAMC(glibDevice, connectionFile)
@@ -144,14 +146,14 @@ void gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& input, ui
   if (xpoint2 && (input > 2 || output > 0)) {
     std::string msg = toolbox::toString("Invalid clock routing for XPoint2 %d -> %d",input,output);
     CMSGEMOS_ERROR(msg);
-    // XCEPT_RAISE(gem::hw::glib::exception::InvalidXPoint2Routing,msg);
+    // XCEPT_RAISE(gem::hw::devices::exception::InvalidXPoint2Routing,msg);
     return;
   }
 
   if ((input > 3 || output > 3)) {
     std::string msg = toolbox::toString( "Invalid clock routing for XPoint%d %d -> %d",xpoint2,input,output);
     CMSGEMOS_ERROR(msg);
-    // XCEPT_RAISE(gem::hw::glib::exception::InvalidXPointRouting,msg);
+    // XCEPT_RAISE(gem::hw::devices::exception::InvalidXPointRouting,msg);
     return;
   }
 
@@ -188,7 +190,7 @@ uint8_t gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& output
     if (xpoint2 && output > 0) {
     std::string msg = toolbox::toString("Invalid clock output for XPoint2 %d",output);
     CMSGEMOS_ERROR(msg);
-    // XCEPT_RAISE(gem::hw::glib::exception::InvalidXPoint2Routing,msg);
+    // XCEPT_RAISE(gem::hw::devices::exception::InvalidXPoint2Routing,msg);
     return output;
     }
   */
@@ -196,7 +198,7 @@ uint8_t gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& output
   if (output > 3) {
     std::string msg = toolbox::toString( "Invalid clock output for XPoint%d %d",xpoint2,output);
     CMSGEMOS_ERROR(msg);
-    // XCEPT_RAISE(gem::hw::glib::exception::InvalidXPointRouting,msg);
+    // XCEPT_RAISE(gem::hw::devices::exception::InvalidXPointRouting,msg);
     return output;
   }
 
@@ -229,7 +231,7 @@ uint8_t gem::hw::glib::HwGLIB::SFPStatus(uint8_t const& sfpcage)
   if (sfpcage < 1 || sfpcage > 4) {
     std::string msg = toolbox::toString("Status requested for SFP (%d): outside expectation (1,4)", sfpcage);
     CMSGEMOS_ERROR(msg);
-    // XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
+    // XCEPT_RAISE(gem::hw::devices::exception::InvalidLink,msg);
     return 0;
   }
   std::stringstream regName;

@@ -3,7 +3,7 @@
 #ifndef GEM_HW_VFAT_VFAT2ENUMS2STRINGS_H
 #define GEM_HW_VFAT_VFAT2ENUMS2STRINGS_H
 
-#include "gem/hw/vfat/VFAT2SettingsEnums.h"
+#include "gem/hw/devices/vfat/VFAT2SettingsEnums.h"
 
 #include <unordered_map> // TODO: migrate to std::unordered_map if/when possible
 #include <iostream>

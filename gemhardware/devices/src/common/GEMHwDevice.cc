@@ -145,20 +145,20 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
       } else {
         errmsg << ": " << errcode.str();
         CMSGEMOS_ERROR("GEMHwDevice::readReg " << errmsg.str());
-        // XCEPT_RAISE(gem::hw::exception::HardwareProblem, errmsg.str());
+        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, errmsg.str());
       }
     } catch (std::exception const& err) {
       std::stringstream errmsg;
       errmsg << "Could not read register '" << name << "' (std): "
              << err.what();
       CMSGEMOS_ERROR("GEMHwDevice::" << errmsg.str());
-      // XCEPT_RAISE(gem::hw::exception::HardwareProblem, errmsg.str());
+      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, errmsg.str());
     }
   }
   std::stringstream errmsg;
   errmsg << "Maximum number of retries reached, unable to read register '" << name << "'";
   CMSGEMOS_ERROR("GEMHwDevice::" << errmsg.str());
-  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, errmsg.str());
+  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, errmsg.str());
   return res;
 }
 
@@ -196,19 +196,19 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address)
         continue;
       } else {
         CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
     } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read register '0x%08x' (std)", address);
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
     }
   }
   std::string msg = toolbox::toString("Maximum number of retries reached, unable to read register 0x%08x",
                                       address);
   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
   return res;
 }
 
@@ -248,19 +248,19 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address, uint32_t const& 
         continue;
       } else {
         CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
     } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read register '0x%08x' (std)", address);
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
     }
   }
   std::string msg = toolbox::toString("Maximum number of retries reached, unable to read register 0x%08x",
                                       address);
   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
   return res;
 }
 
@@ -314,7 +314,7 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList, int const& freq
         continue;
       } else {
         CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
     } catch (std::exception const& err) {
       std::string msgBase = "Could not read from register in list:";
@@ -322,12 +322,12 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList, int const& freq
         msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
       std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
       CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
     }
   }
   std::string msg = toolbox::toString("Maximum number of retries reached, unable to read registers");
   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
 }
 
 void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList, int const& freq)
@@ -373,7 +373,7 @@ void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList, int c
         continue;
       } else {
         CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
     } catch (std::exception const& err) {
       std::string msgBase = "Could not read from register in list:";
@@ -381,12 +381,12 @@ void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList, int c
         msgBase += toolbox::toString(" '0x%08x mask 0x%08x'", curReg->first);
       std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
       CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
     }
   }
   std::string msg = toolbox::toString("Maximum number of retries reached, unable to read registers");
   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
 }
 
 void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList, int const& freq)
@@ -433,7 +433,7 @@ void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList, int cons
         continue;
       } else {
         CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
     } catch (std::exception const& err) {
       std::string msgBase = "Could not read from register in list:";
@@ -441,12 +441,12 @@ void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList, int cons
         msgBase += toolbox::toString(" '0x%08x mask 0x%08x'", curReg->first.first, curReg->first.second);
       std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
       CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
     }
   }
   std::string msg = toolbox::toString("Maximum number of retries reached, unable to read registers");
   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
 }
 
 void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
@@ -483,7 +483,7 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
         if (rval.value() != val) {
           std::string msgBase = toolbox::toString("WriteValueMismatch write (0x%x) to register '%s' resulted in 0x%x (uHAL)",
                                                   val, name.c_str(),rval.value());
-          XCEPT_RAISE(gem::hw::exception::WriteValueMismatch, toolbox::toString("%s.", msgBase.c_str()));
+          XCEPT_RAISE(gem::hw::devices::exception::WriteValueMismatch, toolbox::toString("%s.", msgBase.c_str()));
         }
       return;
     } catch (uhal::exception::exception const& err) {
@@ -500,9 +500,9 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
         continue;
       } else {
         CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
-    } catch (gem::hw::exception::WriteValueMismatch const& err) {
+    } catch (gem::hw::devices::exception::WriteValueMismatch const& err) {
       std::string msgBase = toolbox::toString("Could not write to register '%s' (uHAL)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
@@ -511,12 +511,12 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
       std::string msgBase = toolbox::toString("Could not write to register '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
     }
   }
   std::string msg = toolbox::toString("Maximum number of retries reached, unable to write to register %s",name.c_str());
   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
 }
 
 void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
@@ -539,7 +539,7 @@ void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
       if (rval.value() != val) {
         std::string msgBase = toolbox::toString("WriteValueMismatch write (0x%x) to register '0x%08x' resulted in 0x%x (uHAL)",
                                                 val,address,rval.value());
-        XCEPT_RAISE(gem::hw::exception::WriteValueMismatch, toolbox::toString("%s.", msgBase.c_str()));
+        XCEPT_RAISE(gem::hw::devices::exception::WriteValueMismatch, toolbox::toString("%s.", msgBase.c_str()));
       }
       return;
     } catch (uhal::exception::exception const& err) {
@@ -557,9 +557,9 @@ void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
         continue;
       } else {
         CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
-    } catch (gem::hw::exception::WriteValueMismatch const& err) {
+    } catch (gem::hw::devices::exception::WriteValueMismatch const& err) {
       std::string msgBase = toolbox::toString("Could not write to register '0x%08x' (uHAL)", address);
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
@@ -568,13 +568,13 @@ void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
       std::string msgBase = toolbox::toString("Could not write to register '0x%08x' (std)", address);
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
     }
   }
   std::string msg = toolbox::toString("Maximum number of retries reached, unable to write to register 0x%08x",
                                       address);
   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
 }
 
 void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList, int const& freq)
@@ -612,7 +612,7 @@ void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList, int cons
         continue;
       } else {
         CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
     } catch (std::exception const& err) {
       std::string msgBase = "Could not write to register in list:";
@@ -620,7 +620,7 @@ void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList, int cons
         msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
       std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
       CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
     }
   }
 }
@@ -688,18 +688,18 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
         continue;
       } else {
         CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
     } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read block '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
     }
   }
   std::string msg = toolbox::toString("Maximum number of retries reached, unable to read block");
   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
   return res;
 }
 
@@ -744,18 +744,18 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
         continue;
       } else {
         CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
     } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to block '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
     }
   }
   std::string msg = toolbox::toString("Maximum number of retries reached, unable to write block %s",name.c_str());
   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
 }
 
 std::vector<uint32_t> gem::hw::GEMHwDevice::readFIFO(std::string const& name)
@@ -829,12 +829,12 @@ void gem::hw::GEMHwDevice::checkRPCResponse(std::string const& caller) const
     std::stringstream errmsg;
     errmsg << rsp.get_string("error");
     CMSGEMOS_ERROR(caller << ": " << errmsg.str());
-    XCEPT_RAISE(gem::hw::exception::RPCMethodError, errmsg.str());
+    XCEPT_RAISE(gem::hw::devices::exception::RPCMethodError, errmsg.str());
   } else if (rsp.get_key_exists("rpcerror")) {
     std::stringstream errmsg;
     errmsg << rsp.get_string("rpcerror");
     CMSGEMOS_ERROR(caller << ": " << errmsg.str());
-    XCEPT_RAISE(gem::hw::exception::RPCMethodError, errmsg.str());
+    XCEPT_RAISE(gem::hw::devices::exception::RPCMethodError, errmsg.str());
   }
 }
 
@@ -848,6 +848,6 @@ uint8_t gem::hw::GEMHwDevice::extractDeviceID(std::string const& deviceName, uin
     std::stringstream errmsg;
     errmsg << "Unable to extract parameter " << static_cast<int>(index)
            << " value from provided device name: " << deviceName;
-    XCEPT_RAISE(gem::hw::exception::DeviceNameParseError, errmsg.str());
+    XCEPT_RAISE(gem::hw::devices::exception::DeviceNameParseError, errmsg.str());
   }
 }

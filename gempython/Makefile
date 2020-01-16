@@ -18,7 +18,7 @@ Namespace    := gempython
 Package      := gempython
 LongPackage  := gempython
 ShortPackage := gempython
-PackageName  := $(Project)_$(ShortPackage)
+PackageName  := python
 PackageDir   := pkg/$(Namespace)
 ScriptDir    := pkg/$(Namespace)/scripts
 
@@ -55,21 +55,24 @@ Sources = $(wildcard src/common/*.cc) $(wildcard src/common/*.cpp) $(wildcard sr
 
 IncludeDirs+=$(BUILD_HOME)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/gemutils/include
-IncludeDirs+=$(BUILD_HOME)/gemhardware/include
+IncludeDirs+=$(BUILD_HOME)/gemhardware/devices/include
+IncludeDirs+=$(BUILD_HOME)/gemhardware/utils/include
 IncludeDirs+=$(uHALROOT)/include
 IncludeDirs+=$(XHAL_ROOT)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/devices/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/utils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(uHALROOT)/lib
 DependentLibraryDirs+=$(XHAL_ROOT)/lib
 
 LibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-LibraryDirs+=$(BUILD_HOME)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+LibraryDirs+=$(BUILD_HOME)/gemhardware/devices/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+LibraryDirs+=$(BUILD_HOME)/gemhardware/utils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(uHALROOT)/lib
 LibraryDirs+=$(XHAL_ROOT)/lib
 
-DependentLibraries =gemhardware_devices
+DependentLibraries =gemhwdevices gemhwutils
 DependentLibraries+=boost_python
 
 # UserDynamicLinkFlags+=

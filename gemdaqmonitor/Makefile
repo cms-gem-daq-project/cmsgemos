@@ -34,19 +34,21 @@ DynamicLibrary=gemdaqmonitor
 IncludeDirs+=$(BUILD_HOME)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/gemutils/include
-IncludeDirs+=$(BUILD_HOME)/gemhardware/include
+IncludeDirs+=$(BUILD_HOME)/gemhardware/devices/include
+IncludeDirs+=$(BUILD_HOME)/gemhardware/utils/include
 IncludeDirs+=$(XHAL_ROOT)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/devices/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/utils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(XHAL_ROOT)/lib
 
 UserCFlags  +=$(PYTHONCFLAGS)
 UserCCFlags +=$(PYTHONCFLAGS)
 
 DependentLibraries =gembase
-DependentLibraries+=gemhardware_devices xhal
+DependentLibraries+=gemhwdevices gemhwutils xhal
 DependentLibraries+=boost_iostreams
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules

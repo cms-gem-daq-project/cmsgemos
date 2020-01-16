@@ -3,10 +3,9 @@
 #ifndef GEM_HW_GLIB_HWGLIB_H
 #define GEM_HW_GLIB_HWGLIB_H
 
-#include "gem/hw/HwGenericAMC.h"
+#include "gem/hw/devices/amc/HwGenericAMC.h"
 
-#include "gem/hw/glib/exception/Exception.h"
-#include "gem/hw/glib/GLIBSettingsEnums.h"
+#include "gem/hw/devices/glib/GLIBSettingsEnums.h"
 
 namespace gem {
   namespace hw {

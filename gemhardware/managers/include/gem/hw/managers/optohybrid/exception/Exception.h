@@ -1,11 +1,11 @@
 /** @file Exception.h */
 
-#ifndef GEM_HW_OPTOHYBRID_EXCEPTION_EXCEPTION_H
-#define GEM_HW_OPTOHYBRID_EXCEPTION_EXCEPTION_H
+#ifndef GEM_HW_MANAGERS_OPTOHYBRID_EXCEPTION_EXCEPTION_H
+#define GEM_HW_MANAGERS_OPTOHYBRID_EXCEPTION_EXCEPTION_H
 
 #include <string>
 
-#include "gem/hw/exception/Exception.h"
+#include "gem/hw/managers/exception/Exception.h"
 
 /***
  // Macros defined in xdaq code that are useful to remember
@@ -36,36 +36,38 @@
 #define GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(EXCEPTION_NAME)              \
   namespace gem {                                                       \
     namespace hw {                                                      \
-      namespace optohybrid {                                            \
-        namespace exception {                                           \
-          class EXCEPTION_NAME : virtual public xcept::Exception        \
-            {                                                           \
-            public :                                                    \
-            EXCEPTION_NAME() :                                          \
-              xcept::Exception()                                        \
-                {};                                                     \
-            EXCEPTION_NAME(std::string name,                            \
-                           std::string message,                         \
-                           std::string module,                          \
-                           int line,                                    \
-                           std::string function) :                      \
-              xcept::Exception(name, message, module, line, function)   \
-                {};                                                     \
-            EXCEPTION_NAME(std::string name,                            \
-                           std::string message,                         \
-                           std::string module,                          \
-                           int line,                                    \
-                           std::string function,                        \
-                           gem::hw::exception::Exception& err) :        \
-              xcept::Exception(name, message, module, line, function, err) \
-                {};                                                     \
-            };                                                          \
+      namespace managers {                                              \
+        namespace optohybrid {                                          \
+          namespace exception {                                         \
+            class EXCEPTION_NAME : virtual public xcept::Exception      \
+              {                                                         \
+              public :                                                  \
+              EXCEPTION_NAME() :                                        \
+                xcept::Exception()                                      \
+                  {};                                                   \
+              EXCEPTION_NAME(std::string name,                          \
+                             std::string message,                       \
+                             std::string module,                        \
+                             int line,                                  \
+                             std::string function) :                    \
+                xcept::Exception(name, message, module, line, function) \
+                  {};                                                   \
+              EXCEPTION_NAME(std::string name,                          \
+                             std::string message,                       \
+                             std::string module,                        \
+                             int line,                                  \
+                             std::string function,                      \
+                             gem::hw::managers::exception::Exception& err) : \
+                xcept::Exception(name, message, module, line, function, err) \
+                  {};                                                   \
+              };                                                        \
+          }  /* namespace gem::hw::managers::optohybrid::exception */   \
         }  /* namespace gem::hw::optohybrid::exception */               \
       }  /* namespace gem::hw::optohybrid            */                 \
     }  /* namespace gem::hw                        */                   \
   }  /* namespace gem                            */
 
-// The gem::hw::optohybrid exceptions.
+// The gem::hw::managers::optohybrid exceptions.
 GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(Exception)
 GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(ConfigurationParseProblem)
 GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(ConfigurationProblem)
@@ -81,9 +83,9 @@ GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(TransitionProblem)
 GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(SoftwareProblem)
 GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(ValueError)
 
-// The gem::hw::optohybrid alarms.
+// The gem::hw::managers::optohybrid alarms.
 #define GEM_HW_OPTOHYBRID_DEFINE_ALARM(ALARM_NAME) GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(ALARM_NAME)
 
 GEM_HW_OPTOHYBRID_DEFINE_ALARM(MonitoringFailureAlarm)
 
-#endif  // GEM_HW_OPTOHYBRID_EXCEPTION_EXCEPTION_H
+#endif  // GEM_HW_MANAGERS_OPTOHYBRID_EXCEPTION_EXCEPTION_H

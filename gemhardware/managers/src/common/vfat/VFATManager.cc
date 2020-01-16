@@ -6,11 +6,11 @@
  * date:
  */
 
-#include "gem/hw/vfat/VFATManagerWeb.h"
-#include "gem/hw/vfat/VFATManager.h"
+#include "gem/hw/managers/vfat/VFATManagerWeb.h"
+#include "gem/hw/managers/vfat/VFATManager.h"
 
-#include "gem/hw/vfat/HwVFAT2.h"
-//#include "gem/hw/vfat/exception/Exception.h"
+#include "gem/hw/devices/vfat/HwVFAT2.h"
+//#include "gem/hw/managers/vfat/exception/Exception.h"
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::vfat::VFATManager);
 

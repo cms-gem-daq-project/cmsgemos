@@ -37,11 +37,10 @@ DynamicLibrary=gemhwutils
 IncludeDirs+=$(BUILD_HOME)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/gemutils/include
 
-DependentLibraryDirs+=$(BUILD_HOME)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
-UserCFlags  +=$(PYTHONCFLAGS)
-UserCCFlags +=$(PYTHONCFLAGS)
+# UserCFlags +=$(PYTHONCFLAGS)
+# UserCCFlags+=$(PYTHONCFLAGS)
 
 DependentLibraries+=gemutils
 

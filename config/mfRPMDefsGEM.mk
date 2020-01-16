@@ -165,7 +165,7 @@ spec_update:
 	sed -i 's#__packagename__#$(PackageName)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
 	sed -i 's#__longpackage__#$(LongPackage)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
 	sed -i 's#__longpackagedir__#$(PackagePath)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
-	sed -i 's#__longpackagename__#$(LongPackage)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
+	sed -i 's#__longpackagename__#$(ShortProject)$(PackageName)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
 	sed -i 's#__os__#$(XDAQ_OS)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
 	sed -i 's#__platform__#$(XDAQ_PLATFORM)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec
 	sed -i 's#__project__#$(Project)#' $(PackagePath)/rpm/$(ShortProject)$(PackageName).spec

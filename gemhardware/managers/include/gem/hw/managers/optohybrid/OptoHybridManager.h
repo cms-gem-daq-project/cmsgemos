@@ -9,11 +9,7 @@
 #include "gem/base/GEMFSMApplication.h"
 // #include "gem/hw/optohybrid/OptoHybridSettings.h"
 
-#include "gem/hw/optohybrid/exception/Exception.h"
-
 #include "gem/utils/soap/GEMSOAPToolBox.h"
-#include "gem/utils/exception/Exception.h"
-
 
 namespace gem {
   namespace hw {
@@ -45,21 +41,19 @@ namespace gem {
           virtual void actionPerformed(xdata::Event& event) override;
 
           // state transitions
-          virtual void initializeAction() throw (gem::hw::optohybrid::exception::Exception) override;
-          virtual void configureAction()  throw (gem::hw::optohybrid::exception::Exception) override;
-          virtual void startAction()      throw (gem::hw::optohybrid::exception::Exception) override;
-          virtual void pauseAction()      throw (gem::hw::optohybrid::exception::Exception) override;
-          virtual void resumeAction()     throw (gem::hw::optohybrid::exception::Exception) override;
-          virtual void stopAction()       throw (gem::hw::optohybrid::exception::Exception) override;
-          virtual void haltAction()       throw (gem::hw::optohybrid::exception::Exception) override;
-          virtual void resetAction()      throw (gem::hw::optohybrid::exception::Exception) override;
-          // virtual void noAction()         throw (gem::hw::optohybrid::exception::Exception) override;
+          virtual void initializeAction() override;
+          virtual void configureAction()  override;
+          virtual void startAction()      override;
+          virtual void pauseAction()      override;
+          virtual void resumeAction()     override;
+          virtual void stopAction()       override;
+          virtual void haltAction()       override;
+          virtual void resetAction()      override;
+          // virtual void noAction()         override;
 
-          void failAction(toolbox::Event::Reference e)
-            throw (toolbox::fsm::exception::Exception);
+          void failAction(toolbox::Event::Reference e);
 
-          virtual void resetAction(toolbox::Event::Reference e)
-            throw (toolbox::fsm::exception::Exception) override;
+          virtual void resetAction(toolbox::Event::Reference e) override;
 
         protected:
           class OptoHybridInfo
@@ -108,8 +102,8 @@ namespace gem {
           HWMapMatrix<is_toolbox_ptr, MAX_OPTOHYBRIDS_PER_AMC, MAX_AMCS_PER_CRATE>
             is_optohybrids;  ///< OptoHybrid InfoSpace pointers to be managed
 
-          xdata::Vector<xdata::Bag<OptoHybridInfo> > m_optohybridInfo;  ///< 
-          xdata::String m_connectionFile;  ///< 
+          xdata::Vector<xdata::Bag<OptoHybridInfo> > m_optohybridInfo;  ///<
+          xdata::String m_connectionFile;  ///<
 
           HWMapMatrix<uint32_t, MAX_OPTOHYBRIDS_PER_AMC, MAX_AMCS_PER_CRATE>
             m_trackingMask;   ///< VFAT slots to ignore I2C and tracking data
@@ -119,10 +113,10 @@ namespace gem {
             m_sbitMask;       ///< VFAT slots to block trigger data
 
           HWMapMatrix<std::vector<std::pair<uint8_t, uint32_t> >, MAX_OPTOHYBRIDS_PER_AMC, MAX_AMCS_PER_CRATE>
-            m_vfatMapping;  ///< VFAT mapping 
+            m_vfatMapping;  ///< VFAT mapping
 
 	  uint32_t m_lastLatency;         ///< Special variable for latency scan mode
-          uint32_t m_lastVT1, m_lastVT2;  ///< Special variable for threshold scan mode 
+          uint32_t m_lastVT1, m_lastVT2;  ///< Special variable for threshold scan mode
 
           std::map<int,std::set<int> > m_hwMapping;        ///< FIXME UNUSED
           std::map<std::string, uint8_t > m_vfatSettings;  ///< FIXME OBSOLETE V3

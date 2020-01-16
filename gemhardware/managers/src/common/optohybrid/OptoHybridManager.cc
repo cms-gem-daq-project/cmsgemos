@@ -6,15 +6,18 @@
  * date:
  */
 
-#include "gem/hw/optohybrid/OptoHybridManager.h"
+#include "gem/hw/managers/optohybrid/OptoHybridManager.h"
 
-#include "gem/hw/optohybrid/HwOptoHybrid.h"
-#include "gem/hw/optohybrid/OptoHybridMonitor.h"
-#include "gem/hw/optohybrid/OptoHybridManagerWeb.h"
+#include "gem/hw/devices/optohybrid/HwOptoHybrid.h"
+#include "gem/hw/managers/optohybrid/OptoHybridMonitor.h"
+#include "gem/hw/managers/optohybrid/OptoHybridManagerWeb.h"
 
-#include "gem/hw/optohybrid/exception/Exception.h"
+// #include "gem/hw/optohybrid/exception/Exception.h"
+#include "gem/hw/managers/optohybrid/exception/Exception.h"
+#include "gem/hw/devices/exception/Exception.h"
+#include "gem/utils/exception/Exception.h"
 
-#include "gem/hw/vfat/HwVFAT2.h"
+#include "gem/hw/devices/vfat/HwVFAT2.h"
 #include "gem/hw/utils/GEMCrateUtils.h"
 
 #include "xoap/MessageReference.h"
@@ -101,7 +104,6 @@ void gem::hw::optohybrid::OptoHybridManager::init()
 
 // state transitions
 void gem::hw::optohybrid::OptoHybridManager::initializeAction()
-  throw (gem::hw::optohybrid::exception::Exception)
 {
   CMSGEMOS_DEBUG("OptoHybridManager::initializeAction begin");
   // FIXME make me more streamlined
@@ -152,21 +154,21 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
                        << " (slot " << slot+1 << ")"
                        << " (link " << link   << ")");
         m_optohybrids.at(slot).at(link) = std::make_shared<gem::hw::optohybrid::HwOptoHybrid>(deviceName,m_connectionFile.toString());
-      } catch (gem::hw::optohybrid::exception::Exception const& e) {
+      } catch (gem::hw::managers::optohybrid::exception::Exception const& e) {
         std::stringstream errmsg;
         errmsg << "OptoHybridManager::initializeAction caught exception " << e.what();
         CMSGEMOS_ERROR(errmsg.str());
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, errmsg.str());
+        XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
       } catch (toolbox::net::exception::MalformedURN const& e) {
         std::stringstream errmsg;
         errmsg << "OptoHybridManager::initializeAction caught exception " << e.what();
         CMSGEMOS_ERROR(errmsg.str());
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, errmsg.str());
+        XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
       } catch (std::exception const& e) {
         std::stringstream errmsg;
         errmsg << "OptoHybridManager::initializeAction caught exception " << e.what();
         CMSGEMOS_ERROR(errmsg.str());
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, errmsg.str());
+        XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
       }
       CMSGEMOS_DEBUG("OptoHybridManager::initializeAction connected");
       // set the web view to be empty or grey
@@ -221,7 +223,7 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
                << link << " to AMC in slot " << (slot+1) << " is not responding";
         CMSGEMOS_ERROR(errmsg.str());
         // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, errmsg.str());
+        XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
       }
     }
   }
@@ -229,7 +231,6 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
 }
 
 void gem::hw::optohybrid::OptoHybridManager::configureAction()
-  throw (gem::hw::optohybrid::exception::Exception)
 {
   CMSGEMOS_DEBUG("OptoHybridManager::configureAction");
 
@@ -350,7 +351,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
                << " to AMC in slot " << static_cast<uint32_t>(slot+1) << " is not responding";
         CMSGEMOS_ERROR(errmsg.str());
         // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, errmsg.str());
+        XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
       }
     }
 
@@ -363,7 +364,6 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 }
 
 void gem::hw::optohybrid::OptoHybridManager::startAction()
-  throw (gem::hw::optohybrid::exception::Exception)
 {
   if (m_scanType.value_ == 2) {
     m_lastLatency = m_scanMin.value_;
@@ -435,7 +435,7 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
                << " to AMC in slot " << static_cast<uint32_t>(slot+1) << " is not responding";
         CMSGEMOS_ERROR(errmsg.str());
         // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, errmsg.str());
+        XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
       }
     }
 
@@ -447,7 +447,6 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
 }
 
 void gem::hw::optohybrid::OptoHybridManager::pauseAction()
-  throw (gem::hw::optohybrid::exception::Exception)
 {
   // put all connected VFATs into sleep mode?
   // FIXME make me more streamlined
@@ -493,7 +492,7 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
                << " to AMC in slot " << static_cast<uint32_t>(slot+1) << " is not responding";
         CMSGEMOS_ERROR(errmsg.str());
         // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, errmsg.str());
+        XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
       }
     }
 
@@ -515,7 +514,6 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
 }
 
 void gem::hw::optohybrid::OptoHybridManager::resumeAction()
-  throw (gem::hw::optohybrid::exception::Exception)
 {
   // put all connected VFATs into run mode?
   usleep(10);
@@ -523,7 +521,6 @@ void gem::hw::optohybrid::OptoHybridManager::resumeAction()
 }
 
 void gem::hw::optohybrid::OptoHybridManager::stopAction()
-  throw (gem::hw::optohybrid::exception::Exception)
 {
   CMSGEMOS_DEBUG("OptoHybridManager::stopAction");
   // FIXME will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
@@ -572,7 +569,7 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
                << " to AMC in slot " << static_cast<uint32_t>(slot+1) << " is not responding";
         CMSGEMOS_ERROR(errmsg.str());
         // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, errmsg.str());
+        XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
       }
     }
 
@@ -584,7 +581,6 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
 }
 
 void gem::hw::optohybrid::OptoHybridManager::haltAction()
-  throw (gem::hw::optohybrid::exception::Exception)
 {
   // put all connected VFATs into sleep mode?
   usleep(10);
@@ -592,7 +588,6 @@ void gem::hw::optohybrid::OptoHybridManager::haltAction()
 }
 
 void gem::hw::optohybrid::OptoHybridManager::resetAction()
-  throw (gem::hw::optohybrid::exception::Exception)
 {
   // unregister listeners and items in info spaces
   CMSGEMOS_DEBUG("OptoHybridManager::resetAction begin");
@@ -642,17 +637,16 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
 
 /*
 void gem::hw::optohybrid::OptoHybridManager::noAction()
-  throw (gem::hw::optohybrid::exception::Exception)
 {
 }
 */
 
 void gem::hw::optohybrid::OptoHybridManager::failAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
+{
 }
 
 void gem::hw::optohybrid::OptoHybridManager::resetAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
+{
 }
 
 void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_toolbox_ptr is_optohybrid,

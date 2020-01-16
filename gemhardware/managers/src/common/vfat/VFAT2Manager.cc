@@ -10,8 +10,8 @@
 
 #include "xdaq/NamespaceURI.h"
 
-#include "gem/hw/vfat/VFAT2Manager.h"
-#include "gem/hw/vfat/HwVFAT2.h"
+#include "gem/hw/managers/vfat/VFAT2Manager.h"
+#include "gem/hw/devices/vfat/HwVFAT2.h"
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::vfat::VFAT2Manager);
 
