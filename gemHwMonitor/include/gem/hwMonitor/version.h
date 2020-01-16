@@ -7,7 +7,8 @@
 
 #include "config/PackageInfo.h"
 
-namespace gemHwMonitor {
+namespace gem {
+  namespace hwMonitor {
 
 #define GEMHWMONITOR_VERSION_MAJOR 1
 #define GEMHWMONITOR_VERSION_MINOR 0
@@ -22,16 +23,18 @@ namespace gemHwMonitor {
 #define GEMHWMONITOR_FULL_VERSION_LIST GEMHWMONITOR_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMHWMONITOR_VERSION_MAJOR, GEMHWMONITOR_VERSION_MINOR, GEMHWMONITOR_VERSION_PATCH)
 #endif
 
-  const std::string package     = "gemhwMonitor";
-  const std::string versions    = GEMHWMONITOR_FULL_VERSION_LIST;
-  const std::string summary     = "GEM hwMonitor";
-  const std::string description = "";
-  const std::string authors     = "GEM Online Systems Group";
-  const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
+    const std::string project     = "cmsgemos";
+    const std::string package     = "hwMonitor";
+    const std::string versions    = GEMHWMONITOR_FULL_VERSION_LIST;
+    const std::string summary     = "GEM hwMonitor";
+    const std::string description = "";
+    const std::string authors     = "GEM Online Systems Group";
+    const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
 
-  config::PackageInfo getPackageInfo();
-  void checkPackageDependencies() throw (config::PackageInfo::VersionException);
-  std::set<std::string, std::less<std::string> > getPackageDependencies();
+    config::PackageInfo getPackageInfo();
+    void checkPackageDependencies() throw (config::PackageInfo::VersionException);
+    std::set<std::string, std::less<std::string> > getPackageDependencies();
+  }
 }
 
 #endif // DOXYGEN_IGNORE_THIS

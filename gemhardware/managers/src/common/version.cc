@@ -6,27 +6,27 @@
 #include "gem/hw/utils/version.h"
 #include "gem/hw/managers/version.h"
 
-GETPACKAGEINFO(gemhwmanagers);
+GETPACKAGEINFO(gem::hw::managers);
 
-void gemhwmanagers::checkPackageDependencies()
+void gem::hw::managers::checkPackageDependencies()
   throw (config::PackageInfo::VersionException)
 {
   CHECKDEPENDENCY(toolbox);
   CHECKDEPENDENCY(xdaq);
   CHECKDEPENDENCY(xoap);
-  CHECKDEPENDENCY(gembase);
-  CHECKDEPENDENCY(gemutils);
-  CHECKDEPENDENCY(gemhwutils);
+  CHECKDEPENDENCY(gem::base);
+  CHECKDEPENDENCY(gem::utils);
+  CHECKDEPENDENCY(gem::hw::utils);
 }
 
-std::set<std::string, std::less<std::string> > gemhwmanagers::getPackageDependencies()
+std::set<std::string, std::less<std::string> > gem::hw::managers::getPackageDependencies()
 {
   std::set<std::string, std::less<std::string> > deps;
   ADDDEPENDENCY(deps, toolbox);
   ADDDEPENDENCY(deps, xoap);
   ADDDEPENDENCY(deps, xdaq);
-  ADDDEPENDENCY(deps, gembase);
-  ADDDEPENDENCY(deps, gemutils);
-  ADDDEPENDENCY(deps, gemhwutils);
+  ADDDEPENDENCY(deps, gem::base);
+  ADDDEPENDENCY(deps, gem::utils);
+  ADDDEPENDENCY(deps, gem::hw::utils);
   return deps;
 }

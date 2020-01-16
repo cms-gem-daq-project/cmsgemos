@@ -7,7 +7,8 @@
 
 #include "config/PackageInfo.h"
 
-namespace gemdaqmonitor {
+namespace gem {
+  namespace daqmon {
 
 #define GEMDAQMONITOR_VERSION_MAJOR 1
 #define GEMDAQMONITOR_VERSION_MINOR 0
@@ -22,16 +23,18 @@ namespace gemdaqmonitor {
 #define GEMDAQMONITOR_FULL_VERSION_LIST  GEMDAQMONITOR_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMDAQMONITOR_VERSION_MAJOR, GEMDAQMONITOR_VERSION_MINOR, GEMDAQMONITOR_VERSION_PATCH)
 #endif
 
-  const std::string package     = "gemdaqmonitor";
-  const std::string versions    = GEMDAQMONITOR_FULL_VERSION_LIST;
-  const std::string summary     = "<FILL ME>";
-  const std::string description = "";
-  const std::string authors     = "GEM Online Systems Group";
-  const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
+    const std::string project     = "cmsgemos";
+    const std::string package     = "daqmon";
+    const std::string versions    = GEMDAQMONITOR_FULL_VERSION_LIST;
+    const std::string summary     = "<FILL ME>";
+    const std::string description = "";
+    const std::string authors     = "GEM Online Systems Group";
+    const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
 
-  config::PackageInfo getPackageInfo();
-  void checkPackageDependencies() throw (config::PackageInfo::VersionException);
-  std::set<std::string,std::less<std::string> > getPackageDependencies();
+    config::PackageInfo getPackageInfo();
+    void checkPackageDependencies() throw (config::PackageInfo::VersionException);
+    std::set<std::string,std::less<std::string> > getPackageDependencies();
+  }
 }
 
 #endif // DOXYGEN_IGNORE_THIS

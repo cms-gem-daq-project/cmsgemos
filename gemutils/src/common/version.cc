@@ -3,9 +3,9 @@
 #include "xoap/version.h"
 #include "gem/utils/version.h"
 
-GETPACKAGEINFO(gemutils);
+GETPACKAGEINFO(gem::utils);
 
-void gemutils::checkPackageDependencies()
+void gem::utils::checkPackageDependencies()
   throw (config::PackageInfo::VersionException)
 {
   CHECKDEPENDENCY(toolbox);
@@ -13,7 +13,7 @@ void gemutils::checkPackageDependencies()
   CHECKDEPENDENCY(xoap);
 }
 
-std::set<std::string, std::less<std::string> > gemutils::getPackageDependencies()
+std::set<std::string, std::less<std::string> > gem::utils::getPackageDependencies()
 {
   std::set<std::string, std::less<std::string> > deps;
   ADDDEPENDENCY(deps, toolbox);

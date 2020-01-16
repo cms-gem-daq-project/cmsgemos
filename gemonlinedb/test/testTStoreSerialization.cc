@@ -21,7 +21,7 @@
 #include <xdaq/version.h>
 config::PackageInfo xdaq::getPackageInfo()
 {
-    return config::PackageInfo("", "", "", "", "", "", "", "");
+    return config::PackageInfo("", "", "", "", "", "", "", "", "");
 }
 
 /**
