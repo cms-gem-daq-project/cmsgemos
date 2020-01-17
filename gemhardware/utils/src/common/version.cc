@@ -3,7 +3,6 @@
 GETPACKAGEINFO(gem::hw::utils);
 
 void gem::hw::utils::checkPackageDependencies()
-  throw (config::PackageInfo::VersionException)
 {
 }
 

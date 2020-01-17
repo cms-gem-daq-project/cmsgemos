@@ -7,10 +7,9 @@
 #include "gem/hw/utils/version.h"
 #include "gem/hwMonitor/version.h"
 
-GETPACKAGEINFO(gem::HwMonitor);
+GETPACKAGEINFO(gem::hwMonitor);
 
-void gem::HwMonitor::checkPackageDependencies()
-  throw (config::PackageInfo::VersionException)
+void gem::hwMonitor::checkPackageDependencies()
 {
   CHECKDEPENDENCY(toolbox);
   CHECKDEPENDENCY(xdaq);
@@ -21,7 +20,7 @@ void gem::HwMonitor::checkPackageDependencies()
   CHECKDEPENDENCY(gem::hw::utils);
 }
 
-std::set<std::string, std::less<std::string> > gem::HwMonitor::getPackageDependencies()
+std::set<std::string, std::less<std::string> > gem::hwMonitor::getPackageDependencies()
 {
   std::set<std::string, std::less<std::string> > deps;
   ADDDEPENDENCY(deps, toolbox);

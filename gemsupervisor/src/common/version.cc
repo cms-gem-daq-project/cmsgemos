@@ -11,7 +11,6 @@
 GETPACKAGEINFO(gem::supervisor);
 
 void gem::supervisor::checkPackageDependencies()
-  throw (config::PackageInfo::VersionException)
 {
   CHECKDEPENDENCY(toolbox);
   CHECKDEPENDENCY(xdaq);

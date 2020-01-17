@@ -32,7 +32,7 @@ namespace gem {
     const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
 
     config::PackageInfo getPackageInfo();
-    void checkPackageDependencies() throw (config::PackageInfo::VersionException);
+    void checkPackageDependencies();
     std::set<std::string,std::less<std::string> > getPackageDependencies();
   }
 }

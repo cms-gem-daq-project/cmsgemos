@@ -9,7 +9,6 @@
 GETPACKAGEINFO(gem::hw::managers);
 
 void gem::hw::managers::checkPackageDependencies()
-  throw (config::PackageInfo::VersionException)
 {
   CHECKDEPENDENCY(toolbox);
   CHECKDEPENDENCY(xdaq);

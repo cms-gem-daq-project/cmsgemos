@@ -10,7 +10,6 @@
 GETPACKAGEINFO(gem::daqmon);
 
 void gem::daqmon::checkPackageDependencies()
-  throw (config::PackageInfo::VersionException)
 {
   CHECKDEPENDENCY(toolbox);
   CHECKDEPENDENCY(xdaq);

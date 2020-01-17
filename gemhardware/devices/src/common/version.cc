@@ -7,7 +7,6 @@
 GETPACKAGEINFO(gem::hw::devices);
 
 void gem::hw::devices::checkPackageDependencies()
-  throw (config::PackageInfo::VersionException)
 {
   CHECKDEPENDENCY(toolbox);
   CHECKDEPENDENCY(xdaq);

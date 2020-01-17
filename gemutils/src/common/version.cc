@@ -6,7 +6,6 @@
 GETPACKAGEINFO(gem::utils);
 
 void gem::utils::checkPackageDependencies()
-  throw (config::PackageInfo::VersionException)
 {
   CHECKDEPENDENCY(toolbox);
   CHECKDEPENDENCY(xdaq);

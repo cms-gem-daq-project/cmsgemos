@@ -6,7 +6,6 @@
 GETPACKAGEINFO(gem::onlinedb);
 
 void gem::onlinedb::checkPackageDependencies()
-  throw (config::PackageInfo::VersionException)
 {
   CHECKDEPENDENCY(toolbox);
   CHECKDEPENDENCY(xdaq);

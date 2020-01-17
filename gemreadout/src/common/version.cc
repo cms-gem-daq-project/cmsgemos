@@ -8,7 +8,6 @@
 GETPACKAGEINFO(gem::readout);
 
 void gem::readout::checkPackageDependencies()
-  throw (config::PackageInfo::VersionException)
 {
   CHECKDEPENDENCY(toolbox);
   CHECKDEPENDENCY(xdaq);
