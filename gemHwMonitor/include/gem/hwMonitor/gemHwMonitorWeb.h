@@ -51,47 +51,27 @@ namespace gem {
       {
       public:
         XDAQ_INSTANTIATOR();
-        gemHwMonitorWeb(xdaq::ApplicationStub* s)
-          throw (xdaq::exception::Exception);
+        gemHwMonitorWeb(xdaq::ApplicationStub* s);
         ~gemHwMonitorWeb();
-        void Default(xgi::Input* in, xgi::Output* out )
-          throw (xgi::exception::Exception);
-        void Dummy(xgi::Input* in, xgi::Output* out )
-          throw (xgi::exception::Exception);
-        void controlPanel(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void showCratesAvailability(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void pingCrate(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void showCrateUtilities(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void setConfFile(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void uploadConfFile(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void displayConfFile(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void getCratesConfiguration(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void expandCrate(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void selectCrate(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void cratePanel(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void expandGLIB(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void glibPanel(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void expandOH(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void ohPanel(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void expandVFAT(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void vfatPanel(xgi::Input* in, xgi::Output* out)
-          throw (xgi::exception::Exception);
+        void Default(xgi::Input* in, xgi::Output* out );
+        void Dummy(xgi::Input* in, xgi::Output* out );
+        void controlPanel(xgi::Input* in, xgi::Output* out);
+        void showCratesAvailability(xgi::Input* in, xgi::Output* out);
+        void pingCrate(xgi::Input* in, xgi::Output* out);
+        void showCrateUtilities(xgi::Input* in, xgi::Output* out);
+        void setConfFile(xgi::Input* in, xgi::Output* out);
+        void uploadConfFile(xgi::Input* in, xgi::Output* out);
+        void displayConfFile(xgi::Input* in, xgi::Output* out);
+        void getCratesConfiguration(xgi::Input* in, xgi::Output* out);
+        void expandCrate(xgi::Input* in, xgi::Output* out);
+        void selectCrate(xgi::Input* in, xgi::Output* out);
+        void cratePanel(xgi::Input* in, xgi::Output* out);
+        void expandGLIB(xgi::Input* in, xgi::Output* out);
+        void glibPanel(xgi::Input* in, xgi::Output* out);
+        void expandOH(xgi::Input* in, xgi::Output* out);
+        void ohPanel(xgi::Input* in, xgi::Output* out);
+        void expandVFAT(xgi::Input* in, xgi::Output* out);
+        void vfatPanel(xgi::Input* in, xgi::Output* out);
         /*
           static void createVFATInfoLayout(       xgi::Output* out,
           const gem::hw::vfat::VFAT2ControlParams params) {}
@@ -133,14 +113,10 @@ namespace gem {
         vfat_shared_ptr       p_vfatDevice;
         std::vector<std::string> m_checkedCrates;
 
-        void printVFAThwParameters(const char* key, const char* value1, const char* value2, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void printVFAThwParameters(const char* key, const char* value,  xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void printVFAThwParameters(const char* key, uint8_t value,  xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void printVFAThwParameters(const char* key, const char* value1, uint8_t value2, xgi::Output* out)
-          throw (xgi::exception::Exception);
+        void printVFAThwParameters(const char* key, const char* value1, const char* value2, xgi::Output* out);
+        void printVFAThwParameters(const char* key, const char* value,  xgi::Output* out);
+        void printVFAThwParameters(const char* key, uint8_t value,  xgi::Output* out);
+        void printVFAThwParameters(const char* key, const char* value1, uint8_t value2, xgi::Output* out);
       };  // class gemHwMonitorWeb
   }  // namespace gem::hwMonitor
 }  // namespace gem

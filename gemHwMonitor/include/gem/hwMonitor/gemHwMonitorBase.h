@@ -21,7 +21,6 @@ namespace gem {
       {
       public:
         gemHwMonitorBase()
-          throw (xdaq::exception::Exception)
           {
             p_gemDevice = new T();
             m_isConfigured = false;
@@ -32,78 +31,57 @@ namespace gem {
             delete p_gemDevice;
           }
 
-        bool isConfigured()
-          throw (xgi::exception::Exception)
-        {return m_isConfigured;}
+        bool isConfigured() {return m_isConfigured;}
 
-        void setIsConfigured(bool state)
-          throw (xgi::exception::Exception)
-        { m_isConfigured=state; }
+        void setIsConfigured(bool state) {m_isConfigured=state;}
 
-        const std::string getDeviceId()
-          throw (xgi::exception::Exception);
+        const std::string getDeviceId();
 
         /**
          *   Get subdevice status
          *   0 - device is working well, 1 - device has errors, 2 - device status unknown
          */
-        unsigned int getSubDeviceStatus (unsigned int i)
-          throw (xgi::exception::Exception)
-        { return m_subDeviceStatus.at(i); }
+        unsigned int getSubDeviceStatus (unsigned int i) { return m_subDeviceStatus.at(i); }
 
         /**
          *   Set subdevice status
          *   0 - device is working well, 1 - device has errors, 2 - device status unknown
          */
-        void setSubDeviceStatus (const unsigned int deviceStatus, const unsigned int i)
-          throw (xgi::exception::Exception)
-        { m_subDeviceStatus.at(i) = deviceStatus; }
+        void setSubDeviceStatus (const unsigned int deviceStatus, const unsigned int i) { m_subDeviceStatus.at(i) = deviceStatus; }
 
         /**
          *   Add subdevice status
          *   0 - device is working well, 1 - device has errors, 2 - device status unknown
          */
-        void addSubDeviceStatus (unsigned int deviceStatus)
-          throw (xgi::exception::Exception)
-        { m_subDeviceStatus.push_back(deviceStatus); }
+        void addSubDeviceStatus (unsigned int deviceStatus) { m_subDeviceStatus.push_back(deviceStatus); }
 
         /**
          *   Get device status
          *   0 - device is working well, 1 - device has errors, 2 - device status unknown
          */
-        unsigned int getDeviceStatus ()
-          throw (xgi::exception::Exception)
-        { return m_deviceStatus; }
+        unsigned int getDeviceStatus () { return m_deviceStatus; }
 
         /**
          *   Set device status
          *   0 - device is working well, 1 - device has errors, 2 - device status unknown
          */
-        void setDeviceStatus (const unsigned int deviceStatus)
-          throw (xgi::exception::Exception)
-        { m_deviceStatus = deviceStatus; }
+        void setDeviceStatus (const unsigned int deviceStatus) { m_deviceStatus = deviceStatus; }
         /**
          *   Set device configuration
          */
-        void setDeviceConfiguration(T& device)
-          throw (xgi::exception::Exception);
+        void setDeviceConfiguration(T& device);
         /**
          *   Get device reference
          */
-        T*  getDevice()
-          throw (xgi::exception::Exception)
-          { return p_gemDevice; }
+        T*  getDevice() { return p_gemDevice; }
 
-        int getNumberOfSubDevices()
-          throw (xgi::exception::Exception);
+        int getNumberOfSubDevices();
 
-        const std::string getCurrentSubDeviceId(unsigned int subDeviceNumber)
-          throw (xgi::exception::Exception);
+        const std::string getCurrentSubDeviceId(unsigned int subDeviceNumber);
 
         /**
          *   Access to board utils
-         virtual void boardUtils ()
-         throw (xgi::exception::Exception);
+         virtual void boardUtils ();
         */
       protected:
       private:

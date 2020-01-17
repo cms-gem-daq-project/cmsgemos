@@ -16,14 +16,10 @@ namespace gem {
       public:
       private:
         gem::hw::vfat::HwVFAT2* vfatDevice_;
-        void printVFAThwParameters(const char* key, const char* value1, const char* value2, xgi::Output* out)
-          throw (xgi::exception::Exception);
-        void printVFAThwParameters(const char* key, const char* value,  xgi::Output *out)
-          throw (xgi::exception::Exception);
-        void printVFAThwParameters(const char* key, uint8_t value,  xgi::Output *out)
-          throw (xgi::exception::Exception);
-        void printVFAThwParameters(const char* key, const char* value1, uint8_t value2, xgi::Output* out)
-          throw (xgi::exception::Exception);
+        void printVFAThwParameters(const char* key, const char* value1, const char* value2, xgi::Output* out);
+        void printVFAThwParameters(const char* key, const char* value,  xgi::Output *out);
+        void printVFAThwParameters(const char* key, uint8_t value,  xgi::Output *out);
+        void printVFAThwParameters(const char* key, const char* value1, uint8_t value2, xgi::Output* out);
       };  // class gemVFATMonitor
   }  // namespace gem::hwMonitor
 }  // namespace gem

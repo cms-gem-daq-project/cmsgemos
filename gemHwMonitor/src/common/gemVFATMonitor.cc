@@ -1,8 +1,7 @@
 #include "gem/hwMonitor/gemVFATMonitor.h"
 #include <boost/algorithm/string.hpp>
 
-void gem::hwMonitor::gemVFATMonitor::vfatPanel(xgi::Output * out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemVFATMonitor::vfatPanel(xgi::Output * out)
 {
   *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
        << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;

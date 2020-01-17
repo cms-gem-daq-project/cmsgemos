@@ -19,7 +19,6 @@ namespace gem {
     {
     public:
       gemHwMonitorHelper(gemHwMonitorSystem* gemSystem)
-        throw (xdaq::exception::Exception)
         {
           std::string build_home       = std::getenv("BUILD_HOME");
           std::string gem_os_project   = std::getenv("GEM_OS_PROJECT");
@@ -37,7 +36,6 @@ namespace gem {
 
       // Make sure XML filename contains full path (adds $BUILD_HOME/$GEM_OS_PROJECT/gembase/xml/ if not)
       const std::string fixXMLconfigFile (const char* XMLfilename)
-        throw (xgi::exception::Exception)
       {
         std::string file = XMLfilename;
         std::string temp_filename;
@@ -59,7 +57,6 @@ namespace gem {
       }
 
       void setXMLconfigFile (const char* inputXMLfilename)
-        throw (xgi::exception::Exception)
       {
         m_xmlConfigFileName = inputXMLfilename;
 
@@ -69,16 +66,12 @@ namespace gem {
           std::cout << "[WARNING] New XML file set, but device state hasn't changed (NULL-pointer)" << std::endl;
       }
       const std::string getXMLconfigFile ()
-        throw (xgi::exception::Exception)
       {
         return m_xmlConfigFileName;
       }
-      void setDBSconfigFile (std::string inputDBSfilename)
-        throw (xgi::exception::Exception) {}
-      const std::string getDBSconfigFile ()
-        throw (xgi::exception::Exception) { return "Not implemented yet"; }
-     void configure()
-        throw (xgi::exception::Exception)
+      void setDBSconfigFile (std::string inputDBSfilename) {}
+      const std::string getDBSconfigFile () { return "Not implemented yet"; }
+      void configure()
       {
         p_gemXMLparser = new gem::utils::gemXMLparser(m_xmlConfigFileName);
         p_gemXMLparser->parseXMLFile();

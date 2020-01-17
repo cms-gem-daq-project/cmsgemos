@@ -25,19 +25,16 @@ namespace gem {
     class gemCrateMonitorBase: public gemHwMonitorBase
     {
     public:
-      gemCrateMonitorBase(const gem::utils::gemCrateProperties & crateRef)
-        throw (xdaq::exception::Exception);
+      gemCrateMonitorBase(const gem::utils::gemCrateProperties & crateRef);
 
       ~gemCrateMonitorBase() {}
       /*
        *   Get system configuration
        */
-      void getDeviceConfiguration()
-        throw (xgi::exception::Exception);
+      void getDeviceConfiguration();
       /**
        *   Access to board utils
-       virtual void boardUtils ()
-       throw (xgi::exception::Exception);
+       virtual void boardUtils ();
       */
 
     protected:
