@@ -14,8 +14,7 @@
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::amc13::AMC13Readout);
 
-gem::hw::amc13::AMC13Readout::AMC13Readout(xdaq::ApplicationStub* stub)
-  throw (xdaq::exception::Exception) :
+gem::hw::amc13::AMC13Readout::AMC13Readout(xdaq::ApplicationStub* stub) :
   gem::readout::GEMReadoutApplication(stub),
   m_cardName("CardName"),
   m_crateID(0),
@@ -71,7 +70,6 @@ void gem::hw::amc13::AMC13Readout::actionPerformed(xdata::Event& event)
 }
 
 void gem::hw::amc13::AMC13Readout::initializeAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   CMSGEMOS_INFO("AMC13Readout::initializeAction begin");
   //hcal has a pre-init, what is the reason to not do everything in initialize?
@@ -108,7 +106,6 @@ void gem::hw::amc13::AMC13Readout::initializeAction()
 }
 
 void gem::hw::amc13::AMC13Readout::configureAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   CMSGEMOS_DEBUG("AMC13Readout::configureAction begin");
   // grab these from the config, updated through SOAP too
@@ -117,7 +114,6 @@ void gem::hw::amc13::AMC13Readout::configureAction()
 }
 
 void gem::hw::amc13::AMC13Readout::startAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   CMSGEMOS_DEBUG("AMC13Readout::startAction begin");
   cnt = 0;
@@ -126,35 +122,30 @@ void gem::hw::amc13::AMC13Readout::startAction()
 }
 
 void gem::hw::amc13::AMC13Readout::pauseAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   CMSGEMOS_DEBUG("AMC13Readout::pauseAction begin");
   gem::readout::GEMReadoutApplication::pauseAction();
 }
 
 void gem::hw::amc13::AMC13Readout::resumeAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   CMSGEMOS_DEBUG("AMC13Readout::resumeAction begin");
   gem::readout::GEMReadoutApplication::resumeAction();
 }
 
 void gem::hw::amc13::AMC13Readout::stopAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   CMSGEMOS_DEBUG("AMC13Readout::stopAction begin");
   gem::readout::GEMReadoutApplication::stopAction();
 }
 
 void gem::hw::amc13::AMC13Readout::haltAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   CMSGEMOS_DEBUG("AMC13Readout::haltAction begin");
   gem::readout::GEMReadoutApplication::haltAction();
 }
 
 void gem::hw::amc13::AMC13Readout::resetAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   CMSGEMOS_DEBUG("AMC13Readout::resetAction begin");
   gem::readout::GEMReadoutApplication::resetAction();

@@ -21,7 +21,6 @@ gem::hw::amc13::AMC13ManagerWeb::~AMC13ManagerWeb()
 }
 
 void gem::hw::amc13::AMC13ManagerWeb::webDefault(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   if (p_gemFSMApp)
     CMSGEMOS_DEBUG("AMC13ManagerWeb::current state is" << dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getCurrentState());
@@ -39,7 +38,6 @@ void gem::hw::amc13::AMC13ManagerWeb::webDefault(xgi::Input *in, xgi::Output *ou
  *need a way to have the content be dynamic with, e.g., AJAX
  */
 void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("AMC13ManagerWeb::monitorPage");
 
@@ -125,26 +123,22 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input *in, xgi::Output *o
 
 /*To be filled in with the expert page code*/
 void gem::hw::amc13::AMC13ManagerWeb::expertPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("AMC13ManagerWeb::expertPage");
 }
 
 void gem::hw::amc13::AMC13ManagerWeb::applicationPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("AMC13ManagerWeb::applicationPage");
 }
 
 void gem::hw::amc13::AMC13ManagerWeb::jsonUpdate(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("AMC13ManagerWeb::jsonUpdate");
   updateStatus(out);
 }
 
 void gem::hw::amc13::AMC13ManagerWeb::setDisplayLevel(xgi::Input *in)
-  throw (xgi::exception::Exception)
 {
   // parse the form for the debug level
   try {
@@ -169,7 +163,6 @@ void gem::hw::amc13::AMC13ManagerWeb::setDisplayLevel(xgi::Input *in)
 }
 
 void gem::hw::amc13::AMC13ManagerWeb::updateStatus(xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   out->getHTTPResponseHeader().addHeader("Content-Type", "plain/text");
   std::string currentState = dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getCurrentState();

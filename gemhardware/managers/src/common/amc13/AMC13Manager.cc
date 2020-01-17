@@ -133,8 +133,7 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   // bag->addField("LocalL1AMask", &localL1AMask);
 }
 
-gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
-  throw (xdaq::exception::Exception) :
+gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   gem::base::GEMFSMApplication(stub),
   m_amc13Lock(toolbox::BSem::FULL, true),
   p_timer(NULL)
@@ -252,13 +251,11 @@ gem::hw::amc13::amc13_status_ptr gem::hw::amc13::AMC13Manager::getHTMLStatus() c
 }
 
 void gem::hw::amc13::AMC13Manager::setDisplayLevel(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   dynamic_cast<AMC13ManagerWeb*>(p_gemWebInterface)->setDisplayLevel(in);
 }
 
 void gem::hw::amc13::AMC13Manager::updateStatus(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   dynamic_cast<AMC13ManagerWeb*>(p_gemWebInterface)->updateStatus(out);
 }

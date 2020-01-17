@@ -38,7 +38,7 @@ namespace gem {
 	{
 	public:
 	  toolbox::task::Timer* p_timer;    // timer for general info space updates
-	  void timer_triggerupdate() throw (xgi::exception::Exception);
+	  void timer_triggerupdate();
 	  virtual void timeExpired(toolbox::task::TimerEvent& event);
 	}
       */
@@ -50,8 +50,7 @@ namespace gem {
         public:
           XDAQ_INSTANTIATOR();
 
-          AMC13Manager(xdaq::ApplicationStub * s)
-            throw (xdaq::exception::Exception);
+          AMC13Manager(xdaq::ApplicationStub * s);
 
           virtual ~AMC13Manager();
 
@@ -63,21 +62,19 @@ namespace gem {
           amc13_status_ptr getHTMLStatus()  const;
           amc13_ptr        getAMC13Device() const { return p_amc13; };
 
-          void setDisplayLevel(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          void setDisplayLevel(xgi::Input *in, xgi::Output *out);
 
-          void updateStatus(xgi::Input *in, xgi::Output * out)
-            throw (xgi::exception::Exception);
+          void updateStatus(xgi::Input *in, xgi::Output * out);
 
           //state transitions
-          virtual void initializeAction() ; // throw (gem::hw::amc13::exception::Exception);
-          virtual void configureAction()  ; // throw (gem::hw::amc13::exception::Exception);
-          virtual void startAction()      ; // throw (gem::hw::amc13::exception::Exception);
-          virtual void pauseAction()      ; // throw (gem::hw::amc13::exception::Exception);
-          virtual void resumeAction()     ; // throw (gem::hw::amc13::exception::Exception);
-          virtual void stopAction()       ; // throw (gem::hw::amc13::exception::Exception);
-          virtual void haltAction()       ; // throw (gem::hw::amc13::exception::Exception);
-          virtual void resetAction()      ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void initializeAction();
+          virtual void configureAction();
+          virtual void startAction();
+          virtual void pauseAction();
+          virtual void resumeAction();
+          virtual void stopAction();
+          virtual void haltAction();
+          virtual void resetAction();
 
           xoap::MessageReference sendTriggerBurst(xoap::MessageReference mns);
           xoap::MessageReference enableTriggers(xoap::MessageReference mns);

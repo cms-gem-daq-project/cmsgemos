@@ -26,26 +26,19 @@ namespace gem {
 
         protected:
 
-          virtual void webDefault(  xgi::Input *in, xgi::Output *out )
-            throw (xgi::exception::Exception);
+          virtual void webDefault(  xgi::Input *in, xgi::Output *out);
 
-          virtual void monitorPage(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          virtual void monitorPage(xgi::Input *in, xgi::Output *out);
 
-          virtual void expertPage(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          virtual void expertPage(xgi::Input *in, xgi::Output *out);
 
-          virtual void applicationPage(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          virtual void applicationPage(xgi::Input *in, xgi::Output *out);
 
-          virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          virtual void jsonUpdate(xgi::Input *in, xgi::Output *out);
 
-          void setDisplayLevel(xgi::Input *in)
-            throw (xgi::exception::Exception);
+          void setDisplayLevel(xgi::Input *in);
 
-          void updateStatus(xgi::Output *out)
-            throw (xgi::exception::Exception);
+          void updateStatus(xgi::Output *out);
 
         private:
           size_t level;

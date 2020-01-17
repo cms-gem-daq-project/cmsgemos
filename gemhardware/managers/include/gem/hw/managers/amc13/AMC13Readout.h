@@ -24,8 +24,7 @@ namespace gem {
         public:
           XDAQ_INSTANTIATOR();
 
-          AMC13Readout(xdaq::ApplicationStub* s)
-            throw (xdaq::exception::Exception);
+          AMC13Readout(xdaq::ApplicationStub* s);
 
           virtual ~AMC13Readout();
 
@@ -33,14 +32,14 @@ namespace gem {
           virtual void actionPerformed(xdata::Event& event);
 
           //state transitions
-          virtual void initializeAction() throw (gem::hw::amc13::exception::Exception);
-          virtual void configureAction()  throw (gem::hw::amc13::exception::Exception);
-          virtual void startAction()      throw (gem::hw::amc13::exception::Exception);
-          virtual void pauseAction()      throw (gem::hw::amc13::exception::Exception);
-          virtual void resumeAction()     throw (gem::hw::amc13::exception::Exception);
-          virtual void stopAction()       throw (gem::hw::amc13::exception::Exception);
-          virtual void haltAction()       throw (gem::hw::amc13::exception::Exception);
-          virtual void resetAction()      throw (gem::hw::amc13::exception::Exception);
+          virtual void initializeAction();
+          virtual void configureAction();
+          virtual void startAction();
+          virtual void pauseAction();
+          virtual void resumeAction();
+          virtual void stopAction();
+          virtual void haltAction();
+          virtual void resetAction();
 
           virtual int readout(unsigned int expected, unsigned int* eventNumbers, std::vector< ::toolbox::mem::Reference* >& data);
 
