@@ -40,8 +40,7 @@ IncludeDirs+=$(BUILD_HOME)/gembase/include
 DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
-UserCFlags  +=$(PYTHONCFLAGS)
-UserCCFlags +=$(PYTHONCFLAGS)
+UserCFlags+=$(PYTHONCFLAGS)
 
 DependentLibraries =gembase
 

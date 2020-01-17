@@ -38,11 +38,8 @@ DynamicLibrary=gemutils
 IncludeDirs =$(XDAQ_ROOT)/include
 IncludeDirs+=$(BUILD_HOME)/$(Package)/include
 
-UserCFlags  +=$(MySQLCFLAGS)
-UserCCFlags +=$(MySQLCFLAGS)
-
-UserCFlags  +=$(PYTHONCFLAGS)
-UserCCFlags +=$(PYTHONCFLAGS)
+UserCFlags+=$(MySQLCFLAGS)
+UserCFlags+=$(PYTHONCFLAGS)
 
 DependentLibraries =xdaq peer xgi xdata xoap toolbox config xcept
 DependentLibraries+=xerces-c logudpappender logxmlappender log4cplus

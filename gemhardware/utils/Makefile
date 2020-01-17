@@ -39,17 +39,9 @@ IncludeDirs+=$(BUILD_HOME)/gemutils/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
-# UserCFlags +=$(PYTHONCFLAGS)
-# UserCCFlags+=$(PYTHONCFLAGS)
-
 DependentLibraries+=gemutils
 
 Libraries =
-
-UserCFlags+=-O0 -g3 -fno-inline
-UserCCFlags+=-O0 -g3 -fno-inline
-CFlags+=-O0 -g3 -fno-inline
-CCFlags+=-O0 -g3 -fno-inline
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
 include $(BUILD_HOME)/config/mfRPMDefsGEM.mk

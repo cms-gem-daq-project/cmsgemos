@@ -35,14 +35,11 @@ GEMPYTHON_VER_PATCH=0
 include $(BUILD_HOME)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
-UserCFlags += \
+UserCFlags+= \
 	-ftemplate-depth-128 \
 	-O0 -rdynamic -finline-functions \
 	-Wno-inline -DNDEBUG
-UserCCFlags=$(UserCFlags)
-
-UserCFlags  +=$(PYTHONCFLAGS)
-UserCCFlags +=$(PYTHONCFLAGS)
+UserCFlags+=$(PYTHONCFLAGS)
 
 # The leading undescore is meant to be there
 DynamicLibrary = _cmsgemos_gempython

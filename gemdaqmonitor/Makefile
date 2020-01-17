@@ -44,8 +44,7 @@ DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/devices/lib/$(XDAQ_OS)/$(XDAQ_PL
 DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/utils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(XHAL_ROOT)/lib
 
-UserCFlags  +=$(PYTHONCFLAGS)
-UserCCFlags +=$(PYTHONCFLAGS)
+UserCFlags+=$(PYTHONCFLAGS)
 
 DependentLibraries =gembase
 DependentLibraries+=gemhwdevices gemhwutils xhal

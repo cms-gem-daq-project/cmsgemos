@@ -60,11 +60,6 @@ LibraryDirs+=$(XHAL_ROOT)/lib
 DependentLibraries =cactus_uhal_uhal xhal
 DependentLibraries+=gemutils gemhwutils
 
-# UserCFlags+=-O0 -g3 -fno-inline
-# UserCCFlags+=-O0 -g3 -fno-inline
-# CFlags+=-O0 -g3 -fno-inline
-# CCFlags+=-O0 -g3 -fno-inline
-
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
 include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
 

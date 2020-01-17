@@ -69,8 +69,12 @@ run-tests-ci:
 .DEFAULT_GOAL :=
 
 # Debugging and profiling flags
-DEBUG_CFlags    = -O0 -g3 -fno-inline
-DEBUG_CCFlags   = ${DEBUG_CFlags}
+DEBUG_CFlags  = -O0 -g3 -fno-inline
+DEBUG_CCFlags = ${DEBUG_CFlags}
+
+## Flags for building ABI check libraries
+OPT_CFlags  = -g -Og
+OPT_CCFlags = ${DEBUG_CFlags}
 
 COVERAGE_Flags   = -gcov -coverage
 
@@ -88,6 +92,7 @@ GCC51Flags = -std=c++17 -std=gnu++17
 GCC60Flags = -std=c++17 -std=gnu++17
 GCC70Flags = -std=c++17 -std=gnu++17
 GCC80Flags = -std=c++2a -std=gnu++2a
+GCC90Flags = -std=c++2a -std=gnu++2a
 
 CLANG34Flags = -std=c++1y
 CLANG35Flags = -std=c++1z
@@ -100,13 +105,11 @@ CLANG60Flags = -std=c++17
 CLANG70Flags = -std=c++17
 
 # User C and CC flags
-UserCFlags =-DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
+UserCFlags =-DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\" -DXDAQ15
 
 ## want to pick the best options based on gcc/clang version
-# CLANGNUM := $(shell clang -dumpversion|sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$/&00/')
-# GCCNUM   := $(shell gcc   -dumpversion|sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$/&00/')
-CLANGNUM := $(shell clang -dumpversion|sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g')
-GCCNUM   := $(shell gcc   -dumpversion|sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g')
+CLANGNUM:= $(shell clang -dumpfullversion -dumpversion|sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g')
+GCCNUM  := $(shell gcc   -dumpfullversion -dumpversion|sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g')
 
 $(info Trying to to determine flags for gcc($(GCCNUM))/clang($(CLANGNUM)))
 GCCGT440 := $(shell expr ${GCCNUM} \>= 40400)
@@ -118,13 +121,19 @@ GCCGT510 := $(shell expr ${GCCNUM} \>= 50100)
 GCCGT600 := $(shell expr ${GCCNUM} \>= 60000)
 GCCGT700 := $(shell expr ${GCCNUM} \>= 70000)
 GCCGT800 := $(shell expr ${GCCNUM} \>= 80000)
+GCCGT900 := $(shell expr ${GCCNUM} \>= 90000)
 
 CLANGGT330 := $(shell expr ${CLANGNUM} \>= 30300)
 CLANGGT340 := $(shell expr ${CLANGNUM} \>= 30400)
 CLANGGT400 := $(shell expr ${CLANGNUM} \>= 40000)
 CLANGGT500 := $(shell expr ${CLANGNUM} \>= 50000)
+CLANGGT600 := $(shell expr ${CLANGNUM} \>= 60000)
+CLANGGT700 := $(shell expr ${CLANGNUM} \>= 70000)
 
-ifeq ($(GCCGT800), 1)
+ifeq ($(GCCGT900), 1)
+$(info Using GCC90Flags for GCC $(GCCNUM))
+UserCFlags+=${GCC90Flags}
+else ifeq ($(GCCGT800), 1)
 $(info Using GCC80Flags for GCC $(GCCNUM))
 UserCFlags+=${GCC80Flags}
 else ifeq ($(GCCGT700), 1)
@@ -155,8 +164,8 @@ else
 $(info Unable to determine flags for gcc($(GCCNUM))/clang($(CLANGNUM)))
 endif
 
-UserCFlags+=-O0 -g3 -fno-inline
-UserCCFlags =${UserCFlags}
+## we should really keep these separate, no? C vs C++...
+UserCCFlags=${UserCFlags}
 
 ##  -Wl,--no-undefined ## not necessarily a good things always
 UserStaticLinkFlags  = -Wl,--as-needed -Wl,--warn-unresolved-symbols
@@ -248,8 +257,13 @@ GCCVERSION = $(shell $(CC) -dumpversion)
 #NM     = llvm-nm
 #RANLIB = llvm-ranlib
 # CLANGVERSION = $(shell $(CC) --version | awk '/clang /{print $0;exit 0;}')
-CLANGVERSION = $(shell $(CC) -dumpversion)
+CLANGVERSION = $(shell $(CC) -dumpfullversion -dumpversion)
 
-CCVERSION = $(shell $(CC) -dumpversion)
+CCVERSION = $(shell $(CC) -dumpfullversion -dumpversion)
 CPPCHECK  = cppcheck
 CPPCHECKFLAGS = --quiet --verbose --inconclusive --force --enable=information,unusedFunction,warning --suppress=purgedConfiguration
+
+CLANGTIDY = clang-tidy
+CLANGTIDYFLAGS =
+
+CLANGFORMAT = clang-format

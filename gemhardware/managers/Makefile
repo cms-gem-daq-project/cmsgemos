@@ -62,8 +62,7 @@ DependentLibraryDirs+=$(XHAL_ROOT)/lib
 LibraryDirs+=$(BUILD_HOME)/gemhardware/devices/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(BUILD_HOME)/gemhardware/utils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
-UserCFlags  +=$(PYTHONCFLAGS)
-UserCCFlags +=$(PYTHONCFLAGS)
+UserCFlags+=$(PYTHONCFLAGS)
 
 DependentLibraries =gemreadout gemhwutils gemhwdevices
 DependentLibraries+=cactus_amc13_amc13 cactus_amc13_tools
@@ -72,11 +71,6 @@ DependentLibraries+=cactus_amc13_tools
 DependentLibraries+=gemutils gembase gemreadout gemhwutils gemhwdevices
 
 Libraries =
-
-# UserCFlags+=-O0 -g3 -fno-inline
-# UserCCFlags+=-O0 -g3 -fno-inline
-# CFlags+=-O0 -g3 -fno-inline
-# CCFlags+=-O0 -g3 -fno-inline
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
 include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
