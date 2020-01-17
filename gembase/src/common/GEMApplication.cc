@@ -32,8 +32,7 @@ void gem::base::GEMApplication::ScanInfo::registerFields(xdata::Bag<gem::base::G
   bag->addField("NTriggers", &nTriggers);
 }
 
-gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
-  throw (xdaq::exception::Exception) :
+gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub) :
   xdaq::WebApplication(stub),
   m_gemLogger(this->getApplicationLogger()),
   p_gemWebInterface(NULL),

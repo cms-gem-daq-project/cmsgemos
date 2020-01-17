@@ -32,8 +32,7 @@ namespace gem {
       friend class GEMFSM;
       friend class GEMWebApplication;
 
-      GEMFSMApplication(xdaq::ApplicationStub *stub)
-        throw (xdaq::exception::Exception);
+      GEMFSMApplication(xdaq::ApplicationStub *stub);
 
       virtual ~GEMFSMApplication();
 

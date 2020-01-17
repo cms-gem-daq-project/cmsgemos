@@ -17,8 +17,7 @@
 #include "gem/utils/soap/GEMSOAPToolBox.h"
 
 // gem::base::GEMWebApplication::GEMWebApplication(xdaq::Application *gemApp, bool hasFSM)
-gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMFSMApplication *gemFSMApp)
-  throw (xdaq::exception::Exception) :
+gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMFSMApplication *gemFSMApp) :
   m_gemLogger(gemFSMApp->getApplicationLogger()),
   p_gemMonitor(gemFSMApp->getMonitor()),
   p_gemFSMApp( gemFSMApp),
@@ -32,8 +31,7 @@ gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMFSMApplication *ge
   // default constructor
 }
 
-gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMApplication *gemApp)
-  throw (xdaq::exception::Exception) :
+gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMApplication *gemApp) :
   m_gemLogger(gemApp->getApplicationLogger()),
   p_gemMonitor(gemApp->getMonitor()),
   p_gemFSMApp( NULL),
@@ -64,7 +62,6 @@ gem::base::GEMWebApplication::~GEMWebApplication()
 }
 
 void gem::base::GEMWebApplication::webRedirect(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   // std::string url = in->getenv("PATH_TRANSLATED");
 
@@ -82,7 +79,6 @@ void gem::base::GEMWebApplication::webRedirect(xgi::Input *in, xgi::Output *out)
 
 /*To be filled in with the monitor page code*/
 void gem::base::GEMWebApplication::webDefault(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::webDefault");
   *out << cgicc::script().set("type", "text/javascript")
@@ -127,7 +123,6 @@ void gem::base::GEMWebApplication::webDefault(xgi::Input *in, xgi::Output *out)
 }
 
 void gem::base::GEMWebApplication::webFooterGEM(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   *out << "<div class=\"gem-footer\" id=\"xdaq-footer\">" << std::endl;
   // *out << cgicc::br() << std::endl
@@ -140,7 +135,6 @@ void gem::base::GEMWebApplication::webFooterGEM(xgi::Input *in, xgi::Output *out
 
 /*To be filled in with the control page code (only for FSM derived classes?*/
 void gem::base::GEMWebApplication::controlPanel(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::controlPanel");
   // maybe the control part should only be displayed if the application is not supervised?
@@ -245,7 +239,6 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input *in, xgi::Output *out
 
 /*To be filled in with the monitor page code*/
 void gem::base::GEMWebApplication::monitorPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::monitorPage");
   *out << "monitorPage" << std::endl
@@ -254,7 +247,6 @@ void gem::base::GEMWebApplication::monitorPage(xgi::Input *in, xgi::Output *out)
 
 /*To be filled in with the expert page code*/
 void gem::base::GEMWebApplication::expertPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::expertPage");
   *out << "expertPage" << std::endl
@@ -263,7 +255,6 @@ void gem::base::GEMWebApplication::expertPage(xgi::Input *in, xgi::Output *out)
 
 /*To be filled in with the application page code
 void gem::base::GEMWebApplication::applicationPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::applicationPage");
   *out << "applicationPage" << std::endl
@@ -273,13 +264,11 @@ void gem::base::GEMWebApplication::applicationPage(xgi::Input *in, xgi::Output *
 /*To be filled in with the json update code*/
 /*
 void gem::base::GEMWebApplication::jsonUpdate(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::jsonUpdate");
 }
 */
 void gem::base::GEMWebApplication::jsonStateUpdate(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::jsonStateUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
@@ -291,7 +280,6 @@ void gem::base::GEMWebApplication::jsonStateUpdate(xgi::Input *in, xgi::Output *
 }
 
 void gem::base::GEMWebApplication::jsonUpdate(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
@@ -308,7 +296,6 @@ void gem::base::GEMWebApplication::jsonUpdate(xgi::Input *in, xgi::Output *out)
 /* *FSM callbacks */
 /*To be filled in with the startup (enable) routine*/
 void gem::base::GEMWebApplication::webInitialize(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::webInitialize begin");
   if (p_gemFSMApp) {
@@ -324,7 +311,6 @@ void gem::base::GEMWebApplication::webInitialize(xgi::Input *in, xgi::Output *ou
 
 /*To be filled in with the startup (enable) routine*/
 void gem::base::GEMWebApplication::webEnable(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::webEnable");
   if (p_gemFSMApp) {
@@ -339,7 +325,6 @@ void gem::base::GEMWebApplication::webEnable(xgi::Input *in, xgi::Output *out)
 
 /*To be filled in with the configure routine*/
 void gem::base::GEMWebApplication::webConfigure(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::webConfigure");
   if (p_gemFSMApp) {
@@ -354,7 +339,6 @@ void gem::base::GEMWebApplication::webConfigure(xgi::Input *in, xgi::Output *out
 
 /*To be filled in with the start routine*/
 void gem::base::GEMWebApplication::webStart(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::webStart");
   if (p_gemFSMApp) {
@@ -368,7 +352,6 @@ void gem::base::GEMWebApplication::webStart(xgi::Input *in, xgi::Output *out)
 }
 
 void gem::base::GEMWebApplication::webPause(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::webPause");
   if (p_gemFSMApp) {
@@ -383,7 +366,6 @@ void gem::base::GEMWebApplication::webPause(xgi::Input *in, xgi::Output *out)
 
 /*To be filled in with the resume routine*/
 void gem::base::GEMWebApplication::webResume(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::webResume");
   if (p_gemFSMApp) {
@@ -398,7 +380,6 @@ void gem::base::GEMWebApplication::webResume(xgi::Input *in, xgi::Output *out)
 
 /*To be filled in with the stop routine*/
 void gem::base::GEMWebApplication::webStop(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::webStop");
   if (p_gemFSMApp) {
@@ -413,7 +394,6 @@ void gem::base::GEMWebApplication::webStop(xgi::Input *in, xgi::Output *out)
 
 /*To be filled in with the halt routine*/
 void gem::base::GEMWebApplication::webHalt(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::webHalt");
   if (p_gemFSMApp) {
@@ -428,7 +408,6 @@ void gem::base::GEMWebApplication::webHalt(xgi::Input *in, xgi::Output *out)
 
 /*To be filled in with the reset routine*/
 void gem::base::GEMWebApplication::webReset(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMWebApplication::webReset");
   if (p_gemFSMApp) {

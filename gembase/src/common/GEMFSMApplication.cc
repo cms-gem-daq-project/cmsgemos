@@ -42,8 +42,7 @@
 #include "gem/utils/soap/GEMSOAPToolBox.h"
 #include "gem/utils/exception/Exception.h"
 
-gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
-  throw (xdaq::exception::Exception) :
+gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub) :
   GEMApplication(stub),
   m_gemfsm(this),
   m_progress(0.0),

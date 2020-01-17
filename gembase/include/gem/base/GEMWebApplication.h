@@ -38,11 +38,9 @@ namespace gem {
       friend class GEMFSMApplication;
 
     public:
-      GEMWebApplication(GEMApplication* gemApp)
-        throw (xdaq::exception::Exception);
+      GEMWebApplication(GEMApplication* gemApp);
 
-      GEMWebApplication(GEMFSMApplication* gemFSMApp)
-        throw (xdaq::exception::Exception);
+      GEMWebApplication(GEMFSMApplication* gemFSMApp);
 
       ~GEMWebApplication();
 
@@ -52,52 +50,34 @@ namespace gem {
     protected:
       // maybe only have the control panel built in the base class?
       // perhaps can extend it in derived classes
-      virtual void controlPanel(xgi::Input* in, xgi::Output* out )
-        throw (xgi::exception::Exception);
+      virtual void controlPanel(xgi::Input* in, xgi::Output* out);
 
-      virtual void monitorPage(xgi::Input* in, xgi::Output* out)
-        throw (xgi::exception::Exception);
+      virtual void monitorPage(xgi::Input* in, xgi::Output* out);
 
-      virtual void expertPage(xgi::Input* in, xgi::Output* out)
-        throw (xgi::exception::Exception);
+      virtual void expertPage(xgi::Input* in, xgi::Output* out);
 
-      virtual void applicationPage(xgi::Input* in, xgi::Output* out)
-        throw (xgi::exception::Exception)=0;
+      virtual void applicationPage(xgi::Input* in, xgi::Output* out)=0;
 
-      virtual void jsonStateUpdate(xgi::Input* in, xgi::Output* out)
-        throw (xgi::exception::Exception);
+      virtual void jsonStateUpdate(xgi::Input* in, xgi::Output* out);
 
-      virtual void jsonUpdate(xgi::Input* in, xgi::Output* out)
-        throw (xgi::exception::Exception);
+      virtual void jsonUpdate(xgi::Input* in, xgi::Output* out);
 
-      virtual void webRedirect(xgi::Input* in, xgi::Output* out )
-        throw (xgi::exception::Exception);
+      virtual void webRedirect(xgi::Input* in, xgi::Output* out);
 
-      virtual void webDefault(xgi::Input* in, xgi::Output* out )
-        throw (xgi::exception::Exception);
+      virtual void webDefault(xgi::Input* in, xgi::Output* out);
 
-      void webFooterGEM(xgi::Input* in, xgi::Output* out )
-        throw (xgi::exception::Exception);
+      void webFooterGEM(xgi::Input* in, xgi::Output* out);
       // fsm specific functions, only called when the constructing app is derived from a
       // GEMFSMApplication
-      void webInitialize(xgi::Input* in, xgi::Output* out )
-        throw (xgi::exception::Exception);
-      void webEnable(xgi::Input* in, xgi::Output* out )
-        throw (xgi::exception::Exception);
-      void webConfigure(xgi::Input* in, xgi::Output* out )
-        throw (xgi::exception::Exception);
-      void webStart(xgi::Input* in, xgi::Output* out )
-        throw (xgi::exception::Exception);
-      void webPause(xgi::Input* in, xgi::Output* out )
-        throw (xgi::exception::Exception);
-      void webResume(xgi::Input* in, xgi::Output* out )
-        throw (xgi::exception::Exception);
-      void webStop(xgi::Input* in, xgi::Output* out )
-        throw (xgi::exception::Exception);
-      void webHalt(xgi::Input* in, xgi::Output* out )
-        throw (xgi::exception::Exception);
-      void webReset(xgi::Input* in, xgi::Output* out )
-        throw (xgi::exception::Exception);
+      void webInitialize(xgi::Input* in, xgi::Output* out);
+      void webEnable(xgi::Input* in, xgi::Output* out);
+      void webConfigure(xgi::Input* in, xgi::Output* out);
+      void webStart(xgi::Input* in, xgi::Output* out);
+      void webPause(xgi::Input* in, xgi::Output* out);
+      void webResume(xgi::Input* in, xgi::Output* out);
+      void webStop(xgi::Input* in, xgi::Output* out);
+      void webHalt(xgi::Input* in, xgi::Output* out);
+      void webReset(xgi::Input* in, xgi::Output* out);
 
       log4cplus::Logger m_gemLogger;
 
