@@ -27,11 +27,7 @@ include $(BUILD_HOME)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
-Sources+=tbutils/VFAT2XMLParser.cc
-# Sources+=tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/LatencyScan.cc
 Sources+=GEMSupervisor.cc GEMSupervisorWeb.cc GEMSupervisorMonitor.cc GEMGlobalState.cc
-#Sources+=tbutils/ADCScan.cc
-#Sources+=GEMGLIBSupervisorWeb.cc
 
 DynamicLibrary=gemsupervisor
 
