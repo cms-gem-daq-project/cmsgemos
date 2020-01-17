@@ -235,17 +235,14 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
     commandName = gem::utils::soap::GEMSOAPToolBox::extractFSMCommandName(msg);
     CMSGEMOS_INFO("GEMFSM::received command " << commandName);
   } catch(xoap::exception::Exception& err) {
-    std::string msgBase = toolbox::toString("Unable to extract command from GEMFSM SOAP message");
-    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
-    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top,
-                         toolbox::toString("%s.", msgBase.c_str()), err);
+    const std::string errmsg = "Unable to extract command from GEMFSM SOAP message";
+    CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception_history(err).c_str());
+    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top, errmsg, err);
     p_gemApp->notifyQualified("error", top);
-    std::string faultString = toolbox::toString("%s failed", commandName.c_str());
-    std::string faultCode   = "Client";
-    std::string detail      = toolbox::toString("%s: %s.",
-                                                msgBase.c_str(),
-                                                err.message().c_str());
-    std::string faultActor = p_gemApp->getFullURL();
+    const std::string faultString = commandName + " failed";
+    const std::string faultCode   = "Client";
+    const std::string detail      = errmsg + ": " + err.message();
+    const std::string faultActor  = p_gemApp->getFullURL();
     xoap::MessageReference reply =
       gem::utils::soap::GEMSOAPToolBox::makeSOAPFaultReply(faultString, faultCode, detail, faultActor);
     return reply;
@@ -260,15 +257,14 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
     p_gemfsm->fireEvent(event);
     CMSGEMOS_INFO("new state is: " << p_gemfsm->getStateName(p_gemfsm->getCurrentState()));
   } catch(toolbox::fsm::exception::Exception& err) {
-    std::string msgBase = toolbox::toString("Problem executing the GEMFSM '%s' command", commandName.c_str());
-    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
-    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top,
-                         toolbox::toString("%s.", msgBase.c_str()), err);
+    const std::string errmsg = "Problem executing the GEMFSM '" + commandName + "' command";
+    CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception_history(err));
+    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top, errmsg, err);
     p_gemApp->notifyQualified("error", top);
-    std::string faultString = toolbox::toString("%s failed", commandName.c_str());
-    std::string faultCode   = "Server";
-    std::string detail      = toolbox::toString("%s: %s.", msgBase.c_str(), err.message().c_str());
-    std::string faultActor  = p_gemApp->getFullURL();
+    const std::string faultString = commandName + " failed";
+    const std::string faultCode   = "Server";
+    const std::string detail      = errmsg + ": " + err.message();
+    const std::string faultActor  = p_gemApp->getFullURL();
 
     gotoFailedAsynchronously(err);
     return gem::utils::soap::GEMSOAPToolBox::makeSOAPFaultReply(faultString, faultCode, detail, faultActor);
@@ -284,15 +280,13 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
       gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName,
                                                          p_gemfsm->getStateName(p_gemfsm->getCurrentState()));
   } catch(xcept::Exception& err) {
-    std::string msgBase = toolbox::toString("Failed to create GEMFSM SOAP reply for command '%s'",
-                                            commandName.c_str());
-    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
-    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
-                         top, toolbox::toString("%s.", msgBase.c_str()), err);
+    const std::string errmsg = "Failed to create GEMFSM SOAP reply for command '" + commandName + "'";
+    CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception_history(err));
+    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem, top, errmsg, err);
     p_gemApp->notifyQualified("error", top);
 
     gotoFailedAsynchronously(err);
-    XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
+    XCEPT_RETHROW(xoap::exception::Exception, errmsg, err);
   }
 
   XCEPT_RAISE(xoap::exception::Exception, "command not found");
@@ -381,12 +375,10 @@ void gem::base::GEMFSM::invalidAction(toolbox::Event::Reference event)
    */
   CMSGEMOS_INFO("GEMFSM::invalidAction(" << event->type() << ")");
   toolbox::fsm::InvalidInputEvent& invalidInputEvent = dynamic_cast<toolbox::fsm::InvalidInputEvent&>(*event);
-  std::string initialState   = p_gemfsm->getStateName(invalidInputEvent.getFromState());
-  std::string requestedState = invalidInputEvent.getInput();
+  const std::string initialState   = p_gemfsm->getStateName(invalidInputEvent.getFromState());
+  const std::string requestedState = invalidInputEvent.getInput();
 
-  std::string message = toolbox::toString("An invalid state transition has been received:"
-                                          " requested transition to '%s' from '%s'.",
-                                          requestedState.c_str(), initialState.c_str());
+  const std::string message = "An invalid state transition has been received: requested transition to '" + requestedState + "' from '" + initialState + "'.";
   CMSGEMOS_ERROR("GEMFSM::" << message);
   gotoFailed(message);
 }

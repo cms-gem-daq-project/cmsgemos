@@ -182,7 +182,7 @@ void gem::base::GEMFSMApplication::xgiInitialize(xgi::Input* in, xgi::Output* ou
       std::stringstream msg, errmsg;
       // msg << read in soap fault?
       m_stateMessage = msg.str();
-      errmsg << "GEMFSMApplication::xgiInitialize Initialize failed: " << msg;
+      errmsg << "GEMFSMApplication::xgiInitialize Initialize failed: " << msg.str();
       CMSGEMOS_ERROR(errmsg.str());
       XCEPT_RETHROW(xgi::exception::Exception, errmsg.str(), e);
     }
