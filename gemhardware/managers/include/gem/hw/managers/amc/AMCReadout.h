@@ -40,24 +40,24 @@ namespace gem {
            *  - the value(s) to store in the RunParams bits in the data format
            * @returns xoap::MessageReference
            */
-          xoap::MessageReference updateScanParameters(xoap::MessageReference message) throw (xoap::exception::Exception);
+          xoap::MessageReference updateScanParameters(xoap::MessageReference message);
 
           // reply to a query about the queue depth, better to just export the queue depth into the infospace?
-          //xoap::MessageReference queueDepth(xoap::MessageReference message) throw (xoap::exception::Exception);
+          //xoap::MessageReference queueDepth(xoap::MessageReference message);
 
         protected:
 
           virtual void actionPerformed(xdata::Event& event);
 
           //state transitions
-          virtual void initializeAction() throw (gem::hw::glib::exception::Exception);
-          virtual void configureAction()  throw (gem::hw::glib::exception::Exception);
-          virtual void startAction()      throw (gem::hw::glib::exception::Exception);
-          virtual void pauseAction()      throw (gem::hw::glib::exception::Exception);
-          virtual void resumeAction()     throw (gem::hw::glib::exception::Exception);
-          virtual void stopAction()       throw (gem::hw::glib::exception::Exception);
-          virtual void haltAction()       throw (gem::hw::glib::exception::Exception);
-          virtual void resetAction()      throw (gem::hw::glib::exception::Exception);
+          virtual void initializeAction();
+          virtual void configureAction();
+          virtual void startAction();
+          virtual void pauseAction();
+          virtual void resumeAction();
+          virtual void stopAction();
+          virtual void haltAction();
+          virtual void resetAction();
 
           virtual int readout(unsigned int expected, unsigned int* eventNumbers, std::vector< ::toolbox::mem::Reference* >& data);
 

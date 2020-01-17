@@ -169,7 +169,6 @@ void gem::hw::glib::GLIBManager::init()
 
 // state transitions
 void gem::hw::glib::GLIBManager::initializeAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   CMSGEMOS_DEBUG("GLIBManager::initializeAction begin");
   // FIXME make me more streamlined
@@ -303,7 +302,6 @@ void gem::hw::glib::GLIBManager::initializeAction()
 }
 
 void gem::hw::glib::GLIBManager::configureAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   CMSGEMOS_DEBUG("GLIBManager::configureAction");
 
@@ -369,7 +367,6 @@ void gem::hw::glib::GLIBManager::configureAction()
 }
 
 void gem::hw::glib::GLIBManager::startAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   if (m_scanType.value_ == 2) {
     CMSGEMOS_INFO("GLIBManager::startAction() " << std::endl << m_scanInfo.bag.toString());
@@ -429,7 +426,6 @@ void gem::hw::glib::GLIBManager::startAction()
 }
 
 void gem::hw::glib::GLIBManager::pauseAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   // what is required for pausing the GLIB?
   // FIXME make me more streamlined
@@ -504,7 +500,6 @@ void gem::hw::glib::GLIBManager::pauseAction()
 }
 
 void gem::hw::glib::GLIBManager::resumeAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   // what is required for resuming the GLIB?
   usleep(10);  // just for testing the timing of different applications
@@ -512,7 +507,6 @@ void gem::hw::glib::GLIBManager::resumeAction()
 }
 
 void gem::hw::glib::GLIBManager::stopAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   CMSGEMOS_INFO("GLIBManager::stopAction begin");
   // FIXME make me more streamlined
@@ -544,7 +538,6 @@ void gem::hw::glib::GLIBManager::stopAction()
 }
 
 void gem::hw::glib::GLIBManager::haltAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   // what is required for halting the GLIB?
   CMSGEMOS_DEBUG("GLIBManager::resetAction begin");
@@ -574,7 +567,6 @@ void gem::hw::glib::GLIBManager::haltAction()
 }
 
 void gem::hw::glib::GLIBManager::resetAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   // what is required for resetting the GLIB?
   // unregister listeners and items in info spaces
@@ -624,17 +616,16 @@ void gem::hw::glib::GLIBManager::resetAction()
 
 /*
   void gem::hw::glib::GLIBManager::noAction()
-  throw (gem::hw::glib::exception::Exception)
   {
   }
 */
 
 void gem::hw::glib::GLIBManager::failAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
+{
 }
 
 void gem::hw::glib::GLIBManager::resetAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
+{
 }
 
 

@@ -23,35 +23,25 @@ namespace gem {
 
         protected:
 
-          virtual void webDefault(  xgi::Input *in, xgi::Output *out )
-            throw (xgi::exception::Exception);
+          virtual void webDefault(  xgi::Input *in, xgi::Output *out);
 
-          virtual void monitorPage(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          virtual void monitorPage(xgi::Input *in, xgi::Output *out);
 
-          virtual void expertPage(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          virtual void expertPage(xgi::Input *in, xgi::Output *out);
 
-          virtual void applicationPage(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          virtual void applicationPage(xgi::Input *in, xgi::Output *out);
 
-          virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          virtual void jsonUpdate(xgi::Input *in, xgi::Output *out);
 
-          void buildCardSummaryTable(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          void buildCardSummaryTable(xgi::Input *in, xgi::Output *out);
 
-          void cardPage(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          void cardPage(xgi::Input *in, xgi::Output *out);
 
-          void registerDumpPage(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          void registerDumpPage(xgi::Input *in, xgi::Output *out);
 
-          void fifoDumpPage(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          void fifoDumpPage(xgi::Input *in, xgi::Output *out);
 
-          void dumpGLIBFIFO(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          void dumpGLIBFIFO(xgi::Input *in, xgi::Output *out);
 
         private:
           size_t activeCard;

@@ -57,7 +57,6 @@ void gem::hw::glib::GLIBReadout::actionPerformed(xdata::Event& event)
 }
 
 void gem::hw::glib::GLIBReadout::initializeAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   CMSGEMOS_INFO("GLIBReadout::initializeAction begin");
   try {
@@ -78,7 +77,6 @@ void gem::hw::glib::GLIBReadout::initializeAction()
 
 
 void gem::hw::glib::GLIBReadout::configureAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   CMSGEMOS_INFO("GLIBReadout::configureAction begin");
   // grab these from the config, updated through SOAP too
@@ -93,37 +91,31 @@ void gem::hw::glib::GLIBReadout::configureAction()
 }
 
 void gem::hw::glib::GLIBReadout::startAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   CMSGEMOS_INFO("GLIBReadout::startAction begin");
 }
 
 void gem::hw::glib::GLIBReadout::pauseAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   CMSGEMOS_INFO("GLIBReadout::pauseAction begin");
 }
 
 void gem::hw::glib::GLIBReadout::resumeAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   CMSGEMOS_INFO("GLIBReadout::resumeAction begin");
 }
 
 void gem::hw::glib::GLIBReadout::stopAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   CMSGEMOS_INFO("GLIBReadout::stopAction begin");
 }
 
 void gem::hw::glib::GLIBReadout::haltAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   CMSGEMOS_INFO("GLIBReadout::haltAction begin");
 }
 
 void gem::hw::glib::GLIBReadout::resetAction()
-  throw (gem::hw::glib::exception::Exception)
 {
   CMSGEMOS_INFO("GLIBReadout::resetAction begin");
 }
@@ -648,7 +640,6 @@ void gem::hw::glib::GLIBReadout::ScanRoutines(uint8_t latency, uint8_t VT1, uint
 }
 
 xoap::MessageReference gem::hw::glib::GLIBReadout::updateScanParameters(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
 {
   CMSGEMOS_INFO("GLIBReadout::updateScanParameters()");
   if (msg.isNull()) {

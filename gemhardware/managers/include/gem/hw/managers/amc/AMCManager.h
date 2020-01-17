@@ -44,21 +44,19 @@ namespace gem {
           virtual void actionPerformed(xdata::Event& event) override;
 
           // state transitions FIXME: remove exception specifiers
-          virtual void initializeAction() throw (gem::hw::glib::exception::Exception) override;
-          virtual void configureAction()  throw (gem::hw::glib::exception::Exception) override;
-          virtual void startAction()      throw (gem::hw::glib::exception::Exception) override;
-          virtual void pauseAction()      throw (gem::hw::glib::exception::Exception) override;
-          virtual void resumeAction()     throw (gem::hw::glib::exception::Exception) override;
-          virtual void stopAction()       throw (gem::hw::glib::exception::Exception) override;
-          virtual void haltAction()       throw (gem::hw::glib::exception::Exception) override;
-          virtual void resetAction()      throw (gem::hw::glib::exception::Exception) override;
-          // virtual void noAction()         throw (gem::hw::glib::exception::Exception) override;
+          virtual void initializeAction() override;
+          virtual void configureAction()  override;
+          virtual void startAction()      override;
+          virtual void pauseAction()      override;
+          virtual void resumeAction()     override;
+          virtual void stopAction()       override;
+          virtual void haltAction()       override;
+          virtual void resetAction()      override;
+          // virtual void noAction()         override;
 
-          void failAction(toolbox::Event::Reference e)
-            throw (toolbox::fsm::exception::Exception);
+          void failAction(toolbox::Event::Reference e);
 
-          virtual void resetAction(toolbox::Event::Reference e)
-            throw (toolbox::fsm::exception::Exception) override;
+          virtual void resetAction(toolbox::Event::Reference e) override;
 
         protected:
           /**
