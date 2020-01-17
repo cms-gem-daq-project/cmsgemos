@@ -143,7 +143,7 @@ void gem::readout::GEMReadoutApplication::initializeAction()
       toolbox::mem::CommittedHeapAllocator* alloc = new toolbox::mem::CommittedHeapAllocator(4096*4096);
       toolbox::net::URN urn("toolbox-mem-pool",poolname);
       m_pool = toolbox::mem::getMemoryPoolFactory()->createPool(urn,alloc);
-    } catch (xcept::Exception& e) {
+    } catch (xcept::Exception const& e) {
       XCEPT_RETHROW(gem::base::exception::Exception,"Unable to create readout memory pool",e);
     }
   }
@@ -291,7 +291,7 @@ int gem::readout::GEMReadoutApplication::readoutTask()
         msg << "GEMReadoutApplication::readoutTask error "
             << xcept::stdformat_exception_history(e);
         CMSGEMOS_ERROR(msg.str());
-      } catch (std::exception& e) {
+      } catch (std::exception const& e) {
         std::stringstream msg;
         msg << "GEMReadoutApplication::readoutTask error "
             << e.what();

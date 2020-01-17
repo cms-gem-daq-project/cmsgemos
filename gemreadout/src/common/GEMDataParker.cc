@@ -127,17 +127,14 @@ xoap::MessageReference gem::readout::GEMDataParker::updateScanParameters(xoap::M
     commandName = command.first;
     parameterValue = command.second;
     CMSGEMOS_INFO("GEMDataParker received command " << commandName);
-  } catch(xoap::exception::Exception& err) {
-    std::string msgBase = toolbox::toString("Unable to extract command from CommandWithParameter SOAP message");
-    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
-    XCEPT_DECLARE_NESTED(gem::readout::exception::SOAPCommandParameterProblem, top,
-                         toolbox::toString("%s.", msgBase.c_str()), err);
+  } catch (xoap::exception::Exception& e) {
+    const std::string errmsg = "Unable to extract command from CommandWithParameter SOAP message";
+    CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception_history(e));
+    XCEPT_DECLARE_NESTED(gem::readout::exception::SOAPCommandParameterProblem, top, errmsg, e);
     //p_gemApp->notifyQualified("error", top);
-    std::string faultString = toolbox::toString("%s failed", commandName.c_str());
-    std::string faultCode   = "Client";
-    std::string detail      = toolbox::toString("%s: %s.",
-                                                msgBase.c_str(),
-                                                err.message().c_str());
+    const std::string faultString = commandName + " failed";
+    const std::string faultCode   = "Client";
+    const std::string detail      = errmsg + ": " + e.message();
     //this has to change to something real, but will come when data parker becomes the gem readout application
     std::string faultActor = "";
     xoap::MessageReference reply =
@@ -146,8 +143,9 @@ xoap::MessageReference gem::readout::GEMDataParker::updateScanParameters(xoap::M
   }
   //this has to be injected into the GEM header
   m_scanParam = std::stoi(parameterValue);
-  CMSGEMOS_DEBUG(toolbox::toString("GEMDataParker::updateScanParameters() received command '%s' with value. %s",
-                          commandName.c_str(), parameterValue.c_str()));
+  CMSGEMOS_DEBUG("GEMDataParker::updateScanParameters() received command '"
+                 << commandName << "' with value. '"
+                 << parameterValue << "'");
   return gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");
 }
 
