@@ -218,8 +218,8 @@ void gem::base::GEMFSM::fireEvent(toolbox::Event::Reference const &event)
   CMSGEMOS_INFO("GEMFSM::fireEvent(" << event->type() << ")");
   try {
     p_gemfsm->fireEvent(event);
-  } catch (toolbox::fsm::exception::Exception & ex) {
-    XCEPT_RETHROW(xoap::exception::Exception, "invalid command", ex);
+  } catch (toolbox::fsm::exception::Exception const& e) {
+    XCEPT_RETHROW(xoap::exception::Exception, "invalid command", e);
   }
 };
 
@@ -234,21 +234,21 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
   try {
     commandName = gem::utils::soap::GEMSOAPToolBox::extractFSMCommandName(msg);
     CMSGEMOS_INFO("GEMFSM::received command " << commandName);
-  } catch(xoap::exception::Exception& err) {
+  } catch (xoap::exception::Exception& e) {
     const std::string errmsg = "Unable to extract command from GEMFSM SOAP message";
-    CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception_history(err).c_str());
-    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top, errmsg, err);
+    CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception_history(e));
+    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top, errmsg, e);
     p_gemApp->notifyQualified("error", top);
     const std::string faultString = commandName + " failed";
     const std::string faultCode   = "Client";
-    const std::string detail      = errmsg + ": " + err.message();
+    const std::string detail      = errmsg + ": " + e.message();
     const std::string faultActor  = p_gemApp->getFullURL();
     xoap::MessageReference reply =
       gem::utils::soap::GEMSOAPToolBox::makeSOAPFaultReply(faultString, faultCode, detail, faultActor);
     return reply;
   }
 
-  CMSGEMOS_DEBUG("GEMFSM::changeState() received command '" <<  commandName.c_str() << "'.");
+  CMSGEMOS_DEBUG("GEMFSM::changeState() received command '" <<  commandName << "'.");
 
   try {
     toolbox::Event::Reference event(new toolbox::Event(commandName, this));
@@ -256,7 +256,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
     CMSGEMOS_INFO("initial state is: " << p_gemfsm->getStateName(p_gemfsm->getCurrentState()));
     p_gemfsm->fireEvent(event);
     CMSGEMOS_INFO("new state is: " << p_gemfsm->getStateName(p_gemfsm->getCurrentState()));
-  } catch(toolbox::fsm::exception::Exception& err) {
+  } catch (toolbox::fsm::exception::Exception& err) {
     const std::string errmsg = "Problem executing the GEMFSM '" + commandName + "' command";
     CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception_history(err));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top, errmsg, err);
@@ -279,7 +279,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
     return
       gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName,
                                                          p_gemfsm->getStateName(p_gemfsm->getCurrentState()));
-  } catch(xcept::Exception& err) {
+  } catch (xcept::Exception& err) {
     const std::string errmsg = "Failed to create GEMFSM SOAP reply for command '" + commandName + "'";
     CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception_history(err));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem, top, errmsg, err);
@@ -324,7 +324,7 @@ void gem::base::GEMFSM::notifyRCMS(toolbox::fsm::FiniteStateMachine &fsm, std::s
   CMSGEMOS_DEBUG("notifyRCMS() called with msg = " << msg);
   try {
     m_gemRCMSNotifier.stateChanged(stateName, msg);
-  } catch(xcept::Exception& err) {
+  } catch (xcept::Exception& err) {
     CMSGEMOS_ERROR("GEMFSM::Failed to notify RCMS of state change: "
           << xcept::stdformat_exception_history(err));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::RCMSNotificationError, top,
@@ -341,20 +341,20 @@ void gem::base::GEMFSM::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
     m_gemFSMState = fsm.getStateName(fsm.getCurrentState());
     p_gemApp->getAppISToolBox()->setString("FSMState",  m_gemFSMState.toString());
     p_gemApp->getAppISToolBox()->setString("StateName", m_gemFSMState.toString());
-  } catch (toolbox::fsm::exception::Exception & ex) {
+  } catch (toolbox::fsm::exception::Exception const& e) {
     std::stringstream msg;
-    msg << "Problem updating state after stateChanged " << ex.what();
+    msg << "Problem updating state after stateChanged " << e.what();
     CMSGEMOS_FATAL(msg.str());
-    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), ex);
-  } catch(xcept::Exception& ex) {
+    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), e);
+  } catch (xcept::Exception const& e) {
     std::stringstream msg;
-    msg << "Problem updating state after stateChanged " << ex.what();
+    msg << "Problem updating state after stateChanged " << e.what();
     CMSGEMOS_FATAL(msg.str());
-    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), ex);
+    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), e);
     p_gemApp->notifyQualified("fatal", top);
-  } catch (std::exception& ex) {
+  } catch (std::exception const& e) {
     std::stringstream msg;
-    msg << "Problem updating state after stateChanged " << ex.what();
+    msg << "Problem updating state after stateChanged " << e.what();
     CMSGEMOS_FATAL(msg.str());
     XCEPT_RAISE(gem::utils::exception::SoftwareProblem, msg.str());
   } catch (...) {
@@ -406,11 +406,11 @@ void gem::base::GEMFSM::gotoFailedAsynchronously(xcept::Exception& err)
   try {
     toolbox::Event::Reference event(new toolbox::Event("Fail", this));
     p_gemfsm->fireEvent(event);
-  } catch(xcept::Exception& error) {
+  } catch (xcept::Exception const& e) {
     std::stringstream msg;
     msg << "Cannot initiate asynchronous 'Fail' transition.";
     CMSGEMOS_FATAL(msg.str());
-    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), error);
+    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), e);
     p_gemApp->notifyQualified("fatal", top);
   }
 }

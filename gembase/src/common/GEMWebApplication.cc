@@ -233,10 +233,10 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input *in, xgi::Output *out
            << "</tr>"     << std::endl
            << "</tbody>"  << std::endl
            << "</table>"  << std::endl;
-    } catch (const xgi::exception::Exception& e) {
+    } catch (xgi::exception::Exception const& e) {
       CMSGEMOS_ERROR("GEMWebApplication::Something went wrong displaying web control panel(xgi): " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
-    } catch (const std::exception& e) {
+    } catch (std::exception const& e) {
       CMSGEMOS_ERROR("GEMWebApplication::Something went wrong displaying web control panel(std): " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
@@ -315,7 +315,7 @@ void gem::base::GEMWebApplication::webInitialize(xgi::Input *in, xgi::Output *ou
     CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Initialize");
-    } catch( toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "webInitialize failed", e);
     }
   }
@@ -331,7 +331,7 @@ void gem::base::GEMWebApplication::webEnable(xgi::Input *in, xgi::Output *out)
     CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Enable");
-    } catch( toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "webEnable failed", e);
     }
   }
@@ -346,7 +346,7 @@ void gem::base::GEMWebApplication::webConfigure(xgi::Input *in, xgi::Output *out
     CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Configure");
-    } catch( toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "webConfigure failed", e);
     }
   }
@@ -361,7 +361,7 @@ void gem::base::GEMWebApplication::webStart(xgi::Input *in, xgi::Output *out)
     CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Start");
-    } catch( toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "webStart failed", e);
     }
   }
@@ -375,7 +375,7 @@ void gem::base::GEMWebApplication::webPause(xgi::Input *in, xgi::Output *out)
     CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Pause");
-    } catch( toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "webPause failed", e);
     }
   }
@@ -390,7 +390,7 @@ void gem::base::GEMWebApplication::webResume(xgi::Input *in, xgi::Output *out)
     CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Resume");
-    } catch( toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "webResume failed", e);
     }
   }
@@ -405,7 +405,7 @@ void gem::base::GEMWebApplication::webStop(xgi::Input *in, xgi::Output *out)
     CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Stop");
-    } catch( toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "webStop failed", e);
     }
   }
@@ -420,7 +420,7 @@ void gem::base::GEMWebApplication::webHalt(xgi::Input *in, xgi::Output *out)
     CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Halt");
-    } catch( toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "webHalt failed", e);
     }
   }
@@ -435,7 +435,7 @@ void gem::base::GEMWebApplication::webReset(xgi::Input *in, xgi::Output *out)
     CMSGEMOS_DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
     try {
       p_gemFSMApp->fireEvent("Reset");
-    } catch( toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "webReset failed", e);
     }
   }

@@ -178,7 +178,7 @@ void gem::base::GEMFSMApplication::xgiInitialize(xgi::Input* in, xgi::Output* ou
     try {
       CMSGEMOS_DEBUG("GEMFSMApplication::xgiInitialize::Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize", p_appContext, p_appDescriptor, p_appDescriptor);
-    } catch (toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception const& e) {
       std::stringstream msg, errmsg;
       // msg << read in soap fault?
       m_stateMessage = msg.str();
@@ -197,7 +197,7 @@ void gem::base::GEMFSMApplication::xgiConfigure(xgi::Input* in, xgi::Output* out
     try {
       CMSGEMOS_DEBUG(msgBase << "Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure", p_appContext, p_appDescriptor, p_appDescriptor);
-    } catch (toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception const& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "Configure failed", e);
     }
   }
@@ -210,7 +210,7 @@ void gem::base::GEMFSMApplication::xgiStart(xgi::Input* in, xgi::Output* out)
     try {
       CMSGEMOS_DEBUG(msgBase << "Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Start", p_appContext, p_appDescriptor, p_appDescriptor);
-    } catch (toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception const& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "Start failed", e);
     }
   }
@@ -223,7 +223,7 @@ void gem::base::GEMFSMApplication::xgiStop(xgi::Input* in, xgi::Output* out)
     try {
       CMSGEMOS_DEBUG(msgBase << "Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop", p_appContext, p_appDescriptor, p_appDescriptor);
-    } catch (toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception const& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "Stop failed", e);
     }
   }
@@ -236,7 +236,7 @@ void gem::base::GEMFSMApplication::xgiPause(xgi::Input* in, xgi::Output* out)
     try {
       CMSGEMOS_DEBUG(msgBase << "Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Pause", p_appContext, p_appDescriptor, p_appDescriptor);
-    } catch (toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception const& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "Pause failed", e);
     }
   }
@@ -249,7 +249,7 @@ void gem::base::GEMFSMApplication::xgiResume(xgi::Input* in, xgi::Output* out)
     try {
       CMSGEMOS_DEBUG(msgBase << "Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Resume", p_appContext, p_appDescriptor, p_appDescriptor);
-    } catch (toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception const& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "Resume failed", e);
     }
   }
@@ -262,7 +262,7 @@ void gem::base::GEMFSMApplication::xgiHalt(xgi::Input* in, xgi::Output* out)
     try {
       CMSGEMOS_DEBUG(msgBase << "Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt", p_appContext, p_appDescriptor, p_appDescriptor);
-    } catch (toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception const& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "Halt failed", e);
     }
   }
@@ -275,7 +275,7 @@ void gem::base::GEMFSMApplication::xgiReset(xgi::Input* in, xgi::Output* out)
     try {
       CMSGEMOS_DEBUG(msgBase << "Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset", p_appContext, p_appDescriptor, p_appDescriptor);
-    } catch (toolbox::fsm::exception::Exception& e) {
+    } catch (toolbox::fsm::exception::Exception const& e) {
       XCEPT_RETHROW(xgi::exception::Exception, "Reset failed", e);
     }
   }
@@ -314,7 +314,7 @@ void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference ev
       CMSGEMOS_DEBUG(msgBase << "Unknown transition command");
       XCEPT_RAISE(toolbox::fsm::exception::Exception, "Unknown transition command");
     }
-  } catch (gem::utils::exception::Exception& ex) {
+  } catch (gem::utils::exception::Exception const& ex) {
     CMSGEMOS_ERROR(msgBase << "Caught gem::utils::exception::Exception");
     fireEvent("Fail");
     // set a transition message to ex.what()
@@ -353,12 +353,12 @@ void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
     else if (command == "Halt")       loop->submit(m_haltSig  );
     else if (command == "Reset")      loop->submit(m_resetSig );
     CMSGEMOS_DEBUG(msgBase << "Workloop should now be submitted");
-  } catch (gem::utils::exception::Exception& e) {
+  } catch (gem::utils::exception::Exception const& e) {
     std::stringstream msg;
     msg << "GEMFSMApplication::workloopDriver Workloop failure (gem::utils::exception)";
     CMSGEMOS_ERROR(msg.str());
     XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
-  } catch (toolbox::task::exception::Exception& e) {
+  } catch (toolbox::task::exception::Exception const& e) {
     std::stringstream msg;
     msg << "GEMFSMApplication::workloopDriver Workloop failure (toolbox::task::exception)";
     CMSGEMOS_ERROR(msg.str());
@@ -422,7 +422,7 @@ void gem::base::GEMFSMApplication::fireEvent(std::string event)
   try {
     toolbox::Event::Reference e(new toolbox::Event(event, this));
     m_gemfsm.fireEvent(e);
-  } catch (toolbox::fsm::exception::Exception& e) {
+  } catch (toolbox::fsm::exception::Exception const& e) {
     XCEPT_RETHROW(xoap::exception::Exception, "invalid command", e);
   }
   updateState();
@@ -472,7 +472,7 @@ bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
-  } catch (toolbox::task::exception::Exception& ex) {
+  } catch (toolbox::task::exception::Exception const& ex) {
     std::stringstream msg;
     msg << "Caught toolbox::task::exception: " << ex.what();
     CMSGEMOS_ERROR(msgBase << msg.str());
@@ -560,7 +560,7 @@ bool gem::base::GEMFSMApplication::configure(toolbox::task::WorkLoop *wl)
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
-  } catch (toolbox::task::exception::Exception& ex) {
+  } catch (toolbox::task::exception::Exception const& ex) {
     std::stringstream msg;
     msg << "Caught toolbox::task::exception: " << ex.what();
     CMSGEMOS_ERROR(msg.str());
@@ -647,7 +647,7 @@ bool gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
-  } catch (toolbox::task::exception::Exception& ex) {
+  } catch (toolbox::task::exception::Exception const& ex) {
     std::stringstream msg;
     msg << "GEMFSMApplication::start caught toolbox::task::exception: " << ex.what();
     CMSGEMOS_ERROR(msg.str());
@@ -724,7 +724,7 @@ bool gem::base::GEMFSMApplication::pause(toolbox::task::WorkLoop *wl)
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
-  } catch (toolbox::task::exception::Exception& ex) {
+  } catch (toolbox::task::exception::Exception const& ex) {
     std::stringstream msg;
     msg << "GEMFSMApplication::pause caught toolbox::task::exception: " << ex.what();
     CMSGEMOS_ERROR(msg.str());
@@ -811,7 +811,7 @@ bool gem::base::GEMFSMApplication::resume(toolbox::task::WorkLoop *wl)
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
-  } catch (toolbox::task::exception::Exception& ex) {
+  } catch (toolbox::task::exception::Exception const& ex) {
     std::stringstream msg;
     msg << "GEMFSMApplication::resume caught toolbox::task::exception: " << ex.what();
     CMSGEMOS_ERROR(msg.str());
@@ -898,7 +898,7 @@ bool gem::base::GEMFSMApplication::stop(toolbox::task::WorkLoop *wl)
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
-  } catch (toolbox::task::exception::Exception& ex) {
+  } catch (toolbox::task::exception::Exception const& ex) {
     std::stringstream msg;
     msg << "GEMFSMApplication::stop caught toolbox::task::exception: " << ex.what();
     CMSGEMOS_ERROR(msg.str());
@@ -985,7 +985,7 @@ bool gem::base::GEMFSMApplication::halt(toolbox::task::WorkLoop *wl)
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
-  } catch (toolbox::task::exception::Exception& ex) {
+  } catch (toolbox::task::exception::Exception const& ex) {
     std::stringstream msg;
     msg << "GEMFSMApplication::halt caught toolbox::task::exception: " << ex.what();
     CMSGEMOS_ERROR(msg.str());
@@ -1084,7 +1084,7 @@ bool gem::base::GEMFSMApplication::reset(toolbox::task::WorkLoop *wl)
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
-  } catch (toolbox::task::exception::Exception& ex) {
+  } catch (toolbox::task::exception::Exception const& ex) {
     std::stringstream msg;
     msg << "GEMFSMApplication::reset caught toolbox::task::exception: " << ex.what();
     CMSGEMOS_ERROR(msg.str());

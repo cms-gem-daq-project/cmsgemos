@@ -69,7 +69,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
     m_xmlClass      = p_appDescriptor->getClassName();
     m_instance      = p_appDescriptor->getInstance();
     m_urn           = p_appDescriptor->getURN();
-  } catch(xcept::Exception e) {
+  } catch (xcept::Exception const& e) {
     XCEPT_RETHROW(xdaq::exception::Exception, "Failed to get GEM application information", e);
   }
 
