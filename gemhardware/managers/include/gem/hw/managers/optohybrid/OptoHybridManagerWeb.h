@@ -23,23 +23,17 @@ namespace gem {
 
         protected:
 
-          virtual void webDefault(  xgi::Input *in, xgi::Output *out )
-            throw (xgi::exception::Exception);
+          virtual void webDefault(  xgi::Input *in, xgi::Output *out);
 
-          virtual void monitorPage(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          virtual void monitorPage(xgi::Input *in, xgi::Output *out);
 
-          virtual void expertPage(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          virtual void expertPage(xgi::Input *in, xgi::Output *out);
 
-          virtual void applicationPage(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          virtual void applicationPage(xgi::Input *in, xgi::Output *out);
 
-          virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          virtual void jsonUpdate(xgi::Input *in, xgi::Output *out);
 
-          void boardPage(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
+          void boardPage(xgi::Input *in, xgi::Output *out);
 
         private:
           size_t activeBoard;

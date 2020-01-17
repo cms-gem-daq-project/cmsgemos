@@ -24,7 +24,6 @@ gem::hw::optohybrid::OptoHybridManagerWeb::~OptoHybridManagerWeb()
 }
 
 void gem::hw::optohybrid::OptoHybridManagerWeb::webDefault(xgi::Input * in, xgi::Output * out)
-  throw (xgi::exception::Exception)
 {
   if (p_gemFSMApp)
     CMSGEMOS_DEBUG("current state is" << dynamic_cast<gem::hw::optohybrid::OptoHybridManager*>(p_gemFSMApp)->getCurrentState());
@@ -41,7 +40,6 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::webDefault(xgi::Input * in, xgi:
 
 /*To be filled in with the monitor page code*/
 void gem::hw::optohybrid::OptoHybridManagerWeb::monitorPage(xgi::Input * in, xgi::Output * out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_INFO("OptoHybridManagerWeb::monitorPage");
   //fill this page with the generic views for the OptoHybridManager
@@ -53,7 +51,6 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::monitorPage(xgi::Input * in, xgi
 
 /*To be filled in with the expert page code*/
 void gem::hw::optohybrid::OptoHybridManagerWeb::expertPage(xgi::Input * in, xgi::Output * out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_INFO("OptoHybridManagerWeb::expertPage");
   //fill this page with the expert views for the OptoHybridManager
@@ -62,7 +59,6 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::expertPage(xgi::Input * in, xgi:
 
 /*To be filled in with the application page code*/
 void gem::hw::optohybrid::OptoHybridManagerWeb::applicationPage(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_INFO("OptoHybridManagerWeb::applicationPage");
   std::string cardURL = "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/boardPage";
@@ -73,7 +69,6 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::applicationPage(xgi::Input* in, 
 
 /*To be filled in with the card page code*/
 void gem::hw::optohybrid::OptoHybridManagerWeb::boardPage(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_INFO("OptoHybridManagerWeb::boardPage");
   // fill this page with the card views for the OptoHybridManager
@@ -92,7 +87,6 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::boardPage(xgi::Input* in, xgi::O
 }
 
 void gem::hw::optohybrid::OptoHybridManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("OptoHybridManagerWeb::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
