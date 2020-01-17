@@ -62,14 +62,14 @@ void gem::hw::glib::GLIBReadout::initializeAction()
   CMSGEMOS_INFO("GLIBReadout::initializeAction begin");
   try {
     p_glib = glib_shared_ptr(new gem::hw::glib::HwGLIB(m_deviceName.toString(), m_connectionFile.toString()));
-  } catch (gem::hw::glib::exception::Exception const& ex) {
-    CMSGEMOS_ERROR("GLIBReadout::initializeAction caught exception " << ex.what());
+  } catch (gem::hw::glib::exception::Exception const& e) {
+    CMSGEMOS_ERROR("GLIBReadout::initializeAction caught exception " << e.what());
     XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
-  } catch (toolbox::net::exception::MalformedURN const& ex) {
-    CMSGEMOS_ERROR("GLIBReadout::initializeAction caught exception " << ex.what());
+  } catch (toolbox::net::exception::MalformedURN const& e) {
+    CMSGEMOS_ERROR("GLIBReadout::initializeAction caught exception " << e.what());
     XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
-  } catch (std::exception const& ex) {
-    CMSGEMOS_ERROR("GLIBReadout::initializeAction caught exception " << ex.what());
+  } catch (std::exception const& e) {
+    CMSGEMOS_ERROR("GLIBReadout::initializeAction caught exception " << e.what());
     XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
   }
   CMSGEMOS_DEBUG("GLIBReadout::initializeAction connected");
@@ -663,17 +663,14 @@ xoap::MessageReference gem::hw::glib::GLIBReadout::updateScanParameters(xoap::Me
     commandName = command.first;
     parameterValue = command.second;
     CMSGEMOS_INFO("GLIBReadout received command " << commandName);
-  } catch(xoap::exception::Exception& err) {
-    std::string msgBase = toolbox::toString("Unable to extract command from CommandWithParameter SOAP message");
-    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
-    XCEPT_DECLARE_NESTED(gem::readout::exception::SOAPCommandParameterProblem, top,
-                         toolbox::toString("%s.", msgBase.c_str()), err);
+  } catch(xoap::exception::Exception& e) {
+    const std::string errmsg = "Unable to extract command from CommandWithParameter SOAP message";
+    CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception_history(e));
+    XCEPT_DECLARE_NESTED(gem::readout::exception::SOAPCommandParameterProblem, top, errmsg, e);
     //p_gemApp->notifyQualified("error", top);
-    std::string faultString = toolbox::toString("%s failed", commandName.c_str());
-    std::string faultCode   = "Client";
-    std::string detail      = toolbox::toString("%s: %s.",
-                                                msgBase.c_str(),
-                                                err.message().c_str());
+    const std::string faultString = commandName + " failed";
+    const std::string faultCode   = "Client";
+    const std::string detail      = errmsg + ": " + e.message();
     //this has to change to something real, but will come when data parker becomes the gem readout application
     std::string faultActor = "";
     xoap::MessageReference reply =
@@ -682,48 +679,8 @@ xoap::MessageReference gem::hw::glib::GLIBReadout::updateScanParameters(xoap::Me
   }
   //this has to be injected into the GEM header
   m_runParams = std::stoi(parameterValue);
-  CMSGEMOS_DEBUG(toolbox::toString("GLIBReadout::updateScanParameters() received command '%s' with value. %s",
-                          commandName.c_str(), parameterValue.c_str()));
+  CMSGEMOS_DEBUG("GLIBReadout::updateScanParameters() received command '"
+                 << commandName << "' with value. '"
+                 << parameterValue << "'");
   return gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");
 }
-
-/*
-xoap::MessageReference gem::hw::glib::GLIBReadout::queueDepth(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
-{
-  CMSGEMOS_INFO("GLIBReadout::queueDepth()");
-  if (msg.isNull()) {
-    XCEPT_RAISE(xoap::exception::Exception,"Null message received!");
-  }
-
-  std::string commandName    = "undefined";
-  std::string parameterValue = "-1";
-  try {
-    std::pair<std::string, std::string> command
-      = gem::utils::soap::GEMSOAPToolBox::extractCommandWithParameter(msg);
-    commandName = command.first;
-    parameterValue = command.second;
-    CMSGEMOS_INFO("GLIBReadout received command " << commandName);
-  } catch(xoap::exception::Exception& err) {
-    std::string msgBase = toolbox::toString("Unable to extract command from CommandWithParameter SOAP message");
-    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
-    XCEPT_DECLARE_NESTED(gem::readout::exception::SOAPCommandParameterProblem, top,
-                         toolbox::toString("%s.", msgBase.c_str()), err);
-    //p_gemApp->notifyQualified("error", top);
-    std::string faultString = toolbox::toString("%s failed", commandName.c_str());
-    std::string faultCode   = "Client";
-    std::string detail      = toolbox::toString("%s: %s.",
-                                                msgBase.c_str(),
-                                                err.message().c_str());
-    //this has to change to something real, but will come when data parker becomes the gem readout application
-    std::string faultActor = "";
-    xoap::MessageReference reply =
-      gem::utils::soap::GEMSOAPToolBox::makeSOAPFaultReply(faultString, faultCode, detail, faultActor);
-    return reply;
-  }
-  //this has to be injected into the GEM header
-  CMSGEMOS_DEBUG(toolbox::toString("GLIBReadout::queueDepth() received command '%s' with value. %s",
-                          commandName.c_str(), parameterValue.c_str()));
-  return gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");
-}
-*/

@@ -94,11 +94,11 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
       return;
     }
   }
-  catch (gem::hw::vfat::exception::TransactionError& e) {
+  catch (gem::hw::vfat::exception::TransactionError const& e) {
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), e.what());
     return;
   }
-  catch (gem::hw::vfat::exception::InvalidTransaction& e) {
+  catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), e.what());
     return;
   }
@@ -121,10 +121,10 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
       LOG4CPLUS_DEBUG(this->getApplicationLogger(), "VFAT2 device is not connected");
       return;
     }
-  } catch (gem::hw::vfat::exception::TransactionError& e) {
+  } catch (gem::hw::vfat::exception::TransactionError const& e) {
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), e.what());
     return;
-  } catch (gem::hw::vfat::exception::InvalidTransaction& e) {
+  } catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), e.what());
     return;
   }

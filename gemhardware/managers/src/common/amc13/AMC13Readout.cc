@@ -84,13 +84,13 @@ void gem::hw::amc13::AMC13Readout::initializeAction()
     CMSGEMOS_DEBUG("Trying to create connection to " << cardName << " in " << connection);
     //p_amc13 = new ::amc13::AMC13(connection, cardName+".T1", cardName+".T2");
     p_amc13 = std::make_shared< ::amc13::AMC13>(connection, cardName+".T1", cardName+".T2");
-  } catch (uhal::exception::exception & e) {
+  } catch (uhal::exception::exception const& e) {
     std::stringstream msg;
     msg << "AMC13Readout::initializeAction  failed, caught uhal::exception: "
         << e.what();
     CMSGEMOS_ERROR(msg.str());
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,msg.str());
-  } catch (std::exception& e) {
+  } catch (std::exception const& e) {
     std::stringstream msg;
     msg << "AMC13Readout::initializeAction  failed, caught std::exception: "
         << e.what();

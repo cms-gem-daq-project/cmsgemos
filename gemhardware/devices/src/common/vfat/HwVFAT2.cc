@@ -291,11 +291,11 @@ void gem::hw::vfat::HwVFAT2::readVFAT2Counters()
     m_vfatParams.chipID       = getChipID();
     m_vfatParams.upsetCounter = getUpsetCount();
     m_vfatParams.hitCounter   = getHitCount();
-  } catch (gem::hw::vfat::exception::TransactionError& e) {
+  } catch (gem::hw::vfat::exception::TransactionError const& e) {
     CMSGEMOS_DEBUG(e.what());
-  } catch (gem::hw::vfat::exception::InvalidTransaction& e) {
+  } catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
     CMSGEMOS_DEBUG(e.what());
-  } catch (gem::hw::vfat::exception::WrongTransaction& e) {
+  } catch (gem::hw::vfat::exception::WrongTransaction const& e) {
     CMSGEMOS_DEBUG(e.what());
   }
 }

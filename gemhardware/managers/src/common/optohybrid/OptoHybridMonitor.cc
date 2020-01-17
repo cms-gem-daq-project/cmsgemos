@@ -394,16 +394,16 @@ void gem::hw::optohybrid::OptoHybridMonitor::reset()
     CMSGEMOS_DEBUG("OptoHybridMonitor::reset removing " << infoSpace->first << " from p_timer");
     try {
       p_timer->remove(infoSpace->first);
-    } catch (toolbox::task::exception::Exception& te) {
-      CMSGEMOS_ERROR("OptoHybridMonitor::Caught exception while removing timer task " << infoSpace->first << " " << te.what());
+    } catch (toolbox::task::exception::Exception const& e) {
+      CMSGEMOS_ERROR("OptoHybridMonitor::Caught exception while removing timer task " << infoSpace->first << " " << e.what());
     }
   }
   stopMonitoring();
   CMSGEMOS_DEBUG("GEMMonitor::reset removing timer " << m_timerName << " from timerFactory");
   try {
     toolbox::task::getTimerFactory()->removeTimer(m_timerName);
-  } catch (toolbox::task::exception::Exception& te) {
-    CMSGEMOS_ERROR("OptoHybridMonitor::Caught exception while removing timer " << m_timerName << " " << te.what());
+  } catch (toolbox::task::exception::Exception const& e) {
+    CMSGEMOS_ERROR("OptoHybridMonitor::Caught exception while removing timer " << m_timerName << " " << e.what());
   }
 
   CMSGEMOS_DEBUG("OptoHybridMonitor::reset - clearing all maps");
