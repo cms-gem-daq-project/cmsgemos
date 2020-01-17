@@ -41,14 +41,11 @@ namespace gem {
 
         std::string monitoringState(){return m_state;}
 
-        void stopAction(xgi::Input *in, xgi::Output *out)
-          throw (xgi::exception::Exception);
+        void stopAction(xgi::Input *in, xgi::Output *out);
 
-        void resumeAction(xgi::Input *in, xgi::Output *out)
-          throw (xgi::exception::Exception);
+        void resumeAction(xgi::Input *in, xgi::Output *out);
 
-        void pauseAction(xgi::Input *in, xgi::Output *out)
-          throw (xgi::exception::Exception);
+        void pauseAction(xgi::Input *in, xgi::Output *out);
 
 
         std::vector<DaqMonitor*> v_daqmon;
