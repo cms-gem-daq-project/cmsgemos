@@ -154,10 +154,10 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
     }
     *out << "</tbody>"  << std::endl
          << "</table>"  << std::endl;
-  } catch (const xgi::exception::Exception& e) {
+  } catch (xgi::exception::Exception const& e) {
     CMSGEMOS_ERROR("GEMSupervisorWeb::Something went wrong displaying managed application state table(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
-  } catch (const std::exception& e) {
+  } catch (std::exception const& e) {
     CMSGEMOS_ERROR("GEMSupervisorWeb::Something went wrong displaying managed application state table(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
