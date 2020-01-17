@@ -1220,7 +1220,6 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
 }
 
 void gem::supervisor::GEMSupervisor::sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad)
-//  throw (xoap::exception::Exception)
 {
   CMSGEMOS_INFO("GEMSupervisor::sendCfgType to " << ad->getClassName());
   gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("CfgType", "xsd:string", m_cfgType.toString(),
@@ -1228,7 +1227,6 @@ void gem::supervisor::GEMSupervisor::sendCfgType(std::string const& cfgType, xda
 }
 
 void gem::supervisor::GEMSupervisor::sendRunType(std::string const& runType, xdaq::ApplicationDescriptor* ad)
-//  throw (xoap::exception::Exception)
 {
   CMSGEMOS_INFO("GEMSupervisor::sendRunType to " << ad->getClassName());
   gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("RunType", "xsd:string", m_runType.toString(),
@@ -1236,7 +1234,6 @@ void gem::supervisor::GEMSupervisor::sendRunType(std::string const& runType, xda
 }
 
 void gem::supervisor::GEMSupervisor::sendRunNumber(int64_t const& runNumber, xdaq::ApplicationDescriptor* ad)
-//  throw (xoap::exception::Exception)
 {
   CMSGEMOS_INFO("GEMSupervisor::sendRunNumber " << m_runNumber.toString() << " to " << ad->getClassName());
   gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("RunNumber", "xsd:long",
@@ -1250,7 +1247,6 @@ void gem::supervisor::GEMSupervisor::sendRunNumber(int64_t const& runNumber, xda
 }
 
 void gem::supervisor::GEMSupervisor::renewTCDSLease()
-//  throw (xoap::exception::Exception)
 {
   if (m_handleTCDS) {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_tcdsLock);
@@ -1262,7 +1258,6 @@ void gem::supervisor::GEMSupervisor::renewTCDSLease()
 }
 
 void gem::supervisor::GEMSupervisor::pausePhaseMonitoring()
-//  throw (xoap::exception::Exception)
 {
   std::stringstream msg;
   msg << "GEMSupervisor::pausePhaseMonitoring is obsolete";
@@ -1270,7 +1265,6 @@ void gem::supervisor::GEMSupervisor::pausePhaseMonitoring()
 }
 
 void gem::supervisor::GEMSupervisor::resumePhaseMonitoring()
-//  throw (xoap::exception::Exception)
 {
   std::stringstream msg;
   msg << "GEMSupervisor::resumePhaseMonitoring is obsolete";
@@ -1278,7 +1272,6 @@ void gem::supervisor::GEMSupervisor::resumePhaseMonitoring()
 }
 
 void gem::supervisor::GEMSupervisor::sendScanParameters(xdaq::ApplicationDescriptor* ad)
-//  throw (xoap::exception::Exception)
 {
 
   CMSGEMOS_INFO("GEMSupervisor::sendScanParameter ScanInfo " << std::endl
@@ -1289,7 +1282,6 @@ void gem::supervisor::GEMSupervisor::sendScanParameters(xdaq::ApplicationDescrip
 }
 
 xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::MessageReference msg)
-//  throw (xoap::exception::Exception)
 {
   std::string commandName = "EndScanPoint";
 
