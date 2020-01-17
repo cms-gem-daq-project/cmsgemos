@@ -196,15 +196,15 @@ namespace gem {
             xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
             CMSGEMOS_DEBUG("GEMSOAPToolBox::sendApplicationParameterBag: " << tool);
             answer = appCxt->postSOAP(msg, *srcDsc, *destDsc);
-          } catch (gem::utils::exception::Exception& e) {
+          } catch (gem::utils::exception::Exception const& e) {
             std::string errMsg = toolbox::toString("Send application parameter bag %s failed [%s] (gem::utils::exception::Exception)",
                                                    bagName.c_str(), e.what());
             XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-          } catch (xcept::Exception& e) {
+          } catch (xcept::Exception const& e) {
             std::string errMsg = toolbox::toString("Send application parameter bag %s failed [%s] (xcept::Exception)",
                                                    bagName.c_str(), e.what());
             XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-          } catch (std::exception& e) {
+          } catch (std::exception const& e) {
             std::string errMsg = toolbox::toString("Send application parameter bag %s failed [%s] (std::exception)",
                                                    bagName.c_str(), e.what());
             XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);

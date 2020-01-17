@@ -144,13 +144,13 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommand(std::string const& cmd,
     // xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
     reply->writeTo(tool);
     CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommand '" << cmd << "': SOAP reply " << tool);
-  } catch (xdaq::exception::Exception& e) {
+  } catch (xdaq::exception::Exception const& e) {
     std::string errMsg = toolbox::toString("Command %s failed [%s]", cmd.c_str(), e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (xcept::Exception& e) {
+  } catch (xcept::Exception const& e) {
     std::string errMsg = toolbox::toString("Command %s failed [%s]", cmd.c_str(), e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (std::exception& e) {
+  } catch (std::exception const& e) {
     std::string errMsg = toolbox::toString("Command %s failed [%s]", cmd.c_str(), e.what());
     XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);
   } catch (...) {
@@ -201,13 +201,13 @@ bool gem::utils::soap::GEMSOAPToolBox::sendTCDSCommand(std::string const& cmd,
     // xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
     reply->writeTo(tool);
     CMSGEMOS_INFO("GEMSOAPToolBox::sendTCDSCommand '" << cmd << "': SOAP reply " << tool);
-  } catch (xdaq::exception::Exception& e) {
+  } catch (xdaq::exception::Exception const& e) {
     std::string errMsg = toolbox::toString("Command %s failed [%s]", cmd.c_str(), e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (xcept::Exception& e) {
+  } catch (xcept::Exception const& e) {
     std::string errMsg = toolbox::toString("Command %s failed [%s]", cmd.c_str(), e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (std::exception& e) {
+  } catch (std::exception const& e) {
     std::string errMsg = toolbox::toString("Command %s failed [%s]", cmd.c_str(), e.what());
     XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);
   } catch (...) {
@@ -261,13 +261,13 @@ bool gem::utils::soap::GEMSOAPToolBox::sendParameter(std::vector<std::string> co
     // xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
     reply->writeTo(tool);
     CMSGEMOS_INFO("GEMSOAPToolBox::sendParameter SOAP msg " << tool);
-  } catch (xdaq::exception::Exception& e) {
+  } catch (xdaq::exception::Exception const& e) {
     std::string errMsg = toolbox::toString("Send Parameter %s failed [%s]", parameter.at(0).c_str(), e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (xcept::Exception& e) {
+  } catch (xcept::Exception const& e) {
     std::string errMsg = toolbox::toString("Send Parameter %s failed [%s]", parameter.at(0).c_str(), e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (std::exception& e) {
+  } catch (std::exception const& e) {
     std::string errMsg = toolbox::toString("Send Parameter %s failed [%s]", parameter.at(0).c_str(), e.what());
     XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);
   } catch (...) {
@@ -325,13 +325,13 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameter(std::string cons
     // xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
     reply->writeTo(tool);
     CMSGEMOS_INFO("GEMSOAPToolBox::sendCommandWithParameter SOAP msg " << tool);
-  } catch (xdaq::exception::Exception& e) {
+  } catch (xdaq::exception::Exception const& e) {
     std::string errMsg = toolbox::toString("Sending parameter %s (value %d) failed [%s]", cmd.c_str(), parameter, e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException,errMsg, e);
-  } catch (xcept::Exception& e) {
+  } catch (xcept::Exception const& e) {
     std::string errMsg = toolbox::toString("Sending parameter %s (value %d) failed [%s]", cmd.c_str(), parameter, e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (std::exception& e) {
+  } catch (std::exception const& e) {
     std::string errMsg = toolbox::toString("Sending parameter %s (value %d) failed [%s]", cmd.c_str(), parameter, e.what());
     XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);
   } catch (...) {
@@ -414,16 +414,16 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameterBag(std::string c
     xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
     // reply->writeTo(tool);
     CMSGEMOS_INFO("GEMSOAPToolBox::sendCommandWithParameterBag: SOAP reply is" << tool);
-  } catch (gem::utils::exception::Exception& e) {
+  } catch (gem::utils::exception::Exception const& e) {
     std::string errMsg = toolbox::toString("Send command with parameter bag failed [%s]", e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (xdaq::exception::Exception& e) {
+  } catch (xdaq::exception::Exception const& e) {
     std::string errMsg = toolbox::toString("Send command with parameter bag failed [%s]", e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (xcept::Exception& e) {
+  } catch (xcept::Exception const& e) {
     std::string errMsg = toolbox::toString("Send command with parameter bag failed [%s]", e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (std::exception& e) {
+  } catch (std::exception const& e) {
     std::string errMsg = toolbox::toString("Send command with parameter bag failed [%s]", e.what());
     XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);
   } catch (...) {
@@ -473,19 +473,19 @@ bool gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter(std::string cons
     CMSGEMOS_INFO("GEMSOAPToolBox::sendApplicationParameter reply:");
     reply->writeTo(tool);
     CMSGEMOS_INFO(tool);
-  } catch (gem::utils::exception::Exception& e) {
+  } catch (gem::utils::exception::Exception const& e) {
     std::string errMsg = toolbox::toString("Send application parameter %s[%s,%s] failed [%s]",
                                            parName.c_str(), parType.c_str(), parValue.c_str(), e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (xdaq::exception::Exception& e) {
+  } catch (xdaq::exception::Exception const& e) {
     std::string errMsg = toolbox::toString("Send application parameter %s[%s,%s] failed [%s]",
                                            parName.c_str(), parType.c_str(), parValue.c_str(), e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (xcept::Exception& e) {
+  } catch (xcept::Exception const& e) {
     std::string errMsg = toolbox::toString("Send application parameter %s[%s,%s] failed [%s]",
                                            parName.c_str(), parType.c_str(), parValue.c_str(), e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (std::exception& e) {
+  } catch (std::exception const& e) {
     std::string errMsg = toolbox::toString("Send application parameter %s[%s,%s] failed [%s]",
                                            parName.c_str(), parType.c_str(), parValue.c_str(), e.what());
     XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);
@@ -531,15 +531,15 @@ bool gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter(std::string cons
 //       csbag.addTextNode(s->toString());
 //     }
 //     reply = appCxt->postSOAP(msg, *srcDsc, *destDsc);
-//   } catch (gem::utils::exception::Exception& e) {
+//   } catch (gem::utils::exception::Exception const& e) {
 //     std::string errMsg = toolbox::toString("Send application parameter bag %s failed [%s] (gem::utils::exception::Exception)",
 //                                            bagName.c_str(), e.what());
 //     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-//   } catch (xcept::Exception& e) {
+//   } catch (xcept::Exception const& e) {
 //     std::string errMsg = toolbox::toString("Send application parameter bag %s failed [%s] (xcept::Exception)",
 //                                            bagName.c_str(), e.what());
 //     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-//   } catch (std::exception& e) {
+//   } catch (std::exception const& e) {
 //     std::string errMsg = toolbox::toString("Send application parameter bag %s failed [%s] (std::exception)",
 //                                            bagName.c_str(), e.what());
 //     XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);
@@ -639,19 +639,19 @@ std::string gem::utils::soap::GEMSOAPToolBox::getApplicationState(xdaq::Applicat
         XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg.str());
       }
     }
-  } catch (gem::utils::exception::SOAPException& e) {
+  } catch (gem::utils::exception::SOAPException const& e) {
     std::string errMsg = toolbox::toString("Get application state parameter failed [%s]", e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (xoap::exception::Exception& e) {
+  } catch (xoap::exception::Exception const& e) {
     std::string errMsg = toolbox::toString("Get application state parameter failed [%s]", e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (xdaq::exception::Exception& e) {
+  } catch (xdaq::exception::Exception const& e) {
     std::string errMsg = toolbox::toString("Get application state parameter failed [%s]", e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (xcept::Exception& e) {
+  } catch (xcept::Exception const& e) {
     std::string errMsg = toolbox::toString("Get application state parameter failed [%s]", e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (std::exception& e) {
+  } catch (std::exception const& e) {
     std::string errMsg = toolbox::toString("Get application state parameter failed [%s]", e.what());
     XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);
   } catch (...) {
@@ -700,13 +700,13 @@ void gem::utils::soap::GEMSOAPToolBox::sendAMC13Config(xdaq::ApplicationContext*
     cmd_cs.addTextNode("0x18");
 
     reply = appCxt->postSOAP(msg, *srcDsc, *destDsc);
-  } catch (gem::utils::exception::Exception& e) {
+  } catch (gem::utils::exception::Exception const& e) {
     std::string errMsg = toolbox::toString("Send application parameter failed [%s]", e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (xcept::Exception& e) {
+  } catch (xcept::Exception const& e) {
     std::string errMsg = toolbox::toString("Send application parameter failed [%s]", e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
-  } catch (std::exception& e) {
+  } catch (std::exception const& e) {
     std::string errMsg = toolbox::toString("Send application parameter failed [%s]", e.what());
     XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);
   } catch (...) {
