@@ -42,8 +42,7 @@ namespace gem {
           } ReadoutCommands;
         };
 
-        GEMReadoutApplication(xdaq::ApplicationStub *stub)
-          throw (xdaq::exception::Exception);
+        GEMReadoutApplication(xdaq::ApplicationStub *stub);
 
         virtual ~GEMReadoutApplication();
 
@@ -57,7 +56,7 @@ namespace gem {
          *  - the scan type
          *  - the value(s) to store in the RunParams bits in the data format
          * @returns xoap::MessageReference
-         xoap::MessageReference updateScanParameters(xoap::MessageReference message) throw (xoap::exception::Exception);
+         xoap::MessageReference updateScanParameters(xoap::MessageReference message);
         */
 
         int readoutTask();
@@ -71,20 +70,18 @@ namespace gem {
         */
         //state transitions, how many of these are necessary for the readout applications?
         // use dummy functions on unnecessary ones, as they are pure virtual in GEMFSMApplication
-        virtual void initializeAction() /*throw (gem::base::exception::Exception)*/;
-        virtual void configureAction()  /*throw (gem::base::exception::Exception)*/;
-        virtual void startAction()      /*throw (gem::base::exception::Exception)*/;
-        virtual void pauseAction()      /*throw (gem::base::exception::Exception)*/;
-        virtual void resumeAction()     /*throw (gem::base::exception::Exception)*/;
-        virtual void stopAction()       /*throw (gem::base::exception::Exception)*/;
-        virtual void haltAction()       /*throw (gem::base::exception::Exception)*/;
-        virtual void resetAction()      /*throw (gem::base::exception::Exception)*/;
+        virtual void initializeAction();
+        virtual void configureAction();
+        virtual void startAction();
+        virtual void pauseAction();
+        virtual void resumeAction();
+        virtual void stopAction();
+        virtual void haltAction();
+        virtual void resetAction();
 
-        virtual void failAction(toolbox::Event::Reference e)
-          throw (toolbox::fsm::exception::Exception);
+        virtual void failAction(toolbox::Event::Reference e);
 
-        virtual void resetAction(toolbox::Event::Reference e)
-          throw (toolbox::fsm::exception::Exception);
+        virtual void resetAction(toolbox::Event::Reference e);
 
         virtual int readout(unsigned int expected, unsigned int* eventNumbers, std::vector< ::toolbox::mem::Reference* >& data) = 0;
 

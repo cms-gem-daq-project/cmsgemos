@@ -54,8 +54,7 @@ void gem::readout::GEMReadoutApplication::GEMReadoutSettings::registerFields(xda
 }
 
 
-gem::readout::GEMReadoutApplication::GEMReadoutApplication(xdaq::ApplicationStub* stub)
-  throw (xdaq::exception::Exception) :
+gem::readout::GEMReadoutApplication::GEMReadoutApplication(xdaq::ApplicationStub* stub) :
   gem::base::GEMFSMApplication(stub),
   m_outFileName(""),
   m_connectionFile("ConnectionFile"),
@@ -123,7 +122,6 @@ void gem::readout::GEMReadoutApplication::actionPerformed(xdata::Event& event)
 
 
 void gem::readout::GEMReadoutApplication::initializeAction()
-  /*throw (gem::readout::exception::Exception)*/
 {
   CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::initializeAction begin");
   if (!m_task) {
@@ -154,13 +152,11 @@ void gem::readout::GEMReadoutApplication::initializeAction()
 }
 
 void gem::readout::GEMReadoutApplication::configureAction()
-  /*throw (gem::readout::exception::Exception)*/
 {
   CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::configureAction begin");
 }
 
 void gem::readout::GEMReadoutApplication::startAction()
-  /*throw (gem::readout::exception::Exception)*/
 {
   CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::startAction begin");
   // build output filename
@@ -197,28 +193,24 @@ void gem::readout::GEMReadoutApplication::startAction()
 }
 
 void gem::readout::GEMReadoutApplication::pauseAction()
-  /*throw (gem::readout::exception::Exception)*/
 {
   CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::pauseAction begin");
   m_cmdQueue.push(ReadoutCommands::CMD_PAUSE);
 }
 
 void gem::readout::GEMReadoutApplication::resumeAction()
-  /*throw (gem::readout::exception::Exception)*/
 {
   CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::resumeAction begin");
   m_cmdQueue.push(ReadoutCommands::CMD_RESUME);
 }
 
 void gem::readout::GEMReadoutApplication::stopAction()
-  /*throw (gem::readout::exception::Exception)*/
 {
   CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::stopAction begin");
   m_cmdQueue.push(ReadoutCommands::CMD_STOP);
 }
 
 void gem::readout::GEMReadoutApplication::haltAction()
-  /*throw (gem::readout::exception::Exception)*/
 {
   CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::haltAction begin");
   if (m_task)
@@ -226,19 +218,16 @@ void gem::readout::GEMReadoutApplication::haltAction()
 }
 
 void gem::readout::GEMReadoutApplication::resetAction()
-  /*throw (gem::readout::exception::Exception)*/
 {
   CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::resetAction begin");
 }
 
 void gem::readout::GEMReadoutApplication::failAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
 {
   // close open file pointers
 }
 
 void gem::readout::GEMReadoutApplication::resetAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
 {
   // close open file pointers
 }

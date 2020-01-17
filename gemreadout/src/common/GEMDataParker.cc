@@ -112,7 +112,6 @@ uint32_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask)
 }
 
 xoap::MessageReference gem::readout::GEMDataParker::updateScanParameters(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
 {
   CMSGEMOS_INFO("GEMDataParker::updateScanParameters()");
   if (msg.isNull()) {
