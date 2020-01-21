@@ -136,6 +136,15 @@ namespace gem {
 
             std::vector<std::string> getObjectSources() const override
             { return m_sources; };
+
+        private:
+            /**
+             * @brief Common implementation for all loadXXX methods.
+             */
+            template<class ConfigurationType>
+            void loadInternal(
+                const std::string &filename,
+                std::map<std::string, std::shared_ptr<ConfigurationType>> &map);
         };
 
     } // namespace onlinedb
