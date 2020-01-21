@@ -5,10 +5,7 @@
 #include <xercesc/dom/DOMXPathResult.hpp>
 
 #include "gem/onlinedb/SerializationData.h"
-#include "gem/onlinedb/detail/XMLUtils.h"
 #include "gem/onlinedb/exception/Exception.h"
-
-XERCES_CPP_NAMESPACE_USE
 
 namespace gem {
     namespace onlinedb {

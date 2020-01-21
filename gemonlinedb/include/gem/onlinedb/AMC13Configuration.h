@@ -6,8 +6,6 @@
 #include <cstdint>
 #include <memory>
 
-#include <xercesc/dom/DOMDocument.hpp>
-
 #include "gem/onlinedb/DataSet.h"
 #include "gem/onlinedb/DBInterface.h"
 #include "gem/onlinedb/PartReference.h"

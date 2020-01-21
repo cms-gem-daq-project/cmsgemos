@@ -9,8 +9,6 @@
 #include "gem/onlinedb/detail/FileUtils.h"
 #include "gem/onlinedb/exception/Exception.h"
 
-XERCES_CPP_NAMESPACE_USE
-
 namespace gem {
     namespace onlinedb {
         namespace /* anonymous */ {
