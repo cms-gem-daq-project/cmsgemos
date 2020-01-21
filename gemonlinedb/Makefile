@@ -41,7 +41,6 @@ Sources = \
     OHv3ConfigurationGen.cc \
     Run.cc \
     SystemTopology.cc \
-    VFAT3ChannelConfiguration.cc \
     VFAT3ChannelConfigurationGen.cc \
     VFAT3ChipConfigurationGen.cc \
     version.cc \
@@ -77,11 +76,11 @@ DependentLibraryDirs+=$(BUILD_HOME)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
 DependentLibraries=gembase gemutils xdaq cgicc xgi peer xdata mimetic xoap xerces-c xcept toolbox logudpappender logxmlappender log4cplus config cgicc
-DependentLibraries += boost_filesystem boost_regex boost_system boost_thread
+DependentLibraries+=boost_filesystem boost_regex boost_system boost_thread
 
 # DependentLibraries+=$(StandardLibraries)
 
-TestLibraries= $(DependentLibraries) boost_unit_test_framework tstoreapi wsaddressing tstoreutils
+TestLibraries= $(DependentLibraries) boost_unit_test_framework tstoreapi wsaddressing tstoreutils occi clntsh nnz12 ons clntshcore
 TestLibraryDirs= $(DependentLibraryDirs)
 
 # Targets with additional dependencies. Keep "default" first
