@@ -1,0 +1,135 @@
+{
+    "Root": {
+        "Header": {
+            "Type": {
+                "ExtensionTableName": "GEM_AMC_CONFIGURATION",
+                "Name": "GEM AMC Conf Lookup Table"
+            },
+            "Run": {
+                "RunType": "GEM AMC Configuration Data",
+                "RunNumber": 2,
+                "RunBeginTimestamp": "2016-07-18 13:55:06",
+                "RunEndTimestamp": "2016-07-18 14:55:03",
+                "CommentDescription": "GEM AMC Configuration for Testing at CERN",
+                "Location": "CERN",
+                "InitiatedByUser": "Imran"
+            }
+        },
+        "Datasets": [
+            {
+                "Dataset": {
+                    "CommentDescription": "GEM AMC Configuration Data for Testing",
+                    "Version": "1",
+                    "part": {
+                        "Part": {
+                            "KindOfPart": "GEM AMC",
+                            "SerialNumber": "AMC-VI-VERSION-0001"
+                        }
+                    },
+                    "Data": [
+                        {
+                            "DAQ_DAV_TIMEOUT": 100,
+                            "DAQ_INPUT_ENABLE_MASK": 100,
+                            "DAQ_OH0_EOE_TIMEOUT": 100,
+                            "DAQ_OH1_EOE_TIMEOUT": 100,
+                            "DAQ_OH2_EOE_TIMEOUT": 100,
+                            "DAQ_OH3_EOE_TIMEOUT": 100,
+                            "DAQ_OH4_EOE_TIMEOUT": 100,
+                            "DAQ_OH5_EOE_TIMEOUT": 100,
+                            "DAQ_OH6_EOE_TIMEOUT": 100,
+                            "DAQ_OH7_EOE_TIMEOUT": 100,
+                            "DAQ_OH8_EOE_TIMEOUT": 100,
+                            "DAQ_OH9_EOE_TIMEOUT": 100,
+                            "DAQ_OH10_EOE_TIMEOUT": 100,
+                            "DAQ_OH11_EOE_TIMEOUT": 100,
+                            "DAQ_OH0_VFAT_MASK": 100,
+                            "DAQ_OH1_VFAT_MASK": 100,
+                            "DAQ_OH2_VFAT_MASK": 100,
+                            "DAQ_OH3_VFAT_MASK": 100,
+                            "DAQ_OH4_VFAT_MASK": 100,
+                            "DAQ_OH5_VFAT_MASK": 100,
+                            "DAQ_OH6_VFAT_MASK": 100,
+                            "DAQ_OH7_VFAT_MASK": 100,
+                            "DAQ_OH8_VFAT_MASK": 100,
+                            "DAQ_OH9_VFAT_MASK": 100,
+                            "DAQ_OH10_VFAT_MASK": 100,
+                            "DAQ_OH11_VFAT_MASK": 100,
+                            "DAQ_ZERO_SUPPRESSION_EN": 100,
+                            "TTC_CONFIG_CMD_BC0": 100,
+                            "TTC_CONFIG_CMD_CALPULSE": 100,
+                            "TTC_CONFIG_CMD_EC0": 100,
+                            "TTC_CONFIG_CMD_HARD_RESET": 100,
+                            "TTC_CONFIG_CMD_OC0": 100,
+                            "TTC_CONFIG_CMD_RESYNC": 100,
+                            "TTC_CONFIG_CMD_START": 100,
+                            "TTC_CONFIG_CMD_STOP": 100,
+                            "TTC_CONFIG_CMD_TEST_SYNC": 100,
+                            "TRIGGER_OH_KILL_MASK": 100,
+                            "USE_OH_V3B_MAPPING": 100,
+                            "EOE_USE_OH_EC_BC": 0,
+                            "ENABLE_INPUT_AUTOKILL": 1,
+                            "INPUT_AUTOKILL_THRESH": 100
+                        }
+                    ]
+                }
+            },
+            {
+                "Dataset": {
+                    "CommentDescription": "GEM AMC Configuration Data for Testing",
+                    "Version": "1",
+                    "part": {
+                        "Part": {
+                            "KindOfPart": "GEM AMC",
+                            "SerialNumber": "AMC-VI-VERSION-6464"
+                        }
+                    },
+                    "Data": [
+                        {
+                            "DAQ_DAV_TIMEOUT": 100,
+                            "DAQ_INPUT_ENABLE_MASK": 100,
+                            "DAQ_OH0_EOE_TIMEOUT": 100,
+                            "DAQ_OH1_EOE_TIMEOUT": 100,
+                            "DAQ_OH2_EOE_TIMEOUT": 100,
+                            "DAQ_OH3_EOE_TIMEOUT": 100,
+                            "DAQ_OH4_EOE_TIMEOUT": 100,
+                            "DAQ_OH5_EOE_TIMEOUT": 100,
+                            "DAQ_OH6_EOE_TIMEOUT": 100,
+                            "DAQ_OH7_EOE_TIMEOUT": 100,
+                            "DAQ_OH8_EOE_TIMEOUT": 100,
+                            "DAQ_OH9_EOE_TIMEOUT": 100,
+                            "DAQ_OH10_EOE_TIMEOUT": 100,
+                            "DAQ_OH11_EOE_TIMEOUT": 100,
+                            "DAQ_OH0_VFAT_MASK": 100,
+                            "DAQ_OH1_VFAT_MASK": 100,
+                            "DAQ_OH2_VFAT_MASK": 100,
+                            "DAQ_OH3_VFAT_MASK": 100,
+                            "DAQ_OH4_VFAT_MASK": 100,
+                            "DAQ_OH5_VFAT_MASK": 100,
+                            "DAQ_OH6_VFAT_MASK": 100,
+                            "DAQ_OH7_VFAT_MASK": 100,
+                            "DAQ_OH8_VFAT_MASK": 100,
+                            "DAQ_OH9_VFAT_MASK": 100,
+                            "DAQ_OH10_VFAT_MASK": 100,
+                            "DAQ_OH11_VFAT_MASK": 100,
+                            "DAQ_ZERO_SUPPRESSION_EN": 100,
+                            "TTC_CONFIG_CMD_BC0": 100,
+                            "TTC_CONFIG_CMD_CALPULSE": 100,
+                            "TTC_CONFIG_CMD_EC0": 100,
+                            "TTC_CONFIG_CMD_HARD_RESET": 100,
+                            "TTC_CONFIG_CMD_OC0": 100,
+                            "TTC_CONFIG_CMD_RESYNC": 100,
+                            "TTC_CONFIG_CMD_START": 100,
+                            "TTC_CONFIG_CMD_STOP": 100,
+                            "TTC_CONFIG_CMD_TEST_SYNC": 100,
+                            "TRIGGER_OH_KILL_MASK": 100,
+                            "USE_OH_V3B_MAPPING": 100,
+                            "EOE_USE_OH_EC_BC": 0,
+                            "ENABLE_INPUT_AUTOKILL": 1,
+                            "INPUT_AUTOKILL_THRESH": 100
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

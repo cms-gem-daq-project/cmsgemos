@@ -44,94 +44,10 @@ namespace gem {
             using TrigTapDelayBits = std::array<std::uint32_t, TRIGGER_CHANNEL_COUNT>;
 
         private:
-            std::array<TrigTapDelayBits, VFAT_COUNT>   m_trigTapDelays;
-
             std::array<std::shared_ptr<VFAT3ChipConfiguration>, VFAT_COUNT> m_vfatConfigs;
             std::array<std::shared_ptr<GBTXConfiguration>, GBTX_COUNT> m_gbtxConfigs;
 
         public:
-            /**
-             * @brief Compares two OHv3 configurations for equality.
-             */
-            bool operator== (const OHv3Configuration &other) const;
-
-            ////////////////////////////////////////////////////////////////////
-
-            /**
-             * @brief Retrieves register data.
-             * Implements the @c Configuration concept.
-             */
-            detail::RegisterData getRegisterData() const;
-
-            /**
-             * @brief Modifies register data.
-             * Implements the @c Configuration concept.
-             */
-            void readRegisterData(const detail::RegisterData &data);
-
-            ////////////////////////////////////////////////////////////////////
-
-            /**
-             * @name Trigger tap delays
-             * @{
-             */
-            /**
-             * @brief Retrieves the trigger tap delay at the given index for the
-             *        given VFAT.
-             */
-            std::uint32_t getTrigTapDelay(std::size_t vfat, std::size_t index) const {
-                return m_trigTapDelays.at(vfat).at(index); };
-
-            /**
-             * @brief Retrieves all trigger tap delays for the given VFAT.
-             */
-            const TrigTapDelayBits &getTrigTapDelays(std::size_t vfat) const {
-                return m_trigTapDelays.at(vfat); };
-
-            /**
-             * @brief Retrieves all trigger tap delays for the given VFAT.
-             */
-            TrigTapDelayBits &getTrigTapDelays(std::size_t vfat) {
-                return m_trigTapDelays.at(vfat); };
-
-            /**
-             * @brief Retrieves all trigger tap delays.
-             */
-            auto getTrigTapDelays() const -> const decltype(m_trigTapDelays) & {
-                return m_trigTapDelays; };
-
-            /**
-             * @brief Retrieves all trigger tap delays.
-             */
-            auto getTrigTapDelays() -> decltype(m_trigTapDelays) & {
-                return m_trigTapDelays; };
-
-            /**
-             * @brief Modifies the trigger tap delay at the given index for the
-             *        given VFAT.
-             */
-            void setTrigTapDelay(std::size_t vfat,
-                                 std::size_t index,
-                                 std::uint32_t delay) {
-                m_trigTapDelays.at(vfat).at(index) = delay; };
-
-            /**
-             * @brief Modifies the trigger tap delays for the given VFAT.
-             */
-            void setTrigTapDelay(std::size_t vfat,
-                                 const TrigTapDelayBits &delays) {
-                m_trigTapDelays.at(vfat) = delays; };
-
-            /**
-             * @brief Modifies all trigger tap delays.
-             */
-            void setTrigTapDelays(const decltype(m_trigTapDelays) &delays) {
-                m_trigTapDelays = delays; };
-
-            /**
-             * @}
-             */
-
             ////////////////////////////////////////////////////////////////////
 
             /**

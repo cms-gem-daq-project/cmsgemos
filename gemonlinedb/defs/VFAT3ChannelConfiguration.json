@@ -1,0 +1,16 @@
+{
+"extension table name": "GEM_VFAT3_CHANNEL_CONF",
+"type name": "GEM VFAT3 Channel Conf Lookup Table",
+"kind of part": "GEM VFAT3",
+"part reference": "PartReferenceBarcode",
+"extra includes": ["\"gem/onlinedb/ChannelRegisterValue.h\""],
+"fields": [
+    {
+        "name": "CFG_CHANNEL_{}",
+        "count": [ 128 ],
+        "cpp name": "cfgChannel",
+        "cpp type": "ChannelRegisterValue",
+        "xsd type": "xs:unsignedInt"
+    }
+]
+}

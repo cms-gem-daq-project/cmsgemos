@@ -4,38 +4,13 @@
 
 #include <memory>
 
-#include <jansson.h>
+#include <nlohmann/json.hpp>
 
 #include "xcept/tools.h"
 
 #include "gem/onlinedb/ConfigurationManager.h"
 #include "gem/onlinedb/GEMOnlineDBManager.h"
 #include "gem/onlinedb/exception/Exception.h"
-
-namespace /* anonymous */
-{
-    /// @brief Turns Jansson error codes into @c xgi::exception::Exception.
-    void janssonCheck(int retcode)
-    {
-        if (retcode != 0) {
-            XCEPT_RAISE(xgi::exception::Exception,
-                        "Call to Jansson function failed");
-        }
-    }
-    /**
-     * @brief Checks that the provided @c json_t is not null.
-     * @returns The provided pointer if it isn't null.
-     * @throws xgi::exception::Exception if the pointer is null.
-     */
-    json_t *janssonCheckPtr(json_t *json)
-    {
-        if (json == nullptr) {
-            XCEPT_RAISE(xgi::exception::Exception,
-                        "Jansson could not allocate memory");
-        }
-        return json;
-    }
-} // anonymous namespace
 
 gem::onlinedb::GEMOnlineDBManagerWeb::GEMOnlineDBManagerWeb(gem::onlinedb::GEMOnlineDBManager* dbApp) :
   gem::base::GEMWebApplication(dbApp)
@@ -91,8 +66,6 @@ void gem::onlinedb::GEMOnlineDBManagerWeb::monitorPage(xgi::Input* in, xgi::Outp
            << cgicc::h3();
       *out << "Configuration objects were loaded from the following sources:";
       *out << cgicc::ul().set("id", "objects-source-details") << cgicc::ul();
-
-      auto configStats = manager.getStatistics();
 
       *out << cgicc::h2("Statistics");
       *out << cgicc::p(
@@ -158,81 +131,40 @@ void gem::onlinedb::GEMOnlineDBManagerWeb::jsonUpdate(xgi::Input* in, xgi::Outpu
   CMSGEMOS_DEBUG("GEMOnlineDBManagerWeb::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
 
-  json_auto_t *answer = janssonCheckPtr(json_object());
+  nlohmann::json answer;
 
   auto lock = ConfigurationManager::makeReadLock();
   if (!lock.timed_lock(boost::posix_time::seconds(1))) {
     // Error
-    janssonCheck(json_object_set_new(
-      answer,
-      "error",
-      janssonCheckPtr(json_string("Could not acquire read lock in one second."))));
+    answer["error"] = "Could not acquire read lock in one second.";
   } else {
     // Fill JSON
     auto &manager = ConfigurationManager::getManager(lock);
 
-    {
-      // Topology
-      json_auto_t *topo = janssonCheckPtr(json_object());
-      const char * const mode =
-        manager.getTopologySource() == ConfigurationManager::Source::DB ? "Database" : "XML";
-      janssonCheck(
-        json_object_set_new(topo, "mode", janssonCheckPtr(json_string(mode))));
+    // Topology
+    answer["topology"] = {
+      { "mode",
+        manager.getTopologySource() == ConfigurationManager::Source::DB ? "Database" : "Files" },
+      { "sources", manager.getTopologySourceDetails() },
+    };
 
-      json_auto_t *array = janssonCheckPtr(json_array());
-      for (const auto &source : manager.getTopologySourceDetails()) {
-        janssonCheck(json_array_append_new(array, json_string(source.data())));
-      }
-      janssonCheck(json_object_set(topo, "sources", array));
+    // Objects
+    answer["objects"] = {
+      { "mode",
+        manager.getObjectSource() == ConfigurationManager::Source::DB ? "Database" : "Files" },
+      { "sources", manager.getObjectSourceDetails() },
+    };
 
-      janssonCheck(json_object_set(answer, "topology", topo));
-    }
-
-    {
-      // Objects
-      json_auto_t *obj = janssonCheckPtr(json_object());
-
-      const char * const mode =
-        manager.getObjectSource() == ConfigurationManager::Source::DB ? "Database" : "XML";
-      janssonCheck(
-        json_object_set_new(obj, "mode", janssonCheckPtr(json_string(mode))));
-
-      json_auto_t *array = janssonCheckPtr(json_array());
-      for (const auto &source : manager.getObjectSourceDetails()) {
-        janssonCheck(json_array_append_new(array, json_string(source.data())));
-      }
-      janssonCheck(json_object_set(obj, "sources", array));
-
-      janssonCheck(json_object_set(answer, "objects", obj));
-    }
-
-    {
-      // Statistics
-      json_auto_t *statsJson = janssonCheckPtr(json_object());
-      auto stats = manager.getStatistics();
-
-      janssonCheck(json_object_set_new(
-        statsJson,
-        "amc13-count",
-        janssonCheckPtr(json_integer(stats.amc13Count))));
-      janssonCheck(json_object_set_new(
-        statsJson,
-        "amc-count",
-        janssonCheckPtr(json_integer(stats.amcCount))));
-      janssonCheck(json_object_set_new(
-        statsJson,
-        "oh-count",
-        janssonCheckPtr(json_integer(stats.ohCount))));
-      janssonCheck(json_object_set_new(
-        statsJson,
-        "vfat-count",
-        janssonCheckPtr(json_integer(stats.vfatCount))));
-      janssonCheck(json_object_set(answer, "statistics", statsJson));
-    }
+    // Statistics
+    auto stats = manager.getStatistics();
+    answer["statistics"] = {
+      { "amc13-count",  stats.amc13Count },
+      { "amc-count",    stats.amcCount },
+      { "oh-count",     stats.ohCount },
+      { "vfat-count",   stats.vfatCount },
+    };
   }
 
   // Write to stream
-  char *encoded = json_dumps(answer, 0);
-  *out << encoded;
-  free(encoded);
+  *out << answer;
 }

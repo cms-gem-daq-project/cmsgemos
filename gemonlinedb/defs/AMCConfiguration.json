@@ -11,11 +11,11 @@
     }, {
         "name": "DAQ_OH{}_EOE_TIMEOUT",
         "cpp name": "EOETimeout",
-        "count": 12
+        "count": [ 12 ]
     }, {
         "name": "DAQ_OH{}_VFAT_MASK",
         "cpp name": "VFATMask",
-        "count": 12
+        "count": [ 12 ]
     }, {
         "name": "DAQ_ZERO_SUPPRESSION_EN"
     }, {

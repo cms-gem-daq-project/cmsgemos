@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include <nlohmann/json.hpp>
+
 #include "gem/onlinedb/ConfigurationTraits.h"
 
 namespace gem {
@@ -11,7 +13,7 @@ namespace gem {
 
         // Forward decl.
         template<class ConfigurationTypeT>
-        class XMLSerializationData;
+        class SerializationData;
 
         /**
          * @brief Represents a dataset to be stored in the XML file (a
@@ -77,6 +79,14 @@ namespace gem {
             auto getData() const -> decltype(m_data) { return m_data; }
 
             /**
+             * @brief Sets configuration data.
+             */
+            void setData(const decltype(m_data) &data)
+            {
+                m_data = data;
+            }
+
+            /**
              * @brief Adds configuration data.
              */
             void addData(const ConfigurationType &configuration)
@@ -93,6 +103,49 @@ namespace gem {
                 && m_version == other.m_version
                 && m_part == other.m_part
                 && m_data == other.m_data;
+        }
+
+        /**
+         * @brief Converts @ref DataSet to JSON
+         *
+         * @see https://github.com/nlohmann/json#arbitrary-types-conversions
+         * @see https://github.com/valdasraps/cmsdbldr/blob/master/src/main/java/org/cern/cms/dbloader/model/condition/Dataset.java
+         * @related DataSet
+         */
+        template<class ConfigurationTypeT>
+        void to_json(nlohmann::json &json, const DataSet<ConfigurationTypeT> &data)
+        {
+            json = {
+                { "Dataset", nlohmann::json({
+                    { "Version", data.getVersion() },
+                    { "part", data.getPart() },
+                    { "Data", data.getData() },
+                })},
+            };
+            if (!data.getComment().empty()) {
+                json["Dataset"]["CommentDescription"] = data.getComment();
+            };
+        }
+
+        /**
+         * @brief Converts JSON to @ref DataSet
+         *
+         * @see https://github.com/nlohmann/json#arbitrary-types-conversions
+         * @see https://github.com/valdasraps/cmsdbldr/blob/master/src/main/java/org/cern/cms/dbloader/model/condition/Dataset.java
+         * @related DataSet
+         */
+        template<class ConfigurationTypeT>
+        void from_json(const nlohmann::json &json, DataSet<ConfigurationTypeT> &data)
+        {
+            using PartReference = typename ConfigurationTraits<ConfigurationTypeT>::PartType;
+
+            auto dataSet = json.at("Dataset");
+            data.setVersion(dataSet.at("Version"));
+            data.setPart(dataSet.at("part").get<PartReference>());
+            data.setData(dataSet.at("Data").get<std::vector<ConfigurationTypeT>>());
+            if (dataSet.find("CommentDescription") != dataSet.end()) {
+                data.setComment(dataSet["CommentDescription"]);
+            }
         }
 
     } /* namespace onlinedb */

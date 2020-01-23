@@ -1,0 +1,20 @@
+{
+"extension table name": "GEM_AMC13_CONFIGURATION",
+"type name": "GEM AMC13 Conf Lookup Table",
+"kind of part": "GEM AMC13",
+"part reference": "PartReferenceSN",
+"extra includes": ["<string>"],
+"fields": [
+    {
+        "name": "FED_ID",
+        "cpp name": "FEDId"
+    }, {
+        "name": "ENABLE_LOCALTTC",
+        "cpp name": "enableLocalTTC"
+    }, {
+        "name": "HOSTNAME",
+        "cpp type": "std::string",
+        "xsd type": "xs:string"
+    }
+]
+}

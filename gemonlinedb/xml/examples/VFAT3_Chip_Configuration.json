@@ -1,0 +1,87 @@
+{
+    "Root": {
+        "Header": {
+            "Run": {
+                "InitiatedByUser": "Imran",
+                "Location": "CERN",
+                "RunBeginTimestamp": "2016-07-18 13:55:06",
+                "RunEndTimestamp": "2016-07-18 14:55:03",
+                "RunNumber": 1
+            },
+            "Type": {
+                "ExtensionTableName": "GEM_VFAT3_CHIP_CONF",
+                "Name": "GEM VFAT3 Chip Conf Lookup Table"
+            }
+        },
+        "Datasets": [
+            {
+                "Dataset": {
+                    "CommentDescription": "GEM VFAT3 Chip Configuration Data for Testing",
+                    "Data": [
+                        {
+                            "GLB_CAL0_CFG_CTRL": 100,
+                            "GLB_CAL1_CFG_CTRL": 100,
+                            "GLB_CFD_BIAS_CTRL": 100,
+                            "GLB_CFD_CTRL": 100,
+                            "GLB_DATA_CTRL": 100,
+                            "GLB_FE_CTRL": 100,
+                            "GLB_HYSTERISIS_CTRL": 100,
+                            "GLB_IREF_CTRL": 100,
+                            "GLB_LATENCY_CTRL": 100,
+                            "GLB_LOGIC_CTRL": 100,
+                            "GLB_MON_CTRL": 100,
+                            "GLB_PREAMP_BIAS_CTRL0": 100,
+                            "GLB_PREAMP_BIAS_CTRL1": 100,
+                            "GLB_SD_BIAS_CTRL": 100,
+                            "GLB_SHAPER_BIAS_CTRL0": 100,
+                            "GLB_SHAPER_BIAS_CTRL1": 100,
+                            "GLB_THRESHOLD_CTRL": 100,
+                            "HW_RW_REG": 100
+                        }
+                    ],
+                    "Version": "1",
+                    "part": {
+                        "Part": {
+                            "KindOfPart": "GEM VFAT3",
+                            "Barcode": "2940"
+                        }
+                    }
+                }
+            },
+            {
+                "Dataset": {
+                    "CommentDescription": "GEM VFAT3 Chip Configuration Data for Testing",
+                    "Data": [
+                        {
+                            "GLB_CAL0_CFG_CTRL": 100,
+                            "GLB_CAL1_CFG_CTRL": 100,
+                            "GLB_CFD_BIAS_CTRL": 100,
+                            "GLB_CFD_CTRL": 100,
+                            "GLB_DATA_CTRL": 100,
+                            "GLB_FE_CTRL": 100,
+                            "GLB_HYSTERISIS_CTRL": 100,
+                            "GLB_IREF_CTRL": 100,
+                            "GLB_LATENCY_CTRL": 100,
+                            "GLB_LOGIC_CTRL": 100,
+                            "GLB_MON_CTRL": 100,
+                            "GLB_PREAMP_BIAS_CTRL0": 100,
+                            "GLB_PREAMP_BIAS_CTRL1": 100,
+                            "GLB_SD_BIAS_CTRL": 100,
+                            "GLB_SHAPER_BIAS_CTRL0": 100,
+                            "GLB_SHAPER_BIAS_CTRL1": 100,
+                            "GLB_THRESHOLD_CTRL": 100,
+                            "HW_RW_REG": 100
+                        }
+                    ],
+                    "Version": "1",
+                    "part": {
+                        "Part": {
+                            "KindOfPart": "GEM VFAT3",
+                            "Barcode": "2941"
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

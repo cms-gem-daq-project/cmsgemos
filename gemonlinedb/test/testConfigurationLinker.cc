@@ -1,6 +1,6 @@
 #include "gem/onlinedb/ConfigurationLinker.h"
 #include "gem/onlinedb/SystemTopology.h"
-#include "gem/onlinedb/XMLConfigurationProvider.h"
+#include "gem/onlinedb/FileConfigurationProvider.h"
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/framework/MemBufInputSource.hpp>
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(LoadFromSysConfig)
         document.reset(parser.adoptDocument());
 
         // Load configurations
-        auto provider = std::make_shared<XMLConfigurationProvider>();
+        auto provider = std::make_shared<FileConfigurationProvider>();
         provider->setSearchPath("xml/examples");
         provider->load(document);
 

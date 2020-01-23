@@ -46,9 +46,9 @@ BOOST_AUTO_TEST_CASE(ChannelRegisterValue)
 BOOST_AUTO_TEST_CASE(SerializationData)
 {
     VFAT3ChannelConfiguration config;
-    auto data = config.getRegisterData();
-    BOOST_CHECK(data.count("CFG_CHANNEL_15") == 1);
-    config.readRegisterData(data);
+    nlohmann::json json = config;
+    BOOST_CHECK(json.count("CFG_CHANNEL_15") == 1);
+    config = json;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

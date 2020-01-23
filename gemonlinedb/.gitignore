@@ -4,6 +4,7 @@
 # Don't ignore common xsd definitions
 !xml/schema/common.xsd
 !xml/schema/system-topology.xsd
+!xml/examples/*.json
 !xml/examples/*.xml
 !xml/tests/*.xml
 !xml/*.xml

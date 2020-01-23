@@ -6,12 +6,12 @@
 #include <cstdint>
 #include <memory>
 
-#include <xercesc/dom/DOMDocument.hpp>
-
 #include "gem/onlinedb/DataSet.h"
 #include "gem/onlinedb/DBInterface.h"
 #include "gem/onlinedb/PartReference.h"
 #include "gem/onlinedb/Run.h"
+
+#include "gem/onlinedb/detail/AMC13ConfigurationGen.h"
 
 namespace gem {
     namespace onlinedb {
@@ -22,62 +22,14 @@ namespace gem {
         /**
          * @brief Describes the configuration of an AMC13.
          *
-         * @note Due to the presence of configuration variables of non-integral
-         *       types, this class doesn't realize the @c Configuration concept.
-         *       Serialization is achieved by specializing the relevant template
-         *       classes.
-         *
          * @note Modifying objects of this class doesn't affect hardware.
          */
-        class AMC13Configuration
+        class AMC13Configuration : public detail::AMC13ConfigurationGen
         {
         private:
-            int m_fedId;
-            bool m_enableLocalTTC;
-            std::string m_hostname;
-
             std::vector<std::shared_ptr<AMCConfiguration>> m_AMCConfigs;
 
         public:
-            /**
-             * @brief Compares two AMC configurations for equality.
-             */
-            bool operator== (const AMC13Configuration &other) const;
-
-            ////////////////////////////////////////////////////////////////////
-
-            /**
-             * @brief Retrieves the id of the attached FED.
-             */
-            int getFEDId() const { return m_fedId; };
-
-            /**
-             * @brief Modifies the id of the attached FED.
-             */
-            void setFEDId(int id) { m_fedId = id; };
-
-            /**
-             * @brief Retrieves whether local TTC is enabled.
-             */
-            int isLocalTTCEnabled() const { return m_enableLocalTTC; };
-
-            /**
-             * @brief Enables or disables local TTC.
-             */
-            void setLocalTTCEnabled(bool enable) { m_enableLocalTTC = enable; };
-
-            /**
-             * @brief Retrieves the hostname.
-             */
-            std::string getHostname() const { return m_hostname; };
-
-            /**
-             * @brief Modifies the hostname.
-             */
-            void setHostname(const std::string &hostname) { m_hostname = hostname; };
-
-            ////////////////////////////////////////////////////////////////////
-
             /**
              * @name Child AMC configuration
              * @{
@@ -126,73 +78,9 @@ namespace gem {
         };
 
         template<>
-        class ConfigurationTraits<AMC13Configuration>
+        class ConfigurationTraits<AMC13Configuration>:
+            public ConfigurationTraits<detail::AMC13ConfigurationGen>
         {
-        public:
-            static std::string extTableName() { return "GEM_AMC13_CONFIGURATION"; };
-            static std::string typeName() { return "GEM AMC13 Conf Lookup Table"; };
-            static std::string kindOfPart() { return "GEM AMC13"; };
-            using PartType = PartReferenceSN;
-        };
-
-        // Forward declaration
-        template<class ConfigurationTypeT>
-        class XMLSerializationData;
-
-        // Forward declaration
-        using DOMDocumentPtr = std::unique_ptr<xercesc::DOMDocument>;
-
-        /**
-         * @brief
-         * Specializes @ref XMLSerializationData for @ref AMC13Configuration.
-         *
-         * @copydetails XMLSerializationData
-         */
-        template<>
-        class XMLSerializationData<AMC13Configuration>
-        {
-        public:
-            /**
-             * @copydoc XMLSerializationData::ConfigurationType
-             */
-            using ConfigurationType = AMC13Configuration;
-
-        private:
-            Run m_run;
-            std::vector<DataSet<ConfigurationType>> m_dataSets;
-
-        public:
-            /**
-             * @copydoc XMLSerializationData::getRun
-             */
-            Run getRun() const { return m_run; };
-
-            /**
-             * @copydoc XMLSerializationData::setRun
-             */
-            void setRun(const Run &run) { m_run = run; };
-
-            /**
-             * @copydoc XMLSerializationData::getDataSets
-             */
-            std::vector<DataSet<ConfigurationType>> getDataSets() const {
-                return m_dataSets; };
-
-            /**
-             * @copydoc XMLSerializationData::addDataSet
-             */
-            void addDataSet(const DataSet<ConfigurationType> &dataSet) {
-                m_dataSets.push_back(dataSet); };
-
-            /**
-             * @copydoc XMLSerializationData::readDOM
-             */
-            void readDOM(const DOMDocumentPtr &dom);
-
-            /**
-             * @copydoc XMLSerializationData::makeDOM
-             */
-            DOMDocumentPtr makeDOM() const;
         };
 
         template<>

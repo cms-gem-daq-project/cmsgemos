@@ -1,5 +1,5 @@
-#ifndef GEM_ONLINEDB_XMLCONFIGURATIONPROVIDER_H
-#define GEM_ONLINEDB_XMLCONFIGURATIONPROVIDER_H
+#ifndef GEM_ONLINEDB_FILECONFIGURATIONPROVIDER_H
+#define GEM_ONLINEDB_FILECONFIGURATIONPROVIDER_H
 
 #include <map>
 #include <string>
@@ -11,9 +11,9 @@ namespace gem {
     namespace onlinedb {
 
         /**
-         * @brief Configuration provider that takes XML files as input.
+         * @brief Configuration provider that takes files as input.
          */
-        class XMLConfigurationProvider : public ConfigurationProvider
+        class FileConfigurationProvider : public ConfigurationProvider
         {
             std::map<std::string, std::shared_ptr<AMC13Configuration>> m_amc13Config;
             std::map<std::string, std::shared_ptr<AMCConfiguration>> m_amcConfig;
@@ -27,15 +27,15 @@ namespace gem {
 
         public:
             /// @brief Constructor.
-            explicit XMLConfigurationProvider() = default;
+            explicit FileConfigurationProvider() = default;
 
             /// @brief Destructor.
-            virtual ~XMLConfigurationProvider() = default;
+            virtual ~FileConfigurationProvider() = default;
 
             ////////////////////////////////////////////////////////////////////
 
             /**
-             * @brief Constructs an @c XMLConfigurationProvider by reading the
+             * @brief Constructs a @c FileConfigurationProvider by reading the
              *        contents of a @c system-topology file.
              * @param document The document to load data from.
              * @warning Behavior is undefined if the provided document doesn't
@@ -136,9 +136,18 @@ namespace gem {
 
             std::vector<std::string> getObjectSources() const override
             { return m_sources; };
+
+        private:
+            /**
+             * @brief Common implementation for all loadXXX methods.
+             */
+            template<class ConfigurationType>
+            void loadInternal(
+                const std::string &filename,
+                std::map<std::string, std::shared_ptr<ConfigurationType>> &map);
         };
 
     } // namespace onlinedb
 } // namespace gem
 
-#endif // GEM_ONLINEDB_XMLCONFIGURATIONPROVIDER_H
+#endif // GEM_ONLINEDB_FILECONFIGURATIONPROVIDER_H

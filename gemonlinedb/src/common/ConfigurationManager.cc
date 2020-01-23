@@ -6,8 +6,8 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 
 #include "gem/onlinedb/ConfigurationLinker.h"
+#include "gem/onlinedb/FileConfigurationProvider.h"
 #include "gem/onlinedb/SystemTopology.h"
-#include "gem/onlinedb/XMLConfigurationProvider.h"
 #include "gem/onlinedb/detail/FileUtils.h"
 
 namespace gem {
@@ -82,7 +82,7 @@ namespace gem {
         {
             try {
                 detail::xercesExceptionsToXcept([&]{
-                    // Deduce the search path for XML files
+                    // Deduce the search path for data files
                     std::string path = "/opt/cmsgemos/etc"; // Following xDAQ's "standards"
                     if (auto envPath = std::getenv("CMSGEMOS_CONFIG_PATH")) {
                         path = envPath;
@@ -96,8 +96,8 @@ namespace gem {
                         // TODO Not supported yet
                         break;
 
-                    case Source::XML:
-                        auto provider = std::make_shared<XMLConfigurationProvider>();
+                    case Source::FILE:
+                        auto provider = std::make_shared<FileConfigurationProvider>();
                         provider->setSearchPath(path);
                         provider->load(loadXMLTopologyFile(findXMLTopologyFile(path)));
                         m_objectSourceDetails = provider->getObjectSources();
@@ -113,7 +113,7 @@ namespace gem {
                         // TODO Not supported yet
                         break;
 
-                    case Source::XML:
+                    case Source::FILE:
                         auto file = findXMLTopologyFile(path);
                         topology->populate(loadXMLTopologyFile(file));
                         m_topologySourceDetails = { file };
@@ -205,9 +205,9 @@ namespace gem {
                 lock.lock();
             }
             if (s_instance == nullptr) {
-                // TODO Only XML is supported for now
+                // TODO Only FILE is supported for now
                 s_instance.reset(
-                    new ConfigurationManager(Source::XML, Source::XML));
+                    new ConfigurationManager(Source::FILE, Source::FILE));
             }
             return *s_instance;
         }
