@@ -98,8 +98,7 @@ namespace gem {
       }
 
       // SOAP interface, updates the header used for calibration runs
-      xoap::MessageReference updateScanParameters(xoap::MessageReference message)
-        throw (xoap::exception::Exception);
+      xoap::MessageReference updateScanParameters(xoap::MessageReference message);
 
 
     private:

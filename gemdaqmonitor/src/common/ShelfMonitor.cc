@@ -130,7 +130,6 @@ void gem::daqmon::ShelfMonitor::stopMonitoring()
 }
 
 void gem::daqmon::ShelfMonitor::stopAction(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_INFO("ShelfMonitor::stopAction");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
@@ -140,7 +139,6 @@ void gem::daqmon::ShelfMonitor::stopAction(xgi::Input* in, xgi::Output* out)
 }
 
 void gem::daqmon::ShelfMonitor::resumeAction(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_INFO("ShelfMonitor::startAction");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
@@ -149,7 +147,6 @@ void gem::daqmon::ShelfMonitor::resumeAction(xgi::Input* in, xgi::Output* out)
 }
 
 void gem::daqmon::ShelfMonitor::pauseAction(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_INFO("ShelfMonitor::pauseAction");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");

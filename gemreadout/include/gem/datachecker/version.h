@@ -7,7 +7,8 @@
 
 #include "config/PackageInfo.h"
 
-namespace gemdatachecker {
+namespace gem {
+  namespace datachecker {
 
 #define GEMDATACHECKER_VERSION_MAJOR 1
 #define GEMDATACHECKER_VERSION_MINOR 0
@@ -22,16 +23,18 @@ namespace gemdatachecker {
 #define GEMDATACHECKER_FULL_VERSION_LIST GEMDATACHECKER_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMDATACHECKER_VERSION_MAJOR, GEMDATACHECKER_VERSION_MINOR, GEMDATACHECKER_VERSION_PATCH)
 #endif
 
-  const std::string package     = "gemdatachecker";
-  const std::string versions    = GEMDATACHECKER_FULL_VERSION_LIST;
-  const std::string summary     = "GEM datachecker";
-  const std::string description = "";
-  const std::string authors     = "GEM Online Systems Group";
-  const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
+    const std::string package     = "cmsgemos";
+    const std::string package     = "datachecker";
+    const std::string versions    = GEMDATACHECKER_FULL_VERSION_LIST;
+    const std::string summary     = "GEM datachecker";
+    const std::string description = "";
+    const std::string authors     = "GEM Online Systems Group";
+    const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
 
-  config::PackageInfo getPackageInfo();
-  void checkPackageDependencies() throw (config::PackageInfo::VersionException);
-  std::set<std::string, std::less<std::string> > getPackageDependencies();
+    config::PackageInfo getPackageInfo();
+    void checkPackageDependencies();
+    std::set<std::string, std::less<std::string> > getPackageDependencies();
+  }
 }
 
 #endif // DOXYGEN_IGNORE_THIS

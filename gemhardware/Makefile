@@ -2,49 +2,104 @@
 # Makefile for gemhardware package
 #
 
-Project=cmsgemos
-ShortProject=gem
-Package=gemhardware
-LongPackage=gemhardware
-ShortPackage=hw
-PackageName=hw
+BUILD_HOME?= $(shell dirname `cd ./; pwd`)
 
-GEMHARDWARE_VER_MAJOR=1
-GEMHARDWARE_VER_MINOR=0
-GEMHARDWARE_VER_PATCH=1
+ifndef BUILD_SUPPORT
+BUILD_SUPPORT=build
+endif
 
-include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
+ifndef PROJECT_NAME
+PROJECT_NAME=cmsgemos
+endif
 
-include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
+SUBPACKAGES := \
+        utils \
+        devices \
+        managers
 
-.PHONY: devices managers _hackery
+# SUBPACKAGES.DOC      := $(patsubst %,%.doc,    ${SUBPACKAGES})
+# SUBPACKAGES.CHECK    := $(patsubst %,%.check,    ${SUBPACKAGES})
+SUBPACKAGES.DEBUG    := $(patsubst %,%.debug,    ${SUBPACKAGES})
+SUBPACKAGES.INSTALL  := $(patsubst %,%.install,  ${SUBPACKAGES})
+SUBPACKAGES.RPM      := $(patsubst %,%.rpm,      ${SUBPACKAGES})
+SUBPACKAGES.CLEANRPM := $(patsubst %,%.cleanrpm, ${SUBPACKAGES})
+SUBPACKAGES.CLEAN    := $(patsubst %,%.clean,    ${SUBPACKAGES})
+SUBPACKAGES.TESTS    := $(patsubst %,%.tests,    ${SUBPACKAGES})
+SUBPACKAGES.RUNTESTS := $(patsubst %,%.run-tests, ${SUBPACKAGES})
+SUBPACKAGES.RUNTESTSCI := $(patsubst %,%.run-tests-ci, ${SUBPACKAGES})
 
-_hackery:
-	if [[ -L Makefile ]]; \
-	then \
-	unlink Makefile; \
-	cp Makefile.progress Makefile; \
-	fi
+default: all
 
-devices:
-	$(MAKE) _hackery
-	cp Makefile Makefile.progress
-	ln -sf Makefile.devices Makefile
-	$(MAKE); ret=$$?; \
-	$(MAKE) -f Makefile.progress _hackery; \
-	exit $$ret
+all: $(SUBPACKAGES)
 
-managers: devices
-	$(MAKE) _hackery
-	cp Makefile Makefile.progress
-	ln -sf Makefile.managers Makefile; \
-	$(MAKE); ret=$$?; \
-	$(MAKE) -f Makefile.progress _hackery; \
-	exit $$ret
+release: all doc
 
-_all: devices managers
+install: $(LIBDIR) $(SUBPACKAGES) $(SUBPACKAGES.INSTALL)
+
+rpm: $(SUBPACKAGES) $(SUBPACKAGES.RPM)
+
+cleanrpm: $(SUBPACKAGES.CLEANRPM)
+
+clean: $(SUBPACKAGES.CLEAN)
+
+tests: $(SUBPACKAGES) $(SUBPACKAGES.TESTS)
+
+run-tests: $(SUBPACKAGES.RUNTESTS)
+
+run-tests-ci: $(SUBPACKAGES.RUNTESTSCI)
+
+debug: $(SUBPACKAGES.DEBUG)
+
+# check: $(SUBPACKAGES.CHECK)
+
+$(LIBDIR):
+	mkdir -p $(LIBDIR)
+
+$(SUBPACKAGES):
+	$(MAKE) -C $@
+
+$(SUBPACKAGES.RPM):
+	$(MAKE) -C $(patsubst %.rpm,%, $@) rpm
+
+$(SUBPACKAGES.CLEANRPM):
+	$(MAKE) -C $(patsubst %.cleanrpm,%, $@) cleanrpm
+
+# $(SUBPACKAGES.CHECK):
+# 	$(MAKE) -C $(patsubst %.check,%, $@) check
+
+# $(SUBPACKAGES.DEBUG):
+# 	$(MAKE) -C $(patsubst %.debug,%, $@) debug
+
+$(SUBPACKAGES.INSTALL):
+	-find  $(patsubst %.install,%, $@)/lib -name *.so -print -exec cp {} ${LIBDIR} \;
+
+$(SUBPACKAGES.CLEAN):
+	$(MAKE) -C $(patsubst %.clean,%, $@) clean
+
+$(SUBPACKAGES.TESTS): all
+	$(MAKE) -C $(patsubst %.tests,%, $@) tests
+
+$(SUBPACKAGES.RUNTESTS): tests
+	$(MAKE) -C $(patsubst %.run-tests,%, $@) run-tests
+
+$(SUBPACKAGES.RUNTESTSCI): tests
+	$(MAKE) -C $(patsubst %.run-tests-ci,%, $@) run-tests-ci
+
+.PHONY: $(SUBPACKAGES) $(SUBPACKAGES.INSTALL) $(SUBPACKAGES.CLEAN) $(SUBPACKAGES.CHECK) $(SUBPACKAGES.DEBUG)
+
+#$(SUBPACKAGES.CHECK) $(SUBPACKAGES.DEBUG)
+
+utils: gemutils
+
+devices: gemutils gemhardware/utils
+
+managers: gemutils gembase gemreadout gemhardware/devices
+
+include $(BUILD_HOME)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
+
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
+include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
@@ -56,7 +111,7 @@ print-env:
 	@echo ROOTLIBS      $(ROOTLIBS)
 	@echo ROOTGLIBS     $(ROOTGLIBS)
 	@echo GIT_VERSION   $(GIT_VERSION)
-	@echo GEMDEVELOPER  $(GEMDEVELOPER)
+	@echo GEMDEVLOPER   $(GEMDEVLOPER)
 	@echo CC            $(CC)
 	@echo CPP           $(CPP)
 	@echo CXX           $(CXX)
@@ -64,7 +119,6 @@ print-env:
 	@echo AR            $(AR)
 	@echo NM            $(NM)
 	@echo RANLIB        $(RANLIB)
-	@echo UserCFlags    $(UserCFlags)
-	@echo CCVERSION     $(CCVERSION)
-	@echo CLANGNUM      $(CLANGNUM)
-	@echo GCCNUM        $(GCCNUM)
+	@echo GCCVERSION    $(GCCVERSION)
+	@echo CLANGVERSION  $(CLANGVERSION)
+	@echo DependentLibraryDirs  $(DependentLibraryDirs)

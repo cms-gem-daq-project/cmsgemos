@@ -21,7 +21,6 @@ gem::daqmon::ShelfMonitorWeb::~ShelfMonitorWeb()
 }
 
 void gem::daqmon::ShelfMonitorWeb::webDefault(xgi::Input * in, xgi::Output * out)
-  throw (xgi::exception::Exception)
 {
   *out << cgicc::script().set("type", "text/javascript")
     .set("src", "/gemdaq/gemdaqmonitor/html/scripts/shelfMonitor.js") //let it be here for the moment, update with the relevant scripts later
@@ -33,7 +32,6 @@ void gem::daqmon::ShelfMonitorWeb::webDefault(xgi::Input * in, xgi::Output * out
 }
 
 void gem::daqmon::ShelfMonitorWeb::applicationPage(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("ShelfMonitoringWeb::applicationPage : Do nothing for the moment, will be eventually filled later");
   //*out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
@@ -42,7 +40,6 @@ void gem::daqmon::ShelfMonitorWeb::applicationPage(xgi::Input* in, xgi::Output* 
 }
 
 void gem::daqmon::ShelfMonitorWeb::expertPage(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("ShelfMonitoringWeb::expertPage");
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
@@ -63,7 +60,6 @@ void gem::daqmon::ShelfMonitorWeb::expertPage(xgi::Input* in, xgi::Output* out)
 }
 
 void gem::daqmon::ShelfMonitorWeb::monitorPage(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_INFO("ShelfMonitorWeb::monitorPage");
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
@@ -79,7 +75,6 @@ void gem::daqmon::ShelfMonitorWeb::monitorPage(xgi::Input* in, xgi::Output* out)
 }
 
 void gem::daqmon::ShelfMonitorWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("ShelfMonitorWeb::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");

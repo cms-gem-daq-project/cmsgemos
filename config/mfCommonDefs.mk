@@ -6,6 +6,12 @@ ifndef INSTALL_PATH
 CMSGEMOS_ROOT := /opt/cmsgemos
 endif
 
+ifndef BUILD_SUPPORT
+BUILD_SUPPORT=build
+endif
+
+PROJECT_NAME=cmsgemos
+
 CMSGEMOS_PLATFORM := $(shell python -c "import platform; print(platform.platform())")
 CMSGEMOS_OS       := "unknown.os"
 
@@ -13,6 +19,9 @@ GIT_VERSION  := $(shell git describe --dirty --always --tags)
 GEMDEVELOPER := $(shell id --user --name)
 GITREV       := $(shell git rev-parse --short HEAD)
 BUILD_DATE   := $(shell date -u +"%d%m%Y")
+
+# PROJECT_NAME := $(GEM_OS_PROJECT)
+# Project      := $(PROJECT_NAME)
 
 UNAME=$(strip $(shell uname -s))
 ifeq ($(UNAME),Linux)
@@ -52,8 +61,8 @@ PACKAGE_VER_MINOR ?= $($(ShortPackageLoc)_VER_MINOR)
 PACKAGE_VER_PATCH ?= $($(ShortPackageLoc)_VER_PATCH)
 
 #BUILD_VERSION ?= 1
-BUILD_VERSION:= $(shell $(BUILD_HOME)/$(Project)/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[4];}' | awk '{split($$0,b,":"); print b[2];}')
-PREREL_VERSION:= $(shell $(BUILD_HOME)/$(Project)/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[8];}' | awk '{split($$0,b,":"); print b[2];}' )
+BUILD_VERSION:= $(shell $(BUILD_HOME)/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[4];}' | awk '{split($$0,b,":"); print b[2];}')
+PREREL_VERSION:= $(shell $(BUILD_HOME)/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[8];}' | awk '{split($$0,b,":"); print b[2];}' )
 # | awk '{split($$0,c,"-"); print c[2];}' 
 
 $(info BUILD_VERSION $(BUILD_VERSION))

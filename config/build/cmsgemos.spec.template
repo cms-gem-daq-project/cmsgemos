@@ -133,14 +133,14 @@ echo "%%defattr(644, %%{_username},%%{_groupname}, 755)" > %{buildroot}/MANIFEST
 
 if [ -d %{_packagedir}/bin/%{_os}/%{_platform} ]; then
 	cd %{_packagedir}/bin/%{_os}/%{_platform}; \
-	find ./ -name ".git" -prune -o -exec ${XDAQ_ROOT}/config/install.sh {} %{_prefix}/bin/{} 755 \
+	find ./ -name ".git" -prune -o -exec ${XDAQ_ROOT}/${BUILD_SUPPORT}/install.sh {} %{_prefix}/bin/{} 755 \
              $RPM_BUILD_ROOT %{_packagedir} %{_project}-%{_packagename} %{_version} %{_prefix}/include '%{_includedirs}' \; ; \
         cd %{buildroot}; \
         find .%{_prefix}/bin/ -type f -or -type l | sed -e s/^.// -e /^$/d >> MANIFEST.lib
 fi
 if [ -d %{_packagedir}/lib/%{_os}/%{_platform} ]; then
 	cd %{_packagedir}/lib/%{_os}/%{_platform}; \
-	find ./ -name ".git" -prune -o -exec ${XDAQ_ROOT}/config/install.sh {} %{_prefix}/lib/{} 755 \
+	find ./ -name ".git" -prune -o -exec ${XDAQ_ROOT}/${BUILD_SUPPORT}/install.sh {} %{_prefix}/lib/{} 755 \
              $RPM_BUILD_ROOT %{_packagedir} %{_project}-%{_packagename} %{_version} %{_prefix}/include '%{_includedirs}' \; ; \
         cd %{buildroot}; \
         find .%{_prefix}/lib/ -type f -or -type l | sed -e s/^.// -e /^$/d >> MANIFEST.lib

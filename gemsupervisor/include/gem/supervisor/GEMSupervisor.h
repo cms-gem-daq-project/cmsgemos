@@ -60,7 +60,6 @@ namespace gem {
         virtual void resetAction(toolbox::Event::Reference e);
 
 	xoap::MessageReference EndScanPoint(xoap::MessageReference mns);
-          // throw (xoap::exception::Exception);
 
         std::vector<xdaq::ApplicationDescriptor*> getSupervisedAppDescriptors() {
           return v_supervisedApps; };
@@ -105,7 +104,6 @@ namespace gem {
          * @throws
          */
         void sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad);
-          // throw (xoap::exception::Exception);
 
         /**
          * @param runType tells the application which type of run to take
@@ -113,7 +111,6 @@ namespace gem {
          * @throws
          */
         void sendRunType(std::string const& runType, xdaq::ApplicationDescriptor* ad);
-          // throw (xoap::exception::Exception);
 
         /**
          * @param runNumber is the run number
@@ -121,7 +118,6 @@ namespace gem {
          * @throws
          */
         void sendRunNumber(int64_t const& runNumber, xdaq::ApplicationDescriptor* ad);
-          // throw (xoap::exception::Exception);
 
         // TCDS configuration
         class TCDSConfig {
@@ -161,21 +157,18 @@ namespace gem {
          * @throws
          */
         void renewTCDSLease();
-        // throw (xoap::exception::Exception);
 
         /**
          * @brief Pause the phase monitoring of the CTP7
          * @throws
          */
         void pausePhaseMonitoring();
-        // throw (xoap::exception::Exception);
 
         /**
          * @brief Resume the phase monitoring of the CTP7
          * @throws
          */
         void resumePhaseMonitoring();
-        // throw (xoap::exception::Exception);
 
         std::shared_ptr<GEMSupervisorMonitor> m_supervisorMonitor;
 

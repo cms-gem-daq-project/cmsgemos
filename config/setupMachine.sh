@@ -173,15 +173,15 @@ configure_interface() {
         done 4< ${cfgbase}/.${cfgfile}.backup
     else
         echo "No config file exists, creating..."
-        echo "TYPE=Ethernet" >> ${cfgbase}/${cfgfile}
+        echo "TYPE=Ethernet"    >> ${cfgbase}/${cfgfile}
         echo "NM_CONTROLLED=no" >> ${cfgbase}/${cfgfile}
-        echo "BOOTPROTO=none" >> ${cfgbase}/${cfgfile}
-        echo "ONBOOT=yes" >> ${cfgbase}/${cfgfile}
-        echo "DEFROUTE=no" >> ${cfgbase}/${cfgfile}
-        echo "ZONE=trusted" >> ${cfgbase}/${cfgfile}
+        echo "BOOTPROTO=none"   >> ${cfgbase}/${cfgfile}
+        echo "ONBOOT=yes"       >> ${cfgbase}/${cfgfile}
+        echo "DEFROUTE=no"      >> ${cfgbase}/${cfgfile}
+        echo "ZONE=trusted"     >> ${cfgbase}/${cfgfile}
     fi
 
-    echo "IPADDR=${ipaddr}" >> ${cfgbase}/${cfgfile}
+    echo "IPADDR=${ipaddr}"   >> ${cfgbase}/${cfgfile}
     echo "NETWORK=${network}" >> ${cfgbase}/${cfgfile}
     echo "NETMASK=${netmask}" >> ${cfgbase}/${cfgfile}
 

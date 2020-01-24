@@ -1,11 +1,11 @@
 # Created with insights from
 ## amc13/config/mfPythonRPMRules.mk
 
-include $(BUILD_HOME)/$(Project)/config/mfCommonDefs.mk
+include $(BUILD_HOME)/config/mfCommonDefs.mk
 
 INSTALL_PATH = /opt/cmsgemos
-ProjectPath  = $(BUILD_HOME)/$(Project)
-PackagePath  = $(BUILD_HOME)/$(Project)/$(Package)
+ProjectPath  = $(BUILD_HOME)
+PackagePath  = $(ProjectPath)/$(Package)
 RPMBUILD_DIR = $(PackagePath)/rpm
 CMSGEMOS_OS ?= $(XDAQ_OS)
 

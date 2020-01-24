@@ -7,7 +7,8 @@
 
 #include "config/PackageInfo.h"
 
-namespace gembase {
+namespace gem {
+  namespace base {
 
 #define GEMBASE_VERSION_MAJOR 1
 #define GEMBASE_VERSION_MINOR 0
@@ -21,16 +22,18 @@ namespace gembase {
 #define GEMBASE_FULL_VERSION_LIST GEMBASE_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMBASE_VERSION_MAJOR, GEMBASE_VERSION_MINOR, GEMBASE_VERSION_PATCH)
 #endif
 
-  const std::string package     = "gembase";
-  const std::string versions    = GEMBASE_FULL_VERSION_LIST;
-  const std::string summary     = "Base classes for GEM DAQ applications";
-  const std::string description = "";
-  const std::string authors     = "GEM Online Systems Group";
-  const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
+    const std::string project     = "cmsgemos";
+    const std::string package     = "base";
+    const std::string versions    = GEMBASE_FULL_VERSION_LIST;
+    const std::string summary     = "Base classes for GEM DAQ applications";
+    const std::string description = "";
+    const std::string authors     = "GEM Online Systems Group";
+    const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
 
-  config::PackageInfo getPackageInfo();
-  void checkPackageDependencies() throw (config::PackageInfo::VersionException);
-  std::set<std::string, std::less<std::string> > getPackageDependencies();
+    config::PackageInfo getPackageInfo();
+    void checkPackageDependencies();
+    std::set<std::string, std::less<std::string> > getPackageDependencies();
+  }
 }
 
 #endif // DOXYGEN_IGNORE_THIS

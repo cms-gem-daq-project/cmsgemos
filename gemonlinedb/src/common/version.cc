@@ -3,17 +3,16 @@
 #include "xoap/version.h"
 #include "gem/onlinedb/version.h"
 
-GETPACKAGEINFO(gemonlinedb);
+GETPACKAGEINFO(gem::onlinedb);
 
-void gemonlinedb::checkPackageDependencies()
-  throw (config::PackageInfo::VersionException)
+void gem::onlinedb::checkPackageDependencies()
 {
   CHECKDEPENDENCY(toolbox);
   CHECKDEPENDENCY(xdaq);
   CHECKDEPENDENCY(xoap);
 }
 
-std::set<std::string, std::less<std::string> > gemonlinedb::getPackageDependencies()
+std::set<std::string, std::less<std::string> > gem::onlinedb::getPackageDependencies()
 {
   std::set<std::string, std::less<std::string> > deps;
   ADDDEPENDENCY(deps, toolbox);

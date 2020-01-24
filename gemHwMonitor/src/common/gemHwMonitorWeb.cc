@@ -6,8 +6,7 @@
 
 XDAQ_INSTANTIATOR_IMPL(gem::hwMonitor::gemHwMonitorWeb);
 
-gem::hwMonitor::gemHwMonitorWeb::gemHwMonitorWeb(xdaq::ApplicationStub* s)
-  throw (xdaq::exception::Exception):
+gem::hwMonitor::gemHwMonitorWeb::gemHwMonitorWeb(xdaq::ApplicationStub* s) :
   xdaq::WebApplication(s)
 {
   xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::Default,                "Default"               );
@@ -49,15 +48,12 @@ gem::hwMonitor::gemHwMonitorWeb::~gemHwMonitorWeb()
   delete p_gemSystemHelper;
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::Default(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::Default(xgi::Input* in, xgi::Output* out)
 {
   this->controlPanel(in, out);
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input* in, xgi::Output* out )
-
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input* in, xgi::Output* out)
 {
   cgicc::Cgicc cgi(in);
   for (unsigned i = 0; i != m_gemHwMonitorSystem->getDevice()->getSubDevicesRefs().size(); ++i) {
@@ -79,9 +75,7 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input* in, xgi::Output* out
   this->controlPanel(in, out);
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::Dummy(xgi::Input* in, xgi::Output* out )
-
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::Dummy(xgi::Input* in, xgi::Output* out)
 {
   *out << "Dummy" <<std::endl;
 }
@@ -90,8 +84,7 @@ void gem::hwMonitor::gemHwMonitorWeb::Dummy(xgi::Input* in, xgi::Output* out )
 * shows the availability of crates corresponding to this configuration.
 * Allows to launch the test utility to check the crates state.
 * */
-void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input* in, xgi::Output* out)
 {
   try {
     *out << "<link rel=\"stylesheet\" type=\"text/css\" "
@@ -196,8 +189,7 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input* in, xgi::Output* 
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
-void gem::hwMonitor::gemHwMonitorWeb::showCratesAvailability(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::showCratesAvailability(xgi::Input* in, xgi::Output* out)
 {
   // If crates config is not available yet prompt to get it
   if (!m_crateCfgAvailable) {
@@ -263,8 +255,7 @@ void gem::hwMonitor::gemHwMonitorWeb::showCratesAvailability(xgi::Input* in, xgi
   }
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::setConfFile(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::setConfFile(xgi::Input* in, xgi::Output* out)
 {
   cgicc::Cgicc cgi(in);
   std::string rawFile = cgi("xmlFileUpload");
@@ -282,8 +273,7 @@ void gem::hwMonitor::gemHwMonitorWeb::setConfFile(xgi::Input* in, xgi::Output* o
   this->controlPanel(in, out);
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::uploadConfFile(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::uploadConfFile(xgi::Input* in, xgi::Output* out)
 {
   cgicc::Cgicc cgi(in);
   std::string newFile = cgi.getElement("xmlFilenameUpload")->getValue();
@@ -299,8 +289,7 @@ void gem::hwMonitor::gemHwMonitorWeb::uploadConfFile(xgi::Input* in, xgi::Output
   this->controlPanel(in, out);
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::displayConfFile(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::displayConfFile(xgi::Input* in, xgi::Output* out)
 {
   cgicc::Cgicc cgi(in);
   std::ifstream infile(p_gemSystemHelper->getXMLconfigFile());
@@ -313,8 +302,7 @@ void gem::hwMonitor::gemHwMonitorWeb::displayConfFile(xgi::Input* in, xgi::Outpu
   }
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input* in, xgi::Output* out)
 {
   p_gemSystemHelper->configure();
   std::cout << "Configured." << std::endl;
@@ -375,13 +363,11 @@ void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input* in, xgi
   this->controlPanel(in, out);
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::selectCrate(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::selectCrate(xgi::Input* in, xgi::Output* out)
 {
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::expandCrate(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::expandCrate(xgi::Input* in, xgi::Output* out)
 {
   cgicc::Cgicc cgi(in);
   m_crateToShow = cgi.getElement("crateButton")->getValue();
@@ -417,8 +403,7 @@ void gem::hwMonitor::gemHwMonitorWeb::expandCrate(xgi::Input* in, xgi::Output* o
   this->cratePanel(in, out);
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::cratePanel(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::cratePanel(xgi::Input* in, xgi::Output* out)
 {
   *out << "<link rel=\"stylesheet\" type=\"text/css\" "
        << "href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">"
@@ -469,8 +454,7 @@ void gem::hwMonitor::gemHwMonitorWeb::cratePanel(xgi::Input* in, xgi::Output* ou
   *out << cgicc::hr()<< std::endl;
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::expandGLIB(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::expandGLIB(xgi::Input* in, xgi::Output* out)
 {
   cgicc::Cgicc cgi(in);
   m_glibToShow = cgi.getElement("glibButton")->getValue();
@@ -504,8 +488,7 @@ void gem::hwMonitor::gemHwMonitorWeb::expandGLIB(xgi::Input* in, xgi::Output* ou
   this->glibPanel(in, out);
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::glibPanel(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::glibPanel(xgi::Input* in, xgi::Output* out)
 {
   *out << "<link rel=\"stylesheet\" type=\"text/css\" "
        << "href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">"
@@ -715,8 +698,7 @@ void gem::hwMonitor::gemHwMonitorWeb::glibPanel(xgi::Input* in, xgi::Output* out
   *out << cgicc::hr()<< std::endl;
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::expandOH(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::expandOH(xgi::Input* in, xgi::Output* out)
 {
   cgicc::Cgicc cgi(in);
   m_ohToShow = cgi.getElement("ohButton")->getValue();
@@ -744,8 +726,7 @@ void gem::hwMonitor::gemHwMonitorWeb::expandOH(xgi::Input* in, xgi::Output* out 
   this->ohPanel(in, out);
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input* in, xgi::Output* out)
 {
   *out << "<link rel=\"stylesheet\" type=\"text/css\" "
        << "href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">"
@@ -1035,8 +1016,7 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input* in, xgi::Output* out )
   *out << cgicc::hr()<< std::endl;
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::expandVFAT(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::expandVFAT(xgi::Input* in, xgi::Output* out)
 {
   cgicc::Cgicc cgi(in);
   m_vfatToShow = cgi.getElement("vfatButton")->getValue();
@@ -1051,8 +1031,7 @@ void gem::hwMonitor::gemHwMonitorWeb::expandVFAT(xgi::Input* in, xgi::Output* ou
   this->vfatPanel(in, out);
 }
 
-void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input* in, xgi::Output* out )
-  throw (xgi::exception::Exception)
+void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input* in, xgi::Output* out)
 {
   *out << "<link rel=\"stylesheet\" type=\"text/css\" "
        << "href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">"
@@ -1299,7 +1278,6 @@ void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input* in, xgi::Output* out
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, const char* value1, const char* value2, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   std::string alertColor;
   (boost::iequals(value1, value2)) ? alertColor = "success" : alertColor = "danger";
@@ -1325,7 +1303,6 @@ void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, con
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, const char* value, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   *out << "<tr>";
   *out << "<td>";
@@ -1338,7 +1315,6 @@ void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, con
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, const char* value1, uint8_t value2, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   std::stringstream ss;
   ss << std::dec << (unsigned) value2;
@@ -1348,7 +1324,6 @@ void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, con
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, uint8_t value, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   std::stringstream ss;
   ss << std::dec << (unsigned) value;

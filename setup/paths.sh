@@ -5,12 +5,12 @@ then
     export GEM_OS_PROJECT=cmsgemos
 fi
 
-if [ -z "$BUILD_HOME" ]
-then
-    echo "BUILD_HOME not set, please set BUILD_HOME to the directory above the root of your repository"
-    echo " (export BUILD_HOME=<your path>/cmsgemos/../) and then rerun this script"
-    return
-fi
+# if [ -z "$BUILD_HOME" ]
+# then
+#     echo "BUILD_HOME not set, please set BUILD_HOME to the directory above the root of your repository"
+#     echo " (export BUILD_HOME=<your path>/cmsgemos/../) and then rerun this script"
+#     return
+# fi
 
 # The OS is not set in environment. We assume we are not cross-compiling, and try
 # to guess the OS
@@ -52,7 +52,7 @@ then
     then
         XDAQ_PLATFORM=ppc
     fi
-    XDAQ_PLATFORM=${XDAQ_PLATFORM}_$(source $XDAQ_ROOT/config/checkos.sh)
+    XDAQ_PLATFORM=${XDAQ_PLATFORM}_$(source $XDAQ_ROOT/build/checkos.sh)
     export XDAQ_PLATFORM
 fi
 
@@ -73,7 +73,7 @@ do
 done
 
 export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
-export GEM_ADDRESS_TABLE_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}/setup/etc/addresstables
-export GEM_PYTHON_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}
-export PYTHONPATH=${GEM_PYTHON_PATH}:${PYTHONPATH}
-export PATH=${GEM_PYTHON_PATH}/gempython/tests:${PATH}
+# export GEM_ADDRESS_TABLE_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}/setup/etc/addresstables
+# export GEM_PYTHON_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}
+# export PYTHONPATH=${GEM_PYTHON_PATH}:${PYTHONPATH}
+# export PATH=${GEM_PYTHON_PATH}/gempython/tests:${PATH}

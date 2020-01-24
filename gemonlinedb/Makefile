@@ -2,8 +2,17 @@
 # Makefile for gemonlinedb package
 #
 
-#Project=gem
-Project=cmsgemos
+BUILD_HOME:=$(shell pwd)/..
+
+ifndef BUILD_SUPPORT
+BUILD_SUPPORT=build
+endif
+
+ifndef PROJECT_NAME
+PROJECT_NAME=cmsgemos
+endif
+
+Project=$(PROJECT_NAME)
 ShortProject=gem
 Package=gemonlinedb
 LongPackage=gemonlinedb
@@ -14,8 +23,8 @@ GEMONLINEDB_VER_MAJOR=0
 GEMONLINEDB_VER_MINOR=1
 GEMONLINEDB_VER_PATCH=0
 
-include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
+include $(BUILD_HOME)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
 Sources = \
     AMC13Configuration.cc \
@@ -32,7 +41,6 @@ Sources = \
     OHv3ConfigurationGen.cc \
     Run.cc \
     SystemTopology.cc \
-    VFAT3ChannelConfiguration.cc \
     VFAT3ChannelConfigurationGen.cc \
     VFAT3ChipConfigurationGen.cc \
     version.cc \
@@ -58,22 +66,21 @@ DBTestExecutables = \
 
 TestExecutables = $(SimpleTestExecutables) $(DBTestExecutables)
 
-IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
+IncludeDirs+=$(BUILD_HOME)/$(Package)/include
+IncludeDirs+=$(BUILD_HOME)/gembase/include
+IncludeDirs+=$(BUILD_HOME)/gemutils/include
 
-UserCFlags  +=$(PYTHONCFLAGS)
-UserCCFlags +=$(PYTHONCFLAGS)
+UserCFlags+=$(PYTHONCFLAGS)
 
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
 DependentLibraries=gembase gemutils xdaq cgicc xgi peer xdata mimetic xoap xerces-c xcept toolbox logudpappender logxmlappender log4cplus config cgicc
-DependentLibraries += boost_filesystem boost_regex boost_system boost_thread
+DependentLibraries+=boost_filesystem boost_regex boost_system boost_thread
 
 # DependentLibraries+=$(StandardLibraries)
 
-TestLibraries= $(DependentLibraries) boost_unit_test_framework tstoreapi wsaddressing tstoreutils
+TestLibraries= $(DependentLibraries) boost_unit_test_framework tstoreapi wsaddressing tstoreutils occi clntsh nnz12 ons clntshcore
 TestLibraryDirs= $(DependentLibraryDirs)
 
 # Targets with additional dependencies. Keep "default" first
@@ -85,8 +92,8 @@ run-tests: run-tests-simple run-tests-db
 run-tests-ci: run-tests-simple
 
 # Common definitions
-include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
+include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
 
 # Auto-generated files
 include/gem/onlinedb/detail/%Gen.h src/common/%Gen.cc: defs/%.json parseDef.py

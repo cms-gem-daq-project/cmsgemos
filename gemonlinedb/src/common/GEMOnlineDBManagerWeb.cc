@@ -24,7 +24,6 @@ gem::onlinedb::GEMOnlineDBManagerWeb::~GEMOnlineDBManagerWeb()
 }
 
 void gem::onlinedb::GEMOnlineDBManagerWeb::webDefault(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   *out << cgicc::script().set("type", "text/javascript")
     .set("src", "/gemdaq/gemonlinedb/html/scripts/gemonlinedb.js")
@@ -34,7 +33,6 @@ void gem::onlinedb::GEMOnlineDBManagerWeb::webDefault(xgi::Input* in, xgi::Outpu
 }
 
 void gem::onlinedb::GEMOnlineDBManagerWeb::monitorPage(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   try {
     CMSGEMOS_DEBUG("GEMOnlineDBManagerWeb::monitorPage");
@@ -102,7 +100,6 @@ void gem::onlinedb::GEMOnlineDBManagerWeb::monitorPage(xgi::Input* in, xgi::Outp
 
 /*To be filled in with the expert page code*/
 void gem::onlinedb::GEMOnlineDBManagerWeb::expertPage(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMOnlineDBManagerWeb::expertPage");
   // fill this page with the expert views for the GEMOnlineDBManager
@@ -118,12 +115,10 @@ void gem::onlinedb::GEMOnlineDBManagerWeb::expertPage(xgi::Input* in, xgi::Outpu
 
 /*To be filled in with the application page code*/
 void gem::onlinedb::GEMOnlineDBManagerWeb::applicationPage(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
 }
 
 void gem::onlinedb::GEMOnlineDBManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
-  throw (xgi::exception::Exception)
 {
   // We use jsonUpdate for the basic statistics that are always visible in the
   // first tab. Additional information is retrieved from other sources.

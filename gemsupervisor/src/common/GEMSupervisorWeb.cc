@@ -27,7 +27,6 @@ gem::supervisor::GEMSupervisorWeb::~GEMSupervisorWeb()
 }
 
 void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output * out)
-  throw (xgi::exception::Exception)
 {
   if (p_gemFSMApp)
     CMSGEMOS_DEBUG("GEMSupervisorWeb::current supervisor state is"
@@ -40,7 +39,6 @@ void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output 
 }
 
 void gem::supervisor::GEMSupervisorWeb::controlPanel(xgi::Input * in, xgi::Output * out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMSupervisor::controlPanel");
   GEMWebApplication::controlPanel(in, out);
@@ -56,7 +54,6 @@ void gem::supervisor::GEMSupervisorWeb::controlPanel(xgi::Input * in, xgi::Outpu
  * need a way to have the content be dynamic with, e.g., AJAX
  */
 void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output * out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMSupervisorWeb::Rendering GEMSupervisorWeb monitorPage");
   CMSGEMOS_DEBUG("GEMSupervisorWeb::in: " << std::hex << in << " out: " << std::hex << out << std::dec);
@@ -85,7 +82,6 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
 
 /*To be filled in with the expert page code*/
 void gem::supervisor::GEMSupervisorWeb::expertPage(xgi::Input * in, xgi::Output * out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMSupervisorWeb::rendering GEMSupervisorWeb expertPage");
   // should put all this style information into a common CSS sheet
@@ -100,14 +96,12 @@ void gem::supervisor::GEMSupervisorWeb::expertPage(xgi::Input * in, xgi::Output 
 }
 
 void gem::supervisor::GEMSupervisorWeb::applicationPage(xgi::Input * in, xgi::Output * out)
-  throw (xgi::exception::Exception)
 {
   CMSGEMOS_DEBUG("GEMSupervisorWeb::applicationPage");
   *out << "applicationPage</br>" << std::endl;
 }
 
 void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in, xgi::Output * out)
-  throw (xgi::exception::Exception)
 {
   try {
     std::vector<xdaq::ApplicationDescriptor*> managedApps =
@@ -154,17 +148,16 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
     }
     *out << "</tbody>"  << std::endl
          << "</table>"  << std::endl;
-  } catch (const xgi::exception::Exception& e) {
+  } catch (xgi::exception::Exception const& e) {
     CMSGEMOS_ERROR("GEMSupervisorWeb::Something went wrong displaying managed application state table(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
-  } catch (const std::exception& e) {
+  } catch (std::exception const& e) {
     CMSGEMOS_ERROR("GEMSupervisorWeb::Something went wrong displaying managed application state table(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
 
 void gem::supervisor::GEMSupervisorWeb::jsonUpdate(xgi::Input * in, xgi::Output * out)
-  throw (xgi::exception::Exception)
 {
   this->gem::base::GEMWebApplication::jsonUpdate(in, out);
   // out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");

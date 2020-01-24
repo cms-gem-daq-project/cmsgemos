@@ -278,7 +278,7 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
          << " appContext "      << app->getContextDescriptor()->getURL());
     answer = p_appContext->postSOAP(msg, *p_srcApp, *app);
     // answer = static_cast<xdaq::Application>(app)->getApplicationContext()->postSOAP(msg, *p_srcApp, *app);
-  } catch (xoap::exception::Exception& e) {
+  } catch (xoap::exception::Exception const& e) {
     CMSGEMOS_WARN("GEMGlobalState::updateApplication caught exception communicating with " << app->getClassName() << ":" << app->getInstance()
          << ". Applcation probably crashed, setting state to FAILED"
          << " (xoap::exception::Exception)" << e.what());
@@ -286,7 +286,7 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
     i->second.state        = gem::base::STATE_FAILED;
     i->second.stateMessage = "Communication failure, assuming state is FAILED, may mean application/executive crash.";
     return;
-  } catch (xdaq::exception::Exception& e) {
+  } catch (xdaq::exception::Exception const& e) {
     CMSGEMOS_WARN("GEMGlobalState::updateApplication caught exception communicating with " << app->getClassName() << ":" << app->getInstance()
          << ". Applcation probably crashed, setting state to FAILED"
          << " (xdaq::exception::Exception)" << e.what());
@@ -294,7 +294,7 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
     i->second.state        = gem::base::STATE_FAILED;
     i->second.stateMessage = "Communication failure, assuming state is FAILED, may mean application/executive crash.";
     return;
-  } catch (xcept::Exception& e) {
+  } catch (xcept::Exception const& e) {
     CMSGEMOS_WARN("GEMGlobalState::updateApplication caught exception communicating with " << app->getClassName() << ":" << app->getInstance()
          << ". Applcation probably crashed, setting state to FAILED"
          << " (xcept::Exception)" << e.what());
@@ -302,7 +302,7 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
     i->second.state        = gem::base::STATE_FAILED;
     i->second.stateMessage = "Communication failure, assuming state is FAILED, may mean application/executive crash.";
     return;
-  } catch (std::exception& e) {
+  } catch (std::exception const& e) {
     CMSGEMOS_WARN("GEMGlobalState::updateApplication caught exception communicating with " << app->getClassName() << ":" << app->getInstance()
          << ". Applcation probably crashed, setting state to FAILED"
          << " (std::exception)" << e.what());

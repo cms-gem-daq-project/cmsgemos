@@ -2,13 +2,23 @@
 # Makefile for gempython package
 #
 
-Project      := cmsgemos
+BUILD_HOME:=$(shell pwd)/..
+
+ifndef BUILD_SUPPORT
+BUILD_SUPPORT=build
+endif
+
+ifndef PROJECT_NAME
+PROJECT_NAME=cmsgemos
+endif
+
+Project=$(PROJECT_NAME)
 ShortProject := gem
 Namespace    := gempython
 Package      := gempython
 LongPackage  := gempython
 ShortPackage := gempython
-PackageName  := $(Project)_$(ShortPackage)
+PackageName  := python
 PackageDir   := pkg/$(Namespace)
 ScriptDir    := pkg/$(Namespace)/scripts
 
@@ -22,57 +32,57 @@ GEMPYTHON_VER_MAJOR=1
 GEMPYTHON_VER_MINOR=0
 GEMPYTHON_VER_PATCH=0
 
-include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
+include $(BUILD_HOME)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
-UserCFlags += \
+UserCFlags+= \
 	-ftemplate-depth-128 \
 	-O0 -rdynamic -finline-functions \
 	-Wno-inline -DNDEBUG
-UserCCFlags=$(UserCFlags)
-
-UserCFlags  +=$(PYTHONCFLAGS)
-UserCCFlags +=$(PYTHONCFLAGS)
+UserCFlags+=$(PYTHONCFLAGS)
 
 # The leading undescore is meant to be there
 DynamicLibrary = _cmsgemos_gempython
-# Changing some defaults from $XDAQ_ROOT/config/mfDefs
+# Changing some defaults from $XDAQ_ROOT/build/mfDefs
 LibraryPrefix =
 ## Not being respected, probably due to automatic calculation later in the process...
 PackageLibDir = $(PackageDir)
 
 Sources = $(wildcard src/common/*.cc) $(wildcard src/common/*.cpp) $(wildcard src/common/**/*.cc) $(wildcard src/common/**/*.cpp)
 
-IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
+IncludeDirs+=$(BUILD_HOME)/$(Package)/include
+IncludeDirs+=$(BUILD_HOME)/gemutils/include
+IncludeDirs+=$(BUILD_HOME)/gemhardware/devices/include
+IncludeDirs+=$(BUILD_HOME)/gemhardware/utils/include
 IncludeDirs+=$(uHALROOT)/include
 IncludeDirs+=$(XHAL_ROOT)/include
 
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/devices/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/utils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(uHALROOT)/lib
 DependentLibraryDirs+=$(XHAL_ROOT)/lib
 
-LibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-LibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+LibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+LibraryDirs+=$(BUILD_HOME)/gemhardware/devices/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+LibraryDirs+=$(BUILD_HOME)/gemhardware/utils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(uHALROOT)/lib
 LibraryDirs+=$(XHAL_ROOT)/lib
 
-DependentLibraries =gemhardware_devices
+DependentLibraries =gemhwdevices gemhwutils
 DependentLibraries+=boost_python
 
 # UserDynamicLinkFlags+=
 
-include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfPythonRPM.mk
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
+include $(BUILD_HOME)/config/mfPythonRPM.mk
 
 # need to ensure that the python only stuff is packaged into RPMs
 #.PHONY: default
 # default:
 # 	$(info "Running default target")
 # 	$(MakeDir) $(PackageDir)/core
-# 	@cp -rf $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
+# 	@cp -rf $(BUILD_HOME)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
 # 	@cp -rf utils tools LICENSE MANIFEST.in requirements.txt $(PackageDir)
 # 	$(MakeDir) $(PackageDir)/bin
 # 	@cp -rf tests/*.py $(PackageDir)/bin
@@ -83,8 +93,8 @@ include $(BUILD_HOME)/$(Project)/config/mfPythonRPM.mk
 _rpmprep: _all
 	$(info "Running preprpm")
 	$(MakeDir) $(PackageDir)/core
-	# @touch $(PackageDir)/core/__init__.py
-	@cp -rf $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
+#	@touch $(PackageDir)/core/__init__.py
+	@cp -rf $(BUILD_HOME)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
 	@cp -rf gempython.md README.md
 	@cp -rf utils tools $(PackageDir)
 	$(MakeDir) $(ScriptDir)

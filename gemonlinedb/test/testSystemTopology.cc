@@ -16,7 +16,7 @@
 #include <xdaq/version.h>
 config::PackageInfo xdaq::getPackageInfo()
 {
-    return config::PackageInfo("", "", "", "", "", "", "", "");
+    return config::PackageInfo("", "", "", "", "", "", "", "", "");
 }
 
 using namespace gem::onlinedb;

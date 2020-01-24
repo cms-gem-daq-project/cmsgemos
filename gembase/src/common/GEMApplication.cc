@@ -32,8 +32,7 @@ void gem::base::GEMApplication::ScanInfo::registerFields(xdata::Bag<gem::base::G
   bag->addField("NTriggers", &nTriggers);
 }
 
-gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
-  throw (xdaq::exception::Exception) :
+gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub) :
   xdaq::WebApplication(stub),
   m_gemLogger(this->getApplicationLogger()),
   p_gemWebInterface(NULL),
@@ -69,7 +68,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
     m_xmlClass      = p_appDescriptor->getClassName();
     m_instance      = p_appDescriptor->getInstance();
     m_urn           = p_appDescriptor->getURN();
-  } catch(xcept::Exception e) {
+  } catch (xcept::Exception const& e) {
     XCEPT_RETHROW(xdaq::exception::Exception, "Failed to get GEM application information", e);
   }
 

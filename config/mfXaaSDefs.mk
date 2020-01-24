@@ -1,6 +1,8 @@
 #######################
 #######################
 
+BUILD_HOME:=$(shell pwd)/..
+
 ifndef BUILD_SUPPORT
 BUILD_SUPPORT=config
 endif
@@ -14,8 +16,8 @@ XAAS_ROOT=$(BUILD_HOME)/$(PROJECT_NAME)/xaas
 endif
 export XAAS_ROOT
 
-include $(XDAQ_ROOT)/config/mfAutoconf.rules
-include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/mfAutoconf.rules
+include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/mfDefs.$(XDAQ_OS)
 
 Project=daq
 PackageName=$(shell pwd | awk -F"/" '{split($$0,a,"/");  print a[NF-1]}')

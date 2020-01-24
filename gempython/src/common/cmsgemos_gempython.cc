@@ -16,11 +16,11 @@
 #include "gem/utils/GEMLogging.h"
 
 // gemhardware device includes
-#include "gem/hw/GEMHwDevice.h"
-#include "gem/hw/HwGenericAMC.h"
-#include "gem/hw/glib/HwGLIB.h"
-// #include "gem/hw/ctp7/HwCTP7.h"
-#include "gem/hw/optohybrid/HwOptoHybrid.h"
+#include "gem/hw/devices/GEMHwDevice.h"
+#include "gem/hw/devices/amc/HwGenericAMC.h"
+#include "gem/hw/devices/glib/HwGLIB.h"
+// #include "gem/hw/devices/ctp7/HwCTP7.h"
+#include "gem/hw/devices/optohybrid/HwOptoHybrid.h"
 
 #include "gem/hw/utils/GEMCrateUtils.h"
 

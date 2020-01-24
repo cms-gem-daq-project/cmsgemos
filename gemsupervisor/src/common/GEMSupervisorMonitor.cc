@@ -120,11 +120,11 @@ void gem::supervisor::GEMSupervisorMonitor::updateApplicationStates()
                   << (*app)->getClassName() << " with URN "
                   << (*app)->getURN());
             state = gem::utils::soap::GEMSOAPToolBox::getApplicationState(superContext, superDesc, &(**app));
-          } catch(xcept::Exception e) {
+          } catch (xcept::Exception const& e) {
             CMSGEMOS_ERROR("GEMSupervisorMonitor::updateApplicationStates caught xcept::Exception: "
                   << e.what());
             state = e.what();
-          } catch(std::exception e) {
+          } catch (std::exception const& e) {
             CMSGEMOS_ERROR("GEMSupervisorMonitor::updateApplicationStates caught std::exception: "
                   << e.what());
             state = e.what();

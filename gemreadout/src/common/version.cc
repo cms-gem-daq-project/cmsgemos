@@ -5,25 +5,24 @@
 #include "gem/utils/version.h"
 #include "gem/readout/version.h"
 
-GETPACKAGEINFO(gemreadout);
+GETPACKAGEINFO(gem::readout);
 
-void gemreadout::checkPackageDependencies()
-  throw (config::PackageInfo::VersionException)
+void gem::readout::checkPackageDependencies()
 {
   CHECKDEPENDENCY(toolbox);
   CHECKDEPENDENCY(xdaq);
   CHECKDEPENDENCY(xoap);
-  CHECKDEPENDENCY(gembase);
-  CHECKDEPENDENCY(gemutils);
+  CHECKDEPENDENCY(gem::base);
+  CHECKDEPENDENCY(gem::utils);
 }
 
-std::set<std::string, std::less<std::string> > gemreadout::getPackageDependencies()
+std::set<std::string, std::less<std::string> > gem::readout::getPackageDependencies()
 {
   std::set<std::string, std::less<std::string> > deps;
   ADDDEPENDENCY(deps, toolbox);
   ADDDEPENDENCY(deps, xoap);
   ADDDEPENDENCY(deps, xdaq);
-  ADDDEPENDENCY(deps, gembase);
-  ADDDEPENDENCY(deps, gemutils);
+  ADDDEPENDENCY(deps, gem::base);
+  ADDDEPENDENCY(deps, gem::utils);
   return deps;
 }
