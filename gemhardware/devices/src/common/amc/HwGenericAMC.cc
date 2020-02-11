@@ -964,7 +964,7 @@ void gem::hw::HwGenericAMC::linkReset(uint8_t const& gtx)
   // try {
   //   if (rsp.get_key_exists("error")) {
   //     ERROR("LinkReset error: " << rsp.get_string("error").c_str());
-  //     //throw xhal::utils::XHALException("DAQ_TRIGGER_MAIN update failed");
+  //     //throw xhal::common::utils::XHALException("DAQ_TRIGGER_MAIN update failed");
   //   }
   // } STANDARD_CATCH;
 
