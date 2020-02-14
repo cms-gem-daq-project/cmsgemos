@@ -9,7 +9,7 @@
 #include "uhal/uhal.hpp"
 
 #include "gem/base/GEMFSMApplication.h"
-#include "gem/hw/amc13/exception/Exception.h"
+#include "gem/hw/devices/exception/Exception.h"
 //#include "gem/hw/amc13/AMC13Monitoring.hh"
 
 #include "toolbox/task/TimerFactory.h"

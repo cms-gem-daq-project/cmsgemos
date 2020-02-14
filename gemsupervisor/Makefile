@@ -52,7 +52,7 @@ DependentLibraryDirs+=$(XHAL_ROOT)/lib
 
 UserCFlags+=$(PYTHONCFLAGS)
 
-DependentLibraries =gemhwmanagers gemhwdevices xdaq2rc
+DependentLibraries =gemhwmanagers gemhwdevices gemreadout xdaq2rc
 
 ## not building an exe
 Libraries =

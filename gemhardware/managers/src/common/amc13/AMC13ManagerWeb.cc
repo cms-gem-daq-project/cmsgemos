@@ -1,9 +1,9 @@
 // AMC13ManagerWeb.cc
 
-#include "gem/hw/amc13/AMC13ManagerWeb.h"
-#include "gem/hw/amc13/AMC13Manager.h"
+#include "gem/hw/managers/amc13/AMC13ManagerWeb.h"
+#include "gem/hw/managers/amc13/AMC13Manager.h"
 
-#include "gem/hw/amc13/exception/Exception.h"
+#include "gem/hw/devices/exception/Exception.h"
 
 #include "xcept/tools.h"
 #include "amc13/AMC13.hh"
@@ -108,9 +108,9 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input *in, xgi::Output *o
       } else {
         std::string msg = "Unable to obtain pointer to AMC13 device: " + currentState;
         CMSGEMOS_WARN("AMC13ManagerWeb:: " << msg);
-        XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg);
+        XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
       }
-    } catch (const gem::hw::amc13::exception::HardwareProblem& e) {
+    } catch (const gem::hw::devices::exception::HardwareProblem& e) {
       CMSGEMOS_WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
     } catch (const std::exception& e) {
       CMSGEMOS_WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
@@ -176,9 +176,9 @@ void gem::hw::amc13::AMC13ManagerWeb::updateStatus(xgi::Output *out)
       } else {
         std::string msg = "Unable to obtain pointer to AMC13 device: " + currentState;
         CMSGEMOS_WARN("AMC13ManagerWeb:: " << msg);
-        XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg);
+        XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
       }
-    } catch (const gem::hw::amc13::exception::HardwareProblem& e) {
+    } catch (const gem::hw::devices::exception::HardwareProblem& e) {
       CMSGEMOS_WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
       *out << "AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what();
     } catch (const std::exception& e) {

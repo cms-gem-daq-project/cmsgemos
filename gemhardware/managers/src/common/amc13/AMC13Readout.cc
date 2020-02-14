@@ -8,7 +8,7 @@
 #include "amc13/AMC13.hh"
 #include "amc13/Exception.hh"
 
-#include <gem/hw/amc13/AMC13Readout.h>
+#include <gem/hw/managers/amc13/AMC13Readout.h>
 #include <gem/utils/soap/GEMSOAPToolBox.h>
 #include <gem/readout/exception/Exception.h>
 
@@ -87,18 +87,18 @@ void gem::hw::amc13::AMC13Readout::initializeAction()
     msg << "AMC13Readout::initializeAction  failed, caught uhal::exception: "
         << e.what();
     CMSGEMOS_ERROR(msg.str());
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,msg.str());
+    XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem,msg.str());
   } catch (std::exception const& e) {
     std::stringstream msg;
     msg << "AMC13Readout::initializeAction  failed, caught std::exception: "
         << e.what();
     CMSGEMOS_ERROR(msg.str());
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,msg.str());
+    XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem,msg.str());
   } catch (...) {
     std::stringstream msg;
     msg << "AMC13Readout::initializeAction  failed (unknown exception)";
     CMSGEMOS_ERROR(msg.str());
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,msg.str());
+    XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem,msg.str());
   }
   CMSGEMOS_DEBUG("AMC13Readout::initializeAction connected");
 
@@ -162,17 +162,17 @@ int gem::hw::amc13::AMC13Readout::readout(unsigned int expected,
     std::stringstream msg;
     msg << "AMC13Readout::readout error " << e.what();
     CMSGEMOS_ERROR(msg.str());
-    XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+    XCEPT_RAISE(gem::hw::devices::exception::ReadoutProblem,msg.str());
   } catch (std::exception const& e) {
     std::stringstream msg;
     msg << "AMC13Readout::readout error" << e.what();
     CMSGEMOS_ERROR(msg.str());
-    XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+    XCEPT_RAISE(gem::hw::devices::exception::ReadoutProblem,msg.str());
   } catch (...) {
     std::stringstream msg;
     msg << "AMC13Readout::readout error (unknown exception)";
     CMSGEMOS_ERROR(msg.str());
-    XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+    XCEPT_RAISE(gem::hw::devices::exception::ReadoutProblem,msg.str());
   }
 }
 
@@ -198,17 +198,17 @@ int gem::hw::amc13::AMC13Readout::dumpData()
       std::stringstream msg;
       msg << "AMC13Readout::dumpData error " << e.what();
       CMSGEMOS_ERROR(msg.str());
-      XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+      XCEPT_RAISE(gem::hw::devices::exception::ReadoutProblem,msg.str());
     } catch (std::exception const& e) {
       std::stringstream msg;
       msg << "AMC13Readout::dumpData error" << e.what();
       CMSGEMOS_ERROR(msg.str());
-      XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+      XCEPT_RAISE(gem::hw::devices::exception::ReadoutProblem,msg.str());
     } catch (...) {
       std::stringstream msg;
       msg << "AMC13Readout::dumpData error (unknown exception)";
       CMSGEMOS_ERROR(msg.str());
-      XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+      XCEPT_RAISE(gem::hw::devices::exception::ReadoutProblem,msg.str());
     }
     CMSGEMOS_DEBUG("Trying to read " << std::dec << nevt << " events" << std::endl);
     if (nevt) {
@@ -226,17 +226,17 @@ int gem::hw::amc13::AMC13Readout::dumpData()
           std::stringstream msg;
           msg << "AMC13Readout::readout error " << e.what();
           CMSGEMOS_ERROR(msg.str());
-          XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+          XCEPT_RAISE(gem::hw::devices::exception::ReadoutProblem,msg.str());
         } catch (std::exception const& e) {
           std::stringstream msg;
           msg << "AMC13Readout::readout error" << e.what();
           CMSGEMOS_ERROR(msg.str());
-          XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+          XCEPT_RAISE(gem::hw::devices::exception::ReadoutProblem,msg.str());
         } catch (...) {
           std::stringstream msg;
           msg << "AMC13Readout::readout error (unknown exception)";
           CMSGEMOS_ERROR(msg.str());
-          XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+          XCEPT_RAISE(gem::hw::devices::exception::ReadoutProblem,msg.str());
         }
         if (rc == 0 && siz > 0 && pEvt != NULL) {
           // fwrite(pEvt, sizeof(uint64_t), siz, fp);

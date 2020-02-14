@@ -1,41 +1,40 @@
-/** @file GLIBManager.h */
+/** @file AMCManager.h */
 
-#ifndef GEM_HW_GLIB_GLIBMANAGER_H
-#define GEM_HW_GLIB_GLIBMANAGER_H
+#ifndef GEM_HW_AMC_AMCMANAGER_H
+#define GEM_HW_AMC_AMCMANAGER_H
 
 #include <array>
 
 #include "gem/base/GEMFSMApplication.h"
-// #include "gem/hw/glib/GLIBSettings.h"
-
-#include "gem/hw/glib/exception/Exception.h"
+// #include "gem/hw/amc/AMCSettings.h"
 
 #include "gem/utils/soap/GEMSOAPToolBox.h"
-#include "gem/utils/exception/Exception.h"
 
 namespace gem {
   namespace hw {
     namespace glib {
-
       class HwGLIB;
-      class GLIBManagerWeb;
-      class GLIBMonitor;
+    }
+    namespace amc {
 
-      using glib_shared_ptr = std::shared_ptr<HwGLIB>;
+      class AMCManagerWeb;
+      class AMCMonitor;
+
+      using amc_shared_ptr = std::shared_ptr<gem::hw::glib::HwGLIB>;
       using is_toolbox_ptr  = std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>;
 
-      class GLIBManager : public gem::base::GEMFSMApplication
+      class AMCManager : public gem::base::GEMFSMApplication
         {
 
-          friend class GLIBManagerWeb;
-          // friend class GLIBMonitor;
+          friend class AMCManagerWeb;
+          // friend class AMCMonitor;
 
         public:
           XDAQ_INSTANTIATOR();
 
-          GLIBManager(xdaq::ApplicationStub* s);
+          AMCManager(xdaq::ApplicationStub* s);
 
-          virtual ~GLIBManager();
+          virtual ~AMCManager();
 
         protected:
           /* virtual void init() override; */
@@ -62,25 +61,25 @@ namespace gem {
           /**
            * OBSOLETE not present in generic AMC FW
            */
-          std::vector<uint32_t> dumpGLIBFIFO(int const& glib);
+          std::vector<uint32_t> dumpAMCFIFO(int const& amc);
 
           /**
            * OBSOLETE not present in generic AMC FW
            */
-          void dumpGLIBFIFO(xgi::Input* in, xgi::Output* out);
+          void dumpAMCFIFO(xgi::Input* in, xgi::Output* out);
 
         private:
-          void     createGLIBInfoSpaceItems(is_toolbox_ptr is_glib, glib_shared_ptr glib);
+          void     createAMCInfoSpaceItems(is_toolbox_ptr is_amc, amc_shared_ptr amc);
           uint16_t m_amcEnableMask;
 
           toolbox::task::WorkLoop *p_amc_wl;                     ///< paralelize the calls to different AMCs
           toolbox::BSem m_amc_wl_semaphore[MAX_AMCS_PER_CRATE];  ///< do we need a semaphore for the workloop or each of them?
 
-          class GLIBInfo {
+          class AMCInfo {
 
           public:
-            GLIBInfo();
-            void registerFields(xdata::Bag<GLIBManager::GLIBInfo>* bag);
+            AMCInfo();
+            void registerFields(xdata::Bag<AMCManager::AMCInfo>* bag);
 
             // monitoring information
             xdata::Boolean present;  ///< FIXME BAD USAGE
@@ -113,11 +112,11 @@ namespace gem {
 
           mutable gem::utils::Lock m_deviceLock;  ///< [MAX_AMCS_PER_CRATE];
 
-          std::array<glib_shared_ptr, MAX_AMCS_PER_CRATE> m_glibs;                      ///< HwGenericAMC pointers to be managed
-          std::array<std::shared_ptr<GLIBMonitor>, MAX_AMCS_PER_CRATE> m_glibMonitors;  ///< AMCMonito pointers to be managed
-          std::array<is_toolbox_ptr, MAX_AMCS_PER_CRATE> is_glibs;                      ///< AMC InfoSpace pointers to be managed
+          std::array<amc_shared_ptr, MAX_AMCS_PER_CRATE> m_amcs;                      ///< HwGLIB pointers to be managed
+          std::array<std::shared_ptr<AMCMonitor>, MAX_AMCS_PER_CRATE> m_amcMonitors;  ///< AMCMonito pointers to be managed
+          std::array<is_toolbox_ptr, MAX_AMCS_PER_CRATE> is_amcs;                      ///< AMC InfoSpace pointers to be managed
 
-          xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;  ///< [MAX_AMCS_PER_CRATE];
+          xdata::Vector<xdata::Bag<AMCInfo> > m_amcInfo;  ///< [MAX_AMCS_PER_CRATE];
           xdata::String  m_amcSlots;           ///< 
           xdata::String  m_connectionFile;     ///< 
           xdata::Boolean m_doPhaseShift;       ///< Whether or not to do a phase shifting procedure during configuration
@@ -126,10 +125,10 @@ namespace gem {
 
 	  uint32_t m_lastLatency;         ///< Special variable for latency scan mode
           uint32_t m_lastVT1, m_lastVT2;  ///< Special variable for threshold scan mode 
-        };  // class GLIBManager
+        };  // class AMCManager
 
-    }  // namespace gem::hw::glib
+    }  // namespace gem::hw::amc
   }  // namespace gem::hw
 }  // namespace gem
 
-#endif  // GEM_HW_GLIB_GLIBMANAGER_H
+#endif  // GEM_HW_AMC_AMCMANAGER_H

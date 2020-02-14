@@ -19,5 +19,5 @@ do
     then
         unlink ${base}/html
     fi
-    ln -s ${BUILD_HOME}/${GEM_OS_PROJECT}/$pkg/html ${base}/html
+    ln -s ${BUILD_HOME}/$pkg/html ${base}/html
 done

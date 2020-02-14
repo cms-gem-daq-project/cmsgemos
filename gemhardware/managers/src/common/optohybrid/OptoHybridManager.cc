@@ -179,7 +179,11 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
       auto&& optohybrid = m_optohybrids.at(slot).at(link);
 
       if (optohybrid->isHwConnected()) {
+        //FIXME
+
+        /*
         m_vfatMapping.at(slot).at(link)   = optohybrid->getConnectedVFATs(true);
+        */
 
         m_broadcastList.at(slot).at(link) = ~(optohybrid->getConnectedVFATMask(true));
         m_trackingMask.at(slot).at(link)  = m_broadcastList.at(slot).at(link);
@@ -187,10 +191,12 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
 
         createOptoHybridInfoSpaceItems(is_optohybrids.at(slot).at(link), optohybrid);
         CMSGEMOS_INFO("OptoHybridManager::initializeAction looping over created VFAT devices");
+        /*FIXME
         for (auto const& mapit : m_vfatMapping.at(slot).at(link)) {
           CMSGEMOS_INFO("OptoHybridManager::initializeAction VFAT" << static_cast<uint32_t>(mapit.first) << " has chipID "
                         << std::hex << static_cast<uint32_t>(mapit.second) << std::dec << " (from map)");
         }
+        */
 
         if (!m_disableMonitoring) {
           m_optohybridMonitors.at(slot).at(link) = std::make_shared<OptoHybridMonitor>(optohybrid, this, index);
@@ -272,7 +278,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         // optohybrid->setVFATClock(info.vfatClkSrc.value_,);
         // CMSGEMOS_DEBUG("OptoHybridManager::setting cdce clock source to 0x" << std::hex << info.cdceClkSrc.value_ << std::dec);
         // optohybrid->setSBitSource(info.cdceClkSrc.value_);
-        // for (size_t olink = 0; olink < HwAMC::N_GTX; ++olink) {
+        // for (size_t olink = 0; olink < HwGenericAMC::N_GTX; ++olink) {
         // }
 
         // FIXME UPDATE
@@ -281,7 +287,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 
         // FIXME std::array<uint8_t, 8> sbitSources = {{ }};
         // FIXME optohybrid->setHDMISBitSource(sbitSources);
-
+        /*FIXME
         std::vector<std::pair<uint8_t, uint32_t> > chipIDs = optohybrid->getConnectedVFATs();
 
         for (auto const& chip : chipIDs) {
@@ -292,6 +298,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
             CMSGEMOS_INFO("No VFAT found in GEB slot " << std::setw(2) << static_cast<uint32_t>(chip.first));
           }
         }
+        */
 
         uint32_t vfatMask = m_broadcastList.at(slot).at(link);
         CMSGEMOS_INFO("Setting VFAT parameters with broadcast write using mask " << std::hex << vfatMask << std::dec);

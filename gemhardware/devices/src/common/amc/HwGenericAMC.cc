@@ -88,12 +88,16 @@ bool gem::hw::HwGenericAMC::isHwConnected()
     return true;
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     CMSGEMOS_INFO("basic check: HwGenericAMC pointer valid");
-    m_maxLinks = this->getSupportedOptoHybrids();
+    //FIXME apparently this->getSupportedOptoHybrids(); doesn't work!!!
+    m_maxLinks = 12;
+    //m_maxLinks = this->getSupportedOptoHybrids();
     // FIXME needs update for V3
     if (((this->getBoardIDString()).rfind("GLIB") != std::string::npos) ||
         ((this->getBoardIDString()).rfind("beef") != std::string::npos)) {
       CMSGEMOS_INFO("HwGenericAMC found boardID");
-      for (uint8_t gtx = 0; gtx < m_maxLinks; ++gtx) {
+//FIXME for whatever reason the following loop is endless. Can't get why :(
+/*
+      for (int gtx = 0; gtx < 12; ++gtx) { //FIXME removed hardcode
         // FIXME OBSOLETE!!! somehow need to actually check that the specified link is present
         // check GBT status?
         CMSGEMOS_INFO("m_links 0x" << std::hex << std::setw(8) << std::setfill('0')
@@ -108,6 +112,12 @@ bool gem::hw::HwGenericAMC::isHwConnected()
         CMSGEMOS_INFO("m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
                       << m_links << std::dec);
       }
+*/
+//FIXME following lines till else added temporary
+      m_links = 0x1;
+      b_is_connected = true;
+      CMSGEMOS_DEBUG("checked gtxs: HwGenericAMC connection good");
+      return true;
     } else {
       CMSGEMOS_WARN("Device not reachable (unable to find 'GLIB' in the board ID)"
                     << " board ID "              << this->getBoardIDString()

@@ -9,8 +9,8 @@
 #include "amc13/AMC13.hh"
 #include "amc13/Status.hh"
 
-#include "gem/hw/amc13/AMC13ManagerWeb.h"
-#include "gem/hw/amc13/AMC13Manager.h"
+#include "gem/hw/managers/amc13/AMC13ManagerWeb.h"
+#include "gem/hw/managers/amc13/AMC13Manager.h"
 
 // #include "gem/hw/amc13/exception/Exception.h"
 #include "gem/utils/soap/GEMSOAPToolBox.h"
@@ -278,22 +278,22 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
     std::stringstream msg;
     msg << "AMC13Manager::AMC13::AMC13() failed, caught amc13::Exception: " << e.what();
     CMSGEMOS_ERROR(msg.str());
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
+    XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg.str());
   } catch (uhal::exception::exception const& e) {
     std::stringstream msg;
     msg << "AMC13Manager::AMC13::AMC13() failed, caught uhal::exception: " << e.what();
     CMSGEMOS_ERROR(msg.str());
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
+    XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg.str());
   } catch (std::exception const& e) {
     std::stringstream msg;
     msg << "AMC13Manager::AMC13::AMC13() failed, caught std::exception: " << e.what();
     CMSGEMOS_ERROR(msg.str());
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
+    XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg.str());
   } catch (...) {
     std::stringstream msg;
     msg << "AMC13Manager::AMC13::AMC13() failed (unknown exception)";
     CMSGEMOS_ERROR(msg.str());
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
+    XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg.str());
   }
 
   CMSGEMOS_DEBUG("AMC13Manager::initializeAction finished with AMC13::AMC13()");
@@ -316,10 +316,10 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
     p_amc13->enableAllTTC();
   } catch (uhal::exception::exception const& e) {
     CMSGEMOS_ERROR("AMC13Manager::AMC13::AMC13() failed, caught uhal::exception " << e.what());
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
+    XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   } catch (std::exception const& e) {
     CMSGEMOS_ERROR("AMC13Manager::AMC13::AMC13() failed, caught std::exception " << e.what());
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
+    XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   }
 
   // equivalent to hcal init part
@@ -709,10 +709,10 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::Mess
     CMSGEMOS_INFO("AMC13Manager::sendTriggerBurst command " << commandName << " succeeded ");
     return
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
-  } catch (xcept::Exception const& err) {
+  } catch (xcept::Exception & err) {
     std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
                                             commandName.c_str());
-    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
+    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
                          top, toolbox::toString("%s.",msgBase.c_str()), err);
     this->notifyQualified("error", top);
@@ -754,11 +754,11 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
   } catch(xcept::Exception& e) {
     const std::string errmsg = "Failed to create SOAP reply for command '" + commandName + "'";
-    CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception(e));
+    CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception_history(e));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem, top, errmsg, e);
     this->notifyQualified("error", top);
 
-    XCEPT_RETHROW(xoap::exception::Exception, msgBase, e);
+    XCEPT_RETHROW(xoap::exception::Exception, errmsg, e);
   }
   XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }
@@ -793,11 +793,11 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
   } catch(xcept::Exception& e) {
     const std::string errmsg = "Failed to create SOAP reply for command '" + commandName + "'";
-    CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception(e));
+    CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception_history(e));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem, top, errmsg, e);
     this->notifyQualified("error", top);
 
-    XCEPT_RETHROW(xoap::exception::Exception, msgBase, e);
+    XCEPT_RETHROW(xoap::exception::Exception, errmsg, e);
   }
   XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }
