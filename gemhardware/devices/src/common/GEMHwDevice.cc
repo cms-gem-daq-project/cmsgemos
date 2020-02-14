@@ -1,6 +1,6 @@
 /**
  *   General structure taken blatantly from tcds::utils::HwDeviceTCA as we're using the same card
- *   11.2018: structure modified to inherit from both uhal::HwInterface and xhal::XHALInterface
+ *   11.2018: structure modified to inherit from both uhal::HwInterface and xhal::client::XHALInterface
  */
 
 #include "gem/hw/devices/GEMHwDevice.h"
@@ -9,7 +9,7 @@
 
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
                                   std::string const& connectionFile) :
-  xhal::XHALInterface(deviceName.substr(0,deviceName.rfind("-optohybrid"))),
+  xhal::client::XHALInterface(deviceName.substr(0,deviceName.rfind("-optohybrid"))),
   uhal::HwInterface(std::shared_ptr<uhal::ConnectionManager>(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/"+connectionFile))->getDevice(deviceName)),
   // b_is_connected(false),
   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
@@ -25,7 +25,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
                                   std::string const& connectionURI,
                                   std::string const& addressTable) :
-  xhal::XHALInterface(deviceName.substr(0,deviceName.rfind("-optohybrid"))),
+  xhal::client::XHALInterface(deviceName.substr(0,deviceName.rfind("-optohybrid"))),
   uhal::HwInterface(uhal::ConnectionManager::getDevice(deviceName, connectionURI, addressTable)),
   // b_is_connected(false),
   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
@@ -40,7 +40,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
 
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
                                   uhal::HwInterface const& uhalDevice) :
-  xhal::XHALInterface(deviceName.substr(0,deviceName.rfind("-optohybrid"))),
+  xhal::client::XHALInterface(deviceName.substr(0,deviceName.rfind("-optohybrid"))),
   uhal::HwInterface(uhalDevice),
   // b_is_connected(false),
   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),

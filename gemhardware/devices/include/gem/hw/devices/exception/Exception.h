@@ -41,12 +41,12 @@ GEM_HW_DEVICES_DEFINE_ALARM(MonitoringFailureAlarm)
 
 // FIXME: SHOULD I BE A MACRO OR A FUNCTION ELSEWHERE?
 #define GEM_CATCH_RPC_ERROR(MSG_BASE, EX_TYPE)                   \
-catch (xhal::utils::XHALRPCNotConnectedException const& e) {     \
+catch (xhal::common::utils::XHALRPCNotConnectedException const& e) {     \
   std::stringstream errmsg;                                      \
   errmsg << e.what();                                            \
   CMSGEMOS_ERROR(MSG_BASE << "error: " << errmsg.str());         \
   XCEPT_RAISE(EX_TYPE, errmsg.str());                            \
-} catch (xhal::utils::XHALRPCException const& e) {               \
+} catch (xhal::common::utils::XHALRPCException const& e) {               \
   std::stringstream errmsg;                                      \
   errmsg << e.what();                                            \
   CMSGEMOS_ERROR(MSG_BASE << "error: " << errmsg.str());         \

@@ -16,8 +16,8 @@ typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 //FIXME establish required arguments, eventually retrieve from the config
 gem::daqmon::DaqMonitor::DaqMonitor(const std::string& board_domain_name,log4cplus::Logger& logger, gem::base::GEMApplication* gemApp, int const& index):
   gem::base::GEMMonitor::GEMMonitor(logger, gemApp, index),
-  //xhal::XHALInterface(board_domain_name, logger) //FIXME: if using shared logger, then XHALInterface overtakes everything and logging from XDAQ doesn't go through
-  xhal::XHALInterface(board_domain_name) //Works as is, providing a bit messy logging, but with all info in place
+  //xhal::client::XHALInterface(board_domain_name, logger) //FIXME: if using shared logger, then XHALInterface overtakes everything and logging from XDAQ doesn't go through
+  xhal::client::XHALInterface(board_domain_name) //Works as is, providing a bit messy logging, but with all info in place
 {
   CMSGEMOS_DEBUG("DaqMonitor::DaqMonitor:: entering constructor");
   if (isConnected) { //TODO Add to the app monitoring space? Need to know in order to mask in web interface the boards which failed to connect
@@ -53,7 +53,7 @@ void gem::daqmon::DaqMonitor::reconnect()
     this->loadModule("daq_monitor", "daq_monitor v1.0.1");
   } else {
     CMSGEMOS_ERROR("Interface already connected. Reconnection failed");
-    throw xhal::utils::XHALRPCException("RPC exception: Interface already connected. Reconnection failed");
+    throw xhal::common::utils::XHALRPCException("RPC exception: Interface already connected. Reconnection failed");
   }
 }
 
@@ -267,7 +267,7 @@ void gem::daqmon::DaqMonitor::updateDAQmain()
   try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("DAQ_MAIN update error: " << rsp.get_string("error").c_str());
-      //throw xhal::utils::XHALException("DAQ_MAIN update failed");
+      //throw xhal::common::utils::XHALException("DAQ_MAIN update failed");
     }
     auto monlist = m_monitorableSetsMap.find("DAQ_MAIN");
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
@@ -288,7 +288,7 @@ void gem::daqmon::DaqMonitor::updateDAQOHmain()
   try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("DAQ_OH_MAIN update error: " << rsp.get_string("error").c_str());
-      //throw xhal::utils::XHALException("DAQ_OH_MAIN update failed");
+      //throw xhal::common::utils::XHALException("DAQ_OH_MAIN update failed");
     }
     auto monlist = m_monitorableSetsMap.find("DAQ_OH_MAIN");
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
@@ -308,7 +308,7 @@ void gem::daqmon::DaqMonitor::updateTTCmain()
   try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("DAQ_TTC_MAIN update error: " << rsp.get_string("error").c_str());
-      //throw xhal::utils::XHALException("DAQ_TTC_MAIN update failed");
+      //throw xhal::common::utils::XHALException("DAQ_TTC_MAIN update failed");
     }
     auto monlist = m_monitorableSetsMap.find("DAQ_TTC_MAIN");
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
@@ -329,7 +329,7 @@ void gem::daqmon::DaqMonitor::updateTRIGGERmain()
   try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("DAQ_TRIGGER_MAIN update error: " << rsp.get_string("error").c_str());
-      //throw xhal::utils::XHALException("DAQ_TRIGGER_MAIN update failed");
+      //throw xhal::common::utils::XHALException("DAQ_TRIGGER_MAIN update failed");
     }
     auto monlist = m_monitorableSetsMap.find("DAQ_TRIGGER_MAIN");
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
@@ -350,7 +350,7 @@ void gem::daqmon::DaqMonitor::updateTRIGGEROHmain()
   try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("DAQ_TRIGGER_OH_MAIN update error: " << rsp.get_string("error").c_str());
-      //throw xhal::utils::XHALException("DAQ_TRIGGER_OH_MAIN update failed");
+      //throw xhal::common::utils::XHALException("DAQ_TRIGGER_OH_MAIN update failed");
     }
     auto monlist = m_monitorableSetsMap.find("DAQ_TRIGGER_OH_MAIN");
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
@@ -371,7 +371,7 @@ void gem::daqmon::DaqMonitor::updateOHmain()
   try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("OH_MAIN update error: " << rsp.get_string("error").c_str());
-      //throw xhal::utils::XHALException("OH_MAIN update failed");
+      //throw xhal::common::utils::XHALException("OH_MAIN update failed");
     }
     auto monlist = m_monitorableSetsMap.find("OH_MAIN");
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
@@ -393,7 +393,7 @@ void gem::daqmon::DaqMonitor::updateOHSCA()
   try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("OH_SCA update error: " << rsp.get_string("error").c_str());
-      //throw xhal::utils::XHALException("OH_SCA update failed"); FIXME instead of throwing an exception there should be an alert propagating
+      //throw xhal::common::utils::XHALException("OH_SCA update failed"); FIXME instead of throwing an exception there should be an alert propagating
     }
     auto monlist = m_monitorableSetsMap.find("OH_SCA");
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
@@ -415,7 +415,7 @@ void gem::daqmon::DaqMonitor::updateOHSysmon()
   try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("OH_Sysmon update error: " << rsp.get_string("error").c_str());
-      //throw xhal::utils::XHALException("OH_Sysmon update failed"); FIXME instead of throwing an exception there should be an alert propagating
+      //throw xhal::common::utils::XHALException("OH_Sysmon update failed"); FIXME instead of throwing an exception there should be an alert propagating
     }
     auto monlist = m_monitorableSetsMap.find("OH_Sysmon");
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {

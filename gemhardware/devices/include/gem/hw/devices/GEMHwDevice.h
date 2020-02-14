@@ -14,7 +14,7 @@
 #include "uhal/utilities/bits.hpp"
 #include "uhal/utilities/files.hpp"
 
-#include "xhal/XHALInterface.h"
+#include "xhal/client/XHALInterface.h"
 /* #include "xhal/XHALDevice.h" */
 
 #include "gem/hw/utils/GEMCrateUtils.h"
@@ -56,7 +56,7 @@ typedef std::vector<register_value>                      register_val_list;
 namespace gem {
   namespace hw {
 
-    class GEMHwDevice : public xhal::XHALInterface, public uhal::HwInterface
+    class GEMHwDevice : public xhal::client::XHALInterface, public uhal::HwInterface
     {
 
     public:

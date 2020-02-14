@@ -5,8 +5,8 @@
 
 #include "gem/base/GEMMonitor.h"
 #include "gem/base/GEMApplication.h"
-#include "xhal/rpc/utils.h"
-#include "xhal/XHALInterface.h"
+//#include "xhal/rpc/utils.h"
+#include "xhal/client/XHALInterface.h"
 
 #include <iostream>
 #include <fstream>
@@ -26,7 +26,7 @@ namespace gem {
   }
   namespace daqmon {
 
-    class DaqMonitor : public gem::base::GEMMonitor, public xhal::XHALInterface
+    class DaqMonitor : public gem::base::GEMMonitor, public xhal::client::XHALInterface
     {
     public:
 

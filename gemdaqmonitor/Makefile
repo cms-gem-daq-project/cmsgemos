@@ -47,7 +47,7 @@ DependentLibraryDirs+=$(XHAL_ROOT)/lib
 UserCFlags+=$(PYTHONCFLAGS)
 
 DependentLibraries =gembase
-DependentLibraries+=gemhwdevices gemhwutils xhal
+DependentLibraries+=gemhwdevices gemhwutils xhal-client
 DependentLibraries+=boost_iostreams
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
