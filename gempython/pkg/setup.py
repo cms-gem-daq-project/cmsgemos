@@ -36,9 +36,9 @@ def getreqs():
 def getVersion():
     __version__='___version___'
     __release__='___release___'
-    if __release__.split('.')[2]:
+    try:
         __prerel__='-{0:s}'.format(__release__.split('.')[2])
-    else:
+    except Exception as e:
         __prerel__=''
     __buildtag__='___buildtag___'
     __gitrev__='___gitrev___'
