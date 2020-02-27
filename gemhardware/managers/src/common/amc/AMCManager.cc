@@ -129,33 +129,11 @@ void gem::hw::amc::AMCManager::init()
 void gem::hw::amc::AMCManager::initializeAction()
 {
   CMSGEMOS_DEBUG("AMCManager::initializeAction begin");
+  //
   // FIXME make me more streamlined
-  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    CMSGEMOS_DEBUG("AMCManager::looping over slots(" << (slot+1) << ") and finding expected cards");
-    AMCInfo& info = m_amcInfo[slot].bag;
-    if ((m_amcEnableMask >> (slot)) & 0x1) {
-      CMSGEMOS_DEBUG("AMCManager::info:" << info.toString());
-      CMSGEMOS_DEBUG("AMCManager::expect a card in slot " << (slot+1));
-      CMSGEMOS_DEBUG("AMCManager::bag: "
-                     << "crate " << info.crateID.value_
-                     << " slot " << info.slotID.value_);
-      // this maybe shouldn't be done?
-      info.slotID  = slot+1;
-      CMSGEMOS_DEBUG("AMCManager::bag: "
-                     << "crate " << info.crateID.value_
-                     << " slot " << info.slotID.value_);
-      // this maybe shouldn't be done?
-      info.present = true;
-      // actually check presence? this just says that we expect it to be there
-      // check if there is a AMC in the specified slot, if not, do not initialize
-      // set the web view to be empty or grey
-      // if (!info.present.value_) continue;
-      // needs .value_?
-      // p_gemWebInterface->amcInSlot(slot);
-    }
-  }
-
-  // FIXME make me more streamlined
+  // this maybe shouldn't be done? Commenting out for now, but needs testing
+  //info.slotID  = slot+1;
+  //info.present = true;
   for (auto const& infoi : m_amcInfo) {
     auto&& info = infoi.bag;
 
@@ -188,74 +166,14 @@ void gem::hw::amc::AMCManager::initializeAction()
       CMSGEMOS_DEBUG("AMCManager::obtaining pointer to HwGLIB");
       m_amcs.at(slot) = amc_shared_ptr(new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString()));
       amc_shared_ptr amc = m_amcs.at(slot);
-      if (amc->isHwConnected()) {
-        CMSGEMOS_DEBUG("AMCManager::Creating InfoSpace items for AMC device " << deviceName);
-
-        // FIXME should not need this here?
-        amc->disableDAQLink();
-
-        // maybe better to raise exception here and fail if not connected, as we expected the card to be here?
-        createAMCInfoSpaceItems(is_amcs.at(slot), amc);
-
-        if (!m_disableMonitoring) {
-          m_amcMonitors.at(slot) = std::shared_ptr<AMCMonitor>(new AMCMonitor(amc, this, slot+1));
-          m_amcMonitors.at(slot)->addInfoSpace("HWMonitoring", is_amcs.at(slot));
-          m_amcMonitors.at(slot)->setupHwMonitoring();
-          m_amcMonitors.at(slot)->startMonitoring();
-        }
-      } else {
-        std::stringstream msg;
-        msg << "AMCManager::initializeAction unable to communicate with AMC in slot " << slot;
-        CMSGEMOS_ERROR(msg.str());
-        XCEPT_RAISE(gem::hw::devices::exception::Exception, "initializeAction failed");
-      }
+      // maybe better to raise exception here and fail if not connected, as we expected the card to be here?
+      createAMCInfoSpaceItems(is_amcs.at(slot), amc);
     } GEM_HW_TRANSITION_CATCH("AMCManager::initializeAction",gem::hw::devices::exception::Exception);
-    // catch (uhalException const& e) {
-    //   std::stringstream msg;
-    //   msg << "AMCManager::initializeAction caught uHAL exception " << e.what();
-    //   CMSGEMOS_ERROR(msg.str());
-    //   XCEPT_RAISE(gem::hw::devices::exception::Exception, msg.str());
-    // } catch (gem::hw::devices::exception::Exception const& e) {
-    //   std::stringstream msg;
-    //   msg << "AMCManager::initializeAction caught exception " << e.what();
-    //   CMSGEMOS_ERROR(msg.str());
-    //   XCEPT_RAISE(gem::hw::devices::exception::Exception, msg.str());
-    // } catch (toolbox::net::exception::MalformedURN const& e) {
-    //   std::stringstream msg;
-    //   msg << "AMCManager::initializeAction caught exception " << e.what();
-    //   CMSGEMOS_ERROR(msg.str());
-    //   XCEPT_RAISE(gem::hw::devices::exception::Exception, msg.str());
-    // } catch (std::exception const& e) {
-    //   std::stringstream msg;
-    //   msg << "AMCManager::initializeAction caught exception " << e.what();
-    //   CMSGEMOS_ERROR(msg.str());
-    //   XCEPT_RAISE(gem::hw::devices::exception::Exception, msg.str());
-    // }
     CMSGEMOS_DEBUG("AMCManager::connected");
     // set the web view to be empty or grey
     // if (!info.present.value_) continue;
     // p_gemWebInterface->amcInSlot(slot);
   }
-
-  // FIXME make me more streamlined
-  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    AMCInfo& info = m_amcInfo[slot].bag;
-
-    if (!info.present)
-      continue;
-
-    amc_shared_ptr amc = m_amcs.at(slot);
-    if (amc->isHwConnected()) {
-      CMSGEMOS_DEBUG("AMCManager::connected a card in slot " << (slot+1));
-    } else {
-      std::stringstream msg;
-      msg << "AMCManager::initializeAction AMC in slot " << (slot+1) << " is not connected";
-      CMSGEMOS_ERROR(msg.str());
-      // fireEvent("Fail");
-      XCEPT_RAISE(gem::hw::devices::exception::Exception, msg.str());
-    }
-  }
-  // usleep(10); // just for testing the timing of different applications
   CMSGEMOS_INFO("AMCManager::initializeAction end");
 }
 
@@ -265,7 +183,6 @@ void gem::hw::amc::AMCManager::configureAction()
 
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(10); // just for testing the timing of different applications
     AMCInfo& info = m_amcInfo[slot].bag;
 
     if (!info.present)
@@ -273,37 +190,21 @@ void gem::hw::amc::AMCManager::configureAction()
 
     amc_shared_ptr amc = m_amcs.at(slot);
     if (amc->isHwConnected()) {
-      if (m_amcMonitors.at(slot))
-        m_amcMonitors.at(slot)->pauseMonitoring();
+      if (!m_disableMonitoring) {
+        m_amcMonitors.at(slot) = std::shared_ptr<AMCMonitor>(new AMCMonitor(amc, this, slot+1));
+        m_amcMonitors.at(slot)->addInfoSpace("HWMonitoring", is_amcs.at(slot));
+        m_amcMonitors.at(slot)->setupHwMonitoring();
+      }
 
       bool enableZS     = info.enableZS.value_;
       bool doPhaseShift = m_doPhaseShift.value_;
       uint32_t runType  = 0x0;
       try { // FIXME if we fail, do we go to error?
+        //FIXME review configureDAQModule, set it up correctly w.r.t. scan types
         amc->configureDAQModule(enableZS, doPhaseShift, runType, 0xfaac, m_relockPhase.value_, m_bc0LockPhaseShift.value_);
       } GEM_CATCH_RPC_ERROR("AMCManager::configureAction", gem::hw::devices::exception::ConfigurationProblem);
 
-      if (m_scanType.value_ == 2) {
-        CMSGEMOS_INFO("AMCManager::configureAction: FIRST  " << m_scanMin.value_);
-
-	amc->setDAQLinkRunType(0x2);
-	amc->setDAQLinkRunParameter(0x1,m_scanMin.value_);
-	// amc->setDAQLinkRunParameter(0x2,VT1);  // set these at start so DQM has them?
-	// amc->setDAQLinkRunParameter(0x3,VT2);  // set these at start so DQM has them?
-      } else if (m_scanType.value_ == 3) {
-	uint32_t initialVT1 = m_scanMin.value_;
-	uint32_t initialVT2 = 0;  // std::max(0,(uint32_t)m_scanMax.value_);
-        CMSGEMOS_INFO("AMCManager::configureAction FIRST VT1 " << initialVT1 << " VT2 " << initialVT2);
-
-	amc->setDAQLinkRunType(0x3);
-	// amc->setDAQLinkRunParameter(0x1,latency);  // set this at start so DQM has it?
-	amc->setDAQLinkRunParameter(0x2,initialVT1);
-	amc->setDAQLinkRunParameter(0x3,initialVT2);
-      } else {
-	amc->setDAQLinkRunType(0x1);          // FIXME duplicated in configureDAQModule call
-	amc->setDAQLinkRunParameters(0xfaac); // FIXME duplicated in configureDAQModule call
-      }
-
+      // FIXME everyting considering the scanning should be set by the gemcalibration module
       // what else is required for configuring the AMC?
       // need to reset optical links?
       // reset counters?
@@ -311,7 +212,7 @@ void gem::hw::amc::AMCManager::configureAction()
       // setup DAQ mode?
 
       if (m_amcMonitors.at(slot))
-        m_amcMonitors.at(slot)->resumeMonitoring();
+        m_amcMonitors.at(slot)->startMonitoring();
     } else {
       std::stringstream msg;
       msg << "AMCManager::configureAction AMC in slot " << (slot+1) << " is not connected";
@@ -326,21 +227,12 @@ void gem::hw::amc::AMCManager::configureAction()
 
 void gem::hw::amc::AMCManager::startAction()
 {
-  if (m_scanType.value_ == 2) {
-    CMSGEMOS_INFO("AMCManager::startAction() " << std::endl << m_scanInfo.bag.toString());
-    m_lastLatency = m_scanMin.value_;
-    m_lastVT1 = 0;
-  } else if (m_scanType.value_ == 3) {
-    CMSGEMOS_INFO("AMCManager::startAction() " << std::endl << m_scanInfo.bag.toString());
-    m_lastLatency = 0;
-    m_lastVT1 = m_scanMin.value_;
-  }
-
   CMSGEMOS_INFO("AMCManager::startAction begin");
   // what is required for starting the AMC?
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(10);
+    if (m_amcMonitors.at(slot))
+      m_amcMonitors.at(slot)->pauseMonitoring();
     CMSGEMOS_DEBUG("AMCManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     AMCInfo& info = m_amcInfo[slot].bag;
 
@@ -349,19 +241,17 @@ void gem::hw::amc::AMCManager::startAction()
 
     amc_shared_ptr amc = m_amcs.at(slot);
     if (amc->isHwConnected()) {
-      if (m_amcMonitors.at(slot))
-        m_amcMonitors.at(slot)->pauseMonitoring();
 
       CMSGEMOS_DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
       // amc->enableDAQModule(info.enableZS.value_);
 
+      //FIXME shall be one RPC call?
       amc->ttcModuleReset();
       amc->enableDAQLink(0x4);  // FIXME
       amc->resetDAQLink();
       amc->setZS(info.enableZS.value_);
       amc->setL1AEnable(true);
-      usleep(10); // just for testing the timing of different applications
 
       if (m_amcMonitors.at(slot))
         m_amcMonitors.at(slot)->resumeMonitoring();
@@ -372,14 +262,7 @@ void gem::hw::amc::AMCManager::startAction()
       // fireEvent("Fail");
       XCEPT_RAISE(gem::hw::devices::exception::Exception, msg.str());
     }
-
-    /*
-    // reset the hw monitor, this was in release-v2 but not in integrated-application-framework, may have forgotten something
-    if (m_amcMonitors.at(slot))
-    m_amcMonitors.at(slot)->reset();
-    */
   }
-  // usleep(10);
   CMSGEMOS_INFO("AMCManager::startAction end");
 }
 
@@ -400,38 +283,8 @@ void gem::hw::amc::AMCManager::pauseAction()
       if (m_amcMonitors.at(slot))
         m_amcMonitors.at(slot)->pauseMonitoring();
 
+      //FIXME what should be done here? Disable triggers? wait for AMC to stop building events?
       CMSGEMOS_DEBUG("connected a card in slot " << (slot+1));
-
-      if (m_scanType.value_ == 2) {
-	uint8_t updatedLatency = m_lastLatency + m_stepSize.value_;
-        CMSGEMOS_INFO("AMCManager::pauseAction LatencyScan AMC" << (slot+1) << " Latency " << (int)updatedLatency);
-
-        // wait for events to finish building
-        while (!amc->l1aFIFOIsEmpty()) {
-          CMSGEMOS_DEBUG("AMCManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
-          usleep(10);
-        }
-        CMSGEMOS_DEBUG("AMCManager::pauseAction AMC" << (slot+1) << " finished building events, updating run parameter "
-                       << (int)updatedLatency);
-        amc->setDAQLinkRunParameter(0x1,updatedLatency);
-      } else if (m_scanType.value_ == 3) {
-        uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
-        uint8_t updatedVT2 = 0; //std::max(0,(int)m_scanMax.value_);
-        CMSGEMOS_INFO("AMCManager::pauseAction ThresholdScan AMC" << (slot+1) << ""
-                      << " VT1 " << (int)updatedVT1
-                      << " VT2 " << (int)updatedVT2);
-
-        // wait for events to finish building
-        while (!amc->l1aFIFOIsEmpty()) {
-          CMSGEMOS_DEBUG("AMCManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
-          usleep(10);
-        }
-        CMSGEMOS_DEBUG("AMCManager::pauseAction finished AMC" << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
-                       << " and VT2 " << (int)updatedVT2);
-	amc->setDAQLinkRunParameter(0x2,updatedVT1);
-	amc->setDAQLinkRunParameter(0x3,updatedVT2);
-      }
-      // usleep(100); // just for testing the timing of different applications
 
       if (m_amcMonitors.at(slot))
         m_amcMonitors.at(slot)->resumeMonitoring();
@@ -443,24 +296,12 @@ void gem::hw::amc::AMCManager::pauseAction()
       XCEPT_RAISE(gem::hw::devices::exception::Exception, msg.str());
     }
   }
-
-  // Update the scan parameters
-  if (m_scanType.value_ == 2) {
-    CMSGEMOS_INFO("AMCManager::pauseAction LatencyScan old Latency " << (int)m_lastLatency);
-    m_lastLatency += m_stepSize.value_;
-    CMSGEMOS_INFO("AMCManager::pauseAction LatencyScan new Latency " << (int)m_lastLatency);
-  } else if (m_scanType.value_ == 3) {
-    CMSGEMOS_INFO("AMCManager::pauseAction ThresholdScan old VT1 " << (int)m_lastVT1);
-    m_lastVT1 += m_stepSize.value_;
-    CMSGEMOS_INFO("AMCManager::pauseAction ThresholdScan new VT1 " << (int)m_lastVT1);
-  }
   CMSGEMOS_INFO("AMCManager::pauseAction end");
 }
 
 void gem::hw::amc::AMCManager::resumeAction()
 {
   // what is required for resuming the AMC?
-  usleep(10);  // just for testing the timing of different applications
   CMSGEMOS_INFO("AMCManager::resumeAction end");
 }
 
@@ -491,7 +332,6 @@ void gem::hw::amc::AMCManager::stopAction()
         m_amcMonitors.at(slot)->resumeMonitoring();
     }
   }
-  usleep(10);  // just for testing the timing of different applications
   CMSGEMOS_INFO("AMCManager::stopAction end");
 }
 
@@ -547,7 +387,6 @@ void gem::hw::amc::AMCManager::resetAction()
       // what is required for resetting the AMC?
       // FIXME temporarily inhibit triggers at the AMC
       amc->setL1AEnable(false);
-      amc->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
     }
     // reset the hw monitor
     if (m_amcMonitors.at(slot))

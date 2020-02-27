@@ -12,8 +12,8 @@
 #include "gem/hw/managers/optohybrid/OptoHybridMonitor.h"
 #include "gem/hw/managers/optohybrid/OptoHybridManagerWeb.h"
 
-// #include "gem/hw/optohybrid/exception/Exception.h"
 #include "gem/hw/managers/optohybrid/exception/Exception.h"
+#include "gem/hw/managers/exception/Exception.h"
 #include "gem/hw/devices/exception/Exception.h"
 #include "gem/utils/exception/Exception.h"
 
@@ -153,83 +153,13 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
                        << " (slot " << slot+1 << ")"
                        << " (link " << link   << ")");
         m_optohybrids.at(slot).at(link) = std::make_shared<gem::hw::optohybrid::HwOptoHybrid>(deviceName,m_connectionFile.toString());
-      } catch (gem::hw::managers::optohybrid::exception::Exception const& e) {
-        std::stringstream errmsg;
-        errmsg << "OptoHybridManager::initializeAction caught exception " << e.what();
-        CMSGEMOS_ERROR(errmsg.str());
-        XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
-      } catch (toolbox::net::exception::MalformedURN const& e) {
-        std::stringstream errmsg;
-        errmsg << "OptoHybridManager::initializeAction caught exception " << e.what();
-        CMSGEMOS_ERROR(errmsg.str());
-        XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
-      } catch (std::exception const& e) {
-        std::stringstream errmsg;
-        errmsg << "OptoHybridManager::initializeAction caught exception " << e.what();
-        CMSGEMOS_ERROR(errmsg.str());
-        XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
-      }
-      CMSGEMOS_DEBUG("OptoHybridManager::initializeAction connected");
+        auto&& optohybrid = m_optohybrids.at(slot).at(link);
+        createOptoHybridInfoSpaceItems(is_optohybrids.at(slot).at(link), optohybrid);
+      } GEM_HW_TRANSITION_CATCH("OptoHybridManager::initializeAction",gem::hw::devices::exception::Exception); 
       // set the web view to be empty or grey
       // if (!info.present.value_) continue;
       // p_gemWebInterface->optohybridInSlot(slot);
 
-      CMSGEMOS_DEBUG("OptoHybridManager::initializeAction grabbing pointer to hardware device");
-      auto&& optohybrid = m_optohybrids.at(slot).at(link);
-
-      if (optohybrid->isHwConnected()) {
-        //FIXME
-
-        /*
-        m_vfatMapping.at(slot).at(link)   = optohybrid->getConnectedVFATs(true);
-        */
-
-        m_broadcastList.at(slot).at(link) = ~(optohybrid->getConnectedVFATMask(true));
-        m_trackingMask.at(slot).at(link)  = m_broadcastList.at(slot).at(link);
-        m_sbitMask.at(slot).at(link)      = m_broadcastList.at(slot).at(link);
-
-        createOptoHybridInfoSpaceItems(is_optohybrids.at(slot).at(link), optohybrid);
-        CMSGEMOS_INFO("OptoHybridManager::initializeAction looping over created VFAT devices");
-        /*FIXME
-        for (auto const& mapit : m_vfatMapping.at(slot).at(link)) {
-          CMSGEMOS_INFO("OptoHybridManager::initializeAction VFAT" << static_cast<uint32_t>(mapit.first) << " has chipID "
-                        << std::hex << static_cast<uint32_t>(mapit.second) << std::dec << " (from map)");
-        }
-        */
-
-        if (!m_disableMonitoring) {
-          m_optohybridMonitors.at(slot).at(link) = std::make_shared<OptoHybridMonitor>(optohybrid, this, index);
-          m_optohybridMonitors.at(slot).at(link)->addInfoSpace("HWMonitoring", is_optohybrids.at(slot).at(link));
-          m_optohybridMonitors.at(slot).at(link)->setupHwMonitoring();
-          m_optohybridMonitors.at(slot).at(link)->startMonitoring();
-        }
-
-        // FIXME V3 MASKS HAVE CHANGED MEANING
-        CMSGEMOS_INFO("OptoHybridManager::initializeAction OptoHybrid connected on link "
-                      << link << " to AMC in slot " << (slot+1) << std::endl
-                      << " - Tracking mask: 0x" << std::hex << std::setw(8) << std::setfill('0')
-                      << m_trackingMask.at(slot).at(link)
-                      << std::dec << std::endl
-                      << " - Broadcst mask: 0x" << std::hex << std::setw(8) << std::setfill('0')
-                      << m_broadcastList.at(slot).at(link)
-                      << std::dec << std::endl
-                      << " - SBit mask: 0x" << std::hex << std::setw(8) << std::setfill('0')
-                      << m_sbitMask.at(slot).at(link)
-                      << std::dec << std::endl);
-
-        // FIXME may not want to actually force this
-        optohybrid->setVFATMask(m_trackingMask.at(slot).at(link));
-
-        // FIXME may not want to actually force this
-        optohybrid->setSBitMask(m_sbitMask.at(slot).at(link));
-      } else {
-        std::stringstream errmsg;
-        errmsg << "OptoHybridManager::initializeAction OptoHybrid connected on link "
-               << link << " to AMC in slot " << (slot+1) << " is not responding";
-        CMSGEMOS_ERROR(errmsg.str());
-        // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
-      }
     }
   }
   CMSGEMOS_INFO("OptoHybridManager::initializeAction end");
@@ -239,15 +169,8 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 {
   CMSGEMOS_DEBUG("OptoHybridManager::configureAction");
 
-  std::map<int,std::set<int> > hwMapping;
-  // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   // FIXME make me more streamlined
   for (size_t slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    uint32_t inputMask = 0x0;
-
-    for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
-      if (m_optohybridMonitors.at(slot).at(link))
-        m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
 
     for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       size_t index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
@@ -261,97 +184,18 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
       CMSGEMOS_DEBUG("OptoHybridManager::configureAction::grabbing pointer to hardware device");
       auto&& optohybrid = m_optohybrids.at(slot).at(link);
 
+      if (!m_disableMonitoring) {
+        m_optohybridMonitors.at(slot).at(link) = std::make_shared<OptoHybridMonitor>(optohybrid, this, index);
+        m_optohybridMonitors.at(slot).at(link)->addInfoSpace("HWMonitoring", is_optohybrids.at(slot).at(link));
+        m_optohybridMonitors.at(slot).at(link)->setupHwMonitoring();
+      }
       if (optohybrid->isHwConnected()) {
-        hwMapping[slot+1].insert(link);
-
-        // FIXME UPDATE
-        // CMSGEMOS_DEBUG("OptoHybridManager::configureAction::setting sbit source to 0x"
-        //                << std::hex << info.sbitSource.value_ << std::dec);
-        // optohybrid->setSBitSource(info.sbitSource.value_);
-        // CMSGEMOS_DEBUG("OptoHybridManager::setting reference clock source to 0x"
-        //                << std::hex << info.refClkSrc.value_ << std::dec);
-        // optohybrid->setReferenceClock(info.refClkSrc.value_);
-
-        // FIXME UPDATE
-        // CMSGEMOS_DEBUG("OptoHybridManager::setting vfat clock source to 0x" << std::hex << info.vfatClkSrc.value_ << std::dec);
-        // optohybrid->setVFATClock(info.vfatClkSrc.value_,);
-        // CMSGEMOS_DEBUG("OptoHybridManager::setting cdce clock source to 0x" << std::hex << info.cdceClkSrc.value_ << std::dec);
-        // optohybrid->setSBitSource(info.cdceClkSrc.value_);
-        // for (size_t olink = 0; olink < HwGenericAMC::N_GTX; ++olink) {
-        // }
-
-        // FIXME UPDATE
-        // CMSGEMOS_DEBUG("OptoHybridManager::configureAction Setting output s-bit configuration parameters");
-        // optohybrid->setHDMISBitMode(info.sbitConfig.bag.Mode.value_);
-
-        // FIXME std::array<uint8_t, 8> sbitSources = {{ }};
-        // FIXME optohybrid->setHDMISBitSource(sbitSources);
-        /*FIXME
-        std::vector<std::pair<uint8_t, uint32_t> > chipIDs = optohybrid->getConnectedVFATs();
-
-        for (auto const& chip : chipIDs) {
-          if (chip.second) {
-            CMSGEMOS_INFO("VFAT found in GEB slot " << std::setw(2) << static_cast<uint32_t>(chip.first) << " has ChipID "
-                          << "0x" << std::hex << std::setw(4) << chip.second << std::dec);
-          } else {
-            CMSGEMOS_INFO("No VFAT found in GEB slot " << std::setw(2) << static_cast<uint32_t>(chip.first));
-          }
-        }
-        */
-
-        uint32_t vfatMask = m_broadcastList.at(slot).at(link);
-        CMSGEMOS_INFO("Setting VFAT parameters with broadcast write using mask " << std::hex << vfatMask << std::dec);
-
-        // FIXME OBSOLETE/UPDATE?
-        std::map<std::string, uint16_t> vfatSettings;
-
-        if (m_scanType.value_ == 2) { // FIXME OBSOLETE
-          CMSGEMOS_INFO("OptoHybridManager::configureAction configureAction: FIRST Latency  " << m_scanMin.value_);
-          vfatSettings["Latency"    ] = static_cast<uint16_t>(m_scanMin.value_);
-          // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
-          // HACK
-          // FIXME optohybrid->broadcastWrite("VFATChannels.ChanReg23",  0x40, vfatMask);
-          // FIXME optohybrid->broadcastWrite("VFATChannels.ChanReg124", 0x40, vfatMask);
-          // FIXME optohybrid->broadcastWrite("VFATChannels.ChanReg65",  0x40, vfatMask);
-          // FIXME optohybrid->broadcastWrite("VCal",                    0xaf, vfatMask);
-        } else if (m_scanType.value_ == 3) { // FIXME OBSOLETE
-          uint32_t initialVT1 = m_scanMin.value_;
-          // FIXME uint32_t VT1 = (m_scanMax.value_ - m_scanMin.value_);
-          uint32_t initialVT2 = 0; //std::max(0,(uint32_t)m_scanMax.value_);
-          // FIXME CMSGEMOS_INFO("OptoHybridManager::configureAction FIRST VT1 " << initialVT1 << " VT2 " << initialVT2);
-          // FIXME vfatSettings["VThreshold1"] = (uint8_t)(initialVT1&0xffff);
-          // FIXME vfatSettings["VThreshold2"] = (uint8_t)(initialVT2&0xffff);
-          // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
-        } else {
-          // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
-        }
-
-        CMSGEMOS_INFO("Reading back values after setting defaults:");
+        CMSGEMOS_INFO("OptoHybridManager::configureAction:: configuring VFATs");
         optohybrid->configureVFATs();
-        // auto vfatcfg = optohybrid->readVFATsConfiguration();
-        // for (auto const& cfg : vfatcfg) {
-        //   for (auto const& r : cfg) {
-        //     CMSGEMOS_INFO(" 0x" << std::hex << std::setw(8) << std::setfill('0') << r << std::dec);
-        //   }
-        // }
-
         // what else is required for configuring the OptoHybrid?
         // need to reset optical links?
         // reset counters?
-
-        // FIXME, should not be here or done like this
-        uint32_t gtxMask = optohybrid->readReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK");
-        std::stringstream msg;
-        msg << "OptoHybridManager::configureAction::OptoHybrid connected on link " << static_cast<uint32_t>(link)
-            << " to AMC in slot " << static_cast<uint32_t>(slot+1) << " found, INPUT_ENABLE_MASK changed from "
-            << std::hex << gtxMask << std::dec;
-        gtxMask   |= (0x1<<link);
-        inputMask |= (0x1<<link);
-        // optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", gtxMask);
-        optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", inputMask);
-        msg << " to " << std::hex << inputMask  << std::dec << std::endl;
-        CMSGEMOS_INFO(msg.str());
-      } else {
+     } else {
         std::stringstream errmsg;
         errmsg << "OptoHybridManager::configureAction::OptoHybrid connected on link " << static_cast<uint32_t>(link)
                << " to AMC in slot " << static_cast<uint32_t>(slot+1) << " is not responding";
@@ -360,31 +204,19 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
       }
     }
-
     for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
       if (m_optohybridMonitors.at(slot).at(link))
-        m_optohybridMonitors.at(slot).at(link)->resumeMonitoring();
+        m_optohybridMonitors.at(slot).at(link)->startMonitoring();
   }
-
   CMSGEMOS_INFO("OptoHybridManager::configureAction end");
 }
 
 void gem::hw::optohybrid::OptoHybridManager::startAction()
 {
-  if (m_scanType.value_ == 2) {
-    m_lastLatency = m_scanMin.value_;
-    m_lastVT1 = 0;
-  } else if (m_scanType.value_ == 3) {
-    m_lastLatency = 0;
-    m_lastVT1 = m_scanMin.value_;
-  }
-
   CMSGEMOS_DEBUG("OptoHybridManager::startAction");
   // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   // FIXME make me more streamlined
   for (size_t slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    uint32_t inputMask = 0x0;
-
     for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
       if (m_optohybridMonitors.at(slot).at(link))
         m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
@@ -393,48 +225,18 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
       size_t index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       CMSGEMOS_DEBUG("OptoHybridManager::index = " << index);
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
-
       if (!info.present)
         continue;
-
+ 
       CMSGEMOS_DEBUG("OptoHybridManager::startAction::grabbing pointer to hardware device");
       auto&& optohybrid = m_optohybrids.at(slot).at(link);
 
       if (optohybrid->isHwConnected()) {
-        // turn on all VFATs? or should they always be on?
-        uint32_t vfatMask = m_broadcastList.at(slot).at(link);
         // reset counters
         optohybrid->counterReset();
-        // // reset VFAT counters
-        // optohybrid->resetVFATCRCCount();
+        //FIXME set VFATs to run mode
+        //Potentially merge the counter reset in one RPC call
 
-        CMSGEMOS_INFO("CFG_RUN: vfatMask = " << std::hex << std::setw(8) << std::setfill('0') << vfatMask);
-        std::vector<uint32_t> res = optohybrid->broadcastRead("CFG_RUN", vfatMask);
-        for (auto const& r : res)
-          CMSGEMOS_INFO(" 0x" << std::hex << std::setw(8) << std::setfill('0') << r << std::dec);
-
-        optohybrid->broadcastWrite("CFG_RUN", 0x1, vfatMask);
-        res.clear();
-        res = optohybrid->broadcastRead("CFG_RUN", vfatMask);
-        CMSGEMOS_INFO("OptoHybridManager::startAction CFG_RUN");
-        for (auto const& r : res)
-          CMSGEMOS_INFO(" 0x" << std::hex << std::setw(8) << std::setfill('0') << r << std::dec);
-
-        // FIXME, should not be here or done like this
-        uint32_t gtxMask = optohybrid->readReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK");
-        std::stringstream msg;
-        msg << "OptoHybridManager::startAction::OptoHybrid connected on link " << static_cast<uint32_t>(link)
-            << " to AMC in slot " << static_cast<uint32_t>(slot+1) << " found, INPUT_ENABLE_MASK changed from "
-            << std::hex << gtxMask << std::dec;
-        inputMask |= (0x1<<link);
-        optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", inputMask);
-        msg.str("");
-        msg.clear();
-        msg << "OptoHybridManager::startAction::OptoHybrid connected on link " << static_cast<uint32_t>(link)
-            << " to AMC in slot " << static_cast<uint32_t>(slot+1) << " found, starting run with INPUT_ENABLE_MASK "
-	    << std::hex << inputMask << std::dec;
-        CMSGEMOS_INFO(msg.str());
-        // what resets to do
       } else {
         std::stringstream errmsg;
         errmsg << "OptoHybridManager::startAction::OptoHybrid connected on link " << static_cast<uint32_t>(link)
@@ -454,75 +256,13 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
 
 void gem::hw::optohybrid::OptoHybridManager::pauseAction()
 {
-  // put all connected VFATs into sleep mode?
-  // FIXME make me more streamlined
-  for (size_t slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
-      if (m_optohybridMonitors.at(slot).at(link))
-        m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
-
-    for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      size_t index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
-      CMSGEMOS_DEBUG("OptoHybridManager::index = " << index);
-      OptoHybridInfo& info = m_optohybridInfo[index].bag;
-
-      if (!info.present)
-        continue;
-
-      CMSGEMOS_DEBUG("OptoHybridManager::pauseAction::grabbing pointer to hardware device");
-      auto&& optohybrid = m_optohybrids.at(slot).at(link);
-
-      if (optohybrid->isHwConnected()) {
-        // turn on all VFATs? or should they always be on?
-        uint32_t vfatMask = m_broadcastList.at(slot).at(link);
-	if (m_scanType.value_ == 2) { // FIXME OBSOLETE
-	  uint8_t updatedLatency = m_lastLatency + m_stepSize.value_;
-	  CMSGEMOS_INFO("OptoHybridManager::LatencyScan OptoHybrid on link " << static_cast<uint32_t>(link)
-                        << " AMC slot " << (slot+1) << " Latency  " << static_cast<uint32_t>(updatedLatency));
-
-          optohybrid->broadcastWrite("Latency", updatedLatency, vfatMask);
-        } else if (m_scanType.value_ == 3) { // FIXME OBSOLETE
-	  uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
-	  uint8_t VT2 = 0;  // std::max(0,static_cast<uint32_t>(m_scanMax.value_));
-	  CMSGEMOS_INFO("OptoHybridManager::ThresholdScan OptoHybrid on link " << static_cast<uint32_t>(link)
-                        << " AMC slot " << (slot+1) << " VT1 " << static_cast<uint32_t>(updatedVT1)
-                        << " VT2 " << VT2 << " StepSize " << m_stepSize.value_);
-
-          // optohybrid->broadcastWrite("CFG_THR_ARM_DAC", updatedVT1, vfatMask);
-          // optohybrid->broadcastWrite("CFG_THR_ZCC_DAC", VT2, vfatMask);
-	}
-        // what resets to do
-      } else {
-        std::stringstream errmsg;
-        errmsg << "OptoHybridManager::pauseAction OptoHybrid connected on link " << static_cast<uint32_t>(link)
-               << " to AMC in slot " << static_cast<uint32_t>(slot+1) << " is not responding";
-        CMSGEMOS_ERROR(errmsg.str());
-        // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
-      }
-    }
-
-    for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
-      if (m_optohybridMonitors.at(slot).at(link))
-        m_optohybridMonitors.at(slot).at(link)->resumeMonitoring();
-  }
-  // Update the scan parameters
-  if (m_scanType.value_ == 2) {
-    CMSGEMOS_INFO("OptoHybridManager::pauseAction LatencyScan old Latency " << static_cast<uint32_t>(m_lastLatency));
-    m_lastLatency += m_stepSize.value_;
-    CMSGEMOS_INFO("OptoHybridManager::pauseAction LatencyScan new Latency " << static_cast<uint32_t>(m_lastLatency));
-  } else if (m_scanType.value_ == 3) {
-    CMSGEMOS_INFO("OptoHybridManager::pauseAction ThresholdScan old VT1 " << static_cast<uint32_t>(m_lastVT1));
-    m_lastVT1 += m_stepSize.value_;
-    CMSGEMOS_INFO("OptoHybridManager::pauseAction ThresholdScan new VT1 " << static_cast<uint32_t>(m_lastVT1));
-  }
+  // FIXME put all connected VFATs into run mode?
   CMSGEMOS_INFO("OptoHybridManager::pauseAction end");
 }
 
 void gem::hw::optohybrid::OptoHybridManager::resumeAction()
 {
-  // put all connected VFATs into run mode?
-  usleep(10);
+  // FIXME put all connected VFATs into run mode?
   CMSGEMOS_INFO("OptoHybridManager::resumeAction end");
 }
 
@@ -532,7 +272,6 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
   // FIXME will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   // FIXME TODO make me more streamlined
   for (size_t slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    uint32_t inputMask = 0x0;
 
     for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
       if (m_optohybridMonitors.at(slot).at(link))
@@ -552,32 +291,7 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
       if (optohybrid->isHwConnected()) {
         uint32_t vfatMask = m_broadcastList.at(slot).at(link);
         optohybrid->broadcastWrite("CFG_RUN", 0x0, vfatMask);
-        // what resets to do
-
-        // FIXME OBSOLETE/UPDATE?
-        std::map<std::string, uint8_t > vfatSettings;
-
-	if (m_scanType.value_ == 2) {
-	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
-          // HACK
-          // have to disable the pulse to the channel if using cal pulse latency scan
-          // but shouldn't mess with other settings... not possible here, so just a hack
-          // optohybrid->broadcastWrite("VFATChannels.ChanReg23",  0x00, vfatMask);
-          // optohybrid->broadcastWrite("VFATChannels.ChanReg124", 0x00, vfatMask);
-          // optohybrid->broadcastWrite("VFATChannels.ChanReg65",  0x00, vfatMask);
-          // optohybrid->broadcastWrite("VCal",                    0x00, vfatMask);
-	} else if (m_scanType.value_ == 3) {
-	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
-        }
-      } else {
-        std::stringstream errmsg;
-        errmsg << "OptoHybridManager::stopAction::OptoHybrid connected on link " << static_cast<uint32_t>(link)
-               << " to AMC in slot " << static_cast<uint32_t>(slot+1) << " is not responding";
-        CMSGEMOS_ERROR(errmsg.str());
-        // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
-      }
-    }
+        // FIXME what resets to do
 
     for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
       if (m_optohybridMonitors.at(slot).at(link))
@@ -600,7 +314,6 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
   // FIXME make me more streamlined
   for (size_t slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     CMSGEMOS_DEBUG("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
-    uint32_t inputMask = 0x0;
 
     for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
       if (m_optohybridMonitors.at(slot).at(link))
