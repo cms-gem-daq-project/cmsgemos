@@ -1,7 +1,3 @@
-#include "gem/hw/optohybrid/HwOptoHybrid.h"
-
-#include "gem/hw/HwGenericAMC.h"
-
 #include <bitset>
 #include <chrono>
 #include <iomanip>
@@ -9,6 +5,7 @@
 #include <functional>
 
 #include "gem/hw/devices/optohybrid/HwOptoHybrid.h"
+#include "gem/hw/devices/amc/HwGenericAMC.h"
 
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
                                                 std::string const& connectionFile) :
@@ -196,7 +193,7 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::stri
                                                                        bool        const& reset)
 {
   try {
-    req = wisc::RPCMsg("vfat3.broadcastRead");
+    req = wisc::RPCMsg("optohybrid.broadcastRead");
     req.set_string("reg_name", name);
     req.set_word("ohN",      static_cast<uint32_t>(m_link));
     req.set_word("mask",     mask);
@@ -209,7 +206,7 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::stri
     data.resize(size);
     rsp.get_word_array("data", data.data());
     return data;
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::broadcastRead", gem::hw::optohybrid::exception::Exception);
+  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::broadcastRead", gem::hw::devices::exception::Exception);
 }
 
 void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
@@ -218,7 +215,7 @@ void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
                                                        bool        const& reset)
 {
   try {
-    req = wisc::RPCMsg("vfat3.broadcastWrite");
+    req = wisc::RPCMsg("optohybrid.broadcastWrite");
     req.set_string("reg_name", name);
     req.set_word("ohN",      static_cast<uint32_t>(m_link));
     req.set_word("mask",     mask);
@@ -227,7 +224,7 @@ void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
       rsp = rpc.call_method(req);
     } STANDARD_CATCH;
     checkRPCResponse("HwOptoHybrid::broadcastWrite");
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::broadcastWrite", gem::hw::optohybrid::exception::Exception);
+  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::broadcastWrite", gem::hw::devices::exception::Exception);
 }
 
 
@@ -247,7 +244,7 @@ std::vector<std::pair<uint8_t, uint32_t> > gem::hw::optohybrid::HwOptoHybrid::ge
       checkRPCResponse("HwOptoHybrid::getVFAT3ChipIDs");
       loc_chipIDs.resize(rsp.get_word_array_size("chipIDs")); // FIXME should be 24
       rsp.get_word_array("chipIDs", loc_chipIDs.data());
-    } GEM_CATCH_RPC_ERROR("HwOptoHybrid::getVFAT3ChipIDs", gem::hw::optohybrid::exception::Exception);
+    } GEM_CATCH_RPC_ERROR("HwOptoHybrid::getVFAT3ChipIDs", gem::hw::devices::exception::Exception);
 
     // std::vector<uint32_t> loc_chipIDs = broadcastRead("HW_CHIP_ID", gem::hw::utils::ALL_VFATS_BCAST_MASK, false);
 
@@ -281,7 +278,7 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask(bool update)
       } STANDARD_CATCH;
       checkRPCResponse("HwOptoHybrid::getConnectedVFATMask");
       goodVFATs = rsp.get_word("goodVFATs");
-    } GEM_CATCH_RPC_ERROR("HwOptoHybrid::getConnectedVFATMask", gem::hw::optohybrid::exception::Exception);
+    } GEM_CATCH_RPC_ERROR("HwOptoHybrid::getConnectedVFATMask", gem::hw::devices::exception::Exception);
 
     uint32_t connectedMask = goodVFATs;      // FIXME high means broadcast, present
     uint32_t disabledMask  = ~connectedMask; // FIXME high means ignore data
@@ -316,7 +313,7 @@ void gem::hw::optohybrid::HwOptoHybrid::configureVFATs()
       rsp = rpc.call_method(req);
     } STANDARD_CATCH;
     checkRPCResponse("HwOptoHybrid::configureVFATs");
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureVFATs", gem::hw::optohybrid::exception::Exception);
+  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureVFATs", gem::hw::devices::exception::Exception);
 }
 
 
@@ -339,7 +336,7 @@ void gem::hw::optohybrid::HwOptoHybrid::configureVFATs(std::map<std::string, uin
       rsp = rpc.call_method(req);
     } STANDARD_CATCH;
     checkRPCResponse("HwOptoHybrid::configureVFATs");
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureVFATs", gem::hw::optohybrid::exception::Exception);
+  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureVFATs", gem::hw::devices::exception::Exception);
 }
 
 
@@ -365,7 +362,7 @@ void gem::hw::optohybrid::HwOptoHybrid::configureGBT(uint8_t const& gbtID, uint3
       rsp = rpc.call_method(req);
     } STANDARD_CATCH;
     checkRPCResponse("HwOptoHybrid::configureAllGBTs");
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureAllGBTs", gem::hw::optohybrid::exception::Exception);
+  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureAllGBTs", gem::hw::devices::exception::Exception);
 }
 
 
@@ -396,7 +393,7 @@ void gem::hw::optohybrid::HwOptoHybrid::configureAllGBTs(uint32_t const* gbtcfg)
       rsp = rpc.call_method(req);
     } STANDARD_CATCH;
     checkRPCResponse("HwOptoHybrid::configureAllGBTs");
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureAllGBTs", gem::hw::optohybrid::exception::Exception);
+  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureAllGBTs", gem::hw::devices::exception::Exception);
 }
 
 
@@ -601,7 +598,7 @@ void gem::hw::optohybrid::HwOptoHybrid::configureScanModule(uint8_t const& mode,
       rsp = rpc.call_method(req);
     } STANDARD_CATCH;
     checkRPCResponse("HwOptoHybrid::broadcastWrite");
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::startScanModule", gem::hw::optohybrid::exception::Exception);
+  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::startScanModule", gem::hw::devices::exception::Exception);
 }
 
 void gem::hw::optohybrid::HwOptoHybrid::startScanModule(uint32_t const& nevts, bool useUltra)
@@ -616,7 +613,7 @@ void gem::hw::optohybrid::HwOptoHybrid::startScanModule(uint32_t const& nevts, b
       rsp = rpc.call_method(req);
     } STANDARD_CATCH;
     checkRPCResponse("HwOptoHybrid::broadcastWrite");
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::startScanModule", gem::hw::optohybrid::exception::Exception);
+  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::startScanModule", gem::hw::devices::exception::Exception);
 }
 
 std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::getScanResults(uint32_t const& nevts,
@@ -663,7 +660,7 @@ std::vector<std::vector<uint32_t> > gem::hw::optohybrid::HwOptoHybrid::getUltraS
       }
     }
     return results;
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::getUltraScanResults", gem::hw::optohybrid::exception::Exception);
+  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::getUltraScanResults", gem::hw::devices::exception::Exception);
 }
 
 

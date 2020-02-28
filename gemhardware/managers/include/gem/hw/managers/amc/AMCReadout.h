@@ -1,11 +1,11 @@
-/** @file GLIBReadout.h */
+/** @file AMCReadout.h */
 
-#ifndef GEM_HW_GLIB_GLIBREADOUT_H
-#define GEM_HW_GLIB_GLIBREADOUT_H
+#ifndef GEM_HW_AMC_AMCREADOUT_H
+#define GEM_HW_AMC_AMCREADOUT_H
 
 #include "gem/readout/GEMReadoutApplication.h"
 #include "gem/readout/GEMDataAMCformat.h"
-#include "gem/hw/glib/exception/Exception.h"
+#include "gem/hw/devices/exception/Exception.h"
 
 namespace gem {
   namespace readout {
@@ -13,12 +13,12 @@ namespace gem {
   }
 
   namespace hw {
-    namespace glib {
-      class HwGLIB;
+    namespace amc {
+      class HwGenericAMC;
 
-      typedef std::shared_ptr<HwGLIB>  glib_shared_ptr;
+      typedef std::shared_ptr<HwGenericAMC>  amc_shared_ptr;
 
-      class GLIBReadout: public gem::readout::GEMReadoutApplication
+      class AMCReadout: public gem::readout::GEMReadoutApplication
         {
         public:
           XDAQ_INSTANTIATOR();
@@ -26,10 +26,10 @@ namespace gem {
           static const uint32_t kUPDATE;
           static const uint32_t kUPDATE7;
 
-          GLIBReadout(xdaq::ApplicationStub* s);
-          //GLIBReadout(xdaq::ApplicationStub* s, glib_shared_ptr glib);
+          AMCReadout(xdaq::ApplicationStub* s);
+          //AMCReadout(xdaq::ApplicationStub* s, amc_shared_ptr amc);
 
-          virtual ~GLIBReadout();
+          virtual ~AMCReadout();
 
           void ScanRoutines(uint8_t latency, uint8_t VT1, uint8_t VT2);
 
@@ -65,7 +65,7 @@ namespace gem {
 
           uint32_t* selectData(uint32_t counter[5]);
 
-          uint32_t* getGLIBData(uint8_t const& link, uint32_t counter[5]);
+          uint32_t* getAMCData(uint8_t const& link, uint32_t counter[5]);
 
           uint32_t* GEMEventMaker(uint32_t counter[5]);
 
@@ -93,7 +93,7 @@ namespace gem {
           uint32_t m_runType;
           uint32_t m_runParams;
 
-          glib_shared_ptr p_glib;
+          amc_shared_ptr p_amc;
 
           // copied in from GEMDataParker
           uint32_t m_ESexp;
@@ -118,12 +118,12 @@ namespace gem {
           int m_rvent;
 
           static const int MaxVFATS = 24; // was 32 ???
-          static const int MaxERRS  = 4095; // should this also be 24? Or we can accomodate full GLIB FIFO of bad blocks belonging to the same event?
+          static const int MaxERRS  = 4095; // should this also be 24? Or we can accomodate full AMC FIFO of bad blocks belonging to the same event?
 
           //std::unique_ptr<GEMslotContents> slotInfo;// time to die!!!
 
           //log4cplus::Logger m_gemLogger;
-          //gem::hw::glib::HwGLIB* p_glibDevice;
+          //gem::hw::amc::HwGenericAMC* p_amcDevice;
           std::string m_outFileName;
           //std::string m_slotFileName; // time to die!!!
           std::string m_errFileName;
@@ -155,9 +155,9 @@ namespace gem {
           int m_sumVFAT;
 
           int16_t m_scanParam;
-        };  // class GLIBReadout
-    }  // namespace gem::hw::glib
+        };  // class AMCReadout
+    }  // namespace gem::hw::amc
   }  // namespace gem::hw
 }  // namespace gem
 
-#endif  // GEM_HW_GLIB_GLIBREADOUT_H
+#endif  // GEM_HW_AMC_AMCREADOUT_H

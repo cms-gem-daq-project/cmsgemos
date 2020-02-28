@@ -1,25 +1,25 @@
-/** @file GLIBManagerWeb.h */
+/** @file AMCManagerWeb.h */
 
-#ifndef GEM_HW_GLIB_GLIBMANAGERWEB_H
-#define GEM_HW_GLIB_GLIBMANAGERWEB_H
+#ifndef GEM_HW_AMC_AMCMANAGERWEB_H
+#define GEM_HW_AMC_AMCMANAGERWEB_H
 
 #include "gem/base/GEMWebApplication.h"
 
 namespace gem {
   namespace hw {
-    namespace glib {
+    namespace amc {
 
-      class GLIBManager;
+      class AMCManager;
 
-      class GLIBManagerWeb : public gem::base::GEMWebApplication
+      class AMCManagerWeb : public gem::base::GEMWebApplication
         {
-          //friend class GLIBMonitor;
-          friend class GLIBManager;
+          //friend class AMCMonitor;
+          friend class AMCManager;
 
         public:
-          GLIBManagerWeb(GLIBManager *glibApp);
+          AMCManagerWeb(AMCManager *amcApp);
 
-          virtual ~GLIBManagerWeb();
+          virtual ~AMCManagerWeb();
 
         protected:
 
@@ -41,17 +41,17 @@ namespace gem {
 
           void fifoDumpPage(xgi::Input *in, xgi::Output *out);
 
-          void dumpGLIBFIFO(xgi::Input *in, xgi::Output *out);
+          void dumpAMCFIFO(xgi::Input *in, xgi::Output *out);
 
         private:
           size_t activeCard;
 
-          //GLIBManagerWeb(GLIBManagerWeb const&);
+          //AMCManagerWeb(AMCManagerWeb const&);
 
         };
 
-    }  // namespace gem::glib
+    }  // namespace gem::amc
   }  // namespace gem::hw
 }  // namespace gem
 
-#endif  // GEM_HW_GLIB_GLIBMANAGERWEB_H
+#endif  // GEM_HW_AMC_AMCMANAGERWEB_H

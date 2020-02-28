@@ -1,12 +1,12 @@
 /**
- * class: GLIBReadout
- * description: Application to handle reading out from FIFO on GLIB
+ * class: AMCReadout
+ * description: Application to handle reading out from FIFO on AMC
  *              structure borrowed from HCAL
  * author: J. Sturdy
  * date: 14/03/2016
  */
 
-#include "gem/hw/glib/GLIBReadout.h"
+#include "gem/hw/managers/amc/AMCReadout.h"
 
 #include <iomanip>
 #include <iostream>
@@ -18,16 +18,16 @@
 #include "boost/lexical_cast.hpp"
 #include "boost/utility/binary.hpp"
 
-#include "gem/hw/glib/HwGLIB.h"
+#include "gem/hw/devices/amc/HwGenericAMC.h"
 #include "gem/utils/soap/GEMSOAPToolBox.h"
 #include "gem/readout/exception/Exception.h"
 
-XDAQ_INSTANTIATOR_IMPL(gem::hw::glib::GLIBReadout);
+XDAQ_INSTANTIATOR_IMPL(gem::hw::amc::AMCReadout);
 
-const uint32_t gem::hw::glib::GLIBReadout::kUPDATE  = 5000;
-const uint32_t gem::hw::glib::GLIBReadout::kUPDATE7 = 7;
+const uint32_t gem::hw::amc::AMCReadout::kUPDATE  = 5000;
+const uint32_t gem::hw::amc::AMCReadout::kUPDATE7 = 7;
 
-gem::hw::glib::GLIBReadout::GLIBReadout(xdaq::ApplicationStub* stub) :
+gem::hw::amc::AMCReadout::AMCReadout(xdaq::ApplicationStub* stub) :
   GEMReadoutApplication(stub),
   m_runType(0x0),
   m_runParams(0x0),
@@ -36,49 +36,49 @@ gem::hw::glib::GLIBReadout::GLIBReadout(xdaq::ApplicationStub* stub) :
   m_contvfats(0),
   m_queueLock(toolbox::BSem::FULL, true)
 {
-  xoap::bind(this,&GLIBReadout::updateScanParameters,"UpdateScanParameter","urn:GLIBReadout-soap:1");
-  //xoap::bind(this,&GLIBReadout::queueDepth,          "QueueDepth",         "urn:GLIBReadout-soap:1");
+  xoap::bind(this,&AMCReadout::updateScanParameters,"UpdateScanParameter","urn:AMCReadout-soap:1");
+  //xoap::bind(this,&AMCReadout::queueDepth,          "QueueDepth",         "urn:AMCReadout-soap:1");
   p_appInfoSpace->fireItemAvailable("QueueDepth", &m_queueDepth);
 }
 
-gem::hw::glib::GLIBReadout::~GLIBReadout()
+gem::hw::amc::AMCReadout::~AMCReadout()
 {
-  CMSGEMOS_DEBUG("GLIBReadout::destructor called");
+  CMSGEMOS_DEBUG("AMCReadout::destructor called");
 }
 
-void gem::hw::glib::GLIBReadout::actionPerformed(xdata::Event& event)
+void gem::hw::amc::AMCReadout::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    CMSGEMOS_DEBUG("GLIBReadout::actionPerformed() setDefaultValues" <<
+    CMSGEMOS_DEBUG("AMCReadout::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
   }
   // update monitoring variables
   gem::base::GEMApplication::actionPerformed(event);
 }
 
-void gem::hw::glib::GLIBReadout::initializeAction()
+void gem::hw::amc::AMCReadout::initializeAction()
 {
-  CMSGEMOS_INFO("GLIBReadout::initializeAction begin");
+  CMSGEMOS_INFO("AMCReadout::initializeAction begin");
   try {
-    p_glib = glib_shared_ptr(new gem::hw::glib::HwGLIB(m_deviceName.toString(), m_connectionFile.toString()));
-  } catch (gem::hw::glib::exception::Exception const& e) {
-    CMSGEMOS_ERROR("GLIBReadout::initializeAction caught exception " << e.what());
-    XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
+    p_amc = amc_shared_ptr(new gem::hw::amc::HwGenericAMC(m_deviceName.toString(), m_connectionFile.toString()));
+  } catch (gem::hw::amc::exception::Exception const& e) {
+    CMSGEMOS_ERROR("AMCReadout::initializeAction caught exception " << e.what());
+    XCEPT_RAISE(gem::hw::amc::exception::Exception, "initializeAction failed");
   } catch (toolbox::net::exception::MalformedURN const& e) {
-    CMSGEMOS_ERROR("GLIBReadout::initializeAction caught exception " << e.what());
-    XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
+    CMSGEMOS_ERROR("AMCReadout::initializeAction caught exception " << e.what());
+    XCEPT_RAISE(gem::hw::amc::exception::Exception, "initializeAction failed");
   } catch (std::exception const& e) {
-    CMSGEMOS_ERROR("GLIBReadout::initializeAction caught exception " << e.what());
-    XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
+    CMSGEMOS_ERROR("AMCReadout::initializeAction caught exception " << e.what());
+    XCEPT_RAISE(gem::hw::amc::exception::Exception, "initializeAction failed");
   }
-  CMSGEMOS_DEBUG("GLIBReadout::initializeAction connected");
+  CMSGEMOS_DEBUG("AMCReadout::initializeAction connected");
 
 }
 
 
-void gem::hw::glib::GLIBReadout::configureAction()
+void gem::hw::amc::AMCReadout::configureAction()
 {
-  CMSGEMOS_INFO("GLIBReadout::configureAction begin");
+  CMSGEMOS_INFO("AMCReadout::configureAction begin");
   // grab these from the config, updated through SOAP too
   m_outFileName  = m_readoutSettings.bag.fileName.toString();
   m_errFileName  = m_outFileName + "_ERR";
@@ -90,44 +90,44 @@ void gem::hw::glib::GLIBReadout::configureAction()
   m_sumVFAT = 0;
 }
 
-void gem::hw::glib::GLIBReadout::startAction()
+void gem::hw::amc::AMCReadout::startAction()
 {
-  CMSGEMOS_INFO("GLIBReadout::startAction begin");
+  CMSGEMOS_INFO("AMCReadout::startAction begin");
 }
 
-void gem::hw::glib::GLIBReadout::pauseAction()
+void gem::hw::amc::AMCReadout::pauseAction()
 {
-  CMSGEMOS_INFO("GLIBReadout::pauseAction begin");
+  CMSGEMOS_INFO("AMCReadout::pauseAction begin");
 }
 
-void gem::hw::glib::GLIBReadout::resumeAction()
+void gem::hw::amc::AMCReadout::resumeAction()
 {
-  CMSGEMOS_INFO("GLIBReadout::resumeAction begin");
+  CMSGEMOS_INFO("AMCReadout::resumeAction begin");
 }
 
-void gem::hw::glib::GLIBReadout::stopAction()
+void gem::hw::amc::AMCReadout::stopAction()
 {
-  CMSGEMOS_INFO("GLIBReadout::stopAction begin");
+  CMSGEMOS_INFO("AMCReadout::stopAction begin");
 }
 
-void gem::hw::glib::GLIBReadout::haltAction()
+void gem::hw::amc::AMCReadout::haltAction()
 {
-  CMSGEMOS_INFO("GLIBReadout::haltAction begin");
+  CMSGEMOS_INFO("AMCReadout::haltAction begin");
 }
 
-void gem::hw::glib::GLIBReadout::resetAction()
+void gem::hw::amc::AMCReadout::resetAction()
 {
-  CMSGEMOS_INFO("GLIBReadout::resetAction begin");
+  CMSGEMOS_INFO("AMCReadout::resetAction begin");
 }
 
-uint32_t* gem::hw::glib::GLIBReadout::dumpData(uint8_t const& readout_mask)
+uint32_t* gem::hw::amc::AMCReadout::dumpData(uint8_t const& readout_mask)
 {
 
   CMSGEMOS_INFO("info dump data parker");
   CMSGEMOS_DEBUG("Reading out dumpData(" << (int)readout_mask << ")");
   uint32_t *point = &m_counter[0];
   m_contvfats = 0;
-  uint32_t* pDu = getGLIBData(readout_mask, m_counter);
+  uint32_t* pDu = getAMCData(readout_mask, m_counter);
   CMSGEMOS_DEBUG("point 0x" << std::hex << point << " pDu 0x" << pDu << std::dec);
   if (pDu)
     for (unsigned count = 0; count < 5; ++count) m_counter[count] = *(pDu+count);
@@ -135,70 +135,70 @@ uint32_t* gem::hw::glib::GLIBReadout::dumpData(uint8_t const& readout_mask)
   return point;
 }
 
-uint32_t* gem::hw::glib::GLIBReadout::getGLIBData(uint8_t const& gtx, uint32_t counter[5])
+uint32_t* gem::hw::amc::AMCReadout::getAMCData(uint8_t const& gtx, uint32_t counter[5])
 {
   uint32_t *point = &counter[0];
 
-  CMSGEMOS_DEBUG("GLIBReadout::getGLIBData Starting while loop readout "
+  CMSGEMOS_DEBUG("AMCReadout::getAMCData Starting while loop readout "
         << std::endl << "FIFO VFAT block depth 0x" << std::hex
-        << p_glib->getFIFOVFATBlockOccupancy(gtx)
+        << p_amc->getFIFOVFATBlockOccupancy(gtx)
         << std::endl << "FIFO depth 0x" << std::hex
-        << p_glib->getFIFOOccupancy(gtx)
+        << p_amc->getFIFOOccupancy(gtx)
         );
-  while ( p_glib->getFIFOVFATBlockOccupancy(gtx) ) {
-    CMSGEMOS_DEBUG("GLIBReadout::getGLIBData initiating call to getTrackingData(gtx,"
-          << p_glib->getFIFOVFATBlockOccupancy(gtx) << ")");
-    std::vector<uint32_t> data = p_glib->getTrackingData(gtx, p_glib->getFIFOVFATBlockOccupancy(gtx));
-    CMSGEMOS_DEBUG("GLIBReadout::getGLIBData"
+  while ( p_amc->getFIFOVFATBlockOccupancy(gtx) ) {
+    CMSGEMOS_DEBUG("AMCReadout::getAMCData initiating call to getTrackingData(gtx,"
+          << p_amc->getFIFOVFATBlockOccupancy(gtx) << ")");
+    std::vector<uint32_t> data = p_amc->getTrackingData(gtx, p_amc->getFIFOVFATBlockOccupancy(gtx));
+    CMSGEMOS_DEBUG("AMCReadout::getAMCData"
           << std::endl << "FIFO VFAT block depth 0x" << std::hex
-          << p_glib->getFIFOVFATBlockOccupancy(gtx)
+          << p_amc->getFIFOVFATBlockOccupancy(gtx)
           << std::endl << "FIFO depth 0x" << std::hex
-          << p_glib->getFIFOOccupancy(gtx)
+          << p_amc->getFIFOOccupancy(gtx)
           );
 
     uint32_t contqueue = 0;
     for (auto iword = data.begin(); iword != data.end(); ++iword) {
       contqueue++;
       //gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_queueLock);
-      CMSGEMOS_DEBUG(" ::getGLIBData pushing into queue 0x"
+      CMSGEMOS_DEBUG(" ::getAMCData pushing into queue 0x"
             << std::setfill('0') << std::setw(8) << std::hex << *iword << std::dec );
       m_dataque.push(*iword);
       if (contqueue%kUPDATE7 == 0 &&  contqueue != 0) {
         m_contvfats++;
-        CMSGEMOS_DEBUG(" ::getGLIBData counter " << contqueue << " contvfats " << m_contvfats
+        CMSGEMOS_DEBUG(" ::getAMCData counter " << contqueue << " contvfats " << m_contvfats
               << " m_dataque.size " << m_dataque.size());
       }
     }
-    CMSGEMOS_DEBUG(" ::getGLIBData end of while loop do we go again?" << std::endl
-          << " FIFO VFAT block occupancy  0x" << std::hex << p_glib->getFIFOVFATBlockOccupancy(gtx)
+    CMSGEMOS_DEBUG(" ::getAMCData end of while loop do we go again?" << std::endl
+          << " FIFO VFAT block occupancy  0x" << std::hex << p_amc->getFIFOVFATBlockOccupancy(gtx)
           << std::endl
-          << " FIFO occupancy             0x" << std::hex << p_glib->getFIFOOccupancy(gtx) << std::endl
-          << " hasTrackingData            0x" << std::hex << p_glib->hasTrackingData(gtx)  << std::endl
+          << " FIFO occupancy             0x" << std::hex << p_amc->getFIFOOccupancy(gtx) << std::endl
+          << " hasTrackingData            0x" << std::hex << p_amc->hasTrackingData(gtx)  << std::endl
           );
-  }// while(p_glib->getFIFOVFATBlockOccupancy(gtx))
-  CMSGEMOS_DEBUG("GLIBReadout::getGLIBData"
+  }// while(p_amc->getFIFOVFATBlockOccupancy(gtx))
+  CMSGEMOS_DEBUG("AMCReadout::getAMCData"
         << std::endl
-        << " FIFO VFAT block occupancy  0x" << std::hex << p_glib->getFIFOVFATBlockOccupancy(gtx)
+        << " FIFO VFAT block occupancy  0x" << std::hex << p_amc->getFIFOVFATBlockOccupancy(gtx)
         << std::endl
-        << " FIFO occupancy             0x" << std::hex << p_glib->getFIFOOccupancy(gtx) << std::endl
-        << " hasTrackingData            0x" << std::hex << p_glib->hasTrackingData(gtx)  << std::endl
+        << " FIFO occupancy             0x" << std::hex << p_amc->getFIFOOccupancy(gtx) << std::endl
+        << " hasTrackingData            0x" << std::hex << p_amc->hasTrackingData(gtx)  << std::endl
         );
   return point;
 }
 
-uint32_t* gem::hw::glib::GLIBReadout::selectData(uint32_t counter[5])
+uint32_t* gem::hw::amc::AMCReadout::selectData(uint32_t counter[5])
 {
   for(int j = 0; j < 5; j++) {
-    CMSGEMOS_INFO("GLIBReadout::selectData counter " << j <<  " "<< counter[j] );
+    CMSGEMOS_INFO("AMCReadout::selectData counter " << j <<  " "<< counter[j] );
   }
   uint32_t *point = &counter[0];
-  CMSGEMOS_DEBUG("GLIBReadout::selectData point  " << std::hex << point );
+  CMSGEMOS_DEBUG("AMCReadout::selectData point  " << std::hex << point );
   uint32_t* pDQ = GEMEventMaker(counter);
   for (unsigned count = 0; count < 5; ++count) counter[count] = *(pDQ+count);
   return point;
 }
 
-uint32_t* gem::hw::glib::GLIBReadout::GEMEventMaker(uint32_t counter[5])
+uint32_t* gem::hw::amc::AMCReadout::GEMEventMaker(uint32_t counter[5])
 {
   uint32_t *point = &counter[0];
 
@@ -212,7 +212,7 @@ uint32_t* gem::hw::glib::GLIBReadout::GEMEventMaker(uint32_t counter[5])
   uint64_t msVFAT, lsVFAT;
   uint32_t ES;
 
-  CMSGEMOS_DEBUG("GLIBReadout::GEMEventMaker  " << std::hex << point );
+  CMSGEMOS_DEBUG("AMCReadout::GEMEventMaker  " << std::hex << point );
   if (m_dataque.empty()) return point;
   CMSGEMOS_DEBUG(" ::GEMEventMaker m_dataque.size " << m_dataque.size() );
 
@@ -287,7 +287,7 @@ uint32_t* gem::hw::glib::GLIBReadout::GEMEventMaker(uint32_t counter[5])
   return point;
 }
 
-void gem::hw::glib::GLIBReadout::GEMevSelector(const  uint32_t& ES)
+void gem::hw::amc::AMCReadout::GEMevSelector(const  uint32_t& ES)
 {
   //  GEM Event Data Format definition
   AMCGEMData  gem;
@@ -387,7 +387,7 @@ void gem::hw::glib::GLIBReadout::GEMevSelector(const  uint32_t& ES)
   m_isFirst = true;
 }
 
-bool gem::hw::glib::GLIBReadout::VFATfillData(/*int const& islot, */AMCGEBData&  geb)
+bool gem::hw::amc::AMCReadout::VFATfillData(/*int const& islot, */AMCGEBData&  geb)
 {
   // Chamber Header, Zero Suppression flags, Chamber ID
   uint64_t ZSFlag  = 0x0;                    // :24
@@ -412,7 +412,7 @@ bool gem::hw::glib::GLIBReadout::VFATfillData(/*int const& islot, */AMCGEBData& 
 }// end VFATfillData
 
 
-void gem::hw::glib::GLIBReadout::writeGEMevent(std::string  outFile, bool const&  OKprint,
+void gem::hw::amc::AMCReadout::writeGEMevent(std::string  outFile, bool const&  OKprint,
                                                std::string const& TypeDataFlag,
                                                AMCGEMData&  gem, AMCGEBData&  geb, AMCVFATData& vfat)
 {
@@ -465,7 +465,7 @@ void gem::hw::glib::GLIBReadout::writeGEMevent(std::string  outFile, bool const&
   }
 }
 
-void gem::hw::glib::GLIBReadout::GEMfillHeaders(uint32_t const& event, uint32_t const& DAVCount_,
+void gem::hw::amc::AMCReadout::GEMfillHeaders(uint32_t const& event, uint32_t const& DAVCount_,
                                                 AMCGEMData& gem, AMCGEBData& geb)
 {
 
@@ -529,7 +529,7 @@ void gem::hw::glib::GLIBReadout::GEMfillHeaders(uint32_t const& event, uint32_t 
   CMSGEMOS_INFO("GEMfillHeadres" << geb.runhed);
 }// end GEMfillHeaders
 
-void gem::hw::glib::GLIBReadout::GEMfillTrailers(AMCGEMData&  gem,AMCGEBData&  geb)
+void gem::hw::amc::AMCReadout::GEMfillTrailers(AMCGEMData&  gem,AMCGEBData&  geb)
 {
   // GEM, All Chamber Data
   // GEM Event Treailer [2]
@@ -564,7 +564,7 @@ void gem::hw::glib::GLIBReadout::GEMfillTrailers(AMCGEMData&  gem,AMCGEBData&  g
   CMSGEMOS_DEBUG(" OHcrc 0x" << std::hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << std::dec);
 }
 
-void gem::hw::glib::GLIBReadout::readVFATblock(std::queue<uint32_t>& dataque)
+void gem::hw::amc::AMCReadout::readVFATblock(std::queue<uint32_t>& dataque)
 {
   uint32_t datafront = 0;
   for (int iQue = 0; iQue < 7; iQue++){
@@ -631,17 +631,17 @@ void gem::hw::glib::GLIBReadout::readVFATblock(std::queue<uint32_t>& dataque)
 
 
 
-void gem::hw::glib::GLIBReadout::ScanRoutines(uint8_t latency, uint8_t VT1, uint8_t VT2)
+void gem::hw::amc::AMCReadout::ScanRoutines(uint8_t latency, uint8_t VT1, uint8_t VT2)
 {
   m_latency = latency;
   m_VT1 = VT1;
   m_VT2 = VT2;
-  CMSGEMOS_DEBUG("GLIBReadout::ScanRoutines Latency = " << (int)m_latency  << " VT1 = " << (int)m_VT1 << " VT2 = " << (int)m_VT2);
+  CMSGEMOS_DEBUG("AMCReadout::ScanRoutines Latency = " << (int)m_latency  << " VT1 = " << (int)m_VT1 << " VT2 = " << (int)m_VT2);
 }
 
-xoap::MessageReference gem::hw::glib::GLIBReadout::updateScanParameters(xoap::MessageReference msg)
+xoap::MessageReference gem::hw::amc::AMCReadout::updateScanParameters(xoap::MessageReference msg)
 {
-  CMSGEMOS_INFO("GLIBReadout::updateScanParameters()");
+  CMSGEMOS_INFO("AMCReadout::updateScanParameters()");
   if (msg.isNull()) {
     XCEPT_RAISE(xoap::exception::Exception,"Null message received!");
   }
@@ -653,7 +653,7 @@ xoap::MessageReference gem::hw::glib::GLIBReadout::updateScanParameters(xoap::Me
       = gem::utils::soap::GEMSOAPToolBox::extractCommandWithParameter(msg);
     commandName = command.first;
     parameterValue = command.second;
-    CMSGEMOS_INFO("GLIBReadout received command " << commandName);
+    CMSGEMOS_INFO("AMCReadout received command " << commandName);
   } catch(xoap::exception::Exception& e) {
     const std::string errmsg = "Unable to extract command from CommandWithParameter SOAP message";
     CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception_history(e));
@@ -670,7 +670,7 @@ xoap::MessageReference gem::hw::glib::GLIBReadout::updateScanParameters(xoap::Me
   }
   //this has to be injected into the GEM header
   m_runParams = std::stoi(parameterValue);
-  CMSGEMOS_DEBUG("GLIBReadout::updateScanParameters() received command '"
+  CMSGEMOS_DEBUG("AMCReadout::updateScanParameters() received command '"
                  << commandName << "' with value. '"
                  << parameterValue << "'");
   return gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");

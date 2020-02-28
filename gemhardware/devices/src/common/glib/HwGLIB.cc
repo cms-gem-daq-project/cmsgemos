@@ -1,6 +1,6 @@
 #include <iomanip>
 
-#include "gem/hw/glib/HwGLIB.h"
+#include "gem/hw/devices/glib/HwGLIB.h"
 
 #include "gem/hw/devices/exception/Exception.h"
 

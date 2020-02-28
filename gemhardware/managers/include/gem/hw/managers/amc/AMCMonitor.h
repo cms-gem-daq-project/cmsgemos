@@ -1,31 +1,34 @@
-/** @file GLIBMonitor.h */
+/** @file AMCMonitor.h */
 
-#ifndef GEM_HW_GLIB_GLIBMONITOR_H
-#define GEM_HW_GLIB_GLIBMONITOR_H
+#ifndef GEM_HW_AMC_AMCMONITOR_H
+#define GEM_HW_AMC_AMCMONITOR_H
 
 #include "gem/base/GEMMonitor.h"
-#include "gem/hw/glib/exception/Exception.h"
-#include "gem/hw/glib/HwGLIB.h"
+#include "gem/hw/devices/exception/Exception.h"
+#include "gem/hw/devices/glib/HwGLIB.h"
 
 namespace gem {
   namespace hw {
     namespace glib {
-
       class HwGLIB;
-      class GLIBManager;
+    }
 
-      class GLIBMonitor : public gem::base::GEMMonitor
+    namespace amc {
+
+      class AMCManager;
+
+      class AMCMonitor : public gem::base::GEMMonitor
       {
       public:
 
         /**
          * Constructor from GEMFSMApplication derived classes
-         * @param glib the HwGLIB uhal device which is to be monitored
-         * @param glibManager the manager application for the GLIB to be monitored
+         * @param amc the HwGLIB uhal device which is to be monitored
+         * @param amcManager the manager application for the AMC to be monitored
          */
-        GLIBMonitor(std::shared_ptr<HwGLIB> glib, GLIBManager* glibManager, int const& index);
+        AMCMonitor(std::shared_ptr<gem::hw::glib::HwGLIB> amc, AMCManager* amcManager, int const& index);
 
-        virtual ~GLIBMonitor();
+        virtual ~AMCMonitor();
 
         virtual void updateMonitorables();
         virtual void reset();
@@ -33,10 +36,10 @@ namespace gem {
         void buildMonitorPage(xgi::Output* out);
         void buildDAQStatusTable(xgi::Output* out);
         void buildTriggerStatusTable(xgi::Output* out);
-        std::string getDeviceID() { return p_glib->getDeviceID(); }
+        std::string getDeviceID() { return p_amc->getDeviceID(); }
 
       private:
-        std::shared_ptr<HwGLIB> p_glib;
+        std::shared_ptr<gem::hw::glib::HwGLIB> p_amc;
 
         // system_monitorables
         //  "BOARD_ID"
@@ -56,10 +59,10 @@ namespace gem {
         //  "V6_CPLD"
         //  "CPLD_LOCK"
 
-      };  // class GLIBMonitor
+      };  // class AMCMonitor
 
-    }  // namespace gem::hw::glib
+    }  // namespace gem::hw::amc
   }  // namespace gem::hw
 }  // namespace gem
 
-#endif  // GEM_HW_GLIB_GLIBMONITOR_H
+#endif  // GEM_HW_AMC_AMCMONITOR_H

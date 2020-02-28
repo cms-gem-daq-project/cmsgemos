@@ -4,7 +4,7 @@
 #define GEM_HW_AMC13_AMC13READOUT_H
 
 #include <gem/readout/GEMReadoutApplication.h>
-#include <gem/hw/amc13/exception/Exception.h>
+#include <gem/hw/devices/exception/Exception.h>
 #include <ctime>
 
 namespace amc13 {

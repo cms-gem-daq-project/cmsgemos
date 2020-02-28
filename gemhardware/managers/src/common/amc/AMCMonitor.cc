@@ -1,92 +1,92 @@
 /**
- * class: GLIBMonitor
- * description: Monitor application for GLIB cards
+ * class: AMCMonitor
+ * description: Monitor application for AMC cards
  *              structure borrowed from TCDS core, with nods to HCAL and EMU code
  * author: J. Sturdy
  * date:
  */
 
-#include "gem/hw/glib/HwGLIB.h"
+#include "gem/hw/devices/glib/HwGLIB.h"
 
-#include "gem/hw/glib/GLIBMonitor.h"
-#include "gem/hw/glib/GLIBManager.h"
+#include "gem/hw/managers/amc/AMCMonitor.h"
+#include "gem/hw/managers/amc/AMCManager.h"
 #include "gem/base/GEMApplication.h"
 #include "gem/base/GEMFSMApplication.h"
 
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
-gem::hw::glib::GLIBMonitor::GLIBMonitor(std::shared_ptr<HwGLIB> glib, GLIBManager* glibManager, int const& index) :
-  GEMMonitor(glibManager->getApplicationLogger(), static_cast<xdaq::Application*>(glibManager), index),
-  p_glib(glib)
+gem::hw::amc::AMCMonitor::AMCMonitor(std::shared_ptr<gem::hw::glib::HwGLIB> amc, AMCManager* amcManager, int const& index) :
+  GEMMonitor(amcManager->getApplicationLogger(), static_cast<xdaq::Application*>(amcManager), index),
+  p_amc(amc)
 {
   // application info space is added in the base class constructor
-  // addInfoSpace("Application", glibManager->getApplicationInfoSpace());
-  // addInfoSpace("GLIB", p_glib->getHwInfoSpace());
+  // addInfoSpace("Application", amcManager->getApplicationInfoSpace());
+  // addInfoSpace("AMC", p_amc->getHwInfoSpace());
 
-  // if (!p_glib->getHwInfoSpace()->hasItem(monname))
-  //   p_glib->getHwInfoSpace()->fireItemAvailable(monname, &monvar);
+  // if (!p_amc->getHwInfoSpace()->hasItem(monname))
+  //   p_amc->getHwInfoSpace()->fireItemAvailable(monname, &monvar);
 
   updateMonitorables();
 }
 
 
-void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
+void gem::hw::amc::AMCMonitor::setupHwMonitoring()
 {
   // create the values to be monitored in the info space
   addMonitorableSet("SYSTEM", "HWMonitoring");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("BOARD_ID", "GLIB_SYSTEM.SYSTEM.BOARD_ID"),
+                 std::make_pair("BOARD_ID", "AMC_SYSTEM.SYSTEM.BOARD_ID"),
                  GEMUpdateType::NOUPDATE, "id");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("SYSTEM_ID", "GLIB_SYSTEM.SYSTEM.SYSTEM_ID"),
+                 std::make_pair("SYSTEM_ID", "AMC_SYSTEM.SYSTEM.SYSTEM_ID"),
                  GEMUpdateType::NOUPDATE, "id");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("FIRMWARE_VERSION", "GLIB_SYSTEM.SYSTEM.FIRMWARE.ID"),
-                 GEMUpdateType::NOUPDATE, "fwverglib");
+                 std::make_pair("FIRMWARE_VERSION", "AMC_SYSTEM.SYSTEM.FIRMWARE.ID"),
+                 GEMUpdateType::NOUPDATE, "fwveramc");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("FIRMWARE_DATE", "GLIB_SYSTEM.SYSTEM.FIRMWARE.DATE"),
-                 GEMUpdateType::NOUPDATE, "dateglib");
+                 std::make_pair("FIRMWARE_DATE", "AMC_SYSTEM.SYSTEM.FIRMWARE.DATE"),
+                 GEMUpdateType::NOUPDATE, "dateamc");
   addMonitorable("SYSTEM", "HWMonitoring",
                  std::make_pair("AMC_FIRMWARE_VERSION", "GEM_SYSTEM.RELEASE"),
-                 GEMUpdateType::NOUPDATE, "fwverglib");
+                 GEMUpdateType::NOUPDATE, "fwveramc");
   addMonitorable("SYSTEM", "HWMonitoring",
                  std::make_pair("AMC_FIRMWARE_DATE", "GEM_SYSTEM.RELEASE.DATE"),
                  GEMUpdateType::NOUPDATE, "dateoh");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("IP_ADDRESS", "GLIB_SYSTEM.SYSTEM.IP_INFO"),
+                 std::make_pair("IP_ADDRESS", "AMC_SYSTEM.SYSTEM.IP_INFO"),
                  GEMUpdateType::NOUPDATE, "ip");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("MAC_ADDRESS", "GLIB_SYSTEM.SYSTEM.MAC"),
+                 std::make_pair("MAC_ADDRESS", "AMC_SYSTEM.SYSTEM.MAC"),
                  GEMUpdateType::NOUPDATE, "mac");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("SFP1_STATUS", "GLIB_SYSTEM.SYSTEM.STATUS.SFP1.STATUS"),
+                 std::make_pair("SFP1_STATUS", "AMC_SYSTEM.SYSTEM.STATUS.SFP1.STATUS"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("SFP2_STATUS", "GLIB_SYSTEM.SYSTEM.STATUS.SFP2.STATUS"),
+                 std::make_pair("SFP2_STATUS", "AMC_SYSTEM.SYSTEM.STATUS.SFP2.STATUS"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("SFP3_STATUS", "GLIB_SYSTEM.SYSTEM.STATUS.SFP3.STATUS"),
+                 std::make_pair("SFP3_STATUS", "AMC_SYSTEM.SYSTEM.STATUS.SFP3.STATUS"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("SFP4_STATUS", "GLIB_SYSTEM.SYSTEM.STATUS.SFP4.STATUS"),
+                 std::make_pair("SFP4_STATUS", "AMC_SYSTEM.SYSTEM.STATUS.SFP4.STATUS"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("FMC1_STATUS", "GLIB_SYSTEM.SYSTEM.STATUS.FMC1_PRESENT"),
+                 std::make_pair("FMC1_STATUS", "AMC_SYSTEM.SYSTEM.STATUS.FMC1_PRESENT"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("FMC2_STATUS", "GLIB_SYSTEM.SYSTEM.STATUS.FMC2_PRESENT"),
+                 std::make_pair("FMC2_STATUS", "AMC_SYSTEM.SYSTEM.STATUS.FMC2_PRESENT"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("FPGA_RESET", "GLIB_SYSTEM.SYSTEM.STATUS.FPGA_RESET"),
+                 std::make_pair("FPGA_RESET", "AMC_SYSTEM.SYSTEM.STATUS.FPGA_RESET"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("GBE_INT",  "GLIB_SYSTEM.SYSTEM.STATUS.GBE_INT"),
+                 std::make_pair("GBE_INT",  "AMC_SYSTEM.SYSTEM.STATUS.GBE_INT"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("V6_CPLD",  "GLIB_SYSTEM.SYSTEM.STATUS.V6_CPLD"),
+                 std::make_pair("V6_CPLD",  "AMC_SYSTEM.SYSTEM.STATUS.V6_CPLD"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("CPLD_LOCK", "GLIB_SYSTEM.SYSTEM.STATUS.CDCE_LOCK"),
+                 std::make_pair("CPLD_LOCK", "AMC_SYSTEM.SYSTEM.STATUS.CDCE_LOCK"),
                  GEMUpdateType::HW32, "hex");
 
   addMonitorableSet("COUNTERS", "HWMonitoring");
@@ -301,7 +301,7 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  GEMUpdateType::HW32, "hex");
 
   addMonitorableSet("Trigger Status", "HWMonitoring");
-  for (uint8_t oh = 0; oh < p_glib->getSupportedOptoHybrids(); ++oh) {
+  for (uint8_t oh = 0; oh < p_amc->getSupportedOptoHybrids(); ++oh) {
     std::stringstream ohname;
     ohname << "OH" <<  (int)oh;
     addMonitorableSet("DAQ Status", "HWMonitoring");
@@ -351,70 +351,70 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
   updateMonitorables();
 }
 
-gem::hw::glib::GLIBMonitor::~GLIBMonitor()
+gem::hw::amc::AMCMonitor::~AMCMonitor()
 {
 
 }
 
-void gem::hw::glib::GLIBMonitor::updateMonitorables()
+void gem::hw::amc::AMCMonitor::updateMonitorables()
 {
   // define how to update the desired values
   // get SYSTEM monitorables
   // can this be split into two loops, one just to do a list read, the second to fill the InfoSpace with the returned values
-  CMSGEMOS_DEBUG("GLIBMonitor: Updating monitorables");
+  CMSGEMOS_DEBUG("AMCMonitor: Updating monitorables");
   for (auto monlist = m_monitorableSetsMap.begin(); monlist != m_monitorableSetsMap.end(); ++monlist) {
-    CMSGEMOS_DEBUG("GLIBMonitor: Updating monitorables in set " << monlist->first);
+    CMSGEMOS_DEBUG("AMCMonitor: Updating monitorables in set " << monlist->first);
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
-      CMSGEMOS_DEBUG("GLIBMonitor: Updating monitorable " << monitem->first);
+      CMSGEMOS_DEBUG("AMCMonitor: Updating monitorable " << monitem->first);
       std::stringstream regName;
-      regName << p_glib->getDeviceBaseNode() << "." << monitem->second.regname;
-      uint32_t address = p_glib->getNode(regName.str()).getAddress();
-      uint32_t mask    = p_glib->getNode(regName.str()).getMask();
+      regName << p_amc->getDeviceBaseNode() << "." << monitem->second.regname;
+      uint32_t address = p_amc->getNode(regName.str()).getAddress();
+      uint32_t mask    = p_amc->getNode(regName.str()).getMask();
       if (monitem->second.updatetype == GEMUpdateType::HW8) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,p_glib->readReg(address,mask));
+        (monitem->second.infoSpace)->setUInt32(monitem->first,p_amc->readReg(address,mask));
       } else if (monitem->second.updatetype == GEMUpdateType::HW16) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,p_glib->readReg(address,mask));
+        (monitem->second.infoSpace)->setUInt32(monitem->first,p_amc->readReg(address,mask));
       } else if (monitem->second.updatetype == GEMUpdateType::HW24) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,p_glib->readReg(address,mask));
+        (monitem->second.infoSpace)->setUInt32(monitem->first,p_amc->readReg(address,mask));
       } else if (monitem->second.updatetype == GEMUpdateType::HW32) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,p_glib->readReg(address,mask));
+        (monitem->second.infoSpace)->setUInt32(monitem->first,p_amc->readReg(address,mask));
       } else if (monitem->second.updatetype == GEMUpdateType::HW64) {
-        address = p_glib->getNode(regName.str()+".LOWER").getAddress();
-        mask    = p_glib->getNode(regName.str()+".LOWER").getMask();
-        uint32_t lower = p_glib->readReg(address,mask);
-        address = p_glib->getNode(regName.str()+".UPPER").getAddress();
-        mask    = p_glib->getNode(regName.str()+".UPPER").getMask();
-        uint32_t upper = p_glib->readReg(address,mask);
+        address = p_amc->getNode(regName.str()+".LOWER").getAddress();
+        mask    = p_amc->getNode(regName.str()+".LOWER").getMask();
+        uint32_t lower = p_amc->readReg(address,mask);
+        address = p_amc->getNode(regName.str()+".UPPER").getAddress();
+        mask    = p_amc->getNode(regName.str()+".UPPER").getMask();
+        uint32_t upper = p_amc->readReg(address,mask);
         (monitem->second.infoSpace)->setUInt64(monitem->first, (((uint64_t)upper) << 32) + lower);
       } else if (monitem->second.updatetype == GEMUpdateType::I2CSTAT) {
         std::stringstream strobeReg;
         strobeReg << regName.str() << ".Strobe." << monitem->first;
-        address = p_glib->getNode(strobeReg.str()).getAddress();
-        mask    = p_glib->getNode(strobeReg.str()).getMask();
-        uint32_t strobe = p_glib->readReg(address,mask);
+        address = p_amc->getNode(strobeReg.str()).getAddress();
+        mask    = p_amc->getNode(strobeReg.str()).getMask();
+        uint32_t strobe = p_amc->readReg(address,mask);
         std::stringstream ackReg;
         ackReg << regName.str() << ".Ack." << monitem->first;
-        address = p_glib->getNode(ackReg.str()).getAddress();
-        mask    = p_glib->getNode(ackReg.str()).getMask();
-        uint32_t ack = p_glib->readReg(address,mask);
+        address = p_amc->getNode(ackReg.str()).getAddress();
+        mask    = p_amc->getNode(ackReg.str()).getMask();
+        uint32_t ack = p_amc->readReg(address,mask);
         (monitem->second.infoSpace)->setUInt64(monitem->first, (((uint64_t)ack) << 32) + strobe);
       } else if (monitem->second.updatetype == GEMUpdateType::PROCESS) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,p_glib->readReg(address,mask));
+        (monitem->second.infoSpace)->setUInt32(monitem->first,p_amc->readReg(address,mask));
       } else if (monitem->second.updatetype == GEMUpdateType::TRACKER) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,p_glib->readReg(address,mask));
+        (monitem->second.infoSpace)->setUInt32(monitem->first,p_amc->readReg(address,mask));
       } else if (monitem->second.updatetype == GEMUpdateType::NOUPDATE) {
         continue;
       } else {
-        CMSGEMOS_ERROR("GLIBMonitor: Unknown update type encountered");
+        CMSGEMOS_ERROR("AMCMonitor: Unknown update type encountered");
         continue;
       }
     } // end loop over items in list
   } // end loop over monitorableSets
 }
 
-void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
+void gem::hw::amc::AMCMonitor::buildMonitorPage(xgi::Output* out)
 {
-  CMSGEMOS_DEBUG("GLIBMonitor::buildMonitorPage");
+  CMSGEMOS_DEBUG("AMCMonitor::buildMonitorPage");
   if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
     CMSGEMOS_WARN("Unable to find item set HWMonitoring in monitor");
     return;
@@ -432,7 +432,7 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
     } else if ((*monset).rfind("Trigger Status") != std::string::npos) {
       buildTriggerStatusTable(out);
     } else {
-      CMSGEMOS_DEBUG("GLIBMonitor::buildMonitorPage building table " << *monset);
+      CMSGEMOS_DEBUG("AMCMonitor::buildMonitorPage building table " << *monset);
       *out << "<div class=\"xdaq-tab\" title=\""  << *monset << "\" >"  << std::endl
            << "<table class=\"xdaq-table\" id=\"" << *monset << "_table\">" << std::endl
            << cgicc::thead() << std::endl
@@ -453,9 +453,9 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
              << monitem->first
              << "</td>"   << std::endl;
 
-        CMSGEMOS_DEBUG("GLIBMonitor::" << monitem->first << " formatted to "
+        CMSGEMOS_DEBUG("AMCMonitor::" << monitem->first << " formatted to "
               << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
-        // this will be repeated for every GLIBMonitor in the GLIBManager..., need a better unique ID
+        // this will be repeated for every AMCMonitor in the AMCManager..., need a better unique ID
         *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
              << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
              << "</td>"   << std::endl;
@@ -478,9 +478,9 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
   *out << "</div>"  << std::endl;  // closes cardPage tab wrapper
 }
 
-void gem::hw::glib::GLIBMonitor::buildDAQStatusTable(xgi::Output* out)
+void gem::hw::amc::AMCMonitor::buildDAQStatusTable(xgi::Output* out)
 {
-  CMSGEMOS_DEBUG("GLIBMonitor::buildDAQStatusTable");
+  CMSGEMOS_DEBUG("AMCMonitor::buildDAQStatusTable");
   if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
     CMSGEMOS_WARN("Unable to find item set HWMonitoring in monitor");
     return;
@@ -494,11 +494,11 @@ void gem::hw::glib::GLIBMonitor::buildDAQStatusTable(xgi::Output* out)
   }
 
   auto monset = m_monitorableSetsMap.find("DAQ Status")->second;
-  CMSGEMOS_DEBUG("GLIBMonitor::buildDAQStatusTable building DAQ Status table");
+  CMSGEMOS_DEBUG("AMCMonitor::buildDAQStatusTable building DAQ Status table");
   *out << "<div class=\"xdaq-tab\" title=\"DAQ Status\">" << std::endl
        << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
 
-  CMSGEMOS_DEBUG("GLIBMonitor::buildDAQStatusTable building Common DAQ Status table");
+  CMSGEMOS_DEBUG("AMCMonitor::buildDAQStatusTable building Common DAQ Status table");
   *out << "<div class=\"xdaq-tab\" title=\"" << "Common DAQ Status" << "\">" << std::endl
        << "<table class=\"xdaq-table\" id=\"CommonDAQStatus_table\">" << std::endl
        << cgicc::thead() << std::endl
@@ -518,9 +518,9 @@ void gem::hw::glib::GLIBMonitor::buildDAQStatusTable(xgi::Output* out)
            << monpair->first
            << "</td>"   << std::endl;
 
-      CMSGEMOS_INFO("GLIBMonitor::" << monpair->first << " formatted to "
+      CMSGEMOS_INFO("AMCMonitor::" << monpair->first << " formatted to "
             << (monpair->second.infoSpace)->getFormattedItem(monpair->first,monpair->second.format));
-      // this will be repeated for every GLIBMonitor in the GLIBManager..., need a better unique ID
+      // this will be repeated for every AMCMonitor in the AMCManager..., need a better unique ID
       *out << "<td id=\"" << monpair->second.infoSpace->name() << "-" << monpair->first << "\">" << std::endl
            << (monpair->second.infoSpace)->getFormattedItem(monpair->first,monpair->second.format)
            << "</td>"   << std::endl;
@@ -540,7 +540,7 @@ void gem::hw::glib::GLIBMonitor::buildDAQStatusTable(xgi::Output* out)
   *out << "</table>" << std::endl;
   *out << "</div>"   << std::endl;  // closes Common DAQ Status tab
 
-  CMSGEMOS_INFO("GLIBMonitor::buildDAQStatusTable building Per-link DAQ Status table");
+  CMSGEMOS_INFO("AMCMonitor::buildDAQStatusTable building Per-link DAQ Status table");
   *out << "<div class=\"xdaq-tab\" title=\""  << "Per-link DAQ Status" << "\" >" << std::endl
        << "<table class=\"xdaq-table\" id=\"Per-linkDAQStatus_table\">" << std::endl
        << cgicc::thead() << std::endl
@@ -556,7 +556,7 @@ void gem::hw::glib::GLIBMonitor::buildDAQStatusTable(xgi::Output* out)
        << "<tbody>" << std::endl;
   for (auto monpair = monset.begin(); monpair != monset.end(); ++monpair) {
     if (monpair->first.find("OH0_STATUS") != std::string::npos) {
-      CMSGEMOS_INFO("GLIBMonitor::buildDAQStatusTable " << monpair->first << " found, building per-link structure");
+      CMSGEMOS_INFO("AMCMonitor::buildDAQStatusTable " << monpair->first << " found, building per-link structure");
       std::array<std::string, 6> linkarray = {{"STATUS",
                                                "EVN",
                                                "EOE_TIMEOUT",
@@ -572,7 +572,7 @@ void gem::hw::glib::GLIBMonitor::buildDAQStatusTable(xgi::Output* out)
              << "</td>"   << std::endl;
 
         for (int i = 0; i < 12; ++i) {
-          CMSGEMOS_INFO("GLIBMonitor::buildDAQStatusTable creating OH" << i << " table header");
+          CMSGEMOS_INFO("AMCMonitor::buildDAQStatusTable creating OH" << i << " table header");
           std::stringstream substr;
           substr << "OH" << i;
           *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << *regname  << "\">" << std::endl
@@ -597,7 +597,7 @@ void gem::hw::glib::GLIBMonitor::buildDAQStatusTable(xgi::Output* out)
        << "</div>"   << std::endl;  // closes DAQ Status tab-wrapper
 }
 
-void gem::hw::glib::GLIBMonitor::buildTriggerStatusTable(xgi::Output* out)
+void gem::hw::amc::AMCMonitor::buildTriggerStatusTable(xgi::Output* out)
 {
   if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
     CMSGEMOS_WARN("Unable to find item set HWMonitoring in monitor");
@@ -613,7 +613,7 @@ void gem::hw::glib::GLIBMonitor::buildTriggerStatusTable(xgi::Output* out)
 
   auto monset = m_monitorableSetsMap.find("Trigger Status")->second;
 
-  CMSGEMOS_INFO("GLIBMonitor::buildTriggerStatusTable building Trigger Status table");
+  CMSGEMOS_INFO("AMCMonitor::buildTriggerStatusTable building Trigger Status table");
   *out << "<div class=\"xdaq-tab\" title=\""  << "Trigger Status" << "\" >" << std::endl
        << "<table class=\"xdaq-table\" id=\"TriggerStatus_table\">" << std::endl
        << cgicc::thead() << std::endl
@@ -631,14 +631,14 @@ void gem::hw::glib::GLIBMonitor::buildTriggerStatusTable(xgi::Output* out)
     if (monpair->first.find("OH0_TRIGGER_RATE") != std::string::npos) {
       std::array<std::string, 2> linkarray = {{"TRIGGER_RATE", "TRIGGER_CNT"}};
       for (auto regname = linkarray.begin(); regname != linkarray.end(); ++regname) {
-        CMSGEMOS_INFO("GLIBMonitor::buildTriggerStatusTable " << monpair->first << " found, building per-link structure");
+        CMSGEMOS_INFO("AMCMonitor::buildTriggerStatusTable " << monpair->first << " found, building per-link structure");
         *out << "<tr>"    << std::endl
              << "<td>"    << std::endl
              << *regname
              << "</td>"   << std::endl;
 
         for (int i = 0; i < 12; ++i) {
-          CMSGEMOS_INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
+          CMSGEMOS_INFO("AMCMonitor::buildTriggerStatusTable creating OH" << i << " table header");
           *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << *regname << "\">" << std::endl
                << "N/A"
                << "</td>"   << std::endl;
@@ -663,7 +663,7 @@ void gem::hw::glib::GLIBMonitor::buildTriggerStatusTable(xgi::Output* out)
              << "</td>"   << std::endl;
 
         for (int i = 0; i < 12; ++i) {
-          CMSGEMOS_INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
+          CMSGEMOS_INFO("AMCMonitor::buildTriggerStatusTable creating OH" << i << " table header");
           *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << specregname.str() << "\">" << std::endl
                << "N/A"
                << "</td>"   << std::endl;
@@ -687,7 +687,7 @@ void gem::hw::glib::GLIBMonitor::buildTriggerStatusTable(xgi::Output* out)
              << "</td>"   << std::endl;
 
         for (int i = 0; i < 12; ++i) {
-          CMSGEMOS_INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
+          CMSGEMOS_INFO("AMCMonitor::buildTriggerStatusTable creating OH" << i << " table header");
           *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << specregname.str() << "\">" << std::endl
                << "N/A"
                << "</td>"   << std::endl;
@@ -711,7 +711,7 @@ void gem::hw::glib::GLIBMonitor::buildTriggerStatusTable(xgi::Output* out)
              << "</td>"   << std::endl;
 
         for (int i = 0; i < 12; ++i) {
-          CMSGEMOS_INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
+          CMSGEMOS_INFO("AMCMonitor::buildTriggerStatusTable creating OH" << i << " table header");
           *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << specregname.str() << "\">" << std::endl
                << "N/A"
                << "</td>"   << std::endl;
@@ -732,16 +732,16 @@ void gem::hw::glib::GLIBMonitor::buildTriggerStatusTable(xgi::Output* out)
        << "</div>"   << std::endl;  // closes Trigger Status tab
 }
 
-void gem::hw::glib::GLIBMonitor::reset()
+void gem::hw::amc::AMCMonitor::reset()
 {
   // have to get rid of the timer
   CMSGEMOS_DEBUG("GEMMonitor::reset");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
-    CMSGEMOS_DEBUG("GLIBMonitor::reset removing " << infoSpace->first << " from p_timer");
+    CMSGEMOS_DEBUG("AMCMonitor::reset removing " << infoSpace->first << " from p_timer");
     try {
       p_timer->remove(infoSpace->first);
     } catch (toolbox::task::exception::Exception const& e) {
-      CMSGEMOS_ERROR("GLIBMonitor::Caught exception while removing timer task " << infoSpace->first << " " << e.what());
+      CMSGEMOS_ERROR("AMCMonitor::Caught exception while removing timer task " << infoSpace->first << " " << e.what());
     }
   }
   stopMonitoring();
@@ -749,10 +749,10 @@ void gem::hw::glib::GLIBMonitor::reset()
   try {
     toolbox::task::getTimerFactory()->removeTimer(m_timerName);
   } catch (toolbox::task::exception::Exception const& e) {
-    CMSGEMOS_ERROR("GLIBMonitor::Caught exception while removing timer " << m_timerName << " " << e.what());
+    CMSGEMOS_ERROR("AMCMonitor::Caught exception while removing timer " << m_timerName << " " << e.what());
   }
 
-  CMSGEMOS_DEBUG("GLIBMonitor::reset - clearing all maps");
+  CMSGEMOS_DEBUG("AMCMonitor::reset - clearing all maps");
   m_infoSpaceMap.clear();
   m_infoSpaceMonitorableSetMap.clear();
   m_monitorableSetInfoSpaceMap.clear();
