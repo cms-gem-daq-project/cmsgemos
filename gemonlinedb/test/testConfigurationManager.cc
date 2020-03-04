@@ -3,6 +3,7 @@
 #include <stdlib.h> // setenv
 #include <thread>
 #include <memory>
+#include <mutex>
 #include <vector>
 
 #include "gem/onlinedb/ConfigurationManager.h"
@@ -51,11 +52,12 @@ BOOST_AUTO_TEST_CASE(SharedRead)
         setenv("CMSGEMOS_CONFIG_PATH", "xml/examples", 1);
 
         auto start = std::chrono::system_clock::now();
-        std::atomic<std::exception_ptr> eptr;
+        std::mutex emutex;
+        std::exception_ptr eptr;
 
         std::vector<std::thread> threads;
         for (int i = 0; i < 10; ++i) {
-            threads.emplace_back([&eptr] {
+            threads.emplace_back([&eptr, &emutex] {
                 try {
                     auto lock = ConfigurationManager::makeReadLock();
                     ConfigurationManager::getConfiguration(lock); // Locks
@@ -63,6 +65,7 @@ BOOST_AUTO_TEST_CASE(SharedRead)
                 } catch (...) {
                     // Exceptions cannot pass thread boundaries, so save the
                     // current one to rethrow it later.
+                    std::lock_guard g(emutex);
                     eptr = std::current_exception();
                 }
             });
@@ -94,9 +97,10 @@ BOOST_AUTO_TEST_CASE(WriteBlockRead)
         setenv("CMSGEMOS_CONFIG_PATH", "xml/examples", 1);
 
         auto start = std::chrono::system_clock::now();
-        std::atomic<std::exception_ptr> eptr;
+        std::mutex emutex;
+        std::exception_ptr eptr;
 
-        std::thread writer([&eptr] {
+        std::thread writer([&eptr, &emutex] {
             try {
                 auto lock = ConfigurationManager::makeEditLock();
                 ConfigurationManager::getConfiguration(lock); // Locks
@@ -104,10 +108,11 @@ BOOST_AUTO_TEST_CASE(WriteBlockRead)
             } catch (...) {
                 // Exceptions cannot pass thread boundaries, so save the
                 // current one to rethrow it later.
+                std::lock_guard g(emutex);
                 eptr = std::current_exception();
             }
         });
-        std::thread reader([&eptr] {
+        std::thread reader([&eptr, &emutex] {
             try {
                 auto lock = ConfigurationManager::makeReadLock();
                 ConfigurationManager::getConfiguration(lock); // Locks
@@ -115,6 +120,7 @@ BOOST_AUTO_TEST_CASE(WriteBlockRead)
             } catch (...) {
                 // Exceptions cannot pass thread boundaries, so save the
                 // current one to rethrow it later.
+                std::lock_guard g(emutex);
                 eptr = std::current_exception();
             }
         });
