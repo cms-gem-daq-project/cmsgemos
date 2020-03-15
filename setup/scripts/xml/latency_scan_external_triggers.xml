@@ -148,18 +148,6 @@
     <xc:Application class="gem::supervisor::GEMSupervisor" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMSupervisor"
 		  xsi:type="soapenc:Struct">
-        <DatabaseInfo xsi:type="soapenc:Struct">
-          <dbName xsi:type="xsd:string">ldqm_test_db</dbName>
-          <dbHost xsi:type="xsd:string">gem904daq01.cern.ch</dbHost>
-          <dbPort xsi:type="xsd:integer">3306</dbPort>
-          <dbUser xsi:type="xsd:string">gemdaq</dbUser>
-          <dbPass xsi:type="xsd:string">gemdaq</dbPass>
-	  
-          <setupTag xsi:type="xsd:string">LatencyScan</setupTag>
-          <runPeriod xsi:type="xsd:string">2016T</runPeriod>
-          <setupLocation xsi:type="xsd:string">CERN904</setupLocation>
-        </DatabaseInfo>
-        
         <ScanInfo xsi:type="soapenc:Struct">
           <ScanType   xsi:type="xsd:unsignedInt">2</ScanType> <!-- 2 == latency, 3 == threshold, 4 == s-curve -->
           <ScanMin    xsi:type="xsd:unsignedInt">15</ScanMin>
@@ -168,7 +156,6 @@
           <NTriggers  xsi:type="xsd:unsignedLong">250</NTriggers>
         </ScanInfo>
 
-        <!--dbAccessor xsi:type="xsd:string">mysql://gem904daq01.cern.ch:3306/</dbAccessor-->
 	<rcmsStateListener xsi:type="soapenc:Struct">
           <classname xsi:type="xsd:string">RCMSStateListener</classname>
           <instance  xsi:type="xsd:unsignedInt">0</instance>
