@@ -94,11 +94,6 @@ namespace gem {
         void globalStateChanged(toolbox::fsm::State before, toolbox::fsm::State after);
 
         /**
-         * @brief gets new run number in the case of a run transistion stop/start
-         */
-        void updateRunNumber();
-
-        /**
          * @param cfgType tells the application which type of configuration to use, XML or DB
          * @param ad is the application descriptor to send the SOAP message to
          * @throws
@@ -200,20 +195,8 @@ namespace gem {
 
 	GEMGlobalState m_globalState;
 
-        xdata::Bag<gem::utils::db::GEMDatabaseUtils::GEMDBInfo> m_dbInfo;
-        xdata::String   m_dbName;
-        xdata::String   m_dbHost;
-        xdata::Integer  m_dbPort;
-        xdata::String   m_dbUser;
-        xdata::String   m_dbPass;
-        xdata::String   m_setupTag;
-        xdata::String   m_runPeriod;
-        xdata::String   m_setupLocation;
-
 	uint32_t m_scanParameter;
 
-        xdata::Boolean             m_useLocalDBInstance;
-        xdata::Boolean             m_useLocalRunNumber;
         xdata::Boolean             m_handleTCDS;
         xdata::Bag<TCDSConfig>     m_tcdsConfig;
         xdata::Boolean             m_useLocalReadout;
