@@ -179,10 +179,6 @@ ROOTCFLAGS = $(shell root-config --cflags)
 ROOTLIBS   = $(shell root-config --libs)
 ROOTGLIBS  = $(shell root-config --glibs)
 
-# MySQL Config
-MySQLCFLAGS = $(shell mysql_config --cflags)
-MySQLLIBS   = $(shell mysql_config --libs)
-
 LibraryDirs+=$(XDAQ_ROOT)/lib
 # LibraryDirs+=/usr/local/lib
 
