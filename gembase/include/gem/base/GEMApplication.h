@@ -50,7 +50,6 @@
 #include "xcept/tools.h"
 
 #include "gem/utils/GEMLogging.h"
-#include "gem/utils/db/GEMDatabaseUtils.h"
 #include "gem/base/exception/Exception.h"
 #include "gem/base/utils/exception/Exception.h"
 #include "gem/base/utils/GEMInfoSpaceToolBox.h"
@@ -234,8 +233,6 @@ namespace gem {
         xdata::UnsignedInteger32 m_scanMax;
         xdata::UnsignedInteger32 m_stepSize;
         xdata::UnsignedInteger64 m_nScanTriggers;
-
-        std::shared_ptr<gem::utils::db::GEMDatabaseUtils> p_gemDBHelper;
 
       private:
       };
