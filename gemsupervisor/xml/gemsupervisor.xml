@@ -117,22 +117,9 @@
     <xc:Application class="gem::supervisor::GEMSupervisor" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMSupervisor"
 		  xsi:type="soapenc:Struct">
-        <UseLocalDB        xsi:type="xsd:boolean">false</UseLocalDB>
         <HandleTCDS        xsi:type="xsd:boolean">false</HandleTCDS>
         <UseLocalReadout   xsi:type="xsd:boolean">true</UseLocalReadout>
         <UseFedKitReadout  xsi:type="xsd:boolean">false</UseFedKitReadout>
-
-        <DatabaseInfo xsi:type="soapenc:Struct">
-          <dbName xsi:type="xsd:string">ldqm_test_db</dbName>
-          <dbHost xsi:type="xsd:string">localhost</dbHost>
-          <dbPort xsi:type="xsd:integer">3306</dbPort>
-          <dbUser xsi:type="xsd:string">gemdaq</dbUser>
-          <dbPass xsi:type="xsd:string">gemdaq</dbPass>
-
-          <setupTag xsi:type="xsd:string">Testing</setupTag>
-          <runPeriod xsi:type="xsd:string">2017T</runPeriod>
-          <setupLocation xsi:type="xsd:string">CERNP5</setupLocation>
-        </DatabaseInfo>
 
         <ScanInfo xsi:type="soapenc:Struct">
           <ScanType   xsi:type="xsd:unsignedInt">1</ScanType>
