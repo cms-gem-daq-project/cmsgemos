@@ -72,17 +72,10 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   CMSGEMOS_DEBUG("done");
   //p_gemMonitor      = new gem generic system monitor
 
-  p_appInfoSpace->fireItemAvailable("DatabaseInfo",&m_dbInfo);
   p_appInfoSpace->fireItemAvailable("TCDSConfig",  &m_tcdsConfig);
-
-  p_appInfoSpace->addItemRetrieveListener("DatabaseInfo", this);
   p_appInfoSpace->addItemRetrieveListener("TCDSConfig",   this);
-
-  p_appInfoSpace->addItemChangedListener("DatabaseInfo", this);
   p_appInfoSpace->addItemChangedListener("TCDSConfig",   this);
 
-  p_appInfoSpaceToolBox->createBool("UseLocalDB",       m_useLocalDBInstance.value_, &m_useLocalDBInstance, GEMUpdateType::PROCESS);
-  p_appInfoSpaceToolBox->createBool("UseLocalRunNumber",m_useLocalRunNumber.value_,  &m_useLocalRunNumber,  GEMUpdateType::PROCESS);
   p_appInfoSpaceToolBox->createBool("HandleTCDS",       m_handleTCDS.value_,         &m_handleTCDS,         GEMUpdateType::PROCESS);
   p_appInfoSpaceToolBox->createBool("UseLocalReadout",  m_useLocalReadout.value_,    &m_useLocalReadout,    GEMUpdateType::PROCESS);
   p_appInfoSpaceToolBox->createBool("UseFedKitReadout", m_useFedKitReadout.value_,   &m_useFedKitReadout,   GEMUpdateType::PROCESS);
@@ -149,17 +142,8 @@ void gem::supervisor::GEMSupervisor::actionPerformed(xdata::Event& event)
     importMonitoringParameters();
     // p_gemMonitor->startMonitoring();
 
-    m_dbName        = m_dbInfo.bag.dbName.toString();
-    m_dbHost        = m_dbInfo.bag.dbHost.toString();
-    m_dbPort        = m_dbInfo.bag.dbPort.value_;
-    m_dbUser        = m_dbInfo.bag.dbUser.toString();
-    m_dbPass        = m_dbInfo.bag.dbPass.toString();
-    m_setupTag      = m_dbInfo.bag.setupTag.toString();
-    m_runPeriod     = m_dbInfo.bag.runPeriod.toString();
-    m_setupLocation = m_dbInfo.bag.setupLocation.toString();
-
     m_handleTCDS    = m_tcdsConfig.bag.handleTCDS.value_;
-    CMSGEMOS_DEBUG("GEMSupervisor::actionPerformed m_dbInfo = " << m_dbInfo.bag.toString());
+    CMSGEMOS_DEBUG("GEMSupervisor::actionPerformed");
   }
 
   // item is changed, update it
@@ -279,17 +263,7 @@ void gem::supervisor::GEMSupervisor::initializeAction()
     m_globalState.update();
   }
 
-
-  if (m_useLocalDBInstance)
-    p_gemDBHelper = std::make_shared<gem::utils::db::GEMDatabaseUtils>(m_dbHost.toString(),
-                                                                       m_dbPort.value_,
-                                                                       m_dbUser.toString(),
-                                                                       m_dbPass.toString());
-
   try {
-    if (m_useLocalDBInstance)
-      p_gemDBHelper->connect(m_dbName.toString());
-
     // do this only when RCMS is not present
     // for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
     auto initorder = getInitializationOrder();
@@ -530,36 +504,6 @@ void gem::supervisor::GEMSupervisor::startAction()
                   << getCurrentState() << ")");
     usleep(10);
     m_globalState.update();
-  }
-
-  try {
-    updateRunNumber();
-  } catch (gem::utils::exception::Exception const& e) {
-    std::stringstream msg;
-    msg << "GEMSupervisor::startAction updateRunNumber failed:" << e.what();
-    CMSGEMOS_ERROR(msg.str());
-    m_globalState.update();
-    XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-    return;
-    //throw e;
-  } catch (xcept::Exception const& e) {
-    std::stringstream msg;
-    msg << "GEMSupervisor::startAction updateRunNumber failed:" << e.what();
-    CMSGEMOS_ERROR(msg.str());
-    m_globalState.update();
-    XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  } catch (std::exception const& e) {
-    std::stringstream msg;
-    msg << "GEMSupervisor::startAction updateRunNumber failed:" << e.what();
-    CMSGEMOS_ERROR(msg.str());
-    m_globalState.update();
-    XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
-  } catch (...) {
-    std::stringstream msg;
-    msg << "GEMSupervisor::startAction updateRunNumber failed: unknown exception";
-    CMSGEMOS_ERROR(msg.str());
-    m_globalState.update();
-    XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   }
 
   if (m_scanType.value_ == 2 || (m_scanType.value_ == 3)){
@@ -1109,114 +1053,6 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
   // if (m_stateName == "Error") {
   //   XCEPT_RAISE(gem::supervisor::exception::TransitionProblem, "Composite state is 'Error'");
   // }
-}
-
-void gem::supervisor::GEMSupervisor::updateRunNumber()
-{
-  CMSGEMOS_INFO("GEMSupervisor::updateRunNumber called");
-  // should be able to find the run number from the run number service, or some other source
-  // get the last entry
-  // query parameter
-  /*
-    std::string sqlString = ""
-    + "SELECT DISTINCT runnumbertbl.runnumber, runnumbertbl.username, runnumbertbl.bookingtime, runsession_parameter.session_id "
-    + "FROM runnumbertbl "
-    + "LEFT JOIN runsession_parameter ON (runsession_parameter.runnumber = runnumbertbl.runnumber) "
-    + whereSessionId
-    + whereUserName
-    + whereSequenceName
-    + "ORDER BY runnumbertbl.runnumber DESC "
-    + limit;
-  */
-
-  // // book the next run number
-  // std::string sqlInsert = "INSERT INTO runnumbertbl (USERNAME,SEQUENCENAME,SEQUENCENUMBER) VALUES (?,?,?)";
-
-  /*ldqm_db example
-    | id  | Name                             | Type  | Number | Date       | Period | Station | Status | State_id |
-    +-----+----------------------------------+-------+--------+------------+--------+---------+--------+----------+
-    |   4 | run000001_bench_TAMU_2015-12-15  | bench | 000001 | 2015-12-16 | 2015T  | TAMU    |      1 |     NULL |
-  */
-
-  if (m_useLocalDBInstance) {
-    // hacky time for teststand/local runs, before connection through RCMS to RunInfoDB is established
-    // get these from or send them to the readout application
-    std::string    setup = m_setupTag.toString();
-    std::string   period = m_runPeriod.toString();
-    std::string location = m_setupLocation.toString();
-    try {
-      CMSGEMOS_INFO("GEMSupervisor::updateRunNumber trying to configure the local DB");
-      p_gemDBHelper->configure(location,setup,period, m_runNumber.value_);
-    } catch (gem::utils::exception::DBPythonError const& e) {
-      std::stringstream msg;
-      msg << "GEMSupervisor::updateRunNumber python DB Configure call failed";
-      CMSGEMOS_ERROR(msg.str());
-      m_globalState.update();
-      // fireEvent("Fail");
-      XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-    }
-
-    if (m_useLocalRunNumber) {
-      try {
-        CMSGEMOS_INFO("GEMSupervisor::updateRunNumber trying to connect to the local DB");
-        p_gemDBHelper->connect(m_dbName.toString());
-
-        std::string lastRunNumberQuery = "SELECT Number FROM ldqm_db_run WHERE Station LIKE '";
-        lastRunNumberQuery += location;
-        lastRunNumberQuery += "' ORDER BY Number DESC LIMIT 1;";
-
-        try {
-          CMSGEMOS_INFO("GEMSupervisor::updateRunNumber trying to get the latest run number");
-          m_runNumber.value_ = p_gemDBHelper->query(lastRunNumberQuery);
-        } catch (gem::utils::exception::DBEmptyQueryResult const& e) {
-          CMSGEMOS_ERROR("GEMSupervisor::updateRunNumber caught gem::utils::DBEmptyQueryResult " << e.what());
-          m_globalState.update();
-          XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
-        } catch (xcept::Exception const& e) {
-          CMSGEMOS_ERROR("GEMSupervisor::updateRunNumber caught xcept::Exception " << e.what());
-          m_globalState.update();
-          XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
-        } catch (std::exception const& e) {
-          CMSGEMOS_ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
-          m_globalState.update();
-          XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
-        }
-
-        CMSGEMOS_INFO("GEMSupervisor::updateRunNumber, run number from database is : " << m_runNumber.toString());
-        //parse and increment by 1, if it is a new station, start at 1
-        //m_runNumber.value_ += 1;
-        CMSGEMOS_INFO("GEMSupervisor::updateRunNumber, new run number is: " << m_runNumber.toString());
-      } catch (gem::utils::exception::DBConnectionError const& e) {
-        std::stringstream msg;
-        msg << "GEMSupervisor::updateRunNumber unable to connect to the database (DBConnectionError)" << e.what();
-        CMSGEMOS_ERROR(msg.str());
-        fireEvent("Fail");
-        m_globalState.update();
-        // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-        // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
-        // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
-      } catch (xcept::Exception const& e) {
-        std::stringstream msg;
-        msg << "GEMSupervisor::updateRunNumber unable to connect to the database (xcept)" << e.what();
-        CMSGEMOS_ERROR(msg.str());
-        fireEvent("Fail");
-        m_globalState.update();
-        // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-        // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
-        // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
-      } catch (std::exception const& e) {
-        std::stringstream msg;
-        msg << "GEMSupervisor::updateRunNumber unable to connect to the database (std)" << e.what();
-        CMSGEMOS_ERROR(msg.str());
-        fireEvent("Fail");
-        m_globalState.update();
-        // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-        // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
-        // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
-      }
-    }
-  }
-  CMSGEMOS_INFO("GEMSupervisor::updateRunNumber done");
 }
 
 void gem::supervisor::GEMSupervisor::sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad)
