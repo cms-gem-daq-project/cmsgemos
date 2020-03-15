@@ -37,9 +37,6 @@ DynamicLibrary=gemutils
 IncludeDirs =$(XDAQ_ROOT)/include
 IncludeDirs+=$(BUILD_HOME)/$(Package)/include
 
-UserCFlags+=$(MySQLCFLAGS)
-UserCFlags+=$(PYTHONCFLAGS)
-
 DependentLibraries =xdaq peer xgi xdata xoap toolbox config xcept
 DependentLibraries+=xerces-c logudpappender logxmlappender log4cplus
 DependentLibraries+=asyncresolv uuid cgicc mimetic
@@ -48,10 +45,6 @@ DependentLibraries+=asyncresolv uuid cgicc mimetic
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
 include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
-
-## hack to get the linking correctly done, *LibraryList is parsed in Makefile.rules
-DependentLibraryList+=$(MySQLLIBS)
-DependentLibraryList+=$(PYTHONLIBS)
 
 check:
 	$(CPPCHECK) $(CPPCHECKFLAGS) --xml $(addprefix -I,$(IncludeDirs)) src/common 2> cppcheck.gembase.xml; \
@@ -77,9 +70,6 @@ print-env:
 	@echo RANLIB        $(RANLIB)
 	@echo GCCVERSION    $(GCCVERSION)
 	@echo CLANGVERSION  $(CLANGVERSION)
-	@echo MySQLLIBS     $(MySQLLIBS)
-	@echo PYTHONLIBS    $(PYTHONLIBS)
-	@echo PYTHONGLIBS   $(PYTHONGLIBS)
 	@echo IncludeDirs   $(IncludeDirs)
 	@echo LibraryDirs   $(LibraryDirs)
 	@echo DependentLibraryDirs $(DependentLibraryDirs)
