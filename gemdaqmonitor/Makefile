@@ -53,9 +53,6 @@ DependentLibraries+=boost_iostreams
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
 include $(BUILD_HOME)/config/mfRPMDefsGEM.mk
 
-# DependentLibraryList+=$(MySQLLIBS)
-# DependentLibraryList+=$(PYTHONLIBS)
-
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
 	@echo XDAQ_ROOT     $(XDAQ_ROOT)

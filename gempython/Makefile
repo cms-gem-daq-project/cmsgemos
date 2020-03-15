@@ -151,7 +151,6 @@ print-env:
 	@echo RANLIB         $(RANLIB)
 	@echo GCCVERSION     $(GCCVERSION)
 	@echo CLANGVERSION   $(CLANGVERSION)
-	@echo MySQLLIBS      $(MySQLLIBS)
 	@echo IncludeDirs    $(IncludeDirs)
 	@echo LibraryDirs    $(LibraryDirs)
 	@echo DependentLibraryDirs $(DependentLibraryDirs)
