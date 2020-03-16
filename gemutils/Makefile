@@ -24,7 +24,6 @@ GEMUTILS_VER_MINOR=0
 GEMUTILS_VER_PATCH=1
 
 include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
 Sources+=Lock.cc

@@ -24,7 +24,6 @@ GEMDAQMONITOR_VER_MINOR=0
 GEMDAQMONITOR_VER_PATCH=0
 
 include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
 Sources+=DaqMonitor.cc ShelfMonitor.cc ShelfMonitorWeb.cc
@@ -43,8 +42,6 @@ DependentLibraryDirs+=$(BUILD_HOME)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/devices/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/utils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(XHAL_ROOT)/lib
-
-UserCFlags+=$(PYTHONCFLAGS)
 
 DependentLibraries =gembase
 DependentLibraries+=gemhwdevices gemhwutils xhal-client

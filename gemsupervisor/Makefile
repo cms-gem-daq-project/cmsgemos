@@ -24,7 +24,6 @@ GEMSUPERVISOR_VER_MINOR=0
 GEMSUPERVISOR_VER_PATCH=1
 
 include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
 Sources+=GEMSupervisor.cc GEMSupervisorWeb.cc GEMSupervisorMonitor.cc GEMGlobalState.cc
@@ -50,8 +49,6 @@ DependentLibraryDirs+=$(BUILD_HOME)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(uHALROOT)/lib
 DependentLibraryDirs+=$(XHAL_ROOT)/lib
 
-UserCFlags+=$(PYTHONCFLAGS)
-
 DependentLibraries =gemhwmanagers gemhwdevices gemreadout xdaq2rc
 
 ## not building an exe
@@ -66,7 +63,6 @@ print-env:
 	@echo XDAQ_ROOT     $(XDAQ_ROOT)
 	@echo XDAQ_OS       $(XDAQ_OS)
 	@echo XDAQ_PLATFORM $(XDAQ_PLATFORM)
-	@echo PYTHON_VERSION $(PYTHON_VERSION)
 	@echo LIBDIR        $(LIBDIR)
 	@echo ROOTCFLAGS    $(ROOTCFLAGS)
 	@echo ROOTLIBS      $(ROOTLIBS)
