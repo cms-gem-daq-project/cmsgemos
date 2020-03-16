@@ -23,7 +23,6 @@ GEMBASE_VER_MINOR=0
 GEMBASE_VER_PATCH=0
 
 include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
 Sources+=GEMApplication.cc GEMFSMApplication.cc GEMFSM.cc
