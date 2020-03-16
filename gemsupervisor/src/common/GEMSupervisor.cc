@@ -305,12 +305,6 @@ void gem::supervisor::GEMSupervisor::initializeAction()
     CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
-  } catch (gem::utils::exception::DBConnectionError const& e) {
-    std::stringstream msg;
-    msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
-    CMSGEMOS_ERROR(msg.str());
-    fireEvent("Fail");
-    m_globalState.update();
   } catch (gem::utils::exception::Exception const& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
@@ -456,12 +450,6 @@ void gem::supervisor::GEMSupervisor::configureAction()
     CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
-  } catch (gem::utils::exception::DBConnectionError const& e) {
-    std::stringstream msg;
-    msg << "GEMSupervisor::configureAction unable to configure (gem::utils::exception::DBConnectionError)" << e.what();
-    CMSGEMOS_ERROR(msg.str());
-    fireEvent("Fail");
-    m_globalState.update();
   } catch (gem::utils::exception::Exception const& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::configureAction unable to configure (gem::utils::exception)" << e.what();
@@ -556,12 +544,6 @@ void gem::supervisor::GEMSupervisor::startAction()
     CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
-  } catch (gem::utils::exception::DBConnectionError const& e) {
-    std::stringstream msg;
-    msg << "GEMSupervisor::startAction unable to start (gem::utils::exception::DBConnectionError)" << e.what();
-    CMSGEMOS_ERROR(msg.str());
-    fireEvent("Fail");
-    m_globalState.update();
   } catch (gem::utils::exception::Exception const& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction unable to start (gem::utils::exception)" << e.what();
@@ -633,12 +615,6 @@ void gem::supervisor::GEMSupervisor::pauseAction()
     CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
-  } catch (gem::utils::exception::DBConnectionError const& e) {
-    std::stringstream msg;
-    msg << "GEMSupervisor::pauseAction unable to pause (gem::utils::exception::DBConnectionError)" << e.what();
-    CMSGEMOS_ERROR(msg.str());
-    fireEvent("Fail");
-    m_globalState.update();
   } catch (gem::utils::exception::Exception const& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::pauseAction unable to pause (gem::utils::exception)" << e.what();
@@ -707,12 +683,6 @@ void gem::supervisor::GEMSupervisor::resumeAction()
   } catch (gem::utils::exception::SOAPException const& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resumeAction unable to resume (gem::utils::exception::SOAPException)" << e.what();
-    CMSGEMOS_ERROR(msg.str());
-    fireEvent("Fail");
-    m_globalState.update();
-  } catch (gem::utils::exception::DBConnectionError const& e) {
-    std::stringstream msg;
-    msg << "GEMSupervisor::resumeAction unable to resume (gem::utils::exception::DBConnectionError)" << e.what();
     CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
@@ -789,12 +759,6 @@ void gem::supervisor::GEMSupervisor::stopAction()
     CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
-  } catch (gem::utils::exception::DBConnectionError const& e) {
-    std::stringstream msg;
-    msg << "GEMSupervisor::stopAction unable to stop (gem::utils::exception::DBConnectionError)" << e.what();
-    CMSGEMOS_ERROR(msg.str());
-    fireEvent("Fail");
-    m_globalState.update();
   } catch (gem::utils::exception::Exception const& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::stopAction unable to stop (gem::utils::exception)" << e.what();
@@ -858,12 +822,6 @@ void gem::supervisor::GEMSupervisor::haltAction()
     CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
-  } catch (gem::utils::exception::DBConnectionError const& e) {
-    std::stringstream msg;
-    msg << "GEMSupervisor::haltAction unable to halt (gem::utils::exception::DBConnectionError)" << e.what();
-    CMSGEMOS_ERROR(msg.str());
-    fireEvent("Fail");
-    m_globalState.update();
   } catch (gem::utils::exception::Exception const& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::haltAction unable to halt (gem::utils::exception)" << e.what();
@@ -917,12 +875,6 @@ void gem::supervisor::GEMSupervisor::resetAction()
   } catch (gem::utils::exception::SOAPException const& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resetAction unable to reset (gem::utils::exception::SOAPException)" << e.what();
-    CMSGEMOS_ERROR(msg.str());
-    fireEvent("Fail");
-    m_globalState.update();
-  } catch (gem::utils::exception::DBConnectionError const& e) {
-    std::stringstream msg;
-    msg << "GEMSupervisor::resetAction unable to reset (gem::utils::exception::DBConnectionError)" << e.what();
     CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
