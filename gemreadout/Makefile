@@ -24,7 +24,6 @@ GEMREADOUT_VER_MINOR=0
 GEMREADOUT_VER_PATCH=1
 
 include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
 #Sources+=GEMDataParker.cc
@@ -39,8 +38,6 @@ IncludeDirs+=$(BUILD_HOME)/gembase/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-
-UserCFlags+=$(PYTHONCFLAGS)
 
 DependentLibraries =gembase
 

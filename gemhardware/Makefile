@@ -96,7 +96,6 @@ devices: gemutils gemhardware/utils
 managers: gemutils gembase gemreadout gemhardware/devices
 
 include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules
 include $(BUILD_HOME)/config/mfRPMDefsGEM.mk

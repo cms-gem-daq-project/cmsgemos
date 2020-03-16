@@ -27,7 +27,6 @@ GEMHWMANAGERS_VER_MINOR=0
 GEMHWMANAGERS_VER_PATCH=1
 
 include $(CfgDir)/mfDefsGEM.mk
-include $(CfgDir)/mfPythonDefsGEM.mk
 
 Sources =version.cc
 # Sources+=utils/GEMCrateUtils.cc
@@ -62,8 +61,6 @@ DependentLibraryDirs+=$(XHAL_ROOT)/lib
 
 LibraryDirs+=$(BUILD_HOME)/gemhardware/devices/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(BUILD_HOME)/gemhardware/utils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-
-UserCFlags+=$(PYTHONCFLAGS)
 
 DependentLibraries =gemreadout gemhwutils gemhwdevices
 DependentLibraries+=cactus_amc13_amc13 cactus_amc13_tools

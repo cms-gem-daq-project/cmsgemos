@@ -24,7 +24,6 @@ GEMONLINEDB_VER_MINOR=1
 GEMONLINEDB_VER_PATCH=0
 
 include $(BUILD_HOME)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/config/mfPythonDefsGEM.mk
 
 Sources = \
     AMC13Configuration.cc \
@@ -69,8 +68,6 @@ TestExecutables = $(SimpleTestExecutables) $(DBTestExecutables)
 IncludeDirs+=$(BUILD_HOME)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/gemutils/include
-
-UserCFlags+=$(PYTHONCFLAGS)
 
 DependentLibraryDirs+=$(BUILD_HOME)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)

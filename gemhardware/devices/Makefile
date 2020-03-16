@@ -27,7 +27,6 @@ GEMHWDEVICES_VER_MINOR=0
 GEMHWDEVICES_VER_PATCH=1
 
 include $(CfgDir)/mfDefsGEM.mk
-include $(CfgDir)/mfPythonDefsGEM.mk
 
 Sources =version.cc
 # Sources =utils/GEMCrateUtils.cc
