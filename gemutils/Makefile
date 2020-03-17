@@ -29,7 +29,6 @@ Sources =version.cc
 Sources+=Lock.cc
 Sources+=GEMRegisterUtils.cc
 Sources+=soap/GEMSOAPToolBox.cc
-# Sources+=gemXMLparser.cc
 
 DynamicLibrary=gemutils
 
