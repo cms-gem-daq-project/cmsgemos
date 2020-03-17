@@ -141,7 +141,11 @@ namespace gem {
       */
       virtual ~GEMHwDevice();
 
-      virtual bool isHwConnected() { return true; }; /*FIXME make pure virutal, non-virtual?*/
+      /* FIXME
+       * make pure virtual, non-virtual?
+       * check RPC connection?
+       */
+      virtual bool isHwConnected() { return true; };
 
       ///////////////////////////////////////////////////////////////////////////////////////
       //****************Methods implemented for convenience on uhal devices****************//

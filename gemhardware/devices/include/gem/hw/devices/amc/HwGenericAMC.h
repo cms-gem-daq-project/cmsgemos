@@ -754,8 +754,6 @@ namespace gem {
         uint32_t m_links;    ///< Connected links mask
         uint32_t m_maxLinks; ///< Maximum supported OptoHybrids as reported by the firmware
 
-        /* std::vector<linkStatus> v_activeLinks; ///< vector keeping track of the active links */
-
         /**
          * @brief sets the expected board ID string to be matched when reading from the firmware
          * @param boardID is the expected board ID
