@@ -57,17 +57,6 @@ namespace gem {
 
           virtual void resetAction(toolbox::Event::Reference e) override;
 
-        protected:
-          /**
-           * OBSOLETE not present in generic AMC FW
-           */
-          std::vector<uint32_t> dumpAMCFIFO(int const& amc);
-
-          /**
-           * OBSOLETE not present in generic AMC FW
-           */
-          void dumpAMCFIFO(xgi::Input* in, xgi::Output* out);
-
         private:
           void     createAMCInfoSpaceItems(is_toolbox_ptr is_amc, amc_shared_ptr amc);
           uint16_t m_amcEnableMask;
