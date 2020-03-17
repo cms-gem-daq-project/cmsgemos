@@ -149,7 +149,7 @@ namespace gem {
 
       /**
        * @defgroup uhalwrappers Generic read/write wrapper functions on uhal/IPBus devices.
-       * The operations will be the same for the GLIB, CTP7, MP7, VFAT2/3, OptoHybrid2/3 and AMC13
+       * The operations will be the same for the GLIB, CTP7, OptoHybrid3 and AMC13
        * (we should use the already defined AMC13, rather than write our own,
        * unless there are GEM specific functions that need to be implemented)
        */

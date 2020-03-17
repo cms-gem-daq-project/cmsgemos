@@ -11,11 +11,6 @@
 namespace gem {
   namespace hw {
 
-    /* namespace vfat { */
-    /*   class HwVFAT2; */
-    /*   class HwVFAT3; */
-    /* } */
-
     class HwGenericAMC;
 
     namespace optohybrid {

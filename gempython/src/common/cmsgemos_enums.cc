@@ -7,8 +7,6 @@
 #include "gem/hw/devices/amc13/AMC13SettingsEnums.h"
 #include "gem/hw/devices/glib/GLIBSettingsEnums.h"
 // #include "gem/hw/devices/ctp7/CTP7SettingsEnums.h"
-// #include "gem/hw/devices/vfat/VFAT2SettingsEnums.h"
-// #include "gem/hw/devices/vfat/VFAT3SettingsEnums.h"
 
 namespace bpy = boost::python;
 
@@ -57,11 +55,6 @@ void gempython::wrap_enums()
 
   // // from OptoHybridSettingsEnums.h
   // bpy::enum_<gem::optohybrid>("");
-
-  // // from VFAT2SettingsEnums.h
-  // bpy::enum_<gem::vfat>("");
-  // // from VFAT3SettingsEnums.h
-  // bpy::enum_<gem::vfat>("");
 
   // from AMC13SettingsEnums.h
   bpy::enum_<gem::AMC13BGOCmd::EBGOCmd>("AMC13BGOCmd")
