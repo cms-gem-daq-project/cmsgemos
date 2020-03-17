@@ -4,7 +4,6 @@ packages=(
     gemhardware
     gemsupervisor
     gemcalibration
-    gemHwMonitor
     gemdaqmonitor
     gemonlinedb
     #gemutils

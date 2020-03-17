@@ -231,7 +231,6 @@ if ($packname eq "all" ) {
 # gembase
 # gemcalibration
 # gemhardware
-# gemHwMonitor
 # gemrcms
 # gemreadout
 # gemsupervisor
