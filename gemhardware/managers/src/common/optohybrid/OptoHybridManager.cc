@@ -17,7 +17,6 @@
 #include "gem/hw/devices/exception/Exception.h"
 #include "gem/utils/exception/Exception.h"
 
-#include "gem/hw/devices/vfat/HwVFAT2.h"
 #include "gem/hw/utils/GEMCrateUtils.h"
 
 #include "xoap/MessageReference.h"
