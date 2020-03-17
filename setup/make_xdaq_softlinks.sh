@@ -18,5 +18,5 @@ do
     then
         unlink ${base}/html
     fi
-    ln -s ${BUILD_HOME}/$pkg/html ${base}/html
+    ln -snf ${BUILD_HOME}/$pkg/html ${base}/html
 done
