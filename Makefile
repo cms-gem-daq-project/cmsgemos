@@ -13,8 +13,7 @@ SUBPACKAGES := \
         gemsupervisor \
         gempython \
         gemdaqmonitor \
-        gemonlinedb \
-        # gemHwMonitor \
+        gemonlinedb
 
 # SUBPACKAGES.DOC      := $(patsubst %,%.doc,    ${SUBPACKAGES})
 # SUBPACKAGES.CHECK    := $(patsubst %,%.check,    ${SUBPACKAGES})
@@ -144,8 +143,6 @@ gemhardware/utils: gemutils
 gemhardware/devices: gemutils gemhardware/utils
 
 gemhardware/managers: gemutils gembase gemreadout gemhardware/devices
-
-gemHwMonitor: gemutils gembase gemhwdevices
 
 ## only gemhardware.devices... how to fix this?
 gempython: gemhardware/devices

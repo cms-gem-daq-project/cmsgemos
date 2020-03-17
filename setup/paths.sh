@@ -62,7 +62,6 @@ pkgs=(
     gemreadout
     gemhardware
     gemsupervisor
-    gemHwMonitor
     gemonlinedb
     gemdaqmonitor
 )
