@@ -57,9 +57,6 @@ void gem::hw::amc::AMCManagerWeb::expertPage(xgi::Input* in, xgi::Output* out)
   *out << "      <div class=\"xdaq-tab\" title=\"Register dump page\"/>"  << std::endl;
   registerDumpPage(in, out);
   *out << "      </div>" << std::endl;
-  *out << "      <div class=\"xdaq-tab\" title=\"Data FIFO dump page\"/>"  << std::endl;
-  fifoDumpPage(in, out);
-  *out << "      </div>" << std::endl;
   *out << "    </div>" << std::endl;
 }
 
@@ -136,52 +133,6 @@ void gem::hw::amc::AMCManagerWeb::registerDumpPage(xgi::Input* in, xgi::Output* 
   // dump registers for a given AMC and display
 }
 
-/*To be filled in with the card page code*/
-void gem::hw::amc::AMCManagerWeb::fifoDumpPage(xgi::Input* in, xgi::Output* out)
-{
-  CMSGEMOS_DEBUG("AMCManagerWeb::fifoDumpPage");
-  // dump tracking fifo for given number of blocks
-  //*out << cgicc::form() << std::endl;//.set("method","POST").set("action",);
-  // input vs. button?
-  // *out << cgicc::input().set("type","submit")       << std::endl;
-  *out << cgicc::table().set("id","amcfifodumtable") << std::endl
-       << cgicc::tr() << std::endl;
-
-  *out << cgicc::td() << std::endl
-       << cgicc::label("AMC").set("for","amcID") << std::endl
-       << cgicc::input().set("type","number").set("min","1").set("max","12").set("required value","1")
-    .set("id","amcID").set("name","amcID")
-       << std::endl
-       << cgicc::td() << std::endl;
-
-  *out << cgicc::td() << std::endl
-       << cgicc::label("GTX").set("for","gtxlink") << std::endl
-       << cgicc::input().set("type","number").set("min","0").set("max","1").set("required value","0")
-    .set("id","gtxlink").set("name","gtxlink")
-       << std::endl
-       << cgicc::td() << std::endl;
-
-  *out << cgicc::td() << std::endl
-       << cgicc::button().set("type","submit")
-    .set("id","dumpamctrack")
-    .set("onclick","dumpAMCTrackingData(\'dumpAMCFIFO\',\'/" + p_gemApp->m_urn + "\')")
-       << std::endl << "Dump AMC Tracking Data" << std::endl
-       << cgicc::button() << std::endl
-       << cgicc::td()     << std::endl;
-
-  *out << cgicc::tr()    << std::endl
-       << cgicc::table() << std::endl
-       << cgicc::br()    << std::endl;
-
-  *out << cgicc::textarea().set("cols","75").set("rows","50")
-    .set("class","registerdumpbox").set("readonly")
-    .set("name","amctrackingdata").set("id","amctrackingdata")
-       << std::endl;
-  *out << cgicc::textarea() << std::endl;
-  //*out << cgicc::form()     << std::endl;
-  *out << cgicc::br()       << std::endl;
-}
-
 void gem::hw::amc::AMCManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
 {
   CMSGEMOS_DEBUG("AMCManagerWeb::jsonUpdate");
@@ -193,32 +144,6 @@ void gem::hw::amc::AMCManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
     if (card) {
       card->jsonUpdateItemSets(out);
     }
-    // can't have a trailing comma for the last entry...
-    if (i == (gem::base::GEMApplication::MAX_AMCS_PER_CRATE-1))
-      *out << " }" << std::endl;
-    else
-      *out << " }," << std::endl;
-  }
-  *out << " } " << std::endl;
-}
-
-void gem::hw::amc::AMCManagerWeb::dumpAMCFIFO(xgi::Input* in, xgi::Output* out)
-{
-  CMSGEMOS_DEBUG("AMCManagerWeb::dumpAMCFIFO");
-  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  *out << " { " << std::endl;
-  for (unsigned int i = 0; i < gem::base::GEMApplication::MAX_AMCS_PER_CRATE; ++i) {
-    std::vector<uint32_t> dump = dynamic_cast<gem::hw::amc::AMCManager*>(p_gemFSMApp)->dumpAMCFIFO(i);
-    *out << "\"amc" << std::setw(2) << std::setfill('0') << (i+1) << "FIFO\" : {" << std::endl;
-    *out << "\"name\" : \"amcFIFODump\"," << std::endl
-         << "\"value\" : [ " << std::endl << "\"";
-    for (auto word = dump.begin(); word != dump.end(); ++word) {
-      *out << "0x" << std::hex << std::setw(8) << std::setfill('0') << *word << std::dec;
-      if (!(std::distance(word, dump.end()) == 1))
-        *out << "\\n";
-    }
-    *out << "\"" << std::endl;
-    *out << "]" << std::endl;
     // can't have a trailing comma for the last entry...
     if (i == (gem::base::GEMApplication::MAX_AMCS_PER_CRATE-1))
       *out << " }" << std::endl;

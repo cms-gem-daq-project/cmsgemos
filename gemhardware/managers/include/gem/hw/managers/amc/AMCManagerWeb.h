@@ -39,10 +39,6 @@ namespace gem {
 
           void registerDumpPage(xgi::Input *in, xgi::Output *out);
 
-          void fifoDumpPage(xgi::Input *in, xgi::Output *out);
-
-          void dumpAMCFIFO(xgi::Input *in, xgi::Output *out);
-
         private:
           size_t activeCard;
 

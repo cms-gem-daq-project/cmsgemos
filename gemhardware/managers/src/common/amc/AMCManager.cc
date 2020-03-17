@@ -77,8 +77,6 @@ gem::hw::amc::AMCManager::AMCManager(xdaq::ApplicationStub* stub) :
   p_appInfoSpace->addItemChangedListener( "BC0LockPhaseShift", this);
   p_appInfoSpace->addItemChangedListener( "RelockPhase",       this);
 
-  xgi::bind(this, &AMCManager::dumpAMCFIFO, "dumpAMCFIFO");
-
   // initialize the AMC application objects
   CMSGEMOS_DEBUG("AMCManager::Connecting to the AMCManagerWeb interface");
   p_gemWebInterface = new gem::hw::amc::AMCManagerWeb(this);
@@ -94,48 +92,6 @@ gem::hw::amc::AMCManager::AMCManager(xdaq::ApplicationStub* stub) :
 gem::hw::amc::AMCManager::~AMCManager()
 {
   // memory management, maybe not necessary here?
-}
-
-std::vector<uint32_t> gem::hw::amc::AMCManager::dumpAMCFIFO(int const& amc)
-{
-/*
-  std::vector<uint32_t> dump;
-  if (amc < 0 || amc > 11) {
-    CMSGEMOS_WARN("AMCManager::dumpAMCFIFO Specified invalid AMC card " << amc+1);
-    return dump;
-  } else if (!m_amcs.at(amc)) {
-    CMSGEMOS_WARN("AMCManager::dumpAMCFIFO Specified AMC card " << amc+1
-                  << " is not connected");
-    return dump;
-    //} else if (!(m_amcs.at(amc)->hasTrackingData(0))) {
-    //  CMSGEMOS_WARN("AMCManager::dumpAMCFIFO Specified AMC card " << amc
-    //       << " has no tracking data in the FIFO");
-    //  return dump;
-  }
-
-  try {
-    CMSGEMOS_INFO("AMCManager::dumpAMCFIFO Dumping FIFO for specified AMC card " << amc+1);
-    return m_amcs.at(amc)->getTrackingData(0, 24);
-  } catch (gem::hw::devices::exception::Exception const& e) {
-    std::stringstream msg;
-    msg << "AMCManager::dumpAMCFIFO Unable to read tracking data from AMC" << amc+1
-        << " FIFO, caught exception " << e.what();
-    CMSGEMOS_ERROR(msg.str());
-    return dump;
-  } catch (std::exception const& e) {
-    std::stringstream msg;
-    msg << "AMCManager::dumpAMCFIFO Unable to read tracking data from AMC" << amc+1
-        << " FIFO, caught exception " << e.what();
-    CMSGEMOS_ERROR(msg.str());
-    return dump;
-  } catch (...) {
-    std::stringstream msg;
-    msg << "AMCManager::dumpAMCFIFO Unable to read tracking data from AMC" << amc+1
-        << " FIFO, caught unknown exception ";
-    CMSGEMOS_ERROR(msg.str());
-    return dump;
-  }
-*/
 }
 
 // This is the callback used for handling xdata:Event objects
@@ -761,9 +717,4 @@ void gem::hw::amc::AMCManager::createAMCInfoSpaceItems(is_toolbox_ptr is_amc, am
       //                       amc->getLinkDAQCounters(oh, 1), NULL, GEMUpdateType::HW32);
     }
   }
-}
-
-void gem::hw::amc::AMCManager::dumpAMCFIFO(xgi::Input* in, xgi::Output* out)
-{
-  dynamic_cast<AMCManagerWeb*>(p_gemWebInterface)->dumpAMCFIFO(in, out);
 }
