@@ -70,51 +70,39 @@ namespace gem {
         /****************************/
         /**
          * @brief Read the board ID register (should be reimplemented in derived HW, e.g., GLIB)
-         * @param legacy determines whether to read the legacy system board ID (GLIB)
-         *        or the GEM_AMC board ID
          * @returns the AMC board ID as a std::string
          */
-        virtual std::string getBoardIDString(bool const legacy=false);
+        virtual std::string getBoardIDString();
 
         /**
          * @brief Read the board ID register (should be reimplemented in derived HW, e.g., GLIB)
-         * @param legacy determines whether to read the legacy system board ID ('GLIB' as ASCII characters)
-         *        or the GEM_AMC board ID (0xbeef as uint32_t)
          * @returns the AMC board ID as 32 bit unsigned value
          */
-        virtual uint32_t getBoardID(bool const legacy=false);
+        virtual uint32_t getBoardID();
 
         /**
          * @brief Read the board type register (should be reimplemented in derived HW, e.g., GLIB)
-         * @param legacy determines whether to read the legacy system board type (GLIB)
-         *        or the GEM_AMC board type
          * @returns the AMC board type as a std::string
          */
-        virtual std::string getBoardTypeString(bool const legacy=false);
+        virtual std::string getBoardTypeString();
 
         /**
          * @brief Read the board type register (should be reimplemented in derived HW, e.g., GLIB)
-         * @param legacy determines whether to read the legacy system board type ('GLIB' as ASCII characters)
-         *        or the GEM_AMC board type (0xbeef as uint32_t)
          * @returns the AMC board type as 32 bit unsigned value
          */
-        virtual uint32_t getBoardType(bool const legacy=false);
+        virtual uint32_t getBoardType();
 
         /**
          * @brief Read the system ID register (should be reimplemented in derived HW, e.g., GLIB)
-         * @param legacy determines whether to read the legacy system system ID (GLIB)
-         *        or the GEM_AMC system ID
          * @returns the AMC system ID as a std::string
          */
-        virtual std::string getSystemIDString(bool const legacy=false);
+        virtual std::string getSystemIDString();
 
         /**
          * @brief Read the system ID register (should be reimplemented in derived HW, e.g., GLIB)
-         * @param legacy determines whether to read the legacy system system ID ('20v1' as ASCII characters)
-         *        or the GEM_AMC board type (0x1 as uint32_t)
          * @returns the AMC system ID as 32 bit unsigned value
          */
-        virtual uint32_t getSystemID(bool const legacy=false);
+        virtual uint32_t getSystemID();
 
         /**
          * @brief Check how many OptoHybrids the AMC FW can support
@@ -239,27 +227,6 @@ namespace gem {
         uint32_t getBC0Count() { return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.BC0"); }
 
         ///Counter resets
-
-        /** FIXME specific counter resets from legacy, counter resets are module wide now  **/
-        /**
-         * Reset the recorded number of L1A signals received from the TTC decoder
-         */
-        void resetL1ACount() { return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
-
-        /**
-         * Reset the recorded number of CalPulse signals received from the TTC decoder
-         */
-        void resetCalPulseCount() { return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
-
-        /**
-         * Reset the recorded number of Resync signals received from the TTC decoder
-         */
-        void resetResyncCount() { return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
-
-        /**
-         * Reset the recorded number of BC0 signals
-         */
-        void resetBC0Count() { return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Read the trigger data
