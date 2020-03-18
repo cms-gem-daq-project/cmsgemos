@@ -292,6 +292,8 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
         uint32_t vfatMask = m_broadcastList.at(slot).at(link);
         optohybrid->broadcastWrite("CFG_RUN", 0x0, vfatMask);
         // FIXME what resets to do
+      }
+    }
 
     for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
       if (m_optohybridMonitors.at(slot).at(link))

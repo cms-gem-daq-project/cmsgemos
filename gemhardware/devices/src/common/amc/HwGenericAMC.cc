@@ -122,17 +122,13 @@ bool gem::hw::HwGenericAMC::isHwConnected()
   }
 }
 
-std::string gem::hw::HwGenericAMC::getBoardIDString(bool const legacy)
+std::string gem::hw::HwGenericAMC::getBoardIDString()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board ID consists of four characters encoded as a 32-bit unsigned int
   std::string res = "N/A";
-  uint32_t brdID = getBoardID(legacy);
-
-  if (legacy)
-    res = gem::utils::uint32ToString(brdID);
-  else
-    res = toolbox::toString("%x",brdID);
+  uint32_t brdID = getBoardID();
+  res = toolbox::toString("%x",brdID);
   return res;
 }
 
@@ -141,52 +137,38 @@ uint32_t gem::hw::HwGenericAMC::getBoardID()
   return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_ID");
 }
 
-std::string gem::hw::HwGenericAMC::getBoardTypeString(bool const legacy)
+std::string gem::hw::HwGenericAMC::getBoardTypeString()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board ID consists of four characters encoded as a 32-bit unsigned int
   std::string res = "N/A";
-  uint32_t brdID = getBoardType(legacy);
-
-  if (legacy)
-    res = gem::utils::uint32ToString(brdID);
-  else
-    res = toolbox::toString("%x",brdID);
+  uint32_t brdID = getBoardType();
+  res = toolbox::toString("%x",brdID);
   return res;
 }
 
-uint32_t gem::hw::HwGenericAMC::getBoardType(bool const legacy)
+uint32_t gem::hw::HwGenericAMC::getBoardType()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board type consists of four characters encoded as a 32-bit unsigned int
-  if (legacy)
-    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_TYPE");
-  else
-    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_TYPE");
+  return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_TYPE");
 }
 
-std::string gem::hw::HwGenericAMC::getSystemIDString(bool const legacy)
+std::string gem::hw::HwGenericAMC::getSystemIDString()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The system ID consists of four characters encoded as a 32-bit unsigned int
   std::string res = "N/A";
-  uint32_t sysID = getSystemID(legacy);
-
-  if (legacy)
-    res = gem::utils::uint32ToString(sysID);
-  else
-    res = toolbox::toString("%x",sysID);
+  uint32_t sysID = getSystemID();
+  res = toolbox::toString("%x",sysID);
   return res;
 }
 
-uint32_t gem::hw::HwGenericAMC::getSystemID(bool const legacy)
+uint32_t gem::hw::HwGenericAMC::getSystemID()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The system ID consists of four characters encoded as a 32-bit unsigned int
-  if (legacy)
-    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.LEGACY_SYSTEM.SYSTEM_ID");
-  else
-    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_TYPE");
+  return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_TYPE");
 }
 
 uint32_t gem::hw::HwGenericAMC::getSupportedOptoHybrids()
