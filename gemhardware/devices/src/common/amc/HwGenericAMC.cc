@@ -136,14 +136,9 @@ std::string gem::hw::HwGenericAMC::getBoardIDString(bool const legacy)
   return res;
 }
 
-uint32_t gem::hw::HwGenericAMC::getBoardID(bool const legacy)
+uint32_t gem::hw::HwGenericAMC::getBoardID()
 {
-  // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
-  // The board ID consists of four characters encoded as a 32-bit unsigned int
-  if (legacy)
-    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.LEGACY_SYSTEM.BOARD_ID");
-  else
-    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_ID");
+  return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_ID");
 }
 
 std::string gem::hw::HwGenericAMC::getBoardTypeString(bool const legacy)
