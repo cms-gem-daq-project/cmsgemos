@@ -15,7 +15,9 @@
 #include "uhal/utilities/files.hpp"
 
 #include "xhal/client/XHALInterface.h"
-/* #include "xhal/XHALDevice.h" */
+#include "xhal/common/rpc/call.h"
+
+#include "ctp7_modules/common/utils.h"
 
 #include "gem/hw/utils/GEMCrateUtils.h"
 #include "gem/hw/devices/exception/Exception.h"
@@ -554,13 +556,13 @@ namespace gem {
 
       /**
        * @brief loads the necessary modules into the RPC module manager
-       * @details pure virtual, must be implemented in derived classes
+       * @details Provides basic read/write functionality, reimplemented in daughter classes
        *
        * @usage FILLME
        *
        * @param should reconnect in the case of an already connected manager
        */
-      virtual void connectRPC(bool reconnect=false)=0;
+      virtual void connectRPC(bool reconnect=false);
 
       std::string m_addressTable;   ///< FILLME
       std::string m_deviceBaseNode; ///< FILLME

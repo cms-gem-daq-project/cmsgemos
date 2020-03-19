@@ -69,6 +69,17 @@ std::string gem::hw::GEMHwDevice::printErrorCounts() const
   return errstream.str();
 }
 
+void gem::hw::GEMHwDevice::connectRPC(bool reconnect)
+{
+  if (isConnected) {
+    // TODO: find better way than hardcoded versions
+    this->loadModule("utils", "utils v1.0.1");
+    CMSGEMOS_DEBUG("GEMHwDevice::connectRPC modules loaded");
+  } else {
+    CMSGEMOS_WARN("GEMHwDevice::connectRPC RPC interface failed to connect");
+  }
+}
+
 void gem::hw::GEMHwDevice::setup(std::string const& deviceName)
 {
   b_is_connected = false;
@@ -109,547 +120,87 @@ void gem::hw::GEMHwDevice::setup(std::string const& deviceName)
 uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-
-  unsigned retryCount = 0;
-  uint32_t res = 0x0;
-  CMSGEMOS_DEBUG("GEMHwDevice::readReg " << name << std::endl
-                 << "Path  "      << this->getNode(name).getPath()                << std::endl
-                 << "Address 0x"  << std::hex << this->getNode(name).getAddress() << std::dec << std::endl
-                 << "Mask 0x"     << std::hex << this->getNode(name).getMask()    << std::dec << std::endl
-                 << "Permission " << this->getNode(name).getPermission()          << std::endl
-                 << "Mode "       << this->getNode(name).getMode()                << std::endl
-                 << "Size "       << this->getNode(name).getSize()                << std::endl
-                 << std::endl);
-  while (retryCount < MAX_IPBUS_RETRIES) {
-    ++retryCount;
-    try {
-      uhal::ValWord<uint32_t> val = this->getNode(name).read();
-      this->dispatch();
-      res = val.value();
-      CMSGEMOS_TRACE("GEMHwDevice::Successfully read register " << name.c_str() << " with value 0x"
-                     << std::setfill('0') << std::setw(8) << std::hex << res << std::dec
-                     << " retry count is " << retryCount << ". Should move on to next operation");
-      return res;
-    } catch (uhal::exception::exception const& err) {
-      std::stringstream errmsg, errcode;
-      errmsg << "Could not read register '" << name << "' (uHAL)";
-      errcode << err.what();
-      if (knownErrorCode(errcode.str())) {
-        ++retryCount;
-        if (retryCount > (MAX_IPBUS_RETRIES-1))
-          CMSGEMOS_DEBUG("GEMHwDevice::Failed to read register " << name
-                         << ". retryCount(" << retryCount << ")"
-                         << std::endl);
-        updateErrorCounters(errcode.str());
-        continue;
-      } else {
-        errmsg << ": " << errcode.str();
-        CMSGEMOS_ERROR("GEMHwDevice::readReg " << errmsg.str());
-        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, errmsg.str());
-      }
-    } catch (std::exception const& err) {
-      std::stringstream errmsg;
-      errmsg << "Could not read register '" << name << "' (std): "
-             << err.what();
-      CMSGEMOS_ERROR("GEMHwDevice::" << errmsg.str());
-      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, errmsg.str());
-    }
+  uint32_t res = 0;
+  try {
+    res = xhal::common::rpc::call<::utils::readRemoteReg>(rpc, name);
+  } catch (std::exception const& err) {
+    //FIXME
   }
-  std::stringstream errmsg;
-  errmsg << "Maximum number of retries reached, unable to read register '" << name << "'";
-  CMSGEMOS_ERROR("GEMHwDevice::" << errmsg.str());
-  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, errmsg.str());
+
+  CMSGEMOS_TRACE("GEMHwDevice::Successfully read register " << name.c_str() << " with value 0x"
+                 << std::setfill('0') << std::setw(8) << std::hex << res);
   return res;
 }
 
 uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-
-  unsigned retryCount = 0;
-  uint32_t res = 0x0;
-  CMSGEMOS_TRACE("GEMHwDevice::gem::hw::GEMHwDevice::readReg 0x" << std::setfill('0') << std::setw(8)
-                 << std::hex << address << std::dec << std::endl);
-  while (retryCount < MAX_IPBUS_RETRIES) {
-    ++retryCount;
-    try {
-      uhal::ValWord<uint32_t> val = this->getClient().read(address);
-      this->dispatch();
-      res = val.value();
-      CMSGEMOS_TRACE("GEMHwDevice::Successfully read register 0x" << std::setfill('0') << std::setw(8)
-                     << std::hex << address << std::dec << " with value 0x"
-                     << std::setfill('0') << std::setw(8) << std::hex << res << std::dec
-                     << " retry count is " << retryCount << ". Should move on to next operation");
-      return res;
-    } catch (uhal::exception::exception const& err) {
-      std::string msgBase = toolbox::toString("Could not read register '0x%08x' (uHAL)", address);
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      std::string errCode = toolbox::toString("%s",err.what());
-      if (knownErrorCode(errCode)) {
-        ++retryCount;
-        if (retryCount > (MAX_IPBUS_RETRIES-1))
-          CMSGEMOS_DEBUG("GEMHwDevice::Failed to read register 0x" << std::setfill('0') << std::setw(8)
-                         << std::hex << address << std::dec
-                         << ". retryCount("<<retryCount<<")"
-                         << std::endl);
-        updateErrorCounters(errCode);
-        continue;
-      } else {
-        CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-      }
-    } catch (std::exception const& err) {
-      std::string msgBase = toolbox::toString("Could not read register '0x%08x' (std)", address);
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
-    }
-  }
-  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read register 0x%08x",
-                                      address);
-  CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
-  return res;
+  //Deprecated
+  return 0;
 }
 
 uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address, uint32_t const& mask)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-
-  unsigned retryCount = 0;
-  uint32_t res = 0x0;
-  CMSGEMOS_TRACE("GEMHwDevice::gem::hw::GEMHwDevice::readReg 0x" << std::setfill('0') << std::setw(8)
-                 << std::hex << address << std::dec << std::endl);
-  while (retryCount < MAX_IPBUS_RETRIES) {
-    ++retryCount;
-    try {
-      uhal::ValWord<uint32_t> val = this->getClient().read(address,mask);
-      this->dispatch();
-      res = val.value();
-      CMSGEMOS_TRACE("GEMHwDevice::Successfully read register 0x" << std::setfill('0') << std::setw(8)
-                     << std::hex << address << std::dec << " with mask "
-                     << std::hex << mask << std::dec << " with value "
-                     << std::setfill('0') << std::setw(8) << std::hex << res << std::dec
-                     << " retry count is " << retryCount << ". Should move on to next operation");
-      return res;
-    } catch (uhal::exception::exception const& err) {
-      std::string msgBase = toolbox::toString("Could not read register '0x%08x' (uHAL)", address);
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      std::string errCode = toolbox::toString("%s",err.what());
-      if (knownErrorCode(errCode)) {
-        ++retryCount;
-        if (retryCount > (MAX_IPBUS_RETRIES-1))
-          CMSGEMOS_DEBUG("GEMHwDevice::Failed to read register 0x" << std::setfill('0') << std::setw(8)
-                         << std::hex << address << std::dec << " with mask "
-                         << std::hex << address << std::dec
-                         << ". retryCount("<<retryCount<<")"
-                         << std::endl);
-        updateErrorCounters(errCode);
-        continue;
-      } else {
-        CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-      }
-    } catch (std::exception const& err) {
-      std::string msgBase = toolbox::toString("Could not read register '0x%08x' (std)", address);
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
-    }
-  }
-  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read register 0x%08x",
-                                      address);
-  CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
-  return res;
+  //Deprecated
+  return 0;
 }
 
 uint32_t gem::hw::GEMHwDevice::readMaskedAddress(std::string const& name)
 {
-  uint32_t address = this->getNode(name).getAddress();
-  uint32_t mask    = this->getNode(name).getMask();
-  return readReg(address,mask);
+  //Deprecated
+  return 0;
 }
 
 void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList, int const& freq)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-
-  unsigned retryCount = 0;
-  while (retryCount < MAX_IPBUS_RETRIES) {
-    ++retryCount;
-    try {
-      std::vector<std::pair<std::string,uhal::ValWord<uint32_t> > > vals;
-      // vals.reserve(regList.size());
-      int counter{0}, dispatchcounter{0};
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) {
-        vals.push_back(std::make_pair(curReg->first,this->getNode(curReg->first).read()));
-        ++counter;
-        if (freq > 0 && counter%freq == 0) {
-          this->dispatch();
-          ++dispatchcounter;
-        }
-      }
-      if (freq < 0 || counter%freq != 0) {
-        this->dispatch();
-          ++dispatchcounter;
-      }
-
-      CMSGEMOS_DEBUG("GEMHwDevice::readRegs dispatched " << dispatchcounter
-                     << " calls for " << counter << " registers");
-      // would like to have these local to the loop, how to do...?
-      auto curVal = vals.begin();
-      auto curReg = regList.begin();
-      for ( ; curReg != regList.end(); ++curVal,++curReg)
-        curReg->second = (curVal->second).value();
-      return;
-    } catch (uhal::exception::exception const& err) {
-      std::string msgBase = "Could not read from register in list:";
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
-        msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
-      std::string msg     = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
-      std::string errCode = toolbox::toString("%s",err.what());
-      if (knownErrorCode(errCode)) {
-        updateErrorCounters(errCode);
-        continue;
-      } else {
-        CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-      }
-    } catch (std::exception const& err) {
-      std::string msgBase = "Could not read from register in list:";
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
-        msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
-      std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
-      CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
-    }
-  }
-  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read registers");
-  CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
+  //Deprecated
 }
 
 void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList, int const& freq)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-
-  unsigned retryCount = 0;
-  while (retryCount < MAX_IPBUS_RETRIES) {
-    ++retryCount;
-    try {
-      std::vector<std::pair<uint32_t, uhal::ValWord<uint32_t> > > vals;
-      // vals.reserve(regList.size());
-      int counter{0}, dispatchcounter{0};
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) {
-        vals.push_back(std::make_pair(curReg->first,this->getClient().read(curReg->first)));
-        ++counter;
-        if (freq > 0 && counter%freq == 0) {
-          this->dispatch();
-          ++dispatchcounter;
-        }
-      }
-      if (freq < 0 || counter%freq != 0) {
-        this->dispatch();
-          ++dispatchcounter;
-      }
-
-      CMSGEMOS_DEBUG("GEMHwDevice::readRegs dispatched " << dispatchcounter
-                     << " calls for " << counter << " registers");
-      // would like to have these local to the loop, how to do...?
-      auto curVal = vals.begin();
-      auto curReg = regList.begin();
-      for ( ; curReg != regList.end(); ++curVal,++curReg)
-        curReg->second = (curVal->second).value();
-      return;
-    } catch (uhal::exception::exception const& err) {
-      std::string msgBase = "Could not read from register in list:";
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
-        msgBase += toolbox::toString(" '0x%08x mask 0x%08x'", curReg->first);
-      std::string msg     = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
-      std::string errCode = toolbox::toString("%s",err.what());
-      if (knownErrorCode(errCode)) {
-        updateErrorCounters(errCode);
-        continue;
-      } else {
-        CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-      }
-    } catch (std::exception const& err) {
-      std::string msgBase = "Could not read from register in list:";
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
-        msgBase += toolbox::toString(" '0x%08x mask 0x%08x'", curReg->first);
-      std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
-      CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
-    }
-  }
-  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read registers");
-  CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
+  //Deprecated
 }
 
 void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList, int const& freq)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-
-  unsigned retryCount = 0;
-  while (retryCount < MAX_IPBUS_RETRIES) {
-    ++retryCount;
-    try {
-      std::vector<std::pair<std::pair<uint32_t,uint32_t>,uhal::ValWord<uint32_t> > > vals;
-      // vals.reserve(regList.size());
-      int counter{0}, dispatchcounter{0};
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) {
-        vals.push_back(std::make_pair(std::make_pair(curReg->first.first,curReg->first.second),
-                                      this->getClient().read(curReg->first.first,curReg->second)));
-        ++counter;
-        if (freq > 0 && counter%freq == 0) {
-          this->dispatch();
-          ++dispatchcounter;
-        }
-      }
-      if (freq < 0 || counter%freq != 0) {
-        this->dispatch();
-          ++dispatchcounter;
-      }
-
-      CMSGEMOS_DEBUG("GEMHwDevice::readRegs dispatched " << dispatchcounter
-                     << " calls for " << counter << " registers");
-      // would like to have these local to the loop, how to do...?
-      auto curVal = vals.begin();
-      auto curReg = regList.begin();
-      for ( ; curReg != regList.end(); ++curVal,++curReg)
-        curReg->second = (curVal->second).value();
-      return;
-    } catch (uhal::exception::exception const& err) {
-      std::string msgBase = "Could not read from register in list:";
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
-        msgBase += toolbox::toString(" '0x%08x mask 0x%08x'", curReg->first.first, curReg->first.second);
-      std::string msg     = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
-      std::string errCode = toolbox::toString("%s",err.what());
-      if (knownErrorCode(errCode)) {
-        updateErrorCounters(errCode);
-        continue;
-      } else {
-        CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-      }
-    } catch (std::exception const& err) {
-      std::string msgBase = "Could not read from register in list:";
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
-        msgBase += toolbox::toString(" '0x%08x mask 0x%08x'", curReg->first.first, curReg->first.second);
-      std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
-      CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
-    }
-  }
-  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read registers");
-  CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
+  //Deprecated
 }
 
 void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-
-  unsigned retryCount = 0;
-  CMSGEMOS_DEBUG("GEMHwDevice::writeReg " << name << std::endl
-                 << "Path  "      << this->getNode(name).getPath() << std::endl
-                 << "Address 0x"  << std::hex << this->getNode(name).getAddress() << std::dec << std::endl
-                 << "Mask 0x"     << std::hex << this->getNode(name).getMask()    << std::dec << std::endl
-                 << "Permission " << this->getNode(name).getPermission() << std::endl
-                 << "Mode "       << this->getNode(name).getMode() << std::endl
-                 << "Size "       << this->getNode(name).getSize() << std::endl
-                 << std::endl);
-  while (retryCount < MAX_IPBUS_RETRIES) {
-    ++retryCount;
-    try {
-      uhal::ValWord<uint32_t> ival;
-      if (this->getNode(name).getPermission() != uhal::defs::WRITE)
-        ival = this->getNode(name).read();
-      this->getNode(name).write(val);
-      uhal::ValWord<uint32_t> rval;
-      if (this->getNode(name).getPermission() != uhal::defs::WRITE)
-        rval = this->getNode(name).read();
-      this->dispatch();
-      if (this->getNode(name).getPermission() != uhal::defs::WRITE)
-        CMSGEMOS_DEBUG("GEMHwDevice::writeReg initial: "
-                       << std::hex << ival.value() << std::dec
-                       << ", write val: " << std::hex << val << std::dec
-                       << ", readback: "  << std::hex << rval.value() << std::dec
-                       << std::endl);
-      if (this->getNode(name).getPermission() != uhal::defs::WRITE)
-        if (rval.value() != val) {
-          std::string msgBase = toolbox::toString("WriteValueMismatch write (0x%x) to register '%s' resulted in 0x%x (uHAL)",
-                                                  val, name.c_str(),rval.value());
-          XCEPT_RAISE(gem::hw::devices::exception::WriteValueMismatch, toolbox::toString("%s.", msgBase.c_str()));
-        }
-      return;
-    } catch (uhal::exception::exception const& err) {
-      std::string msgBase = toolbox::toString("Could not write to register '%s' (uHAL)", name.c_str());
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      std::string errCode = toolbox::toString("%s",err.what());
-      if (knownErrorCode(errCode)) {
-        ++retryCount;
-        if (retryCount > (MAX_IPBUS_RETRIES-1))
-          CMSGEMOS_DEBUG("GEMHwDevice::Failed to write value 0x" << std::hex<< val << std::dec << " to register " << name
-                         << ". retryCount("<<retryCount<<")"
-                         << std::endl);
-        updateErrorCounters(errCode);
-        continue;
-      } else {
-        CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-      }
-    } catch (gem::hw::devices::exception::WriteValueMismatch const& err) {
-      std::string msgBase = toolbox::toString("Could not write to register '%s' (uHAL)", name.c_str());
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      std::string errCode = toolbox::toString("%s",err.what());
-      CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-    } catch (std::exception const& err) {
-      std::string msgBase = toolbox::toString("Could not write to register '%s' (std)", name.c_str());
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
-    }
+  try {
+    xhal::common::rpc::call<::utils::writeRemoteReg>(rpc, name, val);
+  } catch (std::exception const& err) {
+    //FIXME
   }
-  std::string msg = toolbox::toString("Maximum number of retries reached, unable to write to register %s",name.c_str());
-  CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
+
+  CMSGEMOS_TRACE("GEMHwDevice::Successfully wrote register " << name.c_str() << " with value 0x"
+                 << std::setfill('0') << std::setw(8) << std::hex << val);
 }
 
 void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-
-  unsigned retryCount = 0;
-  while (retryCount < MAX_IPBUS_RETRIES) {
-    ++retryCount;
-    try {
-      uhal::ValWord<uint32_t> ival = this->getClient().read(address);
-      this->getClient().write(address, val);
-      uhal::ValWord<uint32_t> rval = this->getClient().read(address);
-      this->dispatch();
-      CMSGEMOS_DEBUG("GEMHwDevice::writeReg initial: "
-                     << std::hex << ival.value() << std::dec
-                     << ", write val: " << std::hex << val << std::dec
-                     << ", readback: "  << std::hex << rval.value() << std::dec
-                     << std::endl);
-      if (rval.value() != val) {
-        std::string msgBase = toolbox::toString("WriteValueMismatch write (0x%x) to register '0x%08x' resulted in 0x%x (uHAL)",
-                                                val,address,rval.value());
-        XCEPT_RAISE(gem::hw::devices::exception::WriteValueMismatch, toolbox::toString("%s.", msgBase.c_str()));
-      }
-      return;
-    } catch (uhal::exception::exception const& err) {
-      std::string msgBase = toolbox::toString("Could not write to register '0x%08x' (uHAL)", address);
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      std::string errCode = toolbox::toString("%s",err.what());
-      if (knownErrorCode(errCode)) {
-        ++retryCount;
-        if (retryCount > (MAX_IPBUS_RETRIES-1))
-          CMSGEMOS_DEBUG("GEMHwDevice::Failed to write value 0x" << std::hex<< val << std::dec << " to register 0x"
-                         << std::setfill('0') << std::setw(8) << std::hex << address << std::dec
-                         << ". retryCount("<<retryCount<<")"
-                         << std::endl);
-        updateErrorCounters(errCode);
-        continue;
-      } else {
-        CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-      }
-    } catch (gem::hw::devices::exception::WriteValueMismatch const& err) {
-      std::string msgBase = toolbox::toString("Could not write to register '0x%08x' (uHAL)", address);
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      std::string errCode = toolbox::toString("%s",err.what());
-      CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-    } catch (std::exception const& err) {
-      std::string msgBase = toolbox::toString("Could not write to register '0x%08x' (std)", address);
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
-    }
-  }
-  std::string msg = toolbox::toString("Maximum number of retries reached, unable to write to register 0x%08x",
-                                      address);
-  CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
+  //Deprecated
 }
 
 void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList, int const& freq)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-
-  unsigned retryCount = 0;
-  while (retryCount < MAX_IPBUS_RETRIES) {
-    ++retryCount;
-    try {
-      int counter{0}, dispatchcounter{0};
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) {
-        this->getNode(curReg->first).write(curReg->second);
-        ++counter;
-        if (freq > 0 && counter%freq == 0) {
-          this->dispatch();
-          ++dispatchcounter;
-        }
-      }
-      if (freq < 0 || counter%freq != 0) {
-        this->dispatch();
-          ++dispatchcounter;
-      }
-      CMSGEMOS_DEBUG("GEMHwDevice::writeRegs dispatched " << dispatchcounter
-                     << " calls for " << counter << " registers");
-      return;
-    } catch (uhal::exception::exception const& err) {
-      std::string msgBase = "Could not write to register in list:";
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
-        msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
-      std::string msg     = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
-      std::string errCode = toolbox::toString("%s",err.what());
-      if (knownErrorCode(errCode)) {
-        updateErrorCounters(errCode);
-        continue;
-      } else {
-        CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-      }
-    } catch (std::exception const& err) {
-      std::string msgBase = "Could not write to register in list:";
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
-        msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
-      std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
-      CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
-    }
-  }
+  //Deprecated
 }
 
 void gem::hw::GEMHwDevice::writeValueToRegs(std::vector<std::string> const& regNames, uint32_t const& regValue, int const& freq)
 {
-  register_pair_list regsToWrite;
-  for (auto curReg = regNames.begin(); curReg != regNames.end(); ++curReg)
-    regsToWrite.push_back(std::make_pair(*curReg,regValue));
-  writeRegs(regsToWrite,freq);
+  //Deprecated
 }
-
-/*
-  void gem::hw::GEMHwDevice::zeroReg(std::string const& name)
-  {
-  writeReg(name,0);
-  }
-*/
 
 void gem::hw::GEMHwDevice::zeroRegs(std::vector<std::string> const& regNames, int const& freq)
 {
-  register_pair_list regsToZero;
-  for (auto curReg = regNames.begin(); curReg != regNames.end(); ++curReg)
-    regsToZero.push_back(std::make_pair(*curReg,0x0));
-  writeRegs(regsToZero,freq);
+  //Deprecated
 }
 
 std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
 {
+  //FIXME Not supported without uHAL. TBD
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   size_t numWords = this->getNode(name).getSize();
   CMSGEMOS_TRACE("GEMHwDevice::reading block " << name << " which has size "<<numWords);
@@ -659,47 +210,15 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
 std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, size_t const& numWords)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-
-  std::vector<uint32_t> res(numWords);
-
-  unsigned retryCount = 0;
-  if (numWords < 1)
-    return res;
-
-  while (retryCount < MAX_IPBUS_RETRIES) {
-    ++retryCount;
-    try {
-      uhal::ValVector<uint32_t> values = this->getNode(name).readBlock(numWords);
-      this->dispatch();
-      std::copy(values.begin(), values.end(), res.begin());
-      return res;
-    } catch (uhal::exception::exception const& err) {
-      std::string msgBase = toolbox::toString("Could not read block '%s' (uHAL)", name.c_str());
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      std::string errCode = toolbox::toString("%s",err.what());
-      if (knownErrorCode(errCode)) {
-        ++retryCount;
-        if (retryCount > (MAX_IPBUS_RETRIES-1))
-          CMSGEMOS_DEBUG("GEMHwDevice::Failed to read block " << name << " with " << numWords << " words"
-                         << ". retryCount("<<retryCount<<")" << std::endl
-                         << "error was " << errCode
-                         << std::endl);
-        updateErrorCounters(errCode);
-        continue;
-      } else {
-        CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-      }
-    } catch (std::exception const& err) {
-      std::string msgBase = toolbox::toString("Could not read block '%s' (std)", name.c_str());
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
-    }
+  std::vector<uint32_t> res(numWords); 
+  try {
+    res = xhal::common::rpc::call<::utils::readRemoteBlock>(rpc, name, numWords, 0);
+  } catch (std::exception const& err) {
+    //FIXME
   }
-  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read block");
-  CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
+
+  CMSGEMOS_TRACE("GEMHwDevice::Successfully read block " << name.c_str());
+
   return res;
 }
 
@@ -719,43 +238,7 @@ uint32_t gem::hw::GEMHwDevice::readBlock(std::string const& name, uint32_t* buff
 
 void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint32_t> const values)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-  if (values.size() < 1)
-    return;
-
-  unsigned retryCount = 0;
-  while (retryCount < MAX_IPBUS_RETRIES) {
-    ++retryCount;
-    try {
-      this->getNode(name).writeBlock(values);
-      this->dispatch();
-      return;
-    } catch (uhal::exception::exception const& err) {
-      std::string msgBase = toolbox::toString("Could not write to block '%s' (uHAL)", name.c_str());
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      std::string errCode = toolbox::toString("%s",err.what());
-      if (knownErrorCode(errCode)) {
-        ++retryCount;
-        if (retryCount > (MAX_IPBUS_RETRIES-1))
-          CMSGEMOS_DEBUG("GEMHwDevice::Failed to write block " << name
-                         << ". retryCount("<<retryCount<<")"
-                         << std::endl);
-        updateErrorCounters(errCode);
-        continue;
-      } else {
-        CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-        // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-      }
-    } catch (std::exception const& err) {
-      std::string msgBase = toolbox::toString("Could not write to block '%s' (std)", name.c_str());
-      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-      // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
-    }
-  }
-  std::string msg = toolbox::toString("Maximum number of retries reached, unable to write block %s",name.c_str());
-  CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  // XCEPT_RAISE(gem::hw::devices::exception::HardwareProblem, msg);
+  //Deprecated
 }
 
 std::vector<uint32_t> gem::hw::GEMHwDevice::readFIFO(std::string const& name)
@@ -787,6 +270,7 @@ void gem::hw::GEMHwDevice::zeroFIFO(std::string const& name)
 
 bool gem::hw::GEMHwDevice::knownErrorCode(std::string const& errCode) const
 {
+  //FIXME Deprecated
   return ((errCode.find("amount of data")              != std::string::npos) ||
           (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
           (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
@@ -800,6 +284,7 @@ bool gem::hw::GEMHwDevice::knownErrorCode(std::string const& errCode) const
 
 void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) const
 {
+  //FIXME Deprecated
   if (errCode.find("amount of data")    != std::string::npos)
     ++m_ipBusErrs.BadHeader;
   if (errCode.find("INFO CODE = 0x4L")  != std::string::npos)
@@ -816,6 +301,7 @@ void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) const
 
 void gem::hw::GEMHwDevice::zeroBlock(std::string const& name)
 {
+  //FIXME Deprecated
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
 
   size_t numWords = this->getNode(name).getSize();
