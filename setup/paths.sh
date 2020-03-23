@@ -75,4 +75,3 @@ export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
 # export GEM_ADDRESS_TABLE_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}/setup/etc/addresstables
 # export GEM_PYTHON_PATH=${BUILD_HOME}/${GEM_OS_PROJECT}
 # export PYTHONPATH=${GEM_PYTHON_PATH}:${PYTHONPATH}
-# export PATH=${GEM_PYTHON_PATH}/gempython/tests:${PATH}
