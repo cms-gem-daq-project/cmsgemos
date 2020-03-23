@@ -47,6 +47,7 @@ IncludeDirs+=$(BUILD_HOME)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/gemreadout/include
 IncludeDirs+=$(uHALROOT)/include
 IncludeDirs+=$(XHAL_ROOT)/include
+IncludeDirs+=$(CTP7_ROOT)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/devices/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
