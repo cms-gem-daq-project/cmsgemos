@@ -1,3 +1,0 @@
-cactusboards-amc13-python (>=1.2.5)
-cactuscore-uhal-gui       (>=2.4.0)
-cactuscore-uhal-pycohal   (>=2.4.0)

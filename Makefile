@@ -11,7 +11,6 @@ SUBPACKAGES := \
         gemhardware/managers \
         gemreadout \
         gemsupervisor \
-        gempython \
         gemdaqmonitor \
         gemonlinedb
 
