@@ -6,7 +6,6 @@
 #include <memory>
 
 #include "gem/base/GEMWebApplication.h"
-//#include "gem/hw/amc13/AMC13Manager.h"
 
 namespace gem {
   namespace hw {
@@ -16,7 +15,6 @@ namespace gem {
 
       class AMC13ManagerWeb : public gem::base::GEMWebApplication
         {
-          //friend class AMC13Monitor;
           friend class AMC13Manager;
 
         public:

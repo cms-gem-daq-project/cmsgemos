@@ -10,7 +10,6 @@
 
 #include "gem/hw/managers/amc/AMCManager.h"
 
-#include "gem/hw/managers/amc/AMCMonitor.h"
 #include "gem/hw/managers/amc/AMCManagerWeb.h"
 
 #include "gem/hw/managers/exception/Exception.h"
@@ -80,7 +79,6 @@ gem::hw::amc::AMCManager::AMCManager(xdaq::ApplicationStub* stub) :
   // initialize the AMC application objects
   CMSGEMOS_DEBUG("AMCManager::Connecting to the AMCManagerWeb interface");
   p_gemWebInterface = new gem::hw::amc::AMCManagerWeb(this);
-  // p_gemMonitor      = new gem::hw::amc::AMCHwMonitor(this);
   CMSGEMOS_DEBUG("AMCManager::done");
 
   // set up the info hwCfgInfoSpace
@@ -113,7 +111,6 @@ void gem::hw::amc::AMCManager::actionPerformed(xdata::Event& event)
         CMSGEMOS_DEBUG("AMCManager::Found attribute:" << slot.bag.toString());
       }
     }
-    // p_gemMonitor->startMonitoring();
   }
 
   // FIXME update monitoring variables?
@@ -190,12 +187,6 @@ void gem::hw::amc::AMCManager::configureAction()
 
     amc_shared_ptr amc = m_amcs.at(slot);
     if (amc->isHwConnected()) {
-      if (!m_disableMonitoring) {
-        m_amcMonitors.at(slot) = std::shared_ptr<AMCMonitor>(new AMCMonitor(amc, this, slot+1));
-        m_amcMonitors.at(slot)->addInfoSpace("HWMonitoring", is_amcs.at(slot));
-        m_amcMonitors.at(slot)->setupHwMonitoring();
-      }
-
       bool enableZS     = info.enableZS.value_;
       bool doPhaseShift = m_doPhaseShift.value_;
       uint32_t runType  = 0x0;
@@ -211,8 +202,6 @@ void gem::hw::amc::AMCManager::configureAction()
       // setup run mode?
       // setup DAQ mode?
 
-      if (m_amcMonitors.at(slot))
-        m_amcMonitors.at(slot)->startMonitoring();
     } else {
       std::stringstream msg;
       msg << "AMCManager::configureAction AMC in slot " << (slot+1) << " is not connected";
@@ -231,8 +220,6 @@ void gem::hw::amc::AMCManager::startAction()
   // what is required for starting the AMC?
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    if (m_amcMonitors.at(slot))
-      m_amcMonitors.at(slot)->pauseMonitoring();
     CMSGEMOS_DEBUG("AMCManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     AMCInfo& info = m_amcInfo[slot].bag;
 
@@ -253,8 +240,6 @@ void gem::hw::amc::AMCManager::startAction()
       amc->setZS(info.enableZS.value_);
       amc->setL1AEnable(true);
 
-      if (m_amcMonitors.at(slot))
-        m_amcMonitors.at(slot)->resumeMonitoring();
     } else {
       std::stringstream msg;
       msg << "AMCManager::startAction AMC in slot " << (slot+1) << " is not connected";
@@ -280,14 +265,10 @@ void gem::hw::amc::AMCManager::pauseAction()
 
     amc_shared_ptr amc = m_amcs.at(slot);
     if (amc->isHwConnected()) {
-      if (m_amcMonitors.at(slot))
-        m_amcMonitors.at(slot)->pauseMonitoring();
 
       //FIXME what should be done here? Disable triggers? wait for AMC to stop building events?
       CMSGEMOS_DEBUG("connected a card in slot " << (slot+1));
 
-      if (m_amcMonitors.at(slot))
-        m_amcMonitors.at(slot)->resumeMonitoring();
     } else {
       std::stringstream msg;
       msg << "AMCManager::pauseAction AMC in slot " << (slot+1) << " is not connected";
@@ -319,8 +300,6 @@ void gem::hw::amc::AMCManager::stopAction()
 
     amc_shared_ptr amc = m_amcs.at(slot);
     if (amc->isHwConnected()) {
-      if (m_amcMonitors.at(slot))
-        m_amcMonitors.at(slot)->pauseMonitoring();
 
       // what is required for stopping the AMC?
       // FIXME temporarily inhibit triggers at the AMC
@@ -328,8 +307,6 @@ void gem::hw::amc::AMCManager::stopAction()
       amc->disableDAQLink();
       amc->resetDAQLink();
 
-      if (m_amcMonitors.at(slot))
-        m_amcMonitors.at(slot)->resumeMonitoring();
     }
   }
   CMSGEMOS_INFO("AMCManager::stopAction end");
@@ -349,16 +326,12 @@ void gem::hw::amc::AMCManager::haltAction()
 
     amc_shared_ptr amc = m_amcs.at(slot);
     if (amc->isHwConnected()) {
-      if (m_amcMonitors.at(slot))
-        m_amcMonitors.at(slot)->pauseMonitoring();
 
       // what is required for halting the AMC?
       // FIXME temporarily inhibit triggers at the AMC
       amc->setL1AEnable(false);
       amc->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
 
-      if (m_amcMonitors.at(slot))
-        m_amcMonitors.at(slot)->resumeMonitoring();
     }
   }
   CMSGEMOS_INFO("AMCManager::haltAction end");
@@ -381,16 +354,12 @@ void gem::hw::amc::AMCManager::resetAction()
 
     amc_shared_ptr amc = m_amcs.at(slot);
     if (amc->isHwConnected()) {
-      if (m_amcMonitors.at(slot))
-        m_amcMonitors.at(slot)->pauseMonitoring();
 
       // what is required for resetting the AMC?
       // FIXME temporarily inhibit triggers at the AMC
       amc->setL1AEnable(false);
     }
     // reset the hw monitor
-    if (m_amcMonitors.at(slot))
-      m_amcMonitors.at(slot)->reset();
 
     CMSGEMOS_DEBUG("AMCManager::looking for hwCfgInfoSpace items for AMC in slot " << (slot+1));
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem-shelf%02d-amc%02d",

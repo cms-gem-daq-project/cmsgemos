@@ -15,7 +15,6 @@ namespace gem {
 
     namespace optohybrid {
 
-      // class OptoHybridMonitor;
       class HwOptoHybrid: public gem::hw::GEMHwDevice
         {
         public:

@@ -9,7 +9,6 @@
 #include "gem/hw/managers/optohybrid/OptoHybridManager.h"
 
 #include "gem/hw/devices/optohybrid/HwOptoHybrid.h"
-#include "gem/hw/managers/optohybrid/OptoHybridMonitor.h"
 #include "gem/hw/managers/optohybrid/OptoHybridManagerWeb.h"
 
 #include "gem/hw/managers/optohybrid/exception/Exception.h"
@@ -62,7 +61,6 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridManager(xdaq::ApplicationStub*
   // initialize the OptoHybrid application objects
   CMSGEMOS_DEBUG("OptoHybridManager::Connecting to the OptoHybridManagerWeb interface");
   p_gemWebInterface = new gem::hw::optohybrid::OptoHybridManagerWeb(this);
-  // p_gemMonitor      = new gem::hw::optohybrid::OptoHybridHwMonitor(this);
   CMSGEMOS_DEBUG("OptoHybridManager::done");
 
   // set up the info hwCfgInfoSpace
@@ -91,7 +89,6 @@ void gem::hw::optohybrid::OptoHybridManager::actionPerformed(xdata::Event& event
         CMSGEMOS_INFO("OptoHybridManager::Found attribute:" << cfgbag.toString());
       }
     }
-    // p_gemMonitor->startMonitoring();
   }
   // update monitoring variables
   gem::base::GEMApplication::actionPerformed(event);
@@ -168,10 +165,8 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
 void gem::hw::optohybrid::OptoHybridManager::configureAction()
 {
   CMSGEMOS_DEBUG("OptoHybridManager::configureAction");
-
   // FIXME make me more streamlined
   for (size_t slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-
     for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       size_t index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       CMSGEMOS_DEBUG("OptoHybridManager::index = " << index);
@@ -184,18 +179,13 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
       CMSGEMOS_DEBUG("OptoHybridManager::configureAction::grabbing pointer to hardware device");
       auto&& optohybrid = m_optohybrids.at(slot).at(link);
 
-      if (!m_disableMonitoring) {
-        m_optohybridMonitors.at(slot).at(link) = std::make_shared<OptoHybridMonitor>(optohybrid, this, index);
-        m_optohybridMonitors.at(slot).at(link)->addInfoSpace("HWMonitoring", is_optohybrids.at(slot).at(link));
-        m_optohybridMonitors.at(slot).at(link)->setupHwMonitoring();
-      }
       if (optohybrid->isHwConnected()) {
         CMSGEMOS_INFO("OptoHybridManager::configureAction:: configuring VFATs");
         optohybrid->configureVFATs();
         // what else is required for configuring the OptoHybrid?
         // need to reset optical links?
         // reset counters?
-     } else {
+      } else {
         std::stringstream errmsg;
         errmsg << "OptoHybridManager::configureAction::OptoHybrid connected on link " << static_cast<uint32_t>(link)
                << " to AMC in slot " << static_cast<uint32_t>(slot+1) << " is not responding";
@@ -204,9 +194,6 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
       }
     }
-    for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
-      if (m_optohybridMonitors.at(slot).at(link))
-        m_optohybridMonitors.at(slot).at(link)->startMonitoring();
   }
   CMSGEMOS_INFO("OptoHybridManager::configureAction end");
 }
@@ -217,10 +204,6 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
   // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   // FIXME make me more streamlined
   for (size_t slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
-      if (m_optohybridMonitors.at(slot).at(link))
-        m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
-
     for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       size_t index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       CMSGEMOS_DEBUG("OptoHybridManager::index = " << index);
@@ -246,10 +229,6 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
         XCEPT_RAISE(gem::hw::managers::optohybrid::exception::Exception, errmsg.str());
       }
     }
-
-    for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
-      if (m_optohybridMonitors.at(slot).at(link))
-        m_optohybridMonitors.at(slot).at(link)->resumeMonitoring();
   }
   CMSGEMOS_INFO("OptoHybridManager::startAction end");
 }
@@ -273,10 +252,6 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
   // FIXME TODO make me more streamlined
   for (size_t slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
 
-    for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
-      if (m_optohybridMonitors.at(slot).at(link))
-        m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
-
     for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       size_t index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       CMSGEMOS_DEBUG("OptoHybridManager::index = " << index);
@@ -294,10 +269,6 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
         // FIXME what resets to do
       }
     }
-
-    for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
-      if (m_optohybridMonitors.at(slot).at(link))
-        m_optohybridMonitors.at(slot).at(link)->resumeMonitoring();
   }
   CMSGEMOS_INFO("OptoHybridManager::stopAction end");
 }
@@ -317,10 +288,6 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
   for (size_t slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     CMSGEMOS_DEBUG("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
 
-    for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
-      if (m_optohybridMonitors.at(slot).at(link))
-        m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
-
     for (size_t link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       CMSGEMOS_DEBUG("OptoHybridManager::looping over links(" << link << ") and finding expected cards");
       size_t index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
@@ -331,10 +298,6 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
         continue;
       // set up the info space here rather than in initialize (where it can then get unset in reset?
       // should a value be set up for all of them by default?
-
-      // reset the hw monitor
-      if (m_optohybridMonitors.at(slot).at(link))
-        m_optohybridMonitors.at(slot).at(link)->reset();
 
       CMSGEMOS_DEBUG("OptoHybridManager::revoking hwCfgInfoSpace items for board connected on link "
             << link << " to AMC in slot " << (slot+1));

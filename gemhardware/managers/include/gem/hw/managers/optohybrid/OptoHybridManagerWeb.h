@@ -13,9 +13,6 @@ namespace gem {
 
       class OptoHybridManagerWeb : public gem::base::GEMWebApplication
         {
-          //friend class OptoHybridMonitor;
-          //friend class OptoHybridManager;
-
         public:
           OptoHybridManagerWeb(OptoHybridManager *optohybridApp);
 

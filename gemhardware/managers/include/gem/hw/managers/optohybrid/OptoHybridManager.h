@@ -17,7 +17,6 @@ namespace gem {
 
       class HwOptoHybrid;
       class OptoHybridManagerWeb;
-      class OptoHybridMonitor;
 
       using optohybrid_shared_ptr = std::shared_ptr<HwOptoHybrid>;
       using is_toolbox_ptr        = std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>;
@@ -95,9 +94,6 @@ namespace gem {
 
           HWMapMatrix<optohybrid_shared_ptr, MAX_OPTOHYBRIDS_PER_AMC, MAX_AMCS_PER_CRATE>
             m_optohybrids;  ///< HwOptoHybrid pointers to be managed
-
-          HWMapMatrix<std::shared_ptr<OptoHybridMonitor>, MAX_OPTOHYBRIDS_PER_AMC, MAX_AMCS_PER_CRATE>
-            m_optohybridMonitors;  ///< OptoHybridMonitor pointers to be managed
 
           HWMapMatrix<is_toolbox_ptr, MAX_OPTOHYBRIDS_PER_AMC, MAX_AMCS_PER_CRATE>
             is_optohybrids;  ///< OptoHybrid InfoSpace pointers to be managed
