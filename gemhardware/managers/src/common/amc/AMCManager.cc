@@ -6,7 +6,7 @@
  * date:
  */
 
-#include "gem/hw/devices/glib/HwGLIB.h"
+#include "gem/hw/devices/amc/HwGenericAMC.h"
 
 #include "gem/hw/managers/amc/AMCManager.h"
 
@@ -161,10 +161,10 @@ void gem::hw::amc::AMCManager::initializeAction()
 
     try {
       CMSGEMOS_DEBUG("AMCManager::obtaining pointer to HwGLIB");
-      m_amcs.at(slot) = amc_shared_ptr(new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString()));
+      m_amcs.at(slot) = amc_shared_ptr(new gem::hw::amc::HwGenericAMC(deviceName));
       amc_shared_ptr amc = m_amcs.at(slot);
       // maybe better to raise exception here and fail if not connected, as we expected the card to be here?
-      createAMCInfoSpaceItems(is_amcs.at(slot), amc);
+      //FIXME createAMCInfoSpaceItems(is_amcs.at(slot), amc);
     } GEM_HW_TRANSITION_CATCH("AMCManager::initializeAction",gem::hw::devices::exception::Exception);
     CMSGEMOS_DEBUG("AMCManager::connected");
     // set the web view to be empty or grey
@@ -404,20 +404,6 @@ void gem::hw::amc::AMCManager::createAMCInfoSpaceItems(is_toolbox_ptr is_amc, am
   is_amc->createUInt32("FIRMWARE_DATE",        amc->getFirmwareDate(), NULL, GEMUpdateType::PROCESS,  "docstring", "date");
   is_amc->createUInt32("AMC_FIRMWARE_VERSION", amc->getFirmwareVer(),  NULL, GEMUpdateType::PROCESS,  "docstring", "fwveramc");
   is_amc->createUInt32("AMC_FIRMWARE_DATE",    amc->getFirmwareDate(), NULL, GEMUpdateType::PROCESS,  "docstring", "dateoh");
-
-  // FIXME AMC ONLY? OBSOLETE?
-  is_amc->createUInt32("IP_ADDRESS",    amc->getIPAddress(),       NULL, GEMUpdateType::NOUPDATE, "docstring", "ip");
-  is_amc->createUInt64("MAC_ADDRESS",   amc->getMACAddress(),      NULL, GEMUpdateType::NOUPDATE, "docstring", "mac");
-  is_amc->createUInt32("SFP1_STATUS",   amc->SFPStatus(1),         NULL, GEMUpdateType::HW32);
-  is_amc->createUInt32("SFP2_STATUS",   amc->SFPStatus(2),         NULL, GEMUpdateType::HW32);
-  is_amc->createUInt32("SFP3_STATUS",   amc->SFPStatus(3),         NULL, GEMUpdateType::HW32);
-  is_amc->createUInt32("SFP4_STATUS",   amc->SFPStatus(4),         NULL, GEMUpdateType::HW32);
-  is_amc->createUInt32("FMC1_STATUS",   amc->FMCPresence(0),       NULL, GEMUpdateType::HW32);
-  is_amc->createUInt32("FMC2_STATUS",   amc->FMCPresence(1),       NULL, GEMUpdateType::HW32);
-  is_amc->createUInt32("FPGA_RESET",    amc->FPGAResetStatus(),    NULL, GEMUpdateType::HW32);
-  is_amc->createUInt32("GBE_INT",       amc->GbEInterrupt(),       NULL, GEMUpdateType::HW32);
-  is_amc->createUInt32("V6_CPLD",       amc->V6CPLDStatus(),       NULL, GEMUpdateType::HW32);
-  is_amc->createUInt32("CPLD_LOCK",     amc->CDCELockStatus(),     NULL, GEMUpdateType::HW32);
 
   is_amc->createUInt32("L1A"       , amc->getTTCCounter(AMCTTCCommand::TTC_L1A),        NULL, GEMUpdateType::HW32);
   is_amc->createUInt32("BC0"       , amc->getTTCCounter(AMCTTCCommand::TTC_BC0),        NULL, GEMUpdateType::HW32);

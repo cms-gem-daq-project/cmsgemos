@@ -7,70 +7,14 @@
 #include "gem/hw/devices/optohybrid/HwOptoHybrid.h"
 #include "gem/hw/devices/amc/HwGenericAMC.h"
 
-gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
-                                                std::string const& connectionFile) :
-  gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice, connectionFile),
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice) :
+  gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice),
   b_is_initial(true),
   m_link(extractDeviceID(optohybridDevice,3))
 {
   this->setup(optohybridDevice);
   std::stringstream basenode;
   basenode << "GEM_AMC.OH.OH" << static_cast<uint32_t>(m_link);
-  this->setDeviceBaseNode(basenode.str());
-  CMSGEMOS_INFO("HwOptoHybrid ctor done (basenode "
-                << basenode.str() << ") " << isHwConnected());
-}
-
-gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
-                                                std::string const& connectionURI,
-                                                std::string const& addressTable) :
-  gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice, connectionURI, addressTable),
-  b_is_initial(true),
-  m_link(extractDeviceID(optohybridDevice,3))
-{
-  this->setup(optohybridDevice);
-  // FIXME HARDCODED OBSOLETE
-  this->setAddressTableFileName(toolbox::toString("uhal_gem_amc_glib_link%02d.xml",m_link));
-  std::stringstream basenode;
-  basenode << "GEM_AMC.OH.OH" << static_cast<uint32_t>(m_link);
-  this->setDeviceBaseNode(basenode.str());
-  CMSGEMOS_INFO("HwOptoHybrid ctor done (basenode "
-                << basenode.str() << ") " << isHwConnected());
-}
-
-gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
-                                                uhal::HwInterface& uhalDevice) :
-  gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice,uhalDevice),
-  b_is_initial(true),
-  m_link(extractDeviceID(optohybridDevice,3))
-{
-  this->setup(optohybridDevice);
-  std::stringstream basenode;
-  basenode << "GEM_AMC.OH.OH" << static_cast<uint32_t>(m_link);
-  this->setDeviceBaseNode(basenode.str());
-  CMSGEMOS_INFO("HwOptoHybrid ctor done (basenode "
-                << basenode.str() << ") " << isHwConnected());
-}
-
-gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::HwGenericAMC const& amcDevice,
-                                                uint8_t const& slot) :
-  gem::hw::GEMHwDevice::GEMHwDevice(toolbox::toString("%s.OptoHybrid_%d",(amcDevice.getLoggerName()).c_str(),
-                                                      static_cast<uint32_t>(slot)),
-                                    dynamic_cast<uhal::HwInterface const&>(amcDevice)),
-  b_is_initial(true),
-  m_link(static_cast<uint32_t>(slot))
-{
-  CMSGEMOS_INFO("HwOptoHybrid creating OptoHybrid device from AMC device " << amcDevice.getLoggerName());
-  // Use a connection file and connection manager?
-  setDeviceID(toolbox::toString("%s.optohybrid%02d",amcDevice.getDeviceID().c_str(),static_cast<uint32_t>(m_link)));
-  // uhal::ConnectionManager manager ( "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml" );
-  // p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"));
-  // p_gemHW.reset(new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID())));
-  // p_gemConnectionManager = std::shared_ptr<uhal::ConnectionManager>(uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"));
-  // p_gemHW = std::shared_ptr<uhal::HwInterface>(p_gemConnectionManager->getDevice(this->getDeviceID()));
-  std::stringstream basenode;
-  basenode << "GEM_AMC.OH.OH" << static_cast<uint32_t>(m_link);
-  this->setDeviceBaseNode(basenode.str());
   CMSGEMOS_INFO("HwOptoHybrid ctor done (basenode "
                 << basenode.str() << ") " << isHwConnected());
 }
@@ -80,22 +24,6 @@ gem::hw::optohybrid::HwOptoHybrid::~HwOptoHybrid()
   // releaseDevice();
   // Disable connection to RPC service?
 }
-
-//void gem::hw::optohybrid::HwOptoHybrid::configureDevice(std::string const& xmlSettings)
-//{
-//  //here load the xml file settings onto the board
-//}
-//
-//void gem::hw::optohybrid::HwOptoHybrid::configureDevice(gem::config::OptoHybridBLOB const& blob)
-//{
-//
-//}
-//
-//void gem::hw::optohybrid::HwOptoHybrid::configureDevice()
-//{
-//  // determine the manner in which to configure the device (XML or DB parameters)
-//}
-//
 
 void gem::hw::optohybrid::HwOptoHybrid::connectRPC(bool reconnect)
 {
@@ -153,7 +81,7 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getFirmwareVersion()
 {
-  uint32_t fwver = readReg(getDeviceBaseNode(),"FPGA.CONTROL.RELEASE.VERSION");
+  uint32_t fwver = readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".FPGA.CONTROL.RELEASE.VERSION");
   CMSGEMOS_TRACE("OH has firmware version 0x" << std::hex << fwver << std::dec << std::endl);
   return fwver;
 }
@@ -173,7 +101,7 @@ std::string gem::hw::optohybrid::HwOptoHybrid::getFirmwareVersionString()
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getFirmwareDate()
 {
-  uint32_t fwver = readReg(getDeviceBaseNode(),"FPGA.CONTROL.RELEASE.DATE");
+  uint32_t fwver = readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".FPGA.CONTROL.RELEASE.DATE");
   CMSGEMOS_TRACE("OH has firmware date 0x" << std::hex << fwver << std::dec << std::endl);
   return fwver;
 }
@@ -445,23 +373,23 @@ void gem::hw::optohybrid::HwOptoHybrid::setVFATMask(uint32_t const mask)
 
 void gem::hw::optohybrid::HwOptoHybrid::resetVFATs()
 {
-  return writeReg(getDeviceBaseNode(),"FPGA.CONTROL.VFAT.RESET",0x1);
+  return writeReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".FPGA.CONTROL.VFAT.RESET",0x1);
 }
 
 void gem::hw::optohybrid::HwOptoHybrid::setSBitMask(uint32_t const mask)
 {
-  writeReg(getDeviceBaseNode(),"FPGA.TRIG.CTRL.VFAT_MASK", mask&0x00ffffff);
+  writeReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".FPGA.TRIG.CTRL.VFAT_MASK", mask&0x00ffffff);
 }
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getSBitMask()
 {
-  return readReg(getDeviceBaseNode(),"FPGA.TRIG.CTRL.VFAT_MASK");
+  return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".FPGA.TRIG.CTRL.VFAT_MASK");
 }
 
 //// HDMI_OUTPUT \\\\*
 void gem::hw::optohybrid::HwOptoHybrid::setHDMISBitSource(uint8_t const& bit, uint8_t const& mode)
 {
-  writeReg(getDeviceBaseNode(),toolbox::toString("FPGA.CONTROL.HDMI.SBIT_SEL%i",static_cast<uint32_t>(bit)),mode);
+  writeReg("GEM_AMC.OH.OH"+std::to_string(m_link)+"."+toolbox::toString("FPGA.CONTROL.HDMI.SBIT_SEL%i",static_cast<uint32_t>(bit)),mode);
 }
 
 void gem::hw::optohybrid::HwOptoHybrid::setHDMISBitSource(std::array<uint8_t, 8> const& sources)
@@ -472,75 +400,75 @@ void gem::hw::optohybrid::HwOptoHybrid::setHDMISBitSource(std::array<uint8_t, 8>
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getHDMISBitSource(uint8_t const& bit)
 {
-  return readReg(getDeviceBaseNode(),toolbox::toString("FPGA.CONTROL.HDMI.SBIT_SEL%i",static_cast<uint32_t>(bit)));
+  return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+"."+toolbox::toString("FPGA.CONTROL.HDMI.SBIT_SEL%i",static_cast<uint32_t>(bit)));
 }
 
 void gem::hw::optohybrid::HwOptoHybrid::setHDMISBitMode(uint8_t const& bit, uint8_t const& mode)
 {
-  writeReg(getDeviceBaseNode(),toolbox::toString("FPGA.CONTROL.HDMI.SBIT_MODE%i",static_cast<uint32_t>(bit)), mode);
+  writeReg("GEM_AMC.OH.OH"+std::to_string(m_link)+"."+toolbox::toString("FPGA.CONTROL.HDMI.SBIT_MODE%i",static_cast<uint32_t>(bit)), mode);
 }
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getHDMISBitMode(uint8_t const& bit)
 {
-  return readReg(getDeviceBaseNode(),toolbox::toString("FPGA.CONTROL.HDMI.SBIT_MODE%i",static_cast<uint32_t>(bit)));
+  return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+"."+toolbox::toString("FPGA.CONTROL.HDMI.SBIT_MODE%i",static_cast<uint32_t>(bit)));
 }
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getClockStatus()
 {
-  return readReg(getDeviceBaseNode(),"FPGA.CLOCKING");
+  return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".FPGA.CLOCKING");
 }
 
 //////// Firmware Status \\\\\\\\*
 bool gem::hw::optohybrid::HwOptoHybrid::hasSEUError()
 {
-  return readReg(getDeviceBaseNode(),"STATUS.SEU");
+  return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".STATUS.SEU");
 }
 
 //////// OptoHybrid ADC Interface \\\\\\\\*
 // FIXME UPDATE FOR V3
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getFPGATemp()
 {
-  return readReg(getDeviceBaseNode(),"ADC.TEMP");
+  return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".ADC.TEMP");
 }
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getFPGAMaxTemp()
 {
-  return readReg(getDeviceBaseNode(),"ADC.TEMP.MAX");
+  return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".ADC.TEMP.MAX");
 }
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getFPGAMinTemp()
 {
-  return readReg(getDeviceBaseNode(),"ADC.TEMP.MIN");
+  return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".ADC.TEMP.MIN");
 }
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getFPGAVccInt()
 {
-  return readReg(getDeviceBaseNode(),"ADC.VCCINT");
+  return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".ADC.VCCINT");
 }
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getFPGAMaxVccInt()
 {
-  return readReg(getDeviceBaseNode(),"ADC.VCCINT.MAX");
+  return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".ADC.VCCINT.MAX");
 }
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getFPGAMinVccInt()
 {
-  return readReg(getDeviceBaseNode(),"ADC.VCCINT.MIN");
+  return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".ADC.VCCINT.MIN");
 }
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getFPGAVccAux()
 {
-  return readReg(getDeviceBaseNode(),"ADC.VCCAUX");
+  return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".ADC.VCCAUX");
 }
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getFPGAMaxVccAux()
 {
-  return readReg(getDeviceBaseNode(),"ADC.VCCAUX.MAX");
+  return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".ADC.VCCAUX.MAX");
 }
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getFPGAMinVccAux()
 {
-  return readReg(getDeviceBaseNode(),"ADC.VCCAUX.MIN");
+  return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".ADC.VCCAUX.MIN");
 }
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getADCVPVN() const
@@ -667,23 +595,23 @@ std::vector<std::vector<uint32_t> > gem::hw::optohybrid::HwOptoHybrid::getUltraS
 //////// Firmware forced TTC commands \\\\\\\\*
 void gem::hw::optohybrid::HwOptoHybrid::sendL1A(uint32_t const& ntrigs, uint32_t const& rate)
 {
-  writeReg(getDeviceBaseNode(), "FPGA.GBT.FORCE_L1A",0x1);
+  writeReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".FPGA.GBT.FORCE_L1A",0x1);
 }
 
 void gem::hw::optohybrid::HwOptoHybrid::sendResync(uint32_t const& nresync, uint32_t const& rate)
 {
-  writeReg(getDeviceBaseNode(), "FPGA.GBT.FORCE_RESYNC",0x1);
+  writeReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".FPGA.GBT.FORCE_RESYNC",0x1);
 }
 
 
 void gem::hw::optohybrid::HwOptoHybrid::sendBC0(uint32_t const& nbc0, uint32_t const& rate)
 {
-  writeReg(getDeviceBaseNode(), "FPGA.GBT.FORCE_BC0",0x1);
+  writeReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".FPGA.GBT.FORCE_BC0",0x1);
 }
 
 void gem::hw::optohybrid::HwOptoHybrid::sendBXN(uint32_t const& nbc0, uint32_t const& rate)
 {
-  writeReg(getDeviceBaseNode(), "FPGA.GBT.FORCE_BXN",0x1);
+  writeReg("GEM_AMC.OH.OH"+std::to_string(m_link)+".FPGA.GBT.FORCE_BXN",0x1);
 }
 
 //////// Counters \\\\\\\\*
@@ -717,11 +645,11 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getTTCCount(uint8_t const& signal, u
 
   switch(mode) {
   case(OptoHybridTTCMode::LOCAL_TTC):
-    return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.TTC.GTX_TTC.%s", (ttcSignal.str()).c_str()));
+    return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+"."+toolbox::toString("COUNTERS.TTC.GTX_TTC.%s", (ttcSignal.str()).c_str()));
   case(OptoHybridTTCMode::RESET):
     return 0x0;
   default:
-    return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.TTC.SENT.%s",    (ttcSignal.str()).c_str()));
+    return readReg("GEM_AMC.OH.OH"+std::to_string(m_link)+"."+toolbox::toString("COUNTERS.TTC.SENT.%s",    (ttcSignal.str()).c_str()));
   }
 }
 

@@ -36,12 +36,7 @@ GEM_HW_MANAGERS_DEFINE_ALARM(MonitoringFailureAlarm)
 // FIXME: SHOULD I BE A MACRO OR A FUNCTION ELSEWHERE
 // FIXME: SHOULD TRANSITION ERRORS FORCE FSM TO ERROR?
 #define GEM_HW_TRANSITION_CATCH(MSG_BASE, EX_TYPE)             \
-catch (uhalException const& e) {                               \
-  std::stringstream errmsg;                                    \
-  errmsg << MSG_BASE << " caught uHAL exception " << e.what(); \
-  CMSGEMOS_ERROR(errmsg.str());                                \
-  XCEPT_RAISE(EX_TYPE, errmsg.str());                          \
-} catch (EX_TYPE const& e) {                                   \
+catch (EX_TYPE const& e) {                                   \
   std::stringstream errmsg;                                    \
   errmsg << MSG_BASE << " caught exception " << e.what();      \
   CMSGEMOS_ERROR(errmsg.str());                                \
