@@ -182,7 +182,7 @@ namespace gem {
        *
        * @retval returns the 32 bit unsigned value in the register
        */
-      uint32_t readReg(uint32_t const& regAddr);
+      uint32_t [[deprecated]] readReg(uint32_t const& regAddr);
 
       /**
        * @ingroup uhalwrappers
@@ -195,7 +195,7 @@ namespace gem {
        *
        * @retval returns the 32 bit unsigned value in the register
        */
-      uint32_t readReg(uint32_t const& regAddr, uint32_t const& regMask);
+      uint32_t [[deprecated]] readReg(uint32_t const& regAddr, uint32_t const& regMask);
 
       /**
        * @ingroup uhalwrappers
@@ -208,7 +208,7 @@ namespace gem {
        *
        * @retval returns the 32 bit unsigned value
        */
-      uint32_t readReg(const std::string &regPrefix, const std::string &regName) { return readReg(regPrefix+"."+regName); };
+      uint32_t [[deprecated]] readReg(const std::string &regPrefix, const std::string &regName) { return readReg(regPrefix+"."+regName); };
 
       /**
        * @ingroup uhalwrappers
@@ -222,7 +222,7 @@ namespace gem {
        *
        * @retval returns the 32 bit unsigned value in the register
        */
-      uint32_t readMaskedAddress(std::string const& regName);
+      uint32_t [[deprecated]] readMaskedAddress(std::string const& regName);
 
       /**
        * @ingroup uhalwrappers
@@ -234,7 +234,7 @@ namespace gem {
        * @param regList list of register name and uint32_t value to store the result
        * @param freq integer number of transactions to bundle (-1 for all)
        */
-      void     readRegs(register_pair_list &regList, int const& freq=8);
+      void     [[deprecated]] readRegs(register_pair_list &regList, int const& freq=8);
 
       /**
        * @ingroup uhalwrappers
@@ -246,7 +246,7 @@ namespace gem {
        * @param regList list of register address and uint32_t value to store the result
        * @param freq integer number of transactions to bundle (-1 for all)
        */
-      void     readRegs(addressed_register_pair_list &regList, int const& freq=8);
+      void     [[deprecated]] readRegs(addressed_register_pair_list &regList, int const& freq=8);
 
       /**
        * @ingroup uhalwrappers
@@ -258,7 +258,7 @@ namespace gem {
        * @param regList list of register address/mask pair and uint32_t value to store the result
        * @param freq integer number of transactions to bundle (-1 for all)
        */
-      void     readRegs(masked_register_pair_list &regList, int const& freq=8);
+      void     [[deprecated]] readRegs(masked_register_pair_list &regList, int const& freq=8);
 
       /**
        * @ingroup uhalwrappers
@@ -280,7 +280,7 @@ namespace gem {
        * @param regAddr address of the register to read
        * @param val value to write to the register
        */
-      void     writeReg(uint32_t const& regAddr, uint32_t const val);
+      void     [[deprecated]] writeReg(uint32_t const& regAddr, uint32_t const val);
 
       /**
        * @ingroup uhalwrappers
@@ -292,7 +292,7 @@ namespace gem {
        * @param regName name of the register to write to
        * @param val value to write to the register
        */
-      void     writeReg(const std::string &regPrefix, const std::string &regName, uint32_t const val) { return writeReg(regPrefix+"."+regName, val); };
+      void     [[deprecated]] writeReg(const std::string &regPrefix, const std::string &regName, uint32_t const val) { return writeReg(regPrefix+"."+regName, val); };
 
       /**
        * @ingroup uhalwrappers
@@ -304,7 +304,7 @@ namespace gem {
        * @param regList std::vector of a pairs of register names and values to write
        * @param freq integer number of transactions to bundle (-1 for all)
        */
-      void     writeRegs(register_pair_list const& regList, int const& freq=8);
+      void     [[deprecated]] writeRegs(register_pair_list const& regList, int const& freq=8);
 
       /**
        * @ingroup uhalwrappers
@@ -317,7 +317,7 @@ namespace gem {
        * @param regValue uint32_t value to write to the list of registers
        * @param freq integer number of transactions to bundle (-1 for all)
        */
-      void     writeValueToRegs(std::vector<std::string> const& regList, uint32_t const& regValue, int const& freq=8);
+      void     [[deprecated]] writeValueToRegs(std::vector<std::string> const& regList, uint32_t const& regValue, int const& freq=8);
 
       /**
        * @ingroup uhalwrappers
@@ -327,7 +327,7 @@ namespace gem {
        *
        * @param regName register to zero
        */
-      void     zeroReg( std::string const& regName) { writeReg(regName,0); };
+      void     [[deprecated]] zeroReg( std::string const& regName) { writeReg(regName,0); };
 
       /**
        * @ingroup uhalwrappers
@@ -338,7 +338,7 @@ namespace gem {
        *
        * @param regNames list of registers to zero
        */
-      void     zeroRegs(std::vector<std::string> const& regNames, int const& freq=8);
+      void     [[deprecated]] zeroRegs(std::vector<std::string> const& regNames, int const& freq=8);
 
       /**
        * @ingroup uhalwrappers
@@ -348,7 +348,7 @@ namespace gem {
        *
        * @param regName fixed size memory block to read from
        */
-      std::vector<uint32_t> readBlock(std::string const& regName);
+      std::vector<uint32_t> [[deprecated]] readBlock(std::string const& regName);
 
       /**
        * @ingroup uhalwrappers
@@ -401,7 +401,7 @@ namespace gem {
        * @param regName name of memory block to write to
        * @param values list of 32-bit words to write into the memory block
        */
-      void writeBlock(std::string const& regName, std::vector<uint32_t> const values);
+      void [[deprecated]] writeBlock(std::string const& regName, std::vector<uint32_t> const values);
 
       /**
        * @ingroup uhalwrappers
@@ -411,7 +411,7 @@ namespace gem {
        *
        * @param regName block or memory to zero
        */
-      void zeroBlock(std::string const& regName);
+      void [[deprecated]] zeroBlock(std::string const& regName);
 
       /**
        * @ingroup uhalwrappers FIXME, isn't this a block, not a FIFO?
@@ -482,7 +482,7 @@ namespace gem {
 
       std::string getLoggerName() const { return m_gemLogger.getName(); };
 
-      void updateErrorCounters(std::string const& errCode) const;
+      void [[deprecated]] updateErrorCounters(std::string const& errCode) const;
 
       virtual std::string printErrorCounts() const;
 
@@ -572,7 +572,7 @@ namespace gem {
       uint8_t m_crate;  ///< Crate number the AMC is housed in
       uint8_t m_slot;   ///< Slot number in the uTCA shelf the AMC is sitting in
 
-      bool knownErrorCode(std::string const& errCode) const;
+      bool [[deprecated]] knownErrorCode(std::string const& errCode) const;
 
     };  // class GEMHwDevice
   }  // namespace gem::hw

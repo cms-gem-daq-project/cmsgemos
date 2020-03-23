@@ -134,35 +134,29 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 
 uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address)
 {
-  //Deprecated
   return 0;
 }
 
 uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address, uint32_t const& mask)
 {
-  //Deprecated
   return 0;
 }
 
 uint32_t gem::hw::GEMHwDevice::readMaskedAddress(std::string const& name)
 {
-  //Deprecated
   return 0;
 }
 
 void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList, int const& freq)
 {
-  //Deprecated
 }
 
 void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList, int const& freq)
 {
-  //Deprecated
 }
 
 void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList, int const& freq)
 {
-  //Deprecated
 }
 
 void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
@@ -180,22 +174,18 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 
 void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
 {
-  //Deprecated
 }
 
 void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList, int const& freq)
 {
-  //Deprecated
 }
 
 void gem::hw::GEMHwDevice::writeValueToRegs(std::vector<std::string> const& regNames, uint32_t const& regValue, int const& freq)
 {
-  //Deprecated
 }
 
 void gem::hw::GEMHwDevice::zeroRegs(std::vector<std::string> const& regNames, int const& freq)
 {
-  //Deprecated
 }
 
 std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
@@ -238,7 +228,6 @@ uint32_t gem::hw::GEMHwDevice::readBlock(std::string const& name, uint32_t* buff
 
 void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint32_t> const values)
 {
-  //Deprecated
 }
 
 std::vector<uint32_t> gem::hw::GEMHwDevice::readFIFO(std::string const& name)
@@ -270,7 +259,7 @@ void gem::hw::GEMHwDevice::zeroFIFO(std::string const& name)
 
 bool gem::hw::GEMHwDevice::knownErrorCode(std::string const& errCode) const
 {
-  //FIXME Deprecated
+  //FIXME 
   return ((errCode.find("amount of data")              != std::string::npos) ||
           (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
           (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
@@ -284,7 +273,7 @@ bool gem::hw::GEMHwDevice::knownErrorCode(std::string const& errCode) const
 
 void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) const
 {
-  //FIXME Deprecated
+  //FIXME 
   if (errCode.find("amount of data")    != std::string::npos)
     ++m_ipBusErrs.BadHeader;
   if (errCode.find("INFO CODE = 0x4L")  != std::string::npos)
@@ -301,7 +290,7 @@ void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) const
 
 void gem::hw::GEMHwDevice::zeroBlock(std::string const& name)
 {
-  //FIXME Deprecated
+  //FIXME 
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
 
   size_t numWords = this->getNode(name).getSize();
