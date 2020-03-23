@@ -2,74 +2,21 @@
 
 #include <iomanip>
 
-gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
-                                    std::string const& connectionFile) :
-  gem::hw::GEMHwDevice::GEMHwDevice(amcDevice, connectionFile),
+gem::hw::amc::HwGenericAMC::HwGenericAMC(std::string const& amcDevice) :
+  gem::hw::GEMHwDevice::GEMHwDevice(amcDevice),
   m_links(0),
   m_maxLinks(gem::hw::utils::N_GTX)
 {
   CMSGEMOS_INFO("HwGenericAMC ctor");
   this->setup(amcDevice);
-  this->setDeviceBaseNode("GEM_AMC");
-
-  for (unsigned li = 0; li < gem::hw::utils::N_GTX; ++li) {
-    AMCIPBusCounters tmpGTXCounter;
-    m_ipBusCounters.push_back(tmpGTXCounter);
-  }
-
-  CMSGEMOS_INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
+  CMSGEMOS_INFO("HwGenericAMC ctor done");
 }
 
-gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
-                                    std::string const& connectionURI,
-                                    std::string const& addressTable) :
-  gem::hw::GEMHwDevice::GEMHwDevice(amcDevice, connectionURI, addressTable),
-  m_links(0),
-  m_maxLinks(gem::hw::utils::N_GTX)
-{
-  CMSGEMOS_INFO("trying to create HwGenericAMC(" << amcDevice << "," << connectionURI << "," <<addressTable);
-  this->setup(amcDevice);
-  this->setDeviceBaseNode("GEM_AMC");
-  for (unsigned li = 0; li < gem::hw::utils::N_GTX; ++li) {
-    AMCIPBusCounters tmpGTXCounter;
-    m_ipBusCounters.push_back(tmpGTXCounter);
-  }
-
-  CMSGEMOS_INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
-}
-
-gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
-                                    uhal::HwInterface& uhalDevice) :
-  gem::hw::GEMHwDevice::GEMHwDevice(amcDevice,uhalDevice),
-  m_links(0),
-  m_maxLinks(gem::hw::utils::N_GTX)
-{
-  this->setup(amcDevice);
-  this->setDeviceBaseNode("GEM_AMC"); // needed?
-
-  for (unsigned li = 0; li < gem::hw::utils::N_GTX; ++li) {
-    AMCIPBusCounters tmpGTXCounter;
-    m_ipBusCounters.push_back(tmpGTXCounter);
-  }
-
-  CMSGEMOS_INFO("HwGenericAMC::HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
-}
-
-// gem::hw::HwGenericAMC::HwGenericAMC(int const& shelf,
-//                                     int const& slot,
-//                                     bool       uhalNative) :
-//   gem::hw::HwGenericAMC::HwGenericAMC(toolbox::toString("gem-shelf%02d-amc%02d",shelf,slot),
-//                                       connectionURI,
-//                                       addressTable
-//                                     )
-// {
-// }
-
-gem::hw::HwGenericAMC::~HwGenericAMC()
+gem::hw::amc::HwGenericAMC::~HwGenericAMC()
 {
 }
 
-void gem::hw::HwGenericAMC::connectRPC(bool reconnect)
+void gem::hw::amc::HwGenericAMC::connectRPC(bool reconnect)
 {
   if (isConnected) {
     // TODO: find better way than hardcoded versions
@@ -80,7 +27,7 @@ void gem::hw::HwGenericAMC::connectRPC(bool reconnect)
   }
 }
 
-bool gem::hw::HwGenericAMC::isHwConnected()
+bool gem::hw::amc::HwGenericAMC::isHwConnected()
 {
   // DO NOT LIKE THIS FUNCTION FIXME!!!
   if (b_is_connected) {
@@ -122,7 +69,7 @@ bool gem::hw::HwGenericAMC::isHwConnected()
   }
 }
 
-std::string gem::hw::HwGenericAMC::getBoardIDString()
+std::string gem::hw::amc::HwGenericAMC::getBoardIDString()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board ID consists of four characters encoded as a 32-bit unsigned int
@@ -132,12 +79,12 @@ std::string gem::hw::HwGenericAMC::getBoardIDString()
   return res;
 }
 
-uint32_t gem::hw::HwGenericAMC::getBoardID()
+uint32_t gem::hw::amc::HwGenericAMC::getBoardID()
 {
-  return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_ID");
+  return readReg("GEM_AMC.GEM_SYSTEM.BOARD_ID");
 }
 
-std::string gem::hw::HwGenericAMC::getBoardTypeString()
+std::string gem::hw::amc::HwGenericAMC::getBoardTypeString()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board ID consists of four characters encoded as a 32-bit unsigned int
@@ -147,14 +94,14 @@ std::string gem::hw::HwGenericAMC::getBoardTypeString()
   return res;
 }
 
-uint32_t gem::hw::HwGenericAMC::getBoardType()
+uint32_t gem::hw::amc::HwGenericAMC::getBoardType()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board type consists of four characters encoded as a 32-bit unsigned int
-  return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_TYPE");
+  return readReg("GEM_AMC.GEM_SYSTEM.BOARD_TYPE");
 }
 
-std::string gem::hw::HwGenericAMC::getSystemIDString()
+std::string gem::hw::amc::HwGenericAMC::getSystemIDString()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The system ID consists of four characters encoded as a 32-bit unsigned int
@@ -164,24 +111,24 @@ std::string gem::hw::HwGenericAMC::getSystemIDString()
   return res;
 }
 
-uint32_t gem::hw::HwGenericAMC::getSystemID()
+uint32_t gem::hw::amc::HwGenericAMC::getSystemID()
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The system ID consists of four characters encoded as a 32-bit unsigned int
-  return readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_TYPE");
+  return readReg("GEM_AMC.GEM_SYSTEM.BOARD_TYPE");
 }
 
-uint32_t gem::hw::HwGenericAMC::getSupportedOptoHybrids()
+uint32_t gem::hw::amc::HwGenericAMC::getSupportedOptoHybrids()
 {
-  return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.NUM_OF_OH");
+  return readReg("GEM_AMC.GEM_SYSTEM.CONFIG.NUM_OF_OH");
 }
 
-uint32_t gem::hw::HwGenericAMC::supportsTriggerLink()
+uint32_t gem::hw::amc::HwGenericAMC::supportsTriggerLink()
 {
-  return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.USE_TRIG_LINKS");
+  return readReg("GEM_AMC.GEM_SYSTEM.CONFIG.USE_TRIG_LINKS");
 }
 
-std::string gem::hw::HwGenericAMC::getFirmwareDateString(bool const& system)
+std::string gem::hw::amc::HwGenericAMC::getFirmwareDateString(bool const& system)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream res;
@@ -196,16 +143,16 @@ std::string gem::hw::HwGenericAMC::getFirmwareDateString(bool const& system)
   return res.str();
 }
 
-uint32_t gem::hw::HwGenericAMC::getFirmwareDate(bool const& system)
+uint32_t gem::hw::amc::HwGenericAMC::getFirmwareDate(bool const& system)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   if (system)
-    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.RELEASE.DATE");
+    return readReg("GEM_AMC.GEM_SYSTEM.RELEASE.DATE");
   else
-    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.RELEASE.DATE");
+    return readReg("GEM_AMC.GEM_SYSTEM.RELEASE.DATE");
 }
 
-std::string gem::hw::HwGenericAMC::getFirmwareVerString(bool const& system)
+std::string gem::hw::amc::HwGenericAMC::getFirmwareVerString(bool const& system)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream res;
@@ -221,23 +168,23 @@ std::string gem::hw::HwGenericAMC::getFirmwareVerString(bool const& system)
   return res.str();
 }
 
-uint32_t gem::hw::HwGenericAMC::getFirmwareVer(bool const& system)
+uint32_t gem::hw::amc::HwGenericAMC::getFirmwareVer(bool const& system)
 {
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   if (system)
-    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.RELEASE");
+    return readReg("GEM_AMC.GEM_SYSTEM.RELEASE");
   else
-    return readReg(getDeviceBaseNode(), "GEM_SYSTEM.RELEASE");
+    return readReg("GEM_AMC.GEM_SYSTEM.RELEASE");
 }
 
 /** User core functionality **/
-uint32_t gem::hw::HwGenericAMC::getUserFirmware()
+uint32_t gem::hw::amc::HwGenericAMC::getUserFirmware()
 {
   // This returns the firmware register (V2 removed the user firmware specific).
-  return readReg(getDeviceBaseNode(), "GEM_SYSTEM.RELEASE");
+  return readReg("GEM_AMC.GEM_SYSTEM.RELEASE");
 }
 
-std::string gem::hw::HwGenericAMC::getUserFirmwareDate()
+std::string gem::hw::amc::HwGenericAMC::getUserFirmwareDate()
 {
   // This returns the user firmware build date.
   std::stringstream res;
@@ -245,7 +192,7 @@ std::string gem::hw::HwGenericAMC::getUserFirmwareDate()
   return res.str();
 }
 
-bool gem::hw::HwGenericAMC::linkCheck(uint8_t const& gtx, std::string const& opMsg)
+bool gem::hw::amc::HwGenericAMC::linkCheck(uint8_t const& gtx, std::string const& opMsg)
 {
   CMSGEMOS_INFO("linkCheck:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
                 << m_links << std::dec);
@@ -270,18 +217,18 @@ bool gem::hw::HwGenericAMC::linkCheck(uint8_t const& gtx, std::string const& opM
 }
 
 // FIXME UPDATE //
-// gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::HwGenericAMC::LinkStatus(uint8_t const& gtx)
+// gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::amc::HwGenericAMC::LinkStatus(uint8_t const& gtx)
 // {
 //   gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus;
 //   // FIXME moved to OH GEM_AMC.OH.OH0.FPGA.GBT.RX.CNT_LINK_ERR
 //   CMSGEMOS_INFO("LinkStatus:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
 //                 << m_links << std::dec);
 //   if (linkCheck(gtx, "Link status")) {
-//     linkStatus.GTX_TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.TRACK_LINK_ERROR_CNT", gtx));
-//     linkStatus.GTX_TRG_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("TRIGGER.OH%d.LINK0_MISSED_COMMA_CNT",gtx));
-//     linkStatus.GTX_Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.VFAT_BLOCK_CNT",       gtx));
-//     linkStatus.GBT_TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.TRACK_LINK_ERROR_CNT", gtx));
-//     linkStatus.GBT_Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.VFAT_BLOCK_CNT",       gtx));
+//     linkStatus.GTX_TRK_Errors   = readReg("GEM_AMC."+toolbox::toString("OH_LINKS.OH%d.TRACK_LINK_ERROR_CNT", gtx));
+//     linkStatus.GTX_TRG_Errors   = readReg("GEM_AMC."+toolbox::toString("TRIGGER.OH%d.LINK0_MISSED_COMMA_CNT",gtx));
+//     linkStatus.GTX_Data_Packets = readReg("GEM_AMC."+toolbox::toString("OH_LINKS.OH%d.VFAT_BLOCK_CNT",       gtx));
+//     linkStatus.GBT_TRK_Errors   = readReg("GEM_AMC."+toolbox::toString("OH_LINKS.OH%d.TRACK_LINK_ERROR_CNT", gtx));
+//     linkStatus.GBT_Data_Packets = readReg("GEM_AMC."+toolbox::toString("OH_LINKS.OH%d.VFAT_BLOCK_CNT",       gtx));
 //   }
 //   CMSGEMOS_INFO("LinkStatus:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
 //                 << m_links << std::dec);
@@ -289,34 +236,34 @@ bool gem::hw::HwGenericAMC::linkCheck(uint8_t const& gtx, std::string const& opM
 // }
 
 // FIXME UPDATE //
-// void gem::hw::HwGenericAMC::LinkReset(uint8_t const& gtx, uint8_t const& resets)
+// void gem::hw::amc::HwGenericAMC::LinkReset(uint8_t const& gtx, uint8_t const& resets)
 // {
 //   // FIXME right now this just resets the counters, but we need to be able to "reset" the link too
 //   if (linkCheck(gtx, "Link reset")) {
 //     if (resets&0x1)
-//       writeReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.CTRL.CNT_RESET"), gtx);
+//       writeReg("GEM_AMC."+toolbox::toString("OH_LINKS.CTRL.CNT_RESET"), gtx);
 //     if (resets&0x2)
-//       writeReg(getDeviceBaseNode(),toolbox::toString("TRIGGER.CTRL.CNT_RESET"),  gtx);
+//       writeReg("GEM_AMC."+toolbox::toString("TRIGGER.CTRL.CNT_RESET"),  gtx);
 //     if (resets&0x4)
-//       writeReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.CTRL.CNT_RESET"), gtx);
+//       writeReg("GEM_AMC."+toolbox::toString("OH_LINKS.CTRL.CNT_RESET"), gtx);
 //   }
 // }
 
 
-uint32_t gem::hw::HwGenericAMC::readTriggerFIFO(uint8_t const& gtx)
+uint32_t gem::hw::amc::HwGenericAMC::readTriggerFIFO(uint8_t const& gtx)
 {
   // V2 firmware hasn't got trigger fifo yet
   return 0;
 }
 
-void gem::hw::HwGenericAMC::flushTriggerFIFO(uint8_t const& gtx)
+void gem::hw::amc::HwGenericAMC::flushTriggerFIFO(uint8_t const& gtx)
 {
   // V2 firmware hasn't got trigger fifo yet
   return;
 }
 
 /** DAQ link module functions **/
-void gem::hw::HwGenericAMC::configureDAQModule(bool enableZS, bool doPhaseShift, uint32_t const& runType, uint32_t const& marker, bool relock, bool bc0LockPSMode)
+void gem::hw::amc::HwGenericAMC::configureDAQModule(bool enableZS, bool doPhaseShift, uint32_t const& runType, uint32_t const& marker, bool relock, bool bc0LockPSMode)
 {
   try {
     req = wisc::RPCMsg("amc.configureDAQModule");
@@ -340,7 +287,7 @@ void gem::hw::HwGenericAMC::configureDAQModule(bool enableZS, bool doPhaseShift,
   } GEM_CATCH_RPC_ERROR("HwGenericAMC::enableDAQLink", gem::hw::devices::exception::Exception);
 }
 
-void gem::hw::HwGenericAMC::enableDAQLink(uint32_t const& enableMask)
+void gem::hw::amc::HwGenericAMC::enableDAQLink(uint32_t const& enableMask)
 {
   try {
     req = wisc::RPCMsg("amc.enableDAQLink");
@@ -359,7 +306,7 @@ void gem::hw::HwGenericAMC::enableDAQLink(uint32_t const& enableMask)
   } GEM_CATCH_RPC_ERROR("HwGenericAMC::enableDAQLink", gem::hw::devices::exception::Exception);
 }
 
-void gem::hw::HwGenericAMC::disableDAQLink()
+void gem::hw::amc::HwGenericAMC::disableDAQLink()
 {
   try {
     req = wisc::RPCMsg("amc.disableDAQLink");
@@ -377,12 +324,12 @@ void gem::hw::HwGenericAMC::disableDAQLink()
   } GEM_CATCH_RPC_ERROR("HwGenericAMC::enableDAQLink", gem::hw::devices::exception::Exception);
 }
 
-void gem::hw::HwGenericAMC::setZS(bool en)
+void gem::hw::amc::HwGenericAMC::setZS(bool en)
 {
-  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.ZERO_SUPPRESSION_EN", uint32_t(en));
+  writeReg("GEM_AMC.DAQ.CONTROL.ZERO_SUPPRESSION_EN", uint32_t(en));
 }
 
-void gem::hw::HwGenericAMC::resetDAQLink(uint32_t const& davTO, uint32_t const& ttsOverride)
+void gem::hw::amc::HwGenericAMC::resetDAQLink(uint32_t const& davTO, uint32_t const& ttsOverride)
 {
   try {
     req = wisc::RPCMsg("amc.resetDAQLink");
@@ -413,169 +360,169 @@ void gem::hw::HwGenericAMC::resetDAQLink(uint32_t const& davTO, uint32_t const& 
   } GEM_CATCH_RPC_ERROR("HwGenericAMC::enableDAQLink", gem::hw::devices::exception::Exception);
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkControl()
+uint32_t gem::hw::amc::HwGenericAMC::getDAQLinkControl()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.CONTROL");
+  return readReg("GEM_AMC.DAQ.CONTROL");
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkStatus()
+uint32_t gem::hw::amc::HwGenericAMC::getDAQLinkStatus()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS");
+  return readReg("GEM_AMC.DAQ.STATUS");
 }
 
-bool gem::hw::HwGenericAMC::daqLinkReady()
+bool gem::hw::amc::HwGenericAMC::daqLinkReady()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS.DAQ_LINK_RDY");
+  return readReg("GEM_AMC.DAQ.STATUS.DAQ_LINK_RDY");
 }
 
-bool gem::hw::HwGenericAMC::daqClockLocked()
+bool gem::hw::amc::HwGenericAMC::daqClockLocked()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS.DAQ_CLK_LOCKED");
+  return readReg("GEM_AMC.DAQ.STATUS.DAQ_CLK_LOCKED");
 }
 
-bool gem::hw::HwGenericAMC::daqTTCReady()
+bool gem::hw::amc::HwGenericAMC::daqTTCReady()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS.TTC_RDY");
+  return readReg("GEM_AMC.DAQ.STATUS.TTC_RDY");
 }
 
-uint8_t gem::hw::HwGenericAMC::daqTTSState()
+uint8_t gem::hw::amc::HwGenericAMC::daqTTSState()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS.TTS_STATE");
+  return readReg("GEM_AMC.DAQ.STATUS.TTS_STATE");
 }
 
-bool gem::hw::HwGenericAMC::daqAlmostFull()
+bool gem::hw::amc::HwGenericAMC::daqAlmostFull()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS.DAQ_AFULL");
+  return readReg("GEM_AMC.DAQ.STATUS.DAQ_AFULL");
 }
 
-bool gem::hw::HwGenericAMC::l1aFIFOIsEmpty()
+bool gem::hw::amc::HwGenericAMC::l1aFIFOIsEmpty()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_FIFO_IS_EMPTY");
+  return readReg("GEM_AMC.DAQ.STATUS.L1A_FIFO_IS_EMPTY");
 }
 
-bool gem::hw::HwGenericAMC::l1aFIFOIsAlmostFull()
+bool gem::hw::amc::HwGenericAMC::l1aFIFOIsAlmostFull()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_FIFO_IS_NEAR_FULL");
+  return readReg("GEM_AMC.DAQ.STATUS.L1A_FIFO_IS_NEAR_FULL");
 }
 
-bool gem::hw::HwGenericAMC::l1aFIFOIsFull()
+bool gem::hw::amc::HwGenericAMC::l1aFIFOIsFull()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_FIFO_IS_FULL");
+  return readReg("GEM_AMC.DAQ.STATUS.L1A_FIFO_IS_FULL");
 }
 
-bool gem::hw::HwGenericAMC::l1aFIFOIsUnderflow()
+bool gem::hw::amc::HwGenericAMC::l1aFIFOIsUnderflow()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_FIFO_IS_UNDERFLOW");
+  return readReg("GEM_AMC.DAQ.STATUS.L1A_FIFO_IS_UNDERFLOW");
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkEventsSent()
+uint32_t gem::hw::amc::HwGenericAMC::getDAQLinkEventsSent()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.EXT_STATUS.EVT_SENT");
+  return readReg("GEM_AMC.DAQ.EXT_STATUS.EVT_SENT");
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkL1AID()
+uint32_t gem::hw::amc::HwGenericAMC::getDAQLinkL1AID()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.EXT_STATUS.L1AID");
+  return readReg("GEM_AMC.DAQ.EXT_STATUS.L1AID");
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkDisperErrors()
+uint32_t gem::hw::amc::HwGenericAMC::getDAQLinkDisperErrors()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.EXT_STATUS.DISPER_ERR");
+  return readReg("GEM_AMC.DAQ.EXT_STATUS.DISPER_ERR");
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkNonidentifiableErrors()
+uint32_t gem::hw::amc::HwGenericAMC::getDAQLinkNonidentifiableErrors()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.EXT_STATUS.NOTINTABLE_ERR");
+  return readReg("GEM_AMC.DAQ.EXT_STATUS.NOTINTABLE_ERR");
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkInputMask()
+uint32_t gem::hw::amc::HwGenericAMC::getDAQLinkInputMask()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.CONTROL.INPUT_ENABLE_MASK");
+  return readReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK");
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkDAVTimeout()
+uint32_t gem::hw::amc::HwGenericAMC::getDAQLinkDAVTimeout()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.CONTROL.DAV_TIMEOUT");
+  return readReg("GEM_AMC.DAQ.CONTROL.DAV_TIMEOUT");
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkDAVTimer(bool const& max)
+uint32_t gem::hw::amc::HwGenericAMC::getDAQLinkDAVTimer(bool const& max)
 {
   if (max)
-    return readReg(getDeviceBaseNode(), "DAQ.EXT_STATUS.MAX_DAV_TIMER");
+    return readReg("GEM_AMC.DAQ.EXT_STATUS.MAX_DAV_TIMER");
   else
-    return readReg(getDeviceBaseNode(), "DAQ.EXT_STATUS.LAST_DAV_TIMER");
+    return readReg("GEM_AMC.DAQ.EXT_STATUS.LAST_DAV_TIMER");
 }
 
 /** GTX specific DAQ link information **/
 // TODO: should rename, "DAQ link" is a back end FW term, not corresponding to a front end link...
-uint32_t gem::hw::HwGenericAMC::getLinkDAQStatus(uint8_t const& gtx)
+uint32_t gem::hw::amc::HwGenericAMC::getLinkDAQStatus(uint8_t const& gtx)
 {
   // do link protections here...
   std::stringstream regBase;
   regBase << "DAQ.OH" << (int)gtx;
-  return readReg(getDeviceBaseNode(),regBase.str()+".STATUS");
+  return readReg("GEM_AMC."+regBase.str()+".STATUS");
 }
 
-uint32_t gem::hw::HwGenericAMC::getLinkDAQCounters(uint8_t const& gtx, uint8_t const& mode)
+uint32_t gem::hw::amc::HwGenericAMC::getLinkDAQCounters(uint8_t const& gtx, uint8_t const& mode)
 {
   std::stringstream regBase;
   regBase << "DAQ.OH" << (int)gtx << ".COUNTERS";
   if (mode == 0)
-    return readReg(getDeviceBaseNode(),regBase.str()+".CORRUPT_VFAT_BLK_CNT");
+    return readReg("GEM_AMC."+regBase.str()+".CORRUPT_VFAT_BLK_CNT");
   else
-    return readReg(getDeviceBaseNode(),regBase.str()+".EVN");
+    return readReg("GEM_AMC."+regBase.str()+".EVN");
 }
 
-uint32_t gem::hw::HwGenericAMC::getLinkLastDAQBlock(uint8_t const& gtx)
+uint32_t gem::hw::amc::HwGenericAMC::getLinkLastDAQBlock(uint8_t const& gtx)
 {
   std::stringstream regBase;
   regBase << "DAQ.OH" << (int)gtx;
-  return readReg(getDeviceBaseNode(),regBase.str()+".LASTBLOCK");
+  return readReg("GEM_AMC."+regBase.str()+".LASTBLOCK");
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkInputTimeout()
+uint32_t gem::hw::amc::HwGenericAMC::getDAQLinkInputTimeout()
 {
   // OBSOLETE, NO LONGER PRESENT
-  return readReg(getDeviceBaseNode(), "DAQ.EXT_CONTROL.INPUT_TIMEOUT");
+  return readReg("GEM_AMC.DAQ.EXT_CONTROL.INPUT_TIMEOUT");
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkRunType()
+uint32_t gem::hw::amc::HwGenericAMC::getDAQLinkRunType()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.EXT_CONTROL.RUN_TYPE");
+  return readReg("GEM_AMC.DAQ.EXT_CONTROL.RUN_TYPE");
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkRunParameters()
+uint32_t gem::hw::amc::HwGenericAMC::getDAQLinkRunParameters()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.EXT_CONTROL.RUN_PARAMS");
+  return readReg("GEM_AMC.DAQ.EXT_CONTROL.RUN_PARAMS");
 }
 
-uint32_t gem::hw::HwGenericAMC::getDAQLinkRunParameter(uint8_t const& parameter)
+uint32_t gem::hw::amc::HwGenericAMC::getDAQLinkRunParameter(uint8_t const& parameter)
 {
   std::stringstream regBase;
   regBase << "DAQ.EXT_CONTROL.RUN_PARAM" << (int) parameter;
-  return readReg(getDeviceBaseNode(),regBase.str());
+  return readReg("GEM_AMC."+regBase.str());
 }
 
-void gem::hw::HwGenericAMC::setDAQLinkInputTimeout(uint32_t const& value)
+void gem::hw::amc::HwGenericAMC::setDAQLinkInputTimeout(uint32_t const& value)
 {
   // for (unsigned li = 0; li < m_maxLinks; ++li) {
   // for (unsigned li =  m_maxLinks - 1; li > -1; --li) {
-  //   writeReg(getDeviceBaseNode(), toolbox::toString("DAQ.OH%d.CONTROL.EOE_TIMEOUT", li), value);
+  //   writeReg("GEM_AMC."+toolbox::toString("DAQ.OH%d.CONTROL.EOE_TIMEOUT", li), value);
   // }
-  // return writeReg(getDeviceBaseNode(), "DAQ.EXT_CONTROL.INPUT_TIMEOUT",value);
+  // return writeReg("GEM_AMC.DAQ.EXT_CONTROL.INPUT_TIMEOUT",value);
 }
 
-void gem::hw::HwGenericAMC::setDAQLinkRunType(uint32_t const& value)
+void gem::hw::amc::HwGenericAMC::setDAQLinkRunType(uint32_t const& value)
 {
-  return writeReg(getDeviceBaseNode(), "DAQ.EXT_CONTROL.RUN_TYPE",value);
+  return writeReg("GEM_AMC.DAQ.EXT_CONTROL.RUN_TYPE",value);
 }
 
-void gem::hw::HwGenericAMC::setDAQLinkRunParameters(uint32_t const& value)
+void gem::hw::amc::HwGenericAMC::setDAQLinkRunParameters(uint32_t const& value)
 {
-  return writeReg(getDeviceBaseNode(), "DAQ.EXT_CONTROL.RUN_PARAMS",value);
+  return writeReg("GEM_AMC.DAQ.EXT_CONTROL.RUN_PARAMS",value);
 }
 
-void gem::hw::HwGenericAMC::setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value)
+void gem::hw::amc::HwGenericAMC::setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value)
 {
   if (parameter < 1 || parameter > 3) {
     std::string msg = toolbox::toString("Attempting to set DAQ link run parameter %d: outside expectation (1-%d)",
@@ -585,7 +532,7 @@ void gem::hw::HwGenericAMC::setDAQLinkRunParameter(uint8_t const& parameter, uin
   }
   std::stringstream regBase;
   regBase << "DAQ.EXT_CONTROL.RUN_PARAM" << (int) parameter;
-  writeReg(getDeviceBaseNode(),regBase.str(),value);
+  writeReg("GEM_AMC."+regBase.str(),value);
 }
 
 /********************************/
@@ -593,18 +540,18 @@ void gem::hw::HwGenericAMC::setDAQLinkRunParameter(uint8_t const& parameter, uin
 /********************************/
 
 /** TTC module functions **/
-void gem::hw::HwGenericAMC::ttcModuleReset()
+void gem::hw::amc::HwGenericAMC::ttcModuleReset()
 {
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.MODULE_RESET", 0x1);
+  writeReg("GEM_AMC.TTC.CTRL.MODULE_RESET", 0x1);
 }
 
-void gem::hw::HwGenericAMC::ttcMMCMReset()
+void gem::hw::amc::HwGenericAMC::ttcMMCMReset()
 {
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.MMCM_RESET", 0x1);
-  // writeReg(getDeviceBaseNode(), "TTC.CTRL.PHASE_ALIGNMENT_RESET", 0x1);
+  writeReg("GEM_AMC.TTC.CTRL.MMCM_RESET", 0x1);
+  // writeReg("GEM_AMC.TTC.CTRL.PHASE_ALIGNMENT_RESET", 0x1);
 }
 
-void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool relock, bool modeBC0, bool scan)
+void gem::hw::amc::HwGenericAMC::ttcMMCMPhaseShift(bool relock, bool modeBC0, bool scan)
 {
   try {
     req = wisc::RPCMsg("amc.ttcMMCMPhaseShift");
@@ -624,7 +571,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool relock, bool modeBC0, bool sc
   } GEM_CATCH_RPC_ERROR("HwGenericAMC::ttcMMCMPhaseShift", gem::hw::devices::exception::Exception);
 }
 
-int gem::hw::HwGenericAMC::checkPLLLock(uint32_t readAttempts)
+int gem::hw::amc::HwGenericAMC::checkPLLLock(uint32_t readAttempts)
 {
   try {
     req = wisc::RPCMsg("amc.checkPLLLock");
@@ -643,10 +590,10 @@ int gem::hw::HwGenericAMC::checkPLLLock(uint32_t readAttempts)
   } GEM_CATCH_RPC_ERROR("HwGenericAMC::checkPLLLock", gem::hw::devices::exception::Exception);
 }
 
-double gem::hw::HwGenericAMC::getMMCMPhaseMean(uint32_t readAttempts)
+double gem::hw::amc::HwGenericAMC::getMMCMPhaseMean(uint32_t readAttempts)
 {
   if (readAttempts == 1) {
-    return double(readReg(getDeviceBaseNode(), "TTC.STATUS.CLK.TTC_PM_PHASE_MEAN"));
+    return double(readReg("GEM_AMC.TTC.STATUS.CLK.TTC_PM_PHASE_MEAN"));
   } else {
     try {
       req = wisc::RPCMsg("amc.getMMCMPhaseMean");
@@ -666,16 +613,16 @@ double gem::hw::HwGenericAMC::getMMCMPhaseMean(uint32_t readAttempts)
   }
 }
 
-double gem::hw::HwGenericAMC::getMMCMPhaseMedian(uint32_t readAttempts)
+double gem::hw::amc::HwGenericAMC::getMMCMPhaseMedian(uint32_t readAttempts)
 {
   CMSGEMOS_WARN("HwGenericAMC::getMMCMPhaseMedian is not implemented, returning the mean");
   return getMMCMPhaseMean(readAttempts);
 }
 
-double gem::hw::HwGenericAMC::getGTHPhaseMean(uint32_t readAttempts)
+double gem::hw::amc::HwGenericAMC::getGTHPhaseMean(uint32_t readAttempts)
 {
   if (readAttempts == 1) {
-    return readReg(getDeviceBaseNode(), "TTC.STATUS.CLK.GTH_PM_PHASE_MEAN");
+    return readReg("GEM_AMC.TTC.STATUS.CLK.GTH_PM_PHASE_MEAN");
   } else {
     try {
       req = wisc::RPCMsg("amc.getGTHPhaseMean");
@@ -695,98 +642,98 @@ double gem::hw::HwGenericAMC::getGTHPhaseMean(uint32_t readAttempts)
   }
 }
 
-double gem::hw::HwGenericAMC::getGTHPhaseMedian(uint32_t readAttempts)
+double gem::hw::amc::HwGenericAMC::getGTHPhaseMedian(uint32_t readAttempts)
 {
   CMSGEMOS_WARN("HwGenericAMC::getGTHPhaseMedian is not implemented, returning the mean");
   return getGTHPhaseMean(readAttempts);
 }
 
-void gem::hw::HwGenericAMC::ttcCounterReset()
+void gem::hw::amc::HwGenericAMC::ttcCounterReset()
 {
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.CNT_RESET", 0x1);
+  writeReg("GEM_AMC.TTC.CTRL.CNT_RESET", 0x1);
 }
 
-bool gem::hw::HwGenericAMC::getL1AEnable()
+bool gem::hw::amc::HwGenericAMC::getL1AEnable()
 {
-  return readReg(getDeviceBaseNode(), "TTC.CTRL.L1A_ENABLE");
+  return readReg("GEM_AMC.TTC.CTRL.L1A_ENABLE");
 }
 
-void gem::hw::HwGenericAMC::setL1AEnable(bool enable)
+void gem::hw::amc::HwGenericAMC::setL1AEnable(bool enable)
 {
   // uint32_t safeEnable = 0xa4a2c200+int(enable);
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.L1A_ENABLE", uint32_t(enable));
+  writeReg("GEM_AMC.TTC.CTRL.L1A_ENABLE", uint32_t(enable));
 }
 
-uint32_t gem::hw::HwGenericAMC::getTTCConfig(AMCTTCCommandT const& cmd)
+uint32_t gem::hw::amc::HwGenericAMC::getTTCConfig(AMCTTCCommandT const& cmd)
 {
   CMSGEMOS_WARN("HwGenericAMC::getTTCConfig: not implemented");
   return 0x0;
 }
 
-void gem::hw::HwGenericAMC::setTTCConfig(AMCTTCCommandT const& cmd, uint8_t const& value)
+void gem::hw::amc::HwGenericAMC::setTTCConfig(AMCTTCCommandT const& cmd, uint8_t const& value)
 {
   CMSGEMOS_WARN("HwGenericAMC::setTTCConfig: not implemented");
   return;
 }
 
-uint32_t gem::hw::HwGenericAMC::getTTCStatus()
+uint32_t gem::hw::amc::HwGenericAMC::getTTCStatus()
 {
   CMSGEMOS_WARN("HwGenericAMC::getTTCStatus: not fully implemented");
-  return readReg(getDeviceBaseNode(), "TTC.STATUS");
+  return readReg("GEM_AMC.TTC.STATUS");
 }
 
-uint32_t gem::hw::HwGenericAMC::getTTCErrorCount(bool const& single)
+uint32_t gem::hw::amc::HwGenericAMC::getTTCErrorCount(bool const& single)
 {
   if (single)
-    return readReg(getDeviceBaseNode(), "TTC.STATUS.TTC_SINGLE_ERROR_CNT");
+    return readReg("GEM_AMC.TTC.STATUS.TTC_SINGLE_ERROR_CNT");
   else
-    return readReg(getDeviceBaseNode(), "TTC.STATUS.TTC_DOUBLE_ERROR_CNT");
+    return readReg("GEM_AMC.TTC.STATUS.TTC_DOUBLE_ERROR_CNT");
 }
 
-uint32_t gem::hw::HwGenericAMC::getTTCCounter(AMCTTCCommandT const& cmd)
+uint32_t gem::hw::amc::HwGenericAMC::getTTCCounter(AMCTTCCommandT const& cmd)
 {
   switch(cmd) {
   case(AMCTTCCommand::TTC_L1A) :
-    return readReg(getDeviceBaseNode(), "TTC.CMD_COUNTERS.L1A");
+    return readReg("GEM_AMC.TTC.CMD_COUNTERS.L1A");
   case(AMCTTCCommand::TTC_BC0) :
-    return readReg(getDeviceBaseNode(), "TTC.CMD_COUNTERS.BC0");
+    return readReg("GEM_AMC.TTC.CMD_COUNTERS.BC0");
   case(AMCTTCCommand::TTC_EC0) :
-    return readReg(getDeviceBaseNode(), "TTC.CMD_COUNTERS.EC0");
+    return readReg("GEM_AMC.TTC.CMD_COUNTERS.EC0");
   case(AMCTTCCommand::TTC_RESYNC) :
-    return readReg(getDeviceBaseNode(), "TTC.CMD_COUNTERS.RESYNC");
+    return readReg("GEM_AMC.TTC.CMD_COUNTERS.RESYNC");
   case(AMCTTCCommand::TTC_OC0) :
-    return readReg(getDeviceBaseNode(), "TTC.CMD_COUNTERS.OC0");
+    return readReg("GEM_AMC.TTC.CMD_COUNTERS.OC0");
   case(AMCTTCCommand::TTC_HARD_RESET) :
-    return readReg(getDeviceBaseNode(), "TTC.CMD_COUNTERS.HARD_RESET");
+    return readReg("GEM_AMC.TTC.CMD_COUNTERS.HARD_RESET");
   case(AMCTTCCommand::TTC_CALPULSE) :
-    return readReg(getDeviceBaseNode(), "TTC.CMD_COUNTERS.CALPULSE");
+    return readReg("GEM_AMC.TTC.CMD_COUNTERS.CALPULSE");
   case(AMCTTCCommand::TTC_START) :
-    return readReg(getDeviceBaseNode(), "TTC.CMD_COUNTERS.START");
+    return readReg("GEM_AMC.TTC.CMD_COUNTERS.START");
   case(AMCTTCCommand::TTC_STOP) :
-    return readReg(getDeviceBaseNode(), "TTC.CMD_COUNTERS.STOP");
+    return readReg("GEM_AMC.TTC.CMD_COUNTERS.STOP");
   case(AMCTTCCommand::TTC_TEST_SYNC) :
-    return readReg(getDeviceBaseNode(), "TTC.CMD_COUNTERS.TEST_SYNC");
+    return readReg("GEM_AMC.TTC.CMD_COUNTERS.TEST_SYNC");
   default :
-    return readReg(getDeviceBaseNode(), "TTC.CMD_COUNTERS.L1A");
+    return readReg("GEM_AMC.TTC.CMD_COUNTERS.L1A");
   }
 }
 
-uint32_t gem::hw::HwGenericAMC::getL1AID()
+uint32_t gem::hw::amc::HwGenericAMC::getL1AID()
 {
-  return readReg(getDeviceBaseNode(), "TTC.L1A_ID");
+  return readReg("GEM_AMC.TTC.L1A_ID");
 }
 
-uint32_t gem::hw::HwGenericAMC::getL1ARate()
+uint32_t gem::hw::amc::HwGenericAMC::getL1ARate()
 {
-  return readReg(getDeviceBaseNode(), "TTC.L1A_RATE");
+  return readReg("GEM_AMC.TTC.L1A_RATE");
 }
 
-uint32_t gem::hw::HwGenericAMC::getTTCSpyBuffer()
+uint32_t gem::hw::amc::HwGenericAMC::getTTCSpyBuffer()
 {
   // FIXME: OBSOLETE in V3?
   CMSGEMOS_WARN("HwGenericAMC::getTTCSpyBuffer: TTC.TTC_SPY_BUFFER is obsolete and will be removed in a future release");
   return 0x0;
-  // return readReg(getDeviceBaseNode(), "TTC.TTC_SPY_BUFFER");
+  // return readReg("GEM_AMC.TTC.TTC_SPY_BUFFER");
 }
 
 /********************************/
@@ -794,93 +741,93 @@ uint32_t gem::hw::HwGenericAMC::getTTCSpyBuffer()
 /********************************/
 
 /*** SCA submodule ***/
-void gem::hw::HwGenericAMC::scaHardResetEnable(bool const& en)
+void gem::hw::amc::HwGenericAMC::scaHardResetEnable(bool const& en)
 {
-  writeReg(getDeviceBaseNode(), "SLOW_CONTROL.SCA.CTRL.TTC_HARD_RESET_EN", uint32_t(en));
+  writeReg("GEM_AMC.SLOW_CONTROL.SCA.CTRL.TTC_HARD_RESET_EN", uint32_t(en));
 }
 
 /********************************/
 /** TRIGGER module information **/
 /********************************/
 
-void gem::hw::HwGenericAMC::triggerReset()
+void gem::hw::amc::HwGenericAMC::triggerReset()
 {
-  writeReg(getDeviceBaseNode(), "TRIGGER.CTRL.MODULE_RESET", 0x1);
+  writeReg("GEM_AMC.TRIGGER.CTRL.MODULE_RESET", 0x1);
 }
 
-void gem::hw::HwGenericAMC::triggerCounterReset()
+void gem::hw::amc::HwGenericAMC::triggerCounterReset()
 {
-  writeReg(getDeviceBaseNode(), "TRIGGER.CTRL.CNT_RESET", 0x1);
+  writeReg("GEM_AMC.TRIGGER.CTRL.CNT_RESET", 0x1);
 }
 
-uint32_t gem::hw::HwGenericAMC::getOptoHybridKillMask()
+uint32_t gem::hw::amc::HwGenericAMC::getOptoHybridKillMask()
 {
-  return readReg(getDeviceBaseNode(), "TRIGGER.CTRL.OH_KILL_MASK");
+  return readReg("GEM_AMC.TRIGGER.CTRL.OH_KILL_MASK");
 }
 
-void gem::hw::HwGenericAMC::setOptoHybridKillMask(uint32_t const& mask)
+void gem::hw::amc::HwGenericAMC::setOptoHybridKillMask(uint32_t const& mask)
 {
-  writeReg(getDeviceBaseNode(), "TRIGGER.CTRL.OH_KILL_MASK", mask);
+  writeReg("GEM_AMC.TRIGGER.CTRL.OH_KILL_MASK", mask);
 }
 
 /*** STATUS submodule ***/
-uint32_t gem::hw::HwGenericAMC::getORTriggerRate()
+uint32_t gem::hw::amc::HwGenericAMC::getORTriggerRate()
 {
-  return readReg(getDeviceBaseNode(), "TRIGGER.STATUS.OR_TRIGGER_RATE");
+  return readReg("GEM_AMC.TRIGGER.STATUS.OR_TRIGGER_RATE");
 }
 
-uint32_t gem::hw::HwGenericAMC::getORTriggerCount()
+uint32_t gem::hw::amc::HwGenericAMC::getORTriggerCount()
 {
-  return readReg(getDeviceBaseNode(), "TRIGGER.STATUS.TRIGGER_SINGLE_ERROR_CNT");
+  return readReg("GEM_AMC.TRIGGER.STATUS.TRIGGER_SINGLE_ERROR_CNT");
 }
 
 /*** OH{IDXX} submodule ***/
-uint32_t gem::hw::HwGenericAMC::getOptoHybridTriggerRate(uint8_t const& oh)
+uint32_t gem::hw::amc::HwGenericAMC::getOptoHybridTriggerRate(uint8_t const& oh)
 {
-  return readReg(getDeviceBaseNode(), toolbox::toString("TRIGGER.OH%d.TRIGGER_RATE",(int)oh));
+  return readReg("GEM_AMC."+toolbox::toString("TRIGGER.OH%d.TRIGGER_RATE",(int)oh));
 }
 
-uint32_t gem::hw::HwGenericAMC::getOptoHybridTriggerCount(uint8_t const& oh)
+uint32_t gem::hw::amc::HwGenericAMC::getOptoHybridTriggerCount(uint8_t const& oh)
 {
-  return readReg(getDeviceBaseNode(), toolbox::toString("TRIGGER.OH%d.TRIGGER_CNT",(int)oh));
+  return readReg("GEM_AMC."+toolbox::toString("TRIGGER.OH%d.TRIGGER_CNT",(int)oh));
 }
 
-uint32_t gem::hw::HwGenericAMC::getOptoHybridClusterRate(uint8_t const& oh, uint8_t const& cs)
+uint32_t gem::hw::amc::HwGenericAMC::getOptoHybridClusterRate(uint8_t const& oh, uint8_t const& cs)
 {
-  return readReg(getDeviceBaseNode(), toolbox::toString("TRIGGER.OH%d.CLUSTER_SIZE_%d_RATE",(int)oh,(int)cs));
+  return readReg("GEM_AMC."+toolbox::toString("TRIGGER.OH%d.CLUSTER_SIZE_%d_RATE",(int)oh,(int)cs));
 }
 
-uint32_t gem::hw::HwGenericAMC::getOptoHybridClusterCount(uint8_t const& oh, uint8_t const& cs)
+uint32_t gem::hw::amc::HwGenericAMC::getOptoHybridClusterCount(uint8_t const& oh, uint8_t const& cs)
 {
-  return readReg(getDeviceBaseNode(), toolbox::toString("TRIGGER.OH%d.CLUSTER_SIZE_%d_CNT",(int)oh,(int)cs));
+  return readReg("GEM_AMC."+toolbox::toString("TRIGGER.OH%d.CLUSTER_SIZE_%d_CNT",(int)oh,(int)cs));
 }
 
-uint32_t gem::hw::HwGenericAMC::getOptoHybridDebugLastCluster(uint8_t const& oh, uint8_t const& cs)
+uint32_t gem::hw::amc::HwGenericAMC::getOptoHybridDebugLastCluster(uint8_t const& oh, uint8_t const& cs)
 {
-  return readReg(getDeviceBaseNode(), toolbox::toString("TRIGGER.OH%d.DEBUG_LAST_CLUSTER_%d",(int)oh,(int)cs));
+  return readReg("GEM_AMC."+toolbox::toString("TRIGGER.OH%d.DEBUG_LAST_CLUSTER_%d",(int)oh,(int)cs));
 }
 
-uint32_t gem::hw::HwGenericAMC::getOptoHybridTriggerLinkCount(uint8_t const& oh, uint8_t const& link, AMCOHLinkCountT const& count)
+uint32_t gem::hw::amc::HwGenericAMC::getOptoHybridTriggerLinkCount(uint8_t const& oh, uint8_t const& link, AMCOHLinkCountT const& count)
 {
   switch(count) {
   case(AMCOHLinkCount::LINK_NOT_VALID) :
-    return readReg(getDeviceBaseNode(), toolbox::toString("TRIGGER.OH%d.LINK%d_NOT_VALID_CNT",(int)oh,(int)link));
+    return readReg("GEM_AMC."+toolbox::toString("TRIGGER.OH%d.LINK%d_NOT_VALID_CNT",(int)oh,(int)link));
   case(AMCOHLinkCount::LINK_MISSED_COMMA) :
-    return readReg(getDeviceBaseNode(), toolbox::toString("TRIGGER.OH%d.LINK%d_MISSED_COMMA_CNT",(int)oh,(int)link));
+    return readReg("GEM_AMC."+toolbox::toString("TRIGGER.OH%d.LINK%d_MISSED_COMMA_CNT",(int)oh,(int)link));
   case(AMCOHLinkCount::LINK_OVERFLOW) :
-    return readReg(getDeviceBaseNode(), toolbox::toString("TRIGGER.OH%d.LINK%d_OVERFLOW_CNT",(int)oh,(int)link));
+    return readReg("GEM_AMC."+toolbox::toString("TRIGGER.OH%d.LINK%d_OVERFLOW_CNT",(int)oh,(int)link));
   case(AMCOHLinkCount::LINK_UNDERFLOW) :
-    return readReg(getDeviceBaseNode(), toolbox::toString("TRIGGER.OH%d.LINK%d_UNDERFLOW_CNT",(int)oh,(int)link));
+    return readReg("GEM_AMC."+toolbox::toString("TRIGGER.OH%d.LINK%d_UNDERFLOW_CNT",(int)oh,(int)link));
   case(AMCOHLinkCount::LINK_SYNC_WORD) :
-    return readReg(getDeviceBaseNode(), toolbox::toString("TRIGGER.OH%d.LINK%d_SYNC_WORD_CNT",(int)oh,(int)link));
+    return readReg("GEM_AMC."+toolbox::toString("TRIGGER.OH%d.LINK%d_SYNC_WORD_CNT",(int)oh,(int)link));
   default :
-    return readReg(getDeviceBaseNode(), toolbox::toString("TRIGGER.OH%d.LINK%d_MISSED_COMMA_CNT",(int)oh,(int)link));
+    return readReg("GEM_AMC."+toolbox::toString("TRIGGER.OH%d.LINK%d_MISSED_COMMA_CNT",(int)oh,(int)link));
   }
 }
 
 
 // general resets
-void gem::hw::HwGenericAMC::generalReset()
+void gem::hw::amc::HwGenericAMC::generalReset()
 {
   // TODO: CTP7 module candidate
   // reset all counters
@@ -894,7 +841,7 @@ void gem::hw::HwGenericAMC::generalReset()
   return;
 }
 
-void gem::hw::HwGenericAMC::counterReset()
+void gem::hw::amc::HwGenericAMC::counterReset()
 {
   // TODO: CTP7 module candidate
   // reset all counters
@@ -905,7 +852,7 @@ void gem::hw::HwGenericAMC::counterReset()
   return;
 }
 
-void gem::hw::HwGenericAMC::resetT1Counters()
+void gem::hw::amc::HwGenericAMC::resetT1Counters()
 {
   // TODO: CTP7 module candidate
   // FIXME: OBSOLETE in V3
@@ -913,7 +860,7 @@ void gem::hw::HwGenericAMC::resetT1Counters()
   return;
 }
 
-void gem::hw::HwGenericAMC::linkCounterReset()
+void gem::hw::amc::HwGenericAMC::linkCounterReset()
 {
   // TODO: CTP7 module candidate
   // FIXME: OBSOLETE in V3?
@@ -921,7 +868,7 @@ void gem::hw::HwGenericAMC::linkCounterReset()
   return;
 }
 
-void gem::hw::HwGenericAMC::linkReset(uint8_t const& gtx)
+void gem::hw::amc::HwGenericAMC::linkReset(uint8_t const& gtx)
 {
   // TODO: CTP7 module candidate
   // req = wisc::RPCMsg("amc.linkReset");

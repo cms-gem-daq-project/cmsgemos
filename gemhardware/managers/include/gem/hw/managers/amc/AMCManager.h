@@ -6,20 +6,17 @@
 #include <array>
 
 #include "gem/base/GEMFSMApplication.h"
-// #include "gem/hw/amc/AMCSettings.h"
 
 #include "gem/utils/soap/GEMSOAPToolBox.h"
 
 namespace gem {
   namespace hw {
-    namespace glib {
-      class HwGLIB;
-    }
     namespace amc {
 
       class AMCManagerWeb;
+      class HwGenericAMC;
 
-      using amc_shared_ptr = std::shared_ptr<gem::hw::glib::HwGLIB>;
+      using amc_shared_ptr = std::shared_ptr<gem::hw::amc::HwGenericAMC>;
       using is_toolbox_ptr  = std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>;
 
       class AMCManager : public gem::base::GEMFSMApplication

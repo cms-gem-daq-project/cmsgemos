@@ -74,7 +74,6 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub) :
 
   p_appInfoSpaceToolBox = std::shared_ptr<utils::GEMInfoSpaceToolBox>(new utils::GEMInfoSpaceToolBox(this,
                                                                                                      p_appInfoSpace,
-                                                                                                     // p_gemMonitor,
                                                                                                      false));
   CMSGEMOS_DEBUG("GEMApplication::application infospace has name: " << p_appInfoSpace->name());
   CMSGEMOS_DEBUG(m_urn);
@@ -88,7 +87,6 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub) :
   }
   p_monitorInfoSpaceToolBox = std::shared_ptr<utils::GEMInfoSpaceToolBox>(new utils::GEMInfoSpaceToolBox(this,
                                                                                                          p_monitorInfoSpace,
-                                                                                                         // p_gemMonitor,
                                                                                                          false));
   toolbox::net::URN cfgISURN(m_urn+toolbox::toString(":config-infospace"));
   if (xdata::getInfoSpaceFactory()->hasItem(cfgISURN.toString())) {
@@ -100,7 +98,6 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub) :
   }
   p_configInfoSpaceToolBox = std::shared_ptr<utils::GEMInfoSpaceToolBox>(new utils::GEMInfoSpaceToolBox(this,
                                                                                                         p_configInfoSpace,
-                                                                                                        // p_gemMonitor,
                                                                                                         false));
 
   CMSGEMOS_DEBUG("GEMApplication::GEM application has infospace named " << p_appInfoSpace->name());

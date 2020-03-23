@@ -9,11 +9,6 @@
 // can we decouple completely from these?
 #include "toolbox/string.h"
 
-#include "uhal/uhal.hpp"
-/* #include "uhal/Utilities.hpp"  /\* removed in 2.5 or 2.6 *\/ */
-#include "uhal/utilities/bits.hpp"
-#include "uhal/utilities/files.hpp"
-
 #include "xhal/client/XHALInterface.h"
 #include "xhal/common/rpc/call.h"
 
@@ -29,118 +24,20 @@
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
 
-typedef uhal::exception::exception uhalException;
-
-// for multiple reads with single dispatch with named registers
-typedef std::pair<std::string, uint32_t> register_pair;
-typedef std::vector<register_pair>       register_pair_list;
-
-// for multiple reads with single dispatch with addressed registers
-typedef std::pair<uint32_t, uint32_t>           addressed_register_pair;
-typedef std::vector<addressed_register_pair>    addressed_register_pair_list;
-
-// for multiple reads with single dispatch with addressed and masked registers
-typedef std::pair<std::pair<uint32_t, uint32_t>, uint32_t> masked_register_pair;
-typedef std::vector<masked_register_pair>                  masked_register_pair_list;
-
-typedef std::pair<std::string, uhal::ValWord<uint32_t> > register_value;
-typedef std::vector<register_value>                      register_val_list;
-
-
-/* namespace uhal { */
-/*   class HwInterface; */
-/* } */
-
-/* namespace xhal { */
-/*   class XHALInterface; */
-/* } */
-
 namespace gem {
   namespace hw {
 
-    class GEMHwDevice : public xhal::client::XHALInterface, public uhal::HwInterface
+    class GEMHwDevice : public xhal::client::XHALInterface
     {
 
     public:
-      /* IPBus transactions still have some problems in the firmware
-         so it helps to retry a few times in the case of a failure
-         that is recognized
-      */
-      static constexpr uint8_t MAX_IPBUS_RETRIES = 5;
-
-      /** TODO: REMOVE or REDESIGN
-       * @struct DeviceErrors
-       * @brief This structure stores retrieved counters related to the IPBus transaction errors
-       * @var DeviceErrors::BadHeader
-       * BadHeader is a counter for the number times the IPBus transaction returned a bad header
-       * @var DeviceErrors::ReadError
-       * ReadError is a counter for the number read transaction errors
-       * @var DeviceErrors::Timeout
-       * Timeout is a counter for the number for the number of timeouts
-       * @var DeviceErrors::ControlHubErr
-       * ControlHubErr is a counter for the number control hub errors encountered
-       */
-      typedef struct DeviceErrors {
-        int BadHeader    ;
-        int ReadError    ;
-        int Timeout      ;
-        int ControlHubErr;
-
-      DeviceErrors() : BadHeader(0),ReadError(0),Timeout(0),ControlHubErr(0) {};
-        void reset() { BadHeader=0; ReadError=0; Timeout=0; ControlHubErr=0; return; };
-      } DeviceErrors;
-
       /**
        * @brief GEMHwDevice constructor based on hostname and connection file
        *
-       * @param deviceName card name (connection file and IP resolveable)
-       * @param connectionFile name of the connection file to find the `uhal` device endpoint
+       * @param deviceName card name (IP resolveable)
        */
-      GEMHwDevice(std::string const& deviceName,
-                  std::string const& connectionFile);
+      GEMHwDevice(std::string const& deviceName);
 
-      /**
-       * @brief GEMHwDevice constructor based on hostname, URI, and address table
-       *
-       * @param deviceName card name (connection file and IP resolveable)
-       * @param connectionURI `uhal` device endpoint
-       * @param addressTable address table to be used with `uhal` register access
-       */
-      GEMHwDevice(std::string const& deviceName,
-                  std::string const& connectionURI,
-                  std::string const& addressTable);
-
-      /**
-       * @brief GEMHwDevice constructor based on hostname and existing uhal::HwInterface
-       *
-       * @param deviceName card name (connection file and IP resolveable)
-       * @param uhalDevice already created uhal::HwInterface to use for connection
-       */
-      GEMHwDevice(std::string       const& deviceName,
-                  uhal::HwInterface const& uhalDevice);
-
-      /** TODO: IMPLEMENT
-       * @brief GEMHwDevice constructor based on shelf, slot (with optional parameters to set up the uhal connection)
-       * @description This constructor will take only physical properties of the card and create the URI, using a default address table
-       *              The URI has several necessary components:
-       *                - protocol: ipbusudp, ipbustcp, chtcp
-       *                - port: default for ipbusNative is 50001, otherwise 60002
-       *                - chHost: if using a control hub, the host on which the control hub is running
-       *                - cardname: gem-shelf<shelf>-amc<slot>
-       *              The URI will be constructed as follows:
-       *                - chtcp-2.0:://<chHost>:<10203>?target=<cardName>:<port>, for a controlhub connection
-       *                - <protocol>:://<cardName>:<port>, for a standalone ipbus connection (TCP:ipbustcp-2.0 or UDP: ipbusudp-2.0)
-       *
-       * @param shelf shelfID of the device connection point
-       * @param slot  AMC slot in a uTCA shelf (blade in an ATCA crate)
-       * @param ipbusNative, will be false for any Zynq or similar type devices
-       * @param chHost, only possible for ipbusNative devices, the control hub hostname
-       * /
-      GEMHwDevice(uint8_t     const& shelf,
-                  uint8_t     const& shelf,
-                  bool        const& ipbusNative=false,
-                  std::string const& chHost="");
-      */
       virtual ~GEMHwDevice();
 
       /* FIXME
@@ -152,7 +49,7 @@ namespace gem {
       ///////////////////////////////////////////////////////////////////////////////////////
       //****************Methods implemented for convenience on uhal devices****************//
       ///////////////////////////////////////////////////////////////////////////////////////
-
+      //FIXME review docs w.r.t. uhal
       /**
        * @defgroup uhalwrappers Generic read/write wrapper functions on uhal/IPBus devices.
        * The operations will be the same for the GLIB, CTP7, OptoHybrid3 and AMC13
@@ -174,94 +71,6 @@ namespace gem {
 
       /**
        * @ingroup uhalwrappers
-       * @brief read from a register identified by a raw address
-       *
-       * @usage FILLME
-       *
-       * @param regAddr address of the register to read
-       *
-       * @retval returns the 32 bit unsigned value in the register
-       */
-      uint32_t [[deprecated]] readReg(uint32_t const& regAddr);
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief read from a register identified by an address, with the supplied mask
-       *
-       * @usage FILLME
-       *
-       * @param regAddr address of the register to read
-       * @param regMask mask of the register to read
-       *
-       * @retval returns the 32 bit unsigned value in the register
-       */
-      uint32_t [[deprecated]] readReg(uint32_t const& regAddr, uint32_t const& regMask);
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief read from a register identified by prefix.name in the address table
-       *
-       * @usage FILLME
-       *
-       * @param regPrefix prefix in the address table, possibly root nodes
-       * @param regName name of the register to read from the address table
-       *
-       * @retval returns the 32 bit unsigned value
-       */
-      uint32_t [[deprecated]] readReg(const std::string &regPrefix, const std::string &regName) { return readReg(regPrefix+"."+regName); };
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief read from a register identified by prefix.name in the address table
-       *        FIXME REDUNDANT
-       *
-       * @usage This function is redundant, if the address table knows there is a mask applied
-       *        it will be used when calculating the return type
-       *
-       * @param regName name of the register to read
-       *
-       * @retval returns the 32 bit unsigned value in the register
-       */
-      uint32_t [[deprecated]] readMaskedAddress(std::string const& regName);
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief read list of registers in a single transaction (one dispatch call)
-       *        into the supplied vector regList
-       *
-       * @usage Return values are stored in the regList object passed in as a parameter
-       *
-       * @param regList list of register name and uint32_t value to store the result
-       * @param freq integer number of transactions to bundle (-1 for all)
-       */
-      void     [[deprecated]] readRegs(register_pair_list &regList, int const& freq=8);
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief read list of registers in a single transaction (one dispatch call)
-       *        into the supplied vector regList
-       *
-       * @usage FILLME
-       *
-       * @param regList list of register address and uint32_t value to store the result
-       * @param freq integer number of transactions to bundle (-1 for all)
-       */
-      void     [[deprecated]] readRegs(addressed_register_pair_list &regList, int const& freq=8);
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief read list of registers in a single transaction (one dispatch call)
-       *        into the supplied vector regList
-       *
-       * @usage FILLME
-       *
-       * @param regList list of register address/mask pair and uint32_t value to store the result
-       * @param freq integer number of transactions to bundle (-1 for all)
-       */
-      void     [[deprecated]] readRegs(masked_register_pair_list &regList, int const& freq=8);
-
-      /**
-       * @ingroup uhalwrappers
        * @brief write to a register identified by a register name
        *
        * @usage FILLME
@@ -271,194 +80,6 @@ namespace gem {
        */
       void     writeReg(std::string const& regName, uint32_t const val);
 
-      /**
-       * @ingroup uhalwrappers
-       * @brief write to a register identified by a raw address
-       *
-       * @usage FILLME
-       *
-       * @param regAddr address of the register to read
-       * @param val value to write to the register
-       */
-      void     [[deprecated]] writeReg(uint32_t const& regAddr, uint32_t const val);
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief write to a register identified by prefix.name in the address table
-       *
-       * @usage FILLME
-       *
-       * @param regPrefix prefix in the address table to the register
-       * @param regName name of the register to write to
-       * @param val value to write to the register
-       */
-      void     [[deprecated]] writeReg(const std::string &regPrefix, const std::string &regName, uint32_t const val) { return writeReg(regPrefix+"."+regName, val); };
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief write list of registers in a single transaction (one dispatch call)
-       *        using the supplied vector regList
-       *
-       * @usage FILLME
-       *
-       * @param regList std::vector of a pairs of register names and values to write
-       * @param freq integer number of transactions to bundle (-1 for all)
-       */
-      void     [[deprecated]] writeRegs(register_pair_list const& regList, int const& freq=8);
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief write single value to a list of registers in a single transaction
-       *        (one dispatch call) using the supplied vector regList
-       *
-       * @usage FILLME
-       *
-       * @param regList list of registers to write a value to
-       * @param regValue uint32_t value to write to the list of registers
-       * @param freq integer number of transactions to bundle (-1 for all)
-       */
-      void     [[deprecated]] writeValueToRegs(std::vector<std::string> const& regList, uint32_t const& regValue, int const& freq=8);
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief write zero to a single register
-       *
-       * @usage FILLME
-       *
-       * @param regName register to zero
-       */
-      void     [[deprecated]] zeroReg( std::string const& regName) { writeReg(regName,0); };
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief write zero to a list of registers in a single transaction (one dispatch call)
-       *        using the supplied vector regNames
-       *
-       * @usage FILLME
-       *
-       * @param regNames list of registers to zero
-       */
-      void     [[deprecated]] zeroRegs(std::vector<std::string> const& regNames, int const& freq=8);
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief read from a memory block
-       *
-       * @usage FILLME
-       *
-       * @param regName fixed size memory block to read from
-       */
-      std::vector<uint32_t> [[deprecated]] readBlock(std::string const& regName);
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief read from a memory block
-       *
-       * @usage FILLME
-       *
-       * @param regName name of memory block to read from
-       * @param nWords size of the memory block to read
-       *
-       * @retval a vector of 32 bit unsigned values
-       */
-      std::vector<uint32_t> readBlock(std::string const& regName, size_t const& nWords);
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief read from a memory block
-       *
-       * @usage FILLME
-       *
-       * @param regName name of memory block to read from
-       * @param buffer a pointer to an array containing the read values
-       * @param nWords size of the memory block to read
-       *
-       * @retval the size of the returned array
-       */
-      uint32_t readBlock(std::string const& regName, uint32_t* buffer, size_t const& nWords);
-
-      /* / ** */
-      /*  * @ingroup uhalwrappers */
-      /*  * @brief read from a memory block */
-      /*  * */
-      /*  * @usage */
-      /*  * */
-      /*  * @param regName name of memory block to read from */
-      /*  * @param buffer a vector of pointers to memory locations containing the read values */
-      /*  * @param nWords size of the memory block to read */
-      /*  * */
-      /*  * @retval the size of the returned array */
-      /*  * / */
-      /* uint32_t readBlock(std::string const& regName, std::vector<toolbox::mem::Reference*>& buffer, */
-      /*                    size_t const& nWords); */
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief write to a memory block
-       *
-       * @usage FILLME
-       *
-       * @param regName name of memory block to write to
-       * @param values list of 32-bit words to write into the memory block
-       */
-      void [[deprecated]] writeBlock(std::string const& regName, std::vector<uint32_t> const values);
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief write zeros to a block of memory
-       *
-       * @usage FILLME
-       *
-       * @param regName block or memory to zero
-       */
-      void [[deprecated]] zeroBlock(std::string const& regName);
-
-      /**
-       * @ingroup uhalwrappers FIXME, isn't this a block, not a FIFO?
-       * @brief readFIFO(std::string const& regName) read from a FIFO/memory port
-       *
-       * @usage FILLME
-       *
-       * @param regName fixed size memory block to read from
-       */
-      std::vector<uint32_t> readFIFO(std::string const& regName);
-      //size_t readFIFO(std::string const& regName, size_t nWords, uint32_t* buffer); /*hcal style */
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief read from a FIFO/memory port a fixed amount of data
-       *
-       * @usage FILLME
-       *
-       * @param regName FIFO to read from
-       * @param nWords number of words to read from the FIFO
-       *
-       * @retval a vector of 32 bit unsigned values
-       */
-      std::vector<uint32_t> readFIFO(std::string const& regName, size_t const& nWords);
-
-      /**
-       * @ingroup uhalwrappers
-       * @brief write to a FIFO
-       *
-       * @usage FILLME
-       *
-       * @param regName FIFO to write to
-       * @param values list of 32-bit words to write into the FIFO
-       */
-      void writeFIFO(std::string const& regName, std::vector<uint32_t> const values);
-
-      /**
-       * @ingroup uhalwrappers FIXME: does this even make semantic sense?
-       * @brief reset a FIFO
-       *
-       * @usage FILLME
-       *
-       * @param regName FIFO to zero
-       */
-      void zeroFIFO(std::string const& regName);
-
-
       // These methods provide access to the member variables
       // specifying the `uhal` address table name and the IPbus protocol
       // version.
@@ -466,14 +87,12 @@ namespace gem {
          FIXME getters
       */
       const std::string getAddressTableFileName() const { return m_addressTable;   };
-      const std::string getDeviceBaseNode()       const { return m_deviceBaseNode; };
       const std::string getDeviceID()             const { return m_deviceID;       };
 
       /**
          FIXME setters, should maybe be private/protected? defeats the purpose?
       */
       void setAddressTableFileName(std::string const& name) { m_addressTable = "file://${GEM_ADDRESS_TABLE_PATH}/"+name; };
-      void setDeviceBaseNode(std::string const& deviceBase) { m_deviceBaseNode = deviceBase; };
       void setDeviceID(std::string const& deviceID)         { m_deviceID = deviceID; };
 
       ///////////////////////////////////////////////////////////////////////////////////////
@@ -481,10 +100,6 @@ namespace gem {
       ///////////////////////////////////////////////////////////////////////////////////////
 
       std::string getLoggerName() const { return m_gemLogger.getName(); };
-
-      void [[deprecated]] updateErrorCounters(std::string const& errCode) const;
-
-      virtual std::string printErrorCounts() const;
 
       /**
        * @brief performs a general reset of the GLIB
@@ -510,8 +125,6 @@ namespace gem {
        * @param link is the link to perform the reset on
        */
       virtual void linkReset(uint8_t const& link)=0;
-
-      mutable DeviceErrors m_ipBusErrs;
 
       bool b_is_connected;
 
@@ -565,21 +178,14 @@ namespace gem {
       virtual void connectRPC(bool reconnect=false);
 
       std::string m_addressTable;   ///< FILLME
-      std::string m_deviceBaseNode; ///< FILLME
       std::string m_deviceID;       ///< FILLME
 
       // All GEMHwDevice objects should have these properties
       uint8_t m_crate;  ///< Crate number the AMC is housed in
       uint8_t m_slot;   ///< Slot number in the uTCA shelf the AMC is sitting in
 
-      bool [[deprecated]] knownErrorCode(std::string const& errCode) const;
-
     };  // class GEMHwDevice
   }  // namespace gem::hw
 }  // namespace gem
-
-
-/* // define the consts */
-/* const unsigned gem::hw::GEMHwDevice::MAX_IPBUS_RETRIES; */
 
 #endif  // GEM_HW_GEMHWDEVICE_H

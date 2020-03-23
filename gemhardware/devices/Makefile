@@ -29,11 +29,8 @@ GEMHWDEVICES_VER_PATCH=1
 include $(CfgDir)/mfDefsGEM.mk
 
 Sources =version.cc
-# Sources =utils/GEMCrateUtils.cc
 Sources+=GEMHwDevice.cc
 Sources+=amc/HwGenericAMC.cc
-Sources+=glib/HwGLIB.cc
-#Sources+=ctp7/HwCTP7.cc
 Sources+=optohybrid/HwOptoHybrid.cc
 
 DynamicLibrary=gemhwdevices

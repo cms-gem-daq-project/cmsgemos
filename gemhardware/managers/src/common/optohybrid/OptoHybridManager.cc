@@ -51,12 +51,9 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridManager(xdaq::ApplicationStub*
   m_optohybridInfo.setSize(MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE);
 
   p_appInfoSpace->fireItemAvailable("AllOptoHybridsInfo", &m_optohybridInfo);
-  p_appInfoSpace->fireItemAvailable("ConnectionFile",     &m_connectionFile);
 
   p_appInfoSpace->addItemRetrieveListener("AllOptoHybridsInfo", this);
-  p_appInfoSpace->addItemRetrieveListener("ConnectionFile",     this);
   p_appInfoSpace->addItemChangedListener( "AllOptoHybridsInfo", this);
-  p_appInfoSpace->addItemChangedListener( "ConnectionFile",     this);
 
   // initialize the OptoHybrid application objects
   CMSGEMOS_DEBUG("OptoHybridManager::Connecting to the OptoHybridManagerWeb interface");
@@ -66,7 +63,6 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridManager(xdaq::ApplicationStub*
   // set up the info hwCfgInfoSpace
   init();
 
-  // getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/images/optohybrid/OptoHybridManager.png");
 }
 
 gem::hw::optohybrid::OptoHybridManager::~OptoHybridManager() {
@@ -149,7 +145,7 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         CMSGEMOS_DEBUG("OptoHybridManager::initializeAction obtaining pointer to HwOptoHybrid " << deviceName
                        << " (slot " << slot+1 << ")"
                        << " (link " << link   << ")");
-        m_optohybrids.at(slot).at(link) = std::make_shared<gem::hw::optohybrid::HwOptoHybrid>(deviceName,m_connectionFile.toString());
+        m_optohybrids.at(slot).at(link) = std::make_shared<gem::hw::optohybrid::HwOptoHybrid>(deviceName);
         auto&& optohybrid = m_optohybrids.at(slot).at(link);
         createOptoHybridInfoSpaceItems(is_optohybrids.at(slot).at(link), optohybrid);
       } GEM_HW_TRANSITION_CATCH("OptoHybridManager::initializeAction",gem::hw::devices::exception::Exception); 
