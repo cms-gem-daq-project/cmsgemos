@@ -143,9 +143,6 @@ gemhardware/devices: gemutils gemhardware/utils
 
 gemhardware/managers: gemutils gembase gemreadout gemhardware/devices
 
-## only gemhardware.devices... how to fix this?
-gempython: gemhardware/devices
-
 gembase: gemutils
 
 gemsupervisor: gemutils gembase gemhardware gemreadout
