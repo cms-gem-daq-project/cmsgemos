@@ -31,10 +31,8 @@ include $(CfgDir)/mfDefsGEM.mk
 Sources =version.cc
 # Sources+=utils/GEMCrateUtils.cc
 Sources+=amc13/AMC13Manager.cc amc13/AMC13ManagerWeb.cc amc13/AMC13Readout.cc
-Sources+=amc/AMCManager.cc amc/AMCManagerWeb.cc amc/AMCMonitor.cc
-# Sources+=glib/GLIBManager.cc glib/GLIBManagerWeb.cc glib/GLIBMonitor.cc
-# Sources+=ctp7/CTP7Manager.cc ctp7/CTP7ManagerWeb.cc ctp7/CTP7Monitor.cc
-Sources+=optohybrid/OptoHybridManager.cc optohybrid/OptoHybridManagerWeb.cc optohybrid/OptoHybridMonitor.cc
+Sources+=amc/AMCManager.cc amc/AMCManagerWeb.cc 
+Sources+=optohybrid/OptoHybridManager.cc optohybrid/OptoHybridManagerWeb.cc 
 #Sources+=GEMController.cc GEMControllerPanelWeb.cc
 
 DynamicLibrary=gemhwmanagers

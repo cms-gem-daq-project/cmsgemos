@@ -11,8 +11,6 @@ namespace gem {
   namespace hw {
     namespace glib {
 
-      //class GLIBMonitor;
-
       class HwGLIB: public gem::hw::HwGenericAMC
         {
         public:
@@ -389,7 +387,6 @@ namespace gem {
           void flushFIFO(uint8_t const& gtx);
 
         protected:
-          //GLIBMonitor *monGLIB_;
 
         private:
 

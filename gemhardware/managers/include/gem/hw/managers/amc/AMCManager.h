@@ -18,7 +18,6 @@ namespace gem {
     namespace amc {
 
       class AMCManagerWeb;
-      class AMCMonitor;
 
       using amc_shared_ptr = std::shared_ptr<gem::hw::glib::HwGLIB>;
       using is_toolbox_ptr  = std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>;
@@ -27,7 +26,6 @@ namespace gem {
         {
 
           friend class AMCManagerWeb;
-          // friend class AMCMonitor;
 
         public:
           XDAQ_INSTANTIATOR();
@@ -102,7 +100,6 @@ namespace gem {
           mutable gem::utils::Lock m_deviceLock;  ///< [MAX_AMCS_PER_CRATE];
 
           std::array<amc_shared_ptr, MAX_AMCS_PER_CRATE> m_amcs;                      ///< HwGLIB pointers to be managed
-          std::array<std::shared_ptr<AMCMonitor>, MAX_AMCS_PER_CRATE> m_amcMonitors;  ///< AMCMonito pointers to be managed
           std::array<is_toolbox_ptr, MAX_AMCS_PER_CRATE> is_amcs;                      ///< AMC InfoSpace pointers to be managed
 
           xdata::Vector<xdata::Bag<AMCInfo> > m_amcInfo;  ///< [MAX_AMCS_PER_CRATE];

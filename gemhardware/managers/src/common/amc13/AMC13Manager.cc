@@ -155,7 +155,6 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   // initialize the AMC13Manager application objects
   CMSGEMOS_DEBUG("AMC13Manager::connecting to the AMC13ManagerWeb interface");
   p_gemWebInterface = new gem::hw::amc13::AMC13ManagerWeb(this);
-  // p_gemMonitor      = new gem::hw::amc13::AMC13HwMonitor(this);
   CMSGEMOS_DEBUG("AMC13Manager::done");
 
   // CMSGEMOS_DEBUG("AMC13Manager::executing preInit for AMC13Manager");
@@ -182,7 +181,6 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
     CMSGEMOS_DEBUG("AMC13Manager::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
-    // p_gemMonitor->startMonitoring();
     // update configuration variables
     m_connectionFile     = m_amc13Params.bag.connectionFile.value_;
     m_cardName           = m_amc13Params.bag.cardName.value_;

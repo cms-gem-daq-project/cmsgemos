@@ -13,7 +13,6 @@ namespace gem {
 
       class AMCManagerWeb : public gem::base::GEMWebApplication
         {
-          //friend class AMCMonitor;
           friend class AMCManager;
 
         public:
