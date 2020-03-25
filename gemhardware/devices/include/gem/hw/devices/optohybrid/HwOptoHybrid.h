@@ -5,6 +5,10 @@
 
 #include "gem/hw/devices/GEMHwDevice.h"
 
+#include "ctp7_modules/common/gbt.h"
+#include "ctp7_modules/common/vfat3.h"
+#include "ctp7_modules/common/optohybrid.h"
+
 #include "gem/hw/devices/exception/Exception.h"
 #include "gem/hw/devices/optohybrid/OptoHybridSettingsEnums.h"
 

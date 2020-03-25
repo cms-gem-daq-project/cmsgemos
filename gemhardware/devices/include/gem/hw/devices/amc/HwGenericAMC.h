@@ -4,6 +4,9 @@
 #define GEM_HW_HWGENERICAMC_H
 
 #include "gem/hw/devices/GEMHwDevice.h"
+#include "ctp7_modules/common/amc.h"
+#include "ctp7_modules/common/amc/daq.h"
+#include "ctp7_modules/common/amc/ttc.h"
 
 #include "gem/hw/devices/exception/Exception.h"
 #include "gem/hw/devices/amc/GenericAMCSettingsEnums.h"
@@ -660,17 +663,13 @@ namespace gem {
           /**
            * @brief performs a reset of the GenericAMC counters
            */
-          virtual void counterReset();
-
-          /**
-           * @brief performs a reset of the GenericAMC T1 counters
-           */
-          virtual void resetT1Counters();
+          //FIXME not implemented 
+          virtual void counterReset(){}
 
           /**
            * @brief performs a reset of the GenericAMC GTX link counters
            */
-          virtual void linkCounterReset();
+          //FIXME not implemented virtual void linkCounterReset();
 
           /**
            * @brief performs a reset of the GenericAMC link
