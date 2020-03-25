@@ -28,6 +28,7 @@ gem::hw::optohybrid::HwOptoHybrid::~HwOptoHybrid()
 void gem::hw::optohybrid::HwOptoHybrid::connectRPC(bool reconnect)
 {
   if (isConnected) {
+    this->loadModule("utils", "utils v1.0.1");
     this->loadModule("optohybrid", "optohybrid v1.0.1");
     this->loadModule("vfat3",      "vfat3 v1.0.1");
     this->loadModule("gbt",        "gbt v1.0.1");
@@ -121,19 +122,8 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::stri
                                                                        bool        const& reset)
 {
   try {
-    req = wisc::RPCMsg("optohybrid.broadcastRead");
-    req.set_string("reg_name", name);
-    req.set_word("ohN",      static_cast<uint32_t>(m_link));
-    req.set_word("mask",     mask);
-    try {
-      rsp = rpc.call_method(req);
-    } STANDARD_CATCH;
-    checkRPCResponse("HwOptoHybrid::broadcastRead");
-    uint32_t size = rsp.get_word_array_size("data");
-    std::vector<uint32_t> data;
-    data.resize(size);
-    rsp.get_word_array("data", data.data());
-    return data;
+    auto res = xhal::common::rpc::call<::oh::broadcastRead>(rpc, static_cast<uint32_t>(m_link), name, mask); 
+    return res;
   } GEM_CATCH_RPC_ERROR("HwOptoHybrid::broadcastRead", gem::hw::devices::exception::Exception);
 }
 
@@ -143,15 +133,7 @@ void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
                                                        bool        const& reset)
 {
   try {
-    req = wisc::RPCMsg("optohybrid.broadcastWrite");
-    req.set_string("reg_name", name);
-    req.set_word("ohN",      static_cast<uint32_t>(m_link));
-    req.set_word("mask",     mask);
-    req.set_word("value",    value);
-    try {
-      rsp = rpc.call_method(req);
-    } STANDARD_CATCH;
-    checkRPCResponse("HwOptoHybrid::broadcastWrite");
+    xhal::common::rpc::call<::oh::broadcastWrite>(rpc, static_cast<uint32_t>(m_link), name, value, mask); 
   } GEM_CATCH_RPC_ERROR("HwOptoHybrid::broadcastWrite", gem::hw::devices::exception::Exception);
 }
 
@@ -160,18 +142,9 @@ std::vector<std::pair<uint8_t, uint32_t> > gem::hw::optohybrid::HwOptoHybrid::ge
 {
   // FIXME UPDATE WITH NEW COMM PROTOCOL
   if (update || b_is_initial) {
-    std::vector<uint32_t> loc_chipIDs;
+    std::vector<uint32_t> loc_chipIDs(::oh::VFATS_PER_OH,0xdeaddead);
     try {
-      req = wisc::RPCMsg("vfat3.getVFAT3ChipIDs");
-      req.set_word("ohN",   static_cast<uint32_t>(m_link));
-      req.set_word("mask",  0x0); // FIXME mandatory, need to redesign ctp7_modules
-      req.set_word("rawID", false);
-      try {
-        rsp = rpc.call_method(req);
-      } STANDARD_CATCH;
-      checkRPCResponse("HwOptoHybrid::getVFAT3ChipIDs");
-      loc_chipIDs.resize(rsp.get_word_array_size("chipIDs")); // FIXME should be 24
-      rsp.get_word_array("chipIDs", loc_chipIDs.data());
+      loc_chipIDs = xhal::common::rpc::call<::vfat3::getVFAT3ChipIDs>(rpc, static_cast<uint32_t>(m_link), 0x0, false); //FIXME hardcoded mask (obsolete param) and rawID
     } GEM_CATCH_RPC_ERROR("HwOptoHybrid::getVFAT3ChipIDs", gem::hw::devices::exception::Exception);
 
     // std::vector<uint32_t> loc_chipIDs = broadcastRead("HW_CHIP_ID", gem::hw::utils::ALL_VFATS_BCAST_MASK, false);
@@ -199,13 +172,7 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask(bool update)
     // change to vfatSyncCheck?
     uint32_t goodVFATs = 0x0;
     try {
-      req = wisc::RPCMsg("vfat3.vfatSyncCheck");
-      req.set_word("ohN",   static_cast<uint32_t>(m_link));
-      try {
-        rsp = rpc.call_method(req);
-      } STANDARD_CATCH;
-      checkRPCResponse("HwOptoHybrid::getConnectedVFATMask");
-      goodVFATs = rsp.get_word("goodVFATs");
+      goodVFATs = xhal::common::rpc::call<::vfat3::vfatSyncCheck>(rpc, static_cast<uint32_t>(m_link), 0x0); //FIXME hardcoded mask
     } GEM_CATCH_RPC_ERROR("HwOptoHybrid::getConnectedVFATMask", gem::hw::devices::exception::Exception);
 
     uint32_t connectedMask = goodVFATs;      // FIXME high means broadcast, present
@@ -233,14 +200,7 @@ void gem::hw::optohybrid::HwOptoHybrid::setVFATsToDefaults()
 void gem::hw::optohybrid::HwOptoHybrid::configureVFATs()
 {
   try {
-    req = wisc::RPCMsg("vfat3.configureVFAT3s");
-    req.set_word("ohN", static_cast<uint32_t>(m_link));
-    req.set_word("vfatMask", ~m_connectedMask); // FIXME REMOVE
-    req.set_word("useRAM", false); // FIXME false until RAM loading is implemented
-    try {
-      rsp = rpc.call_method(req);
-    } STANDARD_CATCH;
-    checkRPCResponse("HwOptoHybrid::configureVFATs");
+    xhal::common::rpc::call<::vfat3::configureVFAT3s>(rpc, static_cast<uint32_t>(m_link), ~m_connectedMask); //FIXME remove requirement for mask TODO implement option for RAM loading
   } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureVFATs", gem::hw::devices::exception::Exception);
 }
 
@@ -253,43 +213,27 @@ void gem::hw::optohybrid::HwOptoHybrid::setVFATsToDefaults(std::map<std::string,
 
 void gem::hw::optohybrid::HwOptoHybrid::configureVFATs(std::map<std::string, uint16_t> const& regvals)
 {
-  try {
-    req = wisc::RPCMsg("vfat3.configureVFAT3s");
-    req.set_word("ohN", static_cast<uint32_t>(m_link));
-    // req.set_word("vfatMask", m_connectedMask); // FIXME REMOVE
-    req.set_word("useRAM", false);
-    std::array<uint32_t,24*74> cfgdata{0};
-    req.set_binarydata("config", cfgdata.data(), cfgdata.size());
-    try {
-      rsp = rpc.call_method(req);
-    } STANDARD_CATCH;
-    checkRPCResponse("HwOptoHybrid::configureVFATs");
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureVFATs", gem::hw::devices::exception::Exception);
+  //FIXME not implemented. Do we actually need it??
+  //try {
+  //  req = wisc::RPCMsg("vfat3.configureVFAT3s");
+  //  req.set_word("ohN", static_cast<uint32_t>(m_link));
+  //  // req.set_word("vfatMask", m_connectedMask); // FIXME REMOVE
+  //  req.set_word("useRAM", false);
+  //  std::array<uint32_t,24*74> cfgdata{0};
+  //  req.set_binarydata("config", cfgdata.data(), cfgdata.size());
+  //  try {
+  //    rsp = rpc.call_method(req);
+  //  } STANDARD_CATCH;
+  //  checkRPCResponse("HwOptoHybrid::configureVFATs");
+  //} GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureVFATs", gem::hw::devices::exception::Exception);
 }
 
 
 void gem::hw::optohybrid::HwOptoHybrid::configureGBT(uint8_t const& gbtID, uint32_t const* gbtcfg)
 {
+  gbt::config_t t_gbtconfig = {*(uint8_t*) gbtcfg};
   try {
-    req = wisc::RPCMsg("gbt.writeGBTConfig");
-    req.set_word("ohN",  static_cast<uint32_t>(m_link));
-    req.set_word("gbtN", static_cast<uint32_t>(gbtID));
-    req.set_word("useRAM", false);
-    // std::array<uint32_t, 92> cfgdata{0};
-    // cfgdata.resize(3*92);
-    // req.set_binarydata("config", cfgdata.data(), cfgdata.size());
-    req.set_binarydata("config", gbtcfg, 92); // FIXME how to guarantee size?
-    /**
-    // or, with one blob per GBTx
-    std::array<std::array<uint32_t, 92>, 3> cfgdata{};
-    req.set_binarydata("gbt0", cfgdata.at(0).data(), cfgdata.at(0).size());
-    req.set_binarydata("gbt1", cfgdata.at(1).data(), cfgdata.at(1).size());
-    req.set_binarydata("gbt2", cfgdata.at(2).data(), cfgdata.at(2).size());
-    */
-    try {
-      rsp = rpc.call_method(req);
-    } STANDARD_CATCH;
-    checkRPCResponse("HwOptoHybrid::configureAllGBTs");
+    xhal::common::rpc::call<::gbt::writeGBTConfig>(rpc, static_cast<uint32_t>(m_link), static_cast<uint32_t>(gbtID), t_gbtconfig);
   } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureAllGBTs", gem::hw::devices::exception::Exception);
 }
 
@@ -302,31 +246,33 @@ void gem::hw::optohybrid::HwOptoHybrid::configureGBT(uint8_t const& gbtID, std::
 
 void gem::hw::optohybrid::HwOptoHybrid::configureAllGBTs(uint32_t const* gbtcfg)
 {
-  try {
-    req = wisc::RPCMsg("gbt.writeAllGBTConfigs");
-    req.set_word("ohN", static_cast<uint32_t>(m_link));
-    req.set_word("useRAM", false);
-    // std::array<uint32_t, 3*92> cfgdata{0};
-    // cfgdata.resize(3*92);
-    // req.set_binarydata("config", cfgdata.data(), cfgdata.size());
-    req.set_binarydata("config", gbtcfg, 3*92); // FIXME how to guarantee size?
-    /**
-    // or, with one blob per GBTx
-    std::array<std::array<uint32_t, 92>, 3> cfgdata{};
-    req.set_binarydata("gbt0", cfgdata.at(0).data(), cfgdata.at(0).size());
-    req.set_binarydata("gbt1", cfgdata.at(1).data(), cfgdata.at(1).size());
-    req.set_binarydata("gbt2", cfgdata.at(2).data(), cfgdata.at(2).size());
-    */
-    try {
-      rsp = rpc.call_method(req);
-    } STANDARD_CATCH;
-    checkRPCResponse("HwOptoHybrid::configureAllGBTs");
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureAllGBTs", gem::hw::devices::exception::Exception);
+  //FIXME not implemented on the RPC side, also not used anywhere in cmsgemos
+//  try {
+//    req = wisc::RPCMsg("gbt.writeAllGBTConfigs");
+//    req.set_word("ohN", static_cast<uint32_t>(m_link));
+//    req.set_word("useRAM", false);
+//    // std::array<uint32_t, 3*92> cfgdata{0};
+//    // cfgdata.resize(3*92);
+//    // req.set_binarydata("config", cfgdata.data(), cfgdata.size());
+//    req.set_binarydata("config", gbtcfg, 3*92); // FIXME how to guarantee size?
+//    /**
+//    // or, with one blob per GBTx
+//    std::array<std::array<uint32_t, 92>, 3> cfgdata{};
+//    req.set_binarydata("gbt0", cfgdata.at(0).data(), cfgdata.at(0).size());
+//    req.set_binarydata("gbt1", cfgdata.at(1).data(), cfgdata.at(1).size());
+//    req.set_binarydata("gbt2", cfgdata.at(2).data(), cfgdata.at(2).size());
+//    */
+//    try {
+//      rsp = rpc.call_method(req);
+//    } STANDARD_CATCH;
+//    checkRPCResponse("HwOptoHybrid::configureAllGBTs");
+//  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureAllGBTs", gem::hw::devices::exception::Exception);
 }
 
 
 void gem::hw::optohybrid::HwOptoHybrid::configureAllGBTs(std::array<const uint32_t, 3*92> const& gbtcfg)
 {
+  //FIXME not implemented on the RPC side, also not used anywhere in cmsgemos
   configureAllGBTs(gbtcfg.data());
 }
 
@@ -504,43 +450,15 @@ void gem::hw::optohybrid::HwOptoHybrid::configureScanModule(uint8_t const& mode,
                                                             bool useUltra, bool reset)
 {
   try {
-    req = wisc::RPCMsg("optohybrid.configureScanModule");
-    req.set_word("ohN",static_cast<uint32_t>(m_link));
-    req.set_word("useUltra",useUltra);
-
-    if (useUltra) {
-      req.set_word("mask",chip);
-    } else {
-      req.set_word("vfat",chip);
-    }
-
-    req.set_word("mode",   mode);
-    req.set_word("ch",     channel);
-    req.set_word("nevts",  nevts);
-    req.set_word("dacMin", min);
-    req.set_word("dacMax", max);
-    req.set_word("dacStep",step);
-    // req.set_word("reset",reset);
-
-    try {
-      rsp = rpc.call_method(req);
-    } STANDARD_CATCH;
-    checkRPCResponse("HwOptoHybrid::broadcastWrite");
+    xhal::common::rpc::call<::oh::configureScanModule>(rpc, static_cast<uint32_t>(m_link), chip, mode, useUltra, chip, channel, nevts, min, max, step); //FIXME chip is used twice, need a redesign. Probably won't work, but will compile at the moment.
   } GEM_CATCH_RPC_ERROR("HwOptoHybrid::startScanModule", gem::hw::devices::exception::Exception);
 }
 
+//FIXME review passed arguments: nevts is not used here.
 void gem::hw::optohybrid::HwOptoHybrid::startScanModule(uint32_t const& nevts, bool useUltra)
 {
   try {
-    req = wisc::RPCMsg("optohybrid.startScanModule");
-    req.set_word("ohN", static_cast<uint32_t>(m_link));
-    // req.set_word("nevts", nevts);
-    req.set_word("useUltra", useUltra);
-
-    try {
-      rsp = rpc.call_method(req);
-    } STANDARD_CATCH;
-    checkRPCResponse("HwOptoHybrid::broadcastWrite");
+    xhal::common::rpc::call<::oh::startScanModule>(rpc, static_cast<uint32_t>(m_link), useUltra);
   } GEM_CATCH_RPC_ERROR("HwOptoHybrid::startScanModule", gem::hw::devices::exception::Exception);
 }
 
@@ -559,36 +477,13 @@ std::vector<std::vector<uint32_t> > gem::hw::optohybrid::HwOptoHybrid::getUltraS
                                                                                            uint32_t const& max,
                                                                                            uint32_t const& step)
 {
-  try {
-    req = wisc::RPCMsg("optohybrid.getUltraScanResults");
-    req.set_word("ohN",     static_cast<uint32_t>(m_link));
-    req.set_word("nevts",   nevts);
-    req.set_word("dacMin",  min);  // FIXME not present, should come from configuration
-    req.set_word("dacMax",  max);  // FIXME not present, should come from configuration
-    req.set_word("dacStep", step); // FIXME not present, should come from configuration
-
-    try {
-      rsp = rpc.call_method(req);
-    } STANDARD_CATCH;
-    checkRPCResponse("HwOptoHybrid::broadcastWrite");
-    uint32_t size = rsp.get_word_array_size("data");
-    std::vector<uint32_t> data;
-    data.resize(size);
-    // results.resize(NVFATS*(max-min+1)/step); // FIXME should be the same as above, throw error if not?
-    // need to transform to std::vector<(NVFATS), std::vector<((max-min)/step)uint32_t> >
-    rsp.get_word_array("data", data.data());
-    std::vector<std::vector<uint32_t> > results;
-    results.resize(24);
-    size_t idx = 0;
-    for (size_t vfat = 0; vfat < 24; ++vfat) {
-      auto vres = results.at(vfat);
-      for (size_t dac = 0; dac <= max-min; ++dac) {
-        vres.push_back(data.at(idx));
-        ++idx;
-      }
-    }
-    return results;
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::getUltraScanResults", gem::hw::devices::exception::Exception);
+  //FIXME this method is deprecated at ctp7 modules side and return types do not match. Won't work
+  //try {
+  //  auto res = xhal::common::rpc::call<::oh::getUltraScanResults>(rpc, static_cast<uint32_t>(m_link), nevts, min, max, step);
+  //  return res;
+  //} GEM_CATCH_RPC_ERROR("HwOptoHybrid::getUltraScanResults", gem::hw::devices::exception::Exception);
+  std::vector<std::vector<uint32_t>> res;
+  return res;
 }
 
 

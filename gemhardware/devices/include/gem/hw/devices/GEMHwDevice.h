@@ -12,6 +12,7 @@
 #include "xhal/client/XHALInterface.h"
 #include "xhal/common/rpc/call.h"
 
+#include "ctp7_modules/common/hw_constants.h"
 #include "ctp7_modules/common/utils.h"
 
 #include "gem/hw/utils/GEMCrateUtils.h"

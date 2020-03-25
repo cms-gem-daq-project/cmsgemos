@@ -12,6 +12,10 @@ ifndef PROJECT_NAME
 PROJECT_NAME=cmsgemos
 endif
 
+ifndef GEM_VARIANT
+GEM_VARIANT = ge11
+endif
+
 Project=$(PROJECT_NAME)
 ShortProject=gem
 Package=gemhardware/devices
@@ -27,6 +31,8 @@ GEMHWDEVICES_VER_MINOR=0
 GEMHWDEVICES_VER_PATCH=1
 
 include $(CfgDir)/mfDefsGEM.mk
+
+UserCFlags+=-DGEM_VARIANT="$(GEM_VARIANT)"
 
 Sources =version.cc
 Sources+=GEMHwDevice.cc

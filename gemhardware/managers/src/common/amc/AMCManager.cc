@@ -164,7 +164,8 @@ void gem::hw::amc::AMCManager::initializeAction()
       m_amcs.at(slot) = amc_shared_ptr(new gem::hw::amc::HwGenericAMC(deviceName));
       amc_shared_ptr amc = m_amcs.at(slot);
       // maybe better to raise exception here and fail if not connected, as we expected the card to be here?
-      //FIXME createAMCInfoSpaceItems(is_amcs.at(slot), amc);
+      //FIXME what's the purpose of this 
+      createAMCInfoSpaceItems(is_amcs.at(slot), amc);
     } GEM_HW_TRANSITION_CATCH("AMCManager::initializeAction",gem::hw::devices::exception::Exception);
     CMSGEMOS_DEBUG("AMCManager::connected");
     // set the web view to be empty or grey

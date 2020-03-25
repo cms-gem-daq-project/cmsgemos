@@ -147,6 +147,7 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
                        << " (link " << link   << ")");
         m_optohybrids.at(slot).at(link) = std::make_shared<gem::hw::optohybrid::HwOptoHybrid>(deviceName);
         auto&& optohybrid = m_optohybrids.at(slot).at(link);
+        //FIXME what's the purpose of this 
         createOptoHybridInfoSpaceItems(is_optohybrids.at(slot).at(link), optohybrid);
       } GEM_HW_TRANSITION_CATCH("OptoHybridManager::initializeAction",gem::hw::devices::exception::Exception); 
       // set the web view to be empty or grey
@@ -211,7 +212,7 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
       auto&& optohybrid = m_optohybrids.at(slot).at(link);
 
       if (optohybrid->isHwConnected()) {
-        // reset counters
+        // FIXME reset counters is doing nothing at the moment!
         optohybrid->counterReset();
         //FIXME set VFATs to run mode
         //Potentially merge the counter reset in one RPC call
