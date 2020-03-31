@@ -87,13 +87,11 @@ namespace gem {
       /**
          FIXME getters
       */
-      const std::string getAddressTableFileName() const { return m_addressTable;   };
       const std::string getDeviceID()             const { return m_deviceID;       };
 
       /**
          FIXME setters, should maybe be private/protected? defeats the purpose?
       */
-      void setAddressTableFileName(std::string const& name) { m_addressTable = "file://${GEM_ADDRESS_TABLE_PATH}/"+name; };
       void setDeviceID(std::string const& deviceID)         { m_deviceID = deviceID; };
 
       ///////////////////////////////////////////////////////////////////////////////////////
@@ -135,20 +133,23 @@ namespace gem {
       mutable gem::utils::Lock m_hwLock;
 
       /**
+       * @brief loads the necessary modules into the RPC module manager
+       * @details Provides basic read/write functionality, reimplemented in daughter classes
+       *
+       * @usage FILLME
+       *
+       * @param should reconnect in the case of an already connected manager
+       */
+      virtual void connectRPC(bool reconnect=false);
+
+
+      /**
        * @brief Performs basic setup for the device
        * sets connection details (OBSOLETE)
        * sets logging level to Error
-       * Not inherited, but calls a pure virtual function (connectRPC)
+       * Not inherited
        **/
       void setup(std::string const& deviceName);
-
-      /**
-       * @brief Performs a check on the RPC response to verify whether there is an `error` key set
-       *        Every method that makes an RPC call *must* use this function to check the response
-       *
-       * @param caller should be the name of the function, only used in the error message
-       **/
-      void checkRPCResponse(std::string const& caller) const;
 
       /**
        * @brief Extracts the device parameters from the device name
@@ -168,17 +169,6 @@ namespace gem {
       GEMHwDevice( const GEMHwDevice& other) ; // prevents construction-copy
       GEMHwDevice& operator=( const GEMHwDevice&) ; // prevents copying
 
-      /**
-       * @brief loads the necessary modules into the RPC module manager
-       * @details Provides basic read/write functionality, reimplemented in daughter classes
-       *
-       * @usage FILLME
-       *
-       * @param should reconnect in the case of an already connected manager
-       */
-      virtual void connectRPC(bool reconnect=false);
-
-      std::string m_addressTable;   ///< FILLME
       std::string m_deviceID;       ///< FILLME
 
       // All GEMHwDevice objects should have these properties

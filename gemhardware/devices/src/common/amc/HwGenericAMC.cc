@@ -20,7 +20,7 @@ void gem::hw::amc::HwGenericAMC::connectRPC(bool reconnect)
 {
   if (isConnected) {
     // TODO: find better way than hardcoded versions
-    this->loadModule("utils", "utils v1.0.1"); //FIXME required as atomic transactions are still used here
+    this->gem::hw::GEMHwDevice::connectRPC(); //FIXME required as atomic transactions are still used here
     this->loadModule("amc", "amc v1.0.1");
     CMSGEMOS_DEBUG("HwGenericAMC::connectRPC modules loaded");
   } else {
