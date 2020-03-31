@@ -443,50 +443,6 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getVFATDACOutI(uint8_t const& column
   return 0xdead;
 }
 
-//////// Scan Modules \\\\\\\\*
-void gem::hw::optohybrid::HwOptoHybrid::configureScanModule(uint8_t const& mode, uint32_t const& chip, uint8_t const& channel,
-                                                            uint8_t const& min,  uint8_t const& max,
-                                                            uint8_t const& step, uint32_t const& nevts,
-                                                            bool useUltra, bool reset)
-{
-  try {
-    xhal::common::rpc::call<::oh::configureScanModule>(rpc, static_cast<uint32_t>(m_link), chip, mode, useUltra, chip, channel, nevts, min, max, step); //FIXME chip is used twice, need a redesign. Probably won't work, but will compile at the moment.
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::startScanModule", gem::hw::devices::exception::Exception);
-}
-
-//FIXME review passed arguments: nevts is not used here.
-void gem::hw::optohybrid::HwOptoHybrid::startScanModule(uint32_t const& nevts, bool useUltra)
-{
-  try {
-    xhal::common::rpc::call<::oh::startScanModule>(rpc, static_cast<uint32_t>(m_link), useUltra);
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::startScanModule", gem::hw::devices::exception::Exception);
-}
-
-std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::getScanResults(uint32_t const& nevts,
-                                                                        uint32_t const& min,
-                                                                        uint32_t const& max,
-                                                                        uint32_t const& step)
-{
-  // FIXME OBSOLETE IN V3
-  CMSGEMOS_WARN("HwOptoHybrid::getScanResults is obsolete");
-  return getUltraScanResults(nevts, min, max, step).at(0);
-}
-
-std::vector<std::vector<uint32_t> > gem::hw::optohybrid::HwOptoHybrid::getUltraScanResults(uint32_t const& nevts,
-                                                                                           uint32_t const& min,
-                                                                                           uint32_t const& max,
-                                                                                           uint32_t const& step)
-{
-  //FIXME this method is deprecated at ctp7 modules side and return types do not match. Won't work
-  //try {
-  //  auto res = xhal::common::rpc::call<::oh::getUltraScanResults>(rpc, static_cast<uint32_t>(m_link), nevts, min, max, step);
-  //  return res;
-  //} GEM_CATCH_RPC_ERROR("HwOptoHybrid::getUltraScanResults", gem::hw::devices::exception::Exception);
-  std::vector<std::vector<uint32_t>> res;
-  return res;
-}
-
-
 //////// Firmware forced TTC commands \\\\\\\\*
 void gem::hw::optohybrid::HwOptoHybrid::sendL1A(uint32_t const& ntrigs, uint32_t const& rate)
 {
