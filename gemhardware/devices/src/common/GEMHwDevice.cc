@@ -55,7 +55,8 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
   try {
     res = xhal::common::rpc::call<::utils::readRemoteReg>(rpc, name);
   } catch (std::exception const& err) {
-    //FIXME
+    //FIXME Review exception catching
+    CMSGEMOS_ERROR("GEMHwDevice::readReg error: " << err.what());
   }
 
   CMSGEMOS_TRACE("GEMHwDevice::Successfully read register " << name.c_str() << " with value 0x"
@@ -69,7 +70,8 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
   try {
     xhal::common::rpc::call<::utils::writeRemoteReg>(rpc, name, val);
   } catch (std::exception const& err) {
-    //FIXME
+    //FIXME Review exception catching
+    CMSGEMOS_ERROR("GEMHwDevice::writeReg error: " << err.what());
   }
 
   CMSGEMOS_TRACE("GEMHwDevice::Successfully wrote register " << name.c_str() << " with value 0x"
