@@ -28,7 +28,7 @@ gem::hw::optohybrid::HwOptoHybrid::~HwOptoHybrid()
 void gem::hw::optohybrid::HwOptoHybrid::connectRPC(bool reconnect)
 {
   if (isConnected) {
-    this->loadModule("utils", "utils v1.0.1");
+    this->gem::hw::GEMHwDevice::connectRPC();
     this->loadModule("optohybrid", "optohybrid v1.0.1");
     this->loadModule("vfat3",      "vfat3 v1.0.1");
     this->loadModule("gbt",        "gbt v1.0.1");

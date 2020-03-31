@@ -76,21 +76,6 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
                  << std::setfill('0') << std::setw(8) << std::hex << val);
 }
 
-void gem::hw::GEMHwDevice::checkRPCResponse(std::string const& caller) const
-{
-  if (rsp.get_key_exists("error")) {
-    std::stringstream errmsg;
-    errmsg << rsp.get_string("error");
-    CMSGEMOS_ERROR(caller << ": " << errmsg.str());
-    XCEPT_RAISE(gem::hw::devices::exception::RPCMethodError, errmsg.str());
-  } else if (rsp.get_key_exists("rpcerror")) {
-    std::stringstream errmsg;
-    errmsg << rsp.get_string("rpcerror");
-    CMSGEMOS_ERROR(caller << ": " << errmsg.str());
-    XCEPT_RAISE(gem::hw::devices::exception::RPCMethodError, errmsg.str());
-  }
-}
-
 uint8_t gem::hw::GEMHwDevice::extractDeviceID(std::string const& deviceName, uint8_t const& index)
 {
   std::vector<std::string> subs;
