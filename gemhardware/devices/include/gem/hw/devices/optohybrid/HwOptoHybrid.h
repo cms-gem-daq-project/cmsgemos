@@ -465,8 +465,7 @@ namespace gem {
            * @param gbtcfg is an array of 92 32-bit words
            */
 
-          void configureGBT(uint8_t const& gbtID, uint32_t const* gbtcfg); // FIXME, make private
-          void configureGBT(uint8_t const& gbtID, std::array<const uint32_t, 92> const& gbtcfg);
+          void configureGBT(uint8_t const& gbtID, std::array<const uint8_t, ::gbt::CONFIG_SIZE> const& gbtcfg);
 
           /**
            * @brief Sends a write request for all configuration registers on all GBTx chips
