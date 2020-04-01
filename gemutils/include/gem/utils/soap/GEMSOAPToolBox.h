@@ -30,6 +30,21 @@
 #include <gem/utils/exception/Exception.h>
 #include <gem/utils/GEMLogging.h>
 
+#include "xdata/Bag.h"
+#include "xdata/Boolean.h"
+#include "xdata/Integer.h"
+#include "xdata/Integer32.h"
+#include "xdata/Integer64.h"
+#include "xdata/UnsignedShort.h"
+#include "xdata/UnsignedLong.h"
+#include "xdata/UnsignedInteger32.h"
+#include "xdata/UnsignedInteger64.h"
+#include "xdata/String.h"
+#include "xdata/Float.h"
+#include "xdata/Double.h"
+#include "xdata/Vector.h"
+#include "xdata/soap/Serializer.h"
+
 namespace gem {
   namespace utils {
     namespace soap {
@@ -249,6 +264,16 @@ namespace gem {
          */
         static std::string getXSDType(xdata::Serializable const& item);
 
+        
+        static int extractSOAPCommandParameterInteger(xoap::MessageReference const& msg,   std::string const& parameterName);
+        static std::string extractSOAPCommandParameterString(xoap::MessageReference const& msg, std::string const& parameterName);
+        static bool extractSOAPCommandParameterBoolean(xoap::MessageReference const& msg,   std::string const& parameterName);
+
+        
+         
+        static xoap::SOAPElement extractSOAPCommandParameterElement(xoap::MessageReference const& msg, std::string const& parameterName);
+
+        
         // methods copied from emu/soap/toolbox
         /*
           xoap::MessageReference createMessage( const gem::utils::soap::QualifiedName &command,

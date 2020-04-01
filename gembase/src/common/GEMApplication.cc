@@ -20,7 +20,14 @@ gem::base::GEMApplication::ScanInfo::ScanInfo()
   scanMax   = 0;
   stepSize  = 0;
   nTriggers = 0;
-
+  trigType = 0;          
+  l1aTime = 0;
+  mspl = 0;
+  vfatChMin = 0;
+  vfatChMax = 0;
+  signalSourceType = 0;
+  pulseDelay = 0;
+  calMode = false;
 }
 
 void gem::base::GEMApplication::ScanInfo::registerFields(xdata::Bag<gem::base::GEMApplication::ScanInfo>* bag)
@@ -154,6 +161,8 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub) :
   p_appInfoSpace->addItemChangedListener( "ScanMin",       this);
   p_appInfoSpace->addItemChangedListener( "ScanMax",       this);
   p_appInfoSpace->addItemChangedListener( "StepSize",      this);
+
+  xoap::bind(this, &gem::base::GEMApplication::calibParamRetrieve, "calibParamRetrieve", XDAQ_NS_URI);
 
   CMSGEMOS_DEBUG("GEMApplication::gem::base::GEMApplication constructed");
 }
@@ -296,4 +305,39 @@ void gem::base::GEMApplication::xgiExpert(xgi::Input* in, xgi::Output* out)
 void gem::base::GEMApplication::jsonUpdate(xgi::Input* in, xgi::Output* out)
 {
   p_gemWebInterface->jsonUpdate(in, out);
+}
+
+
+xoap::MessageReference gem::base::GEMApplication::calibParamRetrieve(xoap::MessageReference msg) {
+    CMSGEMOS_INFO("GEMApplication::calibParamRetrieve activated");
+    //msg->writeTo(std::cout);
+ 
+    std::string commandName = "calibParamRetrieve";
+    if (msg.isNull()) {
+        CMSGEMOS_INFO("GEMApplication::calibParamRetrieve Null message received!");
+        XCEPT_RAISE(xoap::exception::Exception,"Null message received!");
+    }
+    CMSGEMOS_INFO("GEMApplication::calibParamRetrieve message received");
+
+ 
+    m_scanInfo.bag.scanType = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"calType");
+    m_scanInfo.bag.scanMin = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"scanMin");;
+    m_scanInfo.bag.scanMax = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"scanMax");
+    m_scanInfo.bag.stepSize = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"stepSize");
+    if  (m_scanInfo.bag.stepSize.value_==(xdata::UnsignedInteger32) 0) m_scanInfo.bag.stepSize=(xdata::UnsignedInteger32)1;
+    m_scanInfo.bag.nTriggers = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"nSamples");///TODO: change it everywhere?
+    m_scanInfo.bag.trigType = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"trigType");          
+    m_scanInfo.bag.l1aTime = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"l1aTime");          
+    m_scanInfo.bag.mspl = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"mspl");
+    m_scanInfo.bag.vfatChMin = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"vfatChMin");
+    m_scanInfo.bag.vfatChMax = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"vfatChMax");
+    m_scanInfo.bag.signalSourceType = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"signalSourceType");
+    m_scanInfo.bag.pulseDelay = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"pulseDelay");
+    m_scanInfo.bag.latency = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"latency");
+    m_scanInfo.bag.calMode = (xdata::Boolean)  true; // TODO: implement the selection in the calubration suite web interface
+  
+    return 
+        gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "CalibrationParametersRetrieved");
+        
+    
 }

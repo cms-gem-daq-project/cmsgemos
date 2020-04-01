@@ -59,7 +59,7 @@ namespace gem {
 
         virtual void resetAction(toolbox::Event::Reference e);
 
-	xoap::MessageReference EndScanPoint(xoap::MessageReference mns);
+        xoap::MessageReference EndScanPointCalib(xoap::MessageReference mns);
 
         std::vector<xdaq::ApplicationDescriptor*> getSupervisedAppDescriptors() {
           return v_supervisedApps; };
