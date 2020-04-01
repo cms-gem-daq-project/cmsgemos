@@ -228,19 +228,13 @@ void gem::hw::optohybrid::HwOptoHybrid::configureVFATs(std::map<std::string, uin
   //} GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureVFATs", gem::hw::devices::exception::Exception);
 }
 
-
-void gem::hw::optohybrid::HwOptoHybrid::configureGBT(uint8_t const& gbtID, uint32_t const* gbtcfg)
-{
-  gbt::config_t t_gbtconfig = {*(uint8_t*) gbtcfg};
-  try {
-    xhal::common::rpc::call<::gbt::writeGBTConfig>(rpc, static_cast<uint32_t>(m_link), static_cast<uint32_t>(gbtID), t_gbtconfig);
-  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureAllGBTs", gem::hw::devices::exception::Exception);
-}
-
-
-void gem::hw::optohybrid::HwOptoHybrid::configureGBT(uint8_t const& gbtID, std::array<const uint32_t, 92> const& gbtcfg)
+void gem::hw::optohybrid::HwOptoHybrid::configureGBT(uint8_t const& gbtID, std::array<const uint8_t, ::gbt::CONFIG_SIZE> const& gbtcfg)
 {
   configureGBT(gbtID, gbtcfg.data());
+  try {
+    xhal::common::rpc::call<::gbt::writeGBTConfig>(rpc, static_cast<uint32_t>(m_link), static_cast<uint32_t>(gbtID), t_gbtconfig);
+  } GEM_CATCH_RPC_ERROR("HwOptoHybrid::configureGBT", gem::hw::devices::exception::Exception);
+
 }
 
 
