@@ -59,7 +59,8 @@ LibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(uHALROOT)/lib
 LibraryDirs+=$(XHAL_ROOT)/lib
 
-DependentLibraries =cactus_uhal_uhal xhal-client
+#FIXME hacky linking of xhal-base
+DependentLibraries =cactus_uhal_uhal xhal-client xhal-base
 DependentLibraries+=gemutils gemhwutils
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules

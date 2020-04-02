@@ -44,7 +44,8 @@ DependentLibraryDirs+=$(BUILD_HOME)/gemhardware/utils/lib/$(XDAQ_OS)/$(XDAQ_PLAT
 DependentLibraryDirs+=$(XHAL_ROOT)/lib
 
 DependentLibraries =gembase
-DependentLibraries+=gemhwdevices gemhwutils xhal-client
+#FIXME hacky linking of xhal-base
+DependentLibraries+=gemhwdevices gemhwutils xhal-client xhal-base
 DependentLibraries+=boost_iostreams
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules

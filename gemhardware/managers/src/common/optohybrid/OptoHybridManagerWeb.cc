@@ -54,3 +54,15 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::applicationPage(xgi::Input* in, 
   boardPage(in, out);
   *out << "  </div>" << std::endl;
 }
+
+void gem::hw::optohybrid::OptoHybridManagerWeb::monitorPage(xgi::Input * in, xgi::Output * out)
+{
+  CMSGEMOS_DEBUG("OptoHybridManagerWeb::monitorPage");
+}
+
+void gem::hw::optohybrid::OptoHybridManagerWeb::jsonUpdate(xgi::Input * in, xgi::Output * out)
+{
+  CMSGEMOS_DEBUG("OptoHybridManagerWeb::jsonUpdate");
+}
+
+
