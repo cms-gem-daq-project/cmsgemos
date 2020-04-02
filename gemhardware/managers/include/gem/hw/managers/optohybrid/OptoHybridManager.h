@@ -54,6 +54,8 @@ namespace gem {
 
           virtual void resetAction(toolbox::Event::Reference e) override;
 
+          xoap::MessageReference updateScanValueCalib(xoap::MessageReference msg);
+ 
         protected:
           class OptoHybridInfo
           {
@@ -111,7 +113,7 @@ namespace gem {
           HWMapMatrix<std::vector<std::pair<uint8_t, uint32_t> >, MAX_OPTOHYBRIDS_PER_AMC, MAX_AMCS_PER_CRATE>
             m_vfatMapping;  ///< VFAT mapping
 
-	  uint32_t m_lastLatency;         ///< Special variable for latency scan mode
+          uint32_t m_lastLatency;         ///< Special variable for latency scan mode
           uint32_t m_lastVT1, m_lastVT2;  ///< Special variable for threshold scan mode
 
           std::map<int,std::set<int> > m_hwMapping;        ///< FIXME UNUSED

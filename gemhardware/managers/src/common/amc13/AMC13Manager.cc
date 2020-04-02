@@ -166,6 +166,7 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   xoap::bind(this, &gem::hw::amc13::AMC13Manager::enableTriggers,  "enableTriggers",   XDAQ_NS_URI );
   xoap::bind(this, &gem::hw::amc13::AMC13Manager::disableTriggers, "disableTriggers",  XDAQ_NS_URI );
 
+  xoap::bind(this, &gem::hw::amc13::AMC13Manager::restartAMC13Counts, "restartAMC13Counts",  XDAQ_NS_URI );
   p_timer = toolbox::task::getTimerFactory()->createTimer("AMC13ScanTriggerCounter");
 
   m_updatedL1ACount = 0;
@@ -397,9 +398,12 @@ void gem::hw::amc13::AMC13Manager::configureAction()
     p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
   }
   */
+    // if ((m_scanInfo.bag.scanType.value_ == 2 || m_scanInfo.bag.scanType.value_ == 3) && m_scanInfo.bag.trigType.value_< 1) {
+    //m_enableLocalTTC = true;
+    //} // TODO: fix the use of local TTC and its configuration : atm done in the xml; should it be passed trough the calibration suite?
   m_L1Aburst = m_localTriggerConfig.bag.l1Aburst.value_;
   p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-
+  
   if (m_enableLocalTTC) {
     CMSGEMOS_DEBUG("AMC13Manager::configureAction configuring BGO channels "
           << m_bgoConfig.size());
@@ -418,11 +422,54 @@ void gem::hw::amc13::AMC13Manager::configureAction()
       }
     }
   }
+
+  if (m_scanInfo.bag.scanType.value_ == 2 || m_scanInfo.bag.scanType.value_ == 3){
+      m_scanParameter = m_scanInfo.bag.scanMin.value_;
+  }
   // set the settings from the config options
   // usleep(10); // just for testing the timing of different applications
   CMSGEMOS_INFO("AMC13Manager::configureAction end");
 }
 
+xoap::MessageReference gem::hw::amc13::AMC13Manager::restartAMC13Counts(xoap::MessageReference mns)
+{
+    CMSGEMOS_DEBUG("AMC13Manager::Entering AMC13Manager::restartAMC13Counts()");
+    gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
+    p_amc13->resetCounters();
+    m_updatedL1ACount = ((p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_HI") << 32) | p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO")); 
+    CMSGEMOS_DEBUG("AMC13Manager::restartAMC13Count, just resetted the counters, total triggers seen = " << m_updatedL1ACount);
+
+
+    if (m_scanInfo.bag.scanType.value_ == 2 || m_scanInfo.bag.scanType.value_ == 3) {
+     
+       std::string commandName="restartAMC13Counts";
+
+        try { 
+            return
+                gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Done");
+        } catch (xcept::Exception& err) {
+            std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+                                                    commandName.c_str());
+            CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
+            XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
+                                 top, toolbox::toString("%s.",msgBase.c_str()), err);
+            this->notifyQualified("error", top);
+          
+      
+            XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
+          
+          
+            XCEPT_RAISE(xoap::exception::Exception,"command not found");
+            return
+                gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "NotDone");
+        }
+      
+    }
+  
+  
+}
+
+ 
 void gem::hw::amc13::AMC13Manager::startAction()
 {
   CMSGEMOS_DEBUG("AMC13Manager::Entering AMC13Manager::startAction()");
@@ -469,20 +516,8 @@ void gem::hw::amc13::AMC13Manager::startAction()
     */
   }
 
-  if (m_scanType.value_ == 2 || m_scanType.value_ == 3) {
+  if (m_scanInfo.bag.scanType.value_ == 2 || m_scanInfo.bag.scanType.value_ == 3) {
     CMSGEMOS_DEBUG("AMC13Manager::startAction Sending continuous triggers for ScanRoutines ");
-    // p_amc13->enableLocalL1A(m_enableLocalL1A);
-
-    // if (m_enableLocalL1A) {
-    //   p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-    //   if (m_enableLEMO)
-    //     p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
-    //   else
-    //     p_amc13->startContinuousL1A();
-    // } else {
-    //   p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-    // }
-
     try {
       p_timer->stop();
     } catch (toolbox::task::exception::NotActive const& ex) {
@@ -502,12 +537,6 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   // what does pause mean here?
   // if local triggers are enabled, do we have a separate trigger application?
   // we can just disable them here maybe?
-  if (m_scanType.value_ == 2 || m_scanType.value_ == 3) {
-    CMSGEMOS_INFO("AMC13Manager::pauseAction disabling triggers for scan, triggers seen this point = "
-	 << p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount);
-    m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
-    CMSGEMOS_INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
-  }
 
   if (m_enableLocalL1A) {
     if (m_enableLEMO)
@@ -573,22 +602,7 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
     */
   }
 
-  // if (m_scanType.value_ == 2 || m_scanType.value_ == 3) {
-  //   CMSGEMOS_DEBUG("AMC13Manager::resumeAction enabling triggers for scan");
 
-  //   if (m_enableLocalL1A) {
-  //     p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-  //     p_amc13->enableLocalL1A(m_enableLocalL1A);
-
-  //     if (m_enableLEMO)
-  //       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
-  //     else
-  //       p_amc13->startContinuousL1A();
-  //   } else {
-  //     p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-  //   }
-  // }
-  // usleep(10);
   CMSGEMOS_INFO("AMC13Manager::resumeAction end");
 }
 
@@ -802,31 +816,38 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
 
 void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
 {
+    
   uint64_t currentTrigger = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount;
-
-  CMSGEMOS_DEBUG("AMC13Manager::timeExpried, NTriggerRequested = " << m_nScanTriggers.value_
-        << " currentT = " << currentTrigger << " triggercounter final =  " << m_updatedL1ACount );
-
-  if (currentTrigger >=  m_nScanTriggers.value_){
-    if (m_enableLocalL1A) {
-      if (m_enableLEMO) {
-	p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
-      } else {
-	p_amc13->stopContinuousL1A();
-      }
-    } else {
-      /*
-      // HACK
-      // when using external triggers, they should be stopped upstream of the AMC13 with a stop
-      // how do I hate thee? let me count the ways...
-      p_amc13->configureLocalL1A(true, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-      p_amc13->enableLocalL1A(true);  // is this fine to switch to local L1A as a way to fake turning off upstream?
-      */
-    }
+  CMSGEMOS_DEBUG("AMC13Manager::timeExpried, NTriggerRequested = " <<  m_scanInfo.bag.nTriggers.value_
+                 << " currentT = " << currentTrigger << " triggercounter final =  " << m_updatedL1ACount << " m_scanParameter " <<m_scanParameter );
+  //  m_scanParameter += m_scanInfo.bag.stepSize.value_;
+  //  if (m_scanParameter > m_scanInfo.bag.scanMax.value_) {
+      //CMSGEMOS_INFO("AMC13Manager::timeExpried, NTriggerRequested = " <<  m_scanInfo.bag.nTriggers.value_
+      //              << " currentT = " << currentTrigger << " triggercounter final =  " << m_updatedL1ACount << " m_scanParameter " <<m_scanParameter );
+      
+  //   return; // CG: how can I stop the timer without calling a stop FSM transition?
+  //}
+  if (currentTrigger >=   m_scanInfo.bag.nTriggers.value_){
+    // if (m_enableLocalL1A) {
+    //   if (m_enableLEMO) {
+	// p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
+    //   } else {
+	// p_amc13->stopContinuousL1A();
+    //   }
+    // } else {
+    //   /*
+    //   // HACK
+    //   // when using external triggers, they should be stopped upstream of the AMC13 with a stop
+    //   // how do I hate thee? let me count the ways...
+    //   p_amc13->configureLocalL1A(true, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
+    //   p_amc13->enableLocalL1A(true);  // is this fine to switch to local L1A as a way to fake turning off upstream?
+    //   */
+    // }
     CMSGEMOS_INFO("AMC13Manager::timeExpried, triggers seen this point = "
 	 << p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount);
     // m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
     // CMSGEMOS_INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
+    m_scanParameter += m_scanInfo.bag.stepSize.value_;   
     endScanPoint();
   }
 }
@@ -834,7 +855,7 @@ void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
 void gem::hw::amc13::AMC13Manager::endScanPoint()
 {
   CMSGEMOS_INFO("AMC13Manager::endScanPoint");
-  gem::utils::soap::GEMSOAPToolBox::sendCommand("EndScanPoint",
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("EndScanPointCalib",
                                                 p_appContext,p_appDescriptor,//getApplicationContext(),this->getApplicationDescriptor(),
-                                                const_cast<xdaq::ApplicationDescriptor*>(p_appZone->getApplicationDescriptor("gem::supervisor::GEMSupervisor", 0)));  // this should not be hard coded
+                                                const_cast<xdaq::ApplicationDescriptor*>(p_appZone->getApplicationDescriptor("gem::supervisor::GEMSupervisor", 0)));  // CG:this should not be hard coded
 }

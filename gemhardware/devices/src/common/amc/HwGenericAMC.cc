@@ -742,3 +742,9 @@ void gem::hw::amc::HwGenericAMC::linkReset(uint8_t const& gtx)
   CMSGEMOS_WARN("HwGenericAMC::linkReset: not yet implemented");
   return;
 }
+
+void gem::hw::amc::HwGenericAMC::configureAMCCalDataFormat(bool en)
+{   
+    writeReg("GAM_AMC.DAQ.CONTROL.CALIBRATION_MODE_EN", uint32_t(en));
+    return;
+}

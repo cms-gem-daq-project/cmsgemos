@@ -3,50 +3,41 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-  <xc:Context url="http://gem904daq04:25050">
-    <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="0" network="local">
-      <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
+  <xc:Context url="http://gem904daq04:20516">
+    <xc:Application class="gem::hw::amc::AMCManager" id="30" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::amc::AMCManager"
 		  xsi:type="soapenc:Struct">
 	<DisableMonitoring xsi:type="xsd:boolean">true</DisableMonitoring>
 	<AMCSlots       xsi:type="xsd:string">2</AMCSlots>
 	<ConnectionFile xsi:type="xsd:string">connections.xml</ConnectionFile>
-	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
-          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="1"> <!--  position must be slot-1  -->
+	<AllAMCsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
+          <AMCInfo   xsi:type="soapenc:Struct" soapenc:position="1"> <!--  position must be slot-1  -->
             <crateID  xsi:type="xsd:integer">1</crateID>
             <slot     xsi:type="xsd:integer">2</slot>
             <present  xsi:type="xsd:boolean">true</present>
             <sbitSource    xsi:type="xsd:integer">5</sbitSource>
-          </GLIBInfo>
-	</AllGLIBsInfo>
+            <enableZS  xsi:type="xsd:boolean">false</enableZS>
+          </AMCInfo>
+	</AllAMCsInfo>
       </properties>
     </xc:Application>
 
-    <xc:Application class="gem::hw::optohybrid::OptoHybridManager" id="50" instance="0" network="local">
-      <properties xmlns="urn:xdaq-application:gem::hw::optohybrid::OptoHybridManager"
-		  xsi:type="soapenc:Struct">
-	<ConnectionFile xsi:type="xsd:string">connections.xml</ConnectionFile>
-	<AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[144]"><!-- MAX_OH_PER_AMC(12) * MAX_AMC_PER_UTCA(12)-->
-          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="21"> <!-- position must be (slot-1)*MAX_OH_PER_AMC(12)+link -->
-            <present xsi:type="xsd:boolean">true</present>
-            <crateID xsi:type="xsd:integer">1</crateID>
-            <slot    xsi:type="xsd:integer">2</slot>
-            <link    xsi:type="xsd:integer">9</link>
-          </OptoHybridInfo>
-
-	</AllOptoHybridsInfo>
-      </properties>
-    </xc:Application>
+   
 
     <xc:Application class="gem::hw::amc13::AMC13Manager" id="255" instance="3" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::amc13::AMC13Manager"
         	  xsi:type="soapenc:Struct">
         <amc13ConfigParams xsi:type="soapenc:Struct">
           <ConnectionFile     xsi:type="xsd:string">connections.xml</ConnectionFile>
-	  <CardName           xsi:type="xsd:string">gem.shelf01.amc13</CardName>
+	      <CardName           xsi:type="xsd:string">gem.shelf01.amc13</CardName>
+          <!--<AMCInputEnableList xsi:type="xsd:string">2</AMCInputEnableList>-->
           <AMCInputEnableList xsi:type="xsd:string">2</AMCInputEnableList>
           <AMCIgnoreTTSList   xsi:type="xsd:string">1,3-12</AMCIgnoreTTSList>
 
-          <EnableDAQLink       xsi:type="xsd:boolean">true</EnableDAQLink>
+          <!--<EnableDAQLink       xsi:type="xsd:boolean">true</EnableDAQLink>
+          <EnableFakeData      xsi:type="xsd:boolean">false</EnableFakeData>
+          <MonitorBackPressure xsi:type="xsd:boolean">false</MonitorBackPressure>-->
+          <EnableDAQLink       xsi:type="xsd:boolean">false</EnableDAQLink>
           <EnableFakeData      xsi:type="xsd:boolean">false</EnableFakeData>
           <MonitorBackPressure xsi:type="xsd:boolean">false</MonitorBackPressure>
           <EnableLocalTTC      xsi:type="xsd:boolean">true</EnableLocalTTC>
@@ -56,8 +47,8 @@
 	  <!-- LEMO TRIGGERS  = enableLocalL1A = true, LEMO true, EnableLocalTTC true -->
 	  <!-- EXTERNAL TRIGGERS (TTC) = enableLocalL1A = false, LEMO false, EnableLocalTTC false -->
 
-          <LocalTriggerConfig xsi:type="soapenc:Struct">
-            <EnableLocalL1A         xsi:type="xsd:boolean">false</EnableLocalL1A>
+      <!--<LocalTriggerConfig xsi:type="soapenc:Struct">
+        <EnableLocalL1A         xsi:type="xsd:boolean">false</EnableLocalL1A>
 	    <EnableLEMO             xsi:type="xsd:boolean">false</EnableLEMO>
 
             <InternalPeriodicPeriod xsi:type="xsd:unsignedInt">1500</InternalPeriodicPeriod>
@@ -66,7 +57,24 @@
             <L1Arules               xsi:type="xsd:integer">0</L1Arules>
 	    <sendL1ATriburst        xsi:type="xsd:boolean">false</sendL1ATriburst>
 	    <startL1ATricont        xsi:type="xsd:boolean">false</startL1ATricont>
-          </LocalTriggerConfig>
+        </LocalTriggerConfig>-->
+      <LocalTriggerConfig xsi:type="soapenc:Struct">
+             <EnableLocalL1A         xsi:type="xsd:boolean">true</EnableLocalL1A>
+             <EnableLEMO             xsi:type="xsd:boolean">false</EnableLEMO>
+             <!--<StartL1AGen            xsi:type="xsd:boolean">false</StartL1AGen>-->
+
+             <!--  L1Amode: Select the mode of the local trigger generator
+                  0 - per N orbit (N specified by period), always at BX 500
+                  1 - per N BX (N specified by period)
+                  2 - random (rate specified by period, in 2Hz units)
+                  InternalPeriodicPeriod: frequency of trigger  -->
+             <InternalPeriodicPeriod xsi:type="xsd:unsignedInt">100</InternalPeriodicPeriod>
+             <L1Aburst               xsi:type="xsd:unsignedInt">1</L1Aburst>
+             <L1Amode                xsi:type="xsd:integer">0</L1Amode>
+             <L1Arules               xsi:type="xsd:integer">0</L1Arules>
+             <sendL1ATriburst        xsi:type="xsd:boolean">false</sendL1ATriburst>
+             <startL1ATricont        xsi:type="xsd:boolean">false</startL1ATricont>
+           </LocalTriggerConfig>
 
           <AMC13TTCConfig xsi:type="soapenc:Struct">
             <RESYNC_CMD  xsi:type="xsd:unsignedInt">0x04</RESYNC_CMD>
@@ -76,15 +84,15 @@
           </AMC13TTCConfig>
 
           <BGOConfig xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[4]">
-            <!--
-                <BGOInfo xsi:type="soapenc:Struct" soapenc:position="0">
+            
+            <BGOInfo xsi:type="soapenc:Struct" soapenc:position="0">
 	        <BGOChannel  xsi:type="xsd:integer">0</BGOChannel>
 	        <BGOcmd      xsi:type="xsd:unsignedInt">0x14</BGOcmd>
-	        <BGObx       xsi:type="xsd:unsignedInt">0x1</BGObx>
+	        <BGObx       xsi:type="xsd:unsignedInt">450</BGObx><!--450default should be 50 after the bx of L1A, that forL1Amode=1 happens at 500-->  <!--0x1-->
 	        <BGOprescale xsi:type="xsd:unsignedInt">0x1</BGOprescale>
 	        <BGOrepeat   xsi:type="xsd:boolean">true</BGOrepeat>
-                </BGOInfo>
-            -->
+        </BGOInfo>
+          
           </BGOConfig>
           <PrescaleFactor xsi:type="xsd:integer">1</PrescaleFactor>
           <BCOffset       xsi:type="xsd:integer">1</BCOffset>
@@ -95,13 +103,14 @@
         </amc13ConfigParams>
       </properties>
     </xc:Application>
-
+    
     <xc:Application class="gem::hw::amc13::AMC13Readout" id="260" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::amc13::AMC13Readout"
-		  xsi:type="soapenc:Struct">
-        <ConnectionFile  xsi:type="xsd:string">connections.xml</ConnectionFile>
+	  xsi:type="soapenc:Struct">
+        <ConnectionFile     xsi:type="xsd:string">connections.xml</ConnectionFile>
+        <CardName           xsi:type="xsd:string">gem.shelf01.amc13</CardName>
+        
         <DeviceName      xsi:type="xsd:string">AMC13</DeviceName>
-        <CardName        xsi:type="xsd:string">gem.shelf01.amc13</CardName>
         <crateID         xsi:type="xsd:integer">1</crateID>
         <slot            xsi:type="xsd:integer">13</slot>
         <ReadoutSettings xsi:type="soapenc:Struct">
@@ -113,8 +122,8 @@
         </ReadoutSettings>
       </properties>
     </xc:Application>
-
-    <xc:Application class="gem::supervisor::GEMSupervisor" id="254" instance="0" network="local">
+   
+    <xc:Application class="gem::supervisor::GEMSupervisor" id="16" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMSupervisor"
 		  xsi:type="soapenc:Struct">
         <HandleTCDS        xsi:type="xsd:boolean">false</HandleTCDS>
@@ -127,7 +136,7 @@
           <ScanMax    xsi:type="xsd:unsignedInt">101</ScanMax>
           <StepSize   xsi:type="xsd:unsignedInt">1</StepSize>
           <NTriggers  xsi:type="xsd:unsignedLong">10000</NTriggers>
-        </ScanInfo>
+        </ScanInfo>-->
 
         <TCDSConfig xsi:type="soapenc:Struct">
           <HandleTCDS         xsi:type="xsd:boolean">false</HandleTCDS>
@@ -138,35 +147,54 @@
           <CPMHardwareConfig  xsi:type="xsd:string">${HOME}/config/tcds/CPM.txt</CPMHardwareConfig>
         </TCDSConfig>
 
-	<rcmsStateListener xsi:type="soapenc:Struct">
-          <classname xsi:type="xsd:string">RCMSStateListener</classname>
-          <instance  xsi:type="xsd:unsignedInt">0</instance>
-        </rcmsStateListener>
+
       </properties>
     </xc:Application>
+   
+    <xc:Application class="gem::calib::Calibration" id="17" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:gem::calib::Calibration"
+                   xsi:type="soapenc:Struct">
+         <nShelves  xsi:type="xsd:integer">2</nShelves>
+       </properties>
+    </xc:Application> 
 
+
+
+ <xc:Application class="gem::hw::optohybrid::OptoHybridManager" id="50" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::optohybrid::OptoHybridManager"
+        	  xsi:type="soapenc:Struct">
+        <!--AMCSlots       xsi:type="xsd:string">10</AMCSlots-->
+        <ConnectionFile xsi:type="xsd:string">connections.xml</ConnectionFile>
+        <AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[108]">
+          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="12"> <!-- position must be (slot-1)*12+link -->
+            <crateID xsi:type="xsd:integer">1</crateID>
+            <slot    xsi:type="xsd:integer">2</slot>
+            <link    xsi:type="xsd:integer">0</link>
+            <present xsi:type="xsd:boolean">true</present>
+           <!-- <CardName xsi:type="xsd:string">gem.shelf01.ctp7-02.optohybrid00</CardName>-->
+
+            <!--<triggerSource xsi:type="xsd:integer">0</triggerSource>-->
+            <!--<sbitSource    xsi:type="xsd:integer">5</sbitSource>-->
+          </OptoHybridInfo>
+        </AllOptoHybridsInfo>
+      </properties>
+ </xc:Application>
+
+
+    
+    
     <xc:Module>${XDAQ_ROOT}/lib/libxdaq2rc.so</xc:Module>
 
-    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemutils.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemsupervisor.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemreadout/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemreadout.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardware_devices.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardware_managers.so</xc:Module>
-
+    <xc:Module>${BUILD_HOME}/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemutils.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemsupervisor.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gemreadout/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemreadout.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gemhardware/devices/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhwdevices.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gemhardware/utils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhwutils.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gemhardware/managers/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhwmanagers.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gemcalibration/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemcalibration.so</xc:Module>
   </xc:Context>
 
-  <xc:Context url="http://gem904daq01:10000/rcms">
-    <xc:Application class="RCMSStateListener" id="50" instance="0" network="local" path="/services/replycommandreceiver" />
-    <xc:Module>${XDAQ_ROOT}/lib/libxdaq2rc.so</xc:Module>
-  </xc:Context>
-
-  <xc:Context url="http://localhost:2104">
-    <xc:Application class="tcds::ici::ICIController" id="301" instance="0" network="local" >
-    </xc:Application>
-
-    <xc:Application class="tcds::pi::PIController"   id="501" instance="0" network="local" >
-    </xc:Application>
-  </xc:Context>
+ 
 
 </xc:Partition>

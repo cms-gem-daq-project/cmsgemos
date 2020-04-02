@@ -159,7 +159,7 @@ namespace gem {
        * @param index selects which of XX, YY, ZZ to return
        **/
       static uint8_t extractDeviceID(std::string const& deviceName, uint8_t const& index);
-
+      
     private:
       // Do Not use default constructor. GEMHwDevice object should only be made using
       // either connection file method or with a list of URIs and Address Tables

@@ -250,9 +250,9 @@ void gem::calib::Calibration::fillCalibTypeConfigMap(calType_t cal, std::map<std
 
 void gem::calib::Calibration::printCalibConfigMap(  std::map<std::string, xdata::Integer>* calibConfigMap ) {
      std::map<std::string,xdata::Integer>::iterator iter;
-     std::cout <<" Printing CalibConfigMap "<< std::endl;
+     CMSGEMOS_DEBUG("Calibration::printCalibConfigMap  Printing CalibConfigMap");
      for ( iter = calibConfigMap->begin(); iter != calibConfigMap->end() ;++iter ) {
-         std::cout <<" iter->first "<<iter->first << " second " << iter->second.toString()<< std::endl;
+         CMSGEMOS_DEBUG(" iter->first "<<iter->first << " second " << iter->second.toString());
     }
 }
        
@@ -334,8 +334,7 @@ void gem::calib::Calibration::sendSOAPMessageForCalibration() {
 
                 initializeAndFillOpticalLinksMap( &amcOpticalLinksMap);
                 fillBagFromOpticalLinksMap(&bagFromMap,&amcOpticalLinksMap);
-                
-                CMSGEMOS_INFO("GEMCalibration::applying action sending SOAP message to GLIB Manager with unordered bag");
+               
                 gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameterBag(command, bagFromMap, p_appContext, p_appDescriptor, app);
                 printCalibConfigMap(&calibConfigMap);
                                    
@@ -348,7 +347,7 @@ void gem::calib::Calibration::sendSOAPMessageForDacScan() {
     
     std::set<std::string> groups = p_appZone->getGroupNames();
     for (auto i =groups.begin(); i != groups.end(); ++i) {
-        CMSGEMOS_INFO("GEMCalibration:::init::xDAQ group: " << *i
+        CMSGEMOS_DEBUG("GEMCalibration:::init::xDAQ group: " << *i
                       << "getApplicationGroup() " << p_appZone->getApplicationGroup(*i)->getName());
         
         xdaq::ApplicationGroup* ag = const_cast<xdaq::ApplicationGroup*>(p_appZone->getApplicationGroup(*i));
@@ -366,7 +365,6 @@ void gem::calib::Calibration::sendSOAPMessageForDacScan() {
                 fillDacScanBagFromConfigMap(&bagDacScanFromMap,&dacScanConfigMap);
                 initializeAndFillOpticalLinksMap( &amcOpticalLinksMap);
                 fillBagFromOpticalLinksMap(&bagDacScanFromMap,&amcOpticalLinksMap);
-                CMSGEMOS_INFO("GEMCalibration::applying action sending SOAP message to GLIB Manager with unordered bag");
                 gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameterBag(command, bagDacScanFromMap, p_appContext, p_appDescriptor, app);
                
         }

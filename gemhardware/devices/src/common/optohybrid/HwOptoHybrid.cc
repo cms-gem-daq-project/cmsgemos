@@ -139,34 +139,33 @@ void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
   } GEM_CATCH_RPC_ERROR("HwOptoHybrid::broadcastWrite", gem::hw::devices::exception::Exception);
 }
 
-
-std::vector<std::pair<uint8_t, uint32_t> > gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATs(bool update)
+std::vector<std::pair<uint8_t, uint32_t> > gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATs(bool update, uint32_t mask)
 {
-  // FIXME UPDATE WITH NEW COMM PROTOCOL
-  if (update || b_is_initial) {
-    std::vector<uint32_t> loc_chipIDs(::oh::VFATS_PER_OH,0xdeaddead);
-    try {
-      loc_chipIDs = xhal::common::rpc::call<::vfat3::getVFAT3ChipIDs>(rpc, static_cast<uint32_t>(m_link), 0x0, false); //FIXME hardcoded mask (obsolete param) and rawID
-    } GEM_CATCH_RPC_ERROR("HwOptoHybrid::getVFAT3ChipIDs", gem::hw::devices::exception::Exception);
 
-    // std::vector<uint32_t> loc_chipIDs = broadcastRead("HW_CHIP_ID", gem::hw::utils::ALL_VFATS_BCAST_MASK, false);
+    // FIXME UPDATE WITH NEW COMM PROTOCOL
+    if (update || b_is_initial) {
+        std::vector<uint32_t> loc_chipIDs(::oh::VFATS_PER_OH,0xdeaddead);
+        try {
+            loc_chipIDs = xhal::common::rpc::call<::vfat3::getVFAT3ChipIDs>(rpc, static_cast<uint32_t>(m_link), 0x0, false); //FIXME hardcoded mask (obsolete param) and rawID
+        } GEM_CATCH_RPC_ERROR("HwOptoHybrid::getVFAT3ChipIDs", gem::hw::devices::exception::Exception);
 
-    std::vector<std::pair<uint8_t, uint32_t> > chipIDs;
+        // std::vector<uint32_t> loc_chipIDs = broadcastRead("HW_CHIP_ID", gem::hw::utils::ALL_VFATS_BCAST_MASK, false);
 
-    size_t idx = 0;
-    for (auto const& chip : loc_chipIDs) {
-      uint32_t chipID = chip;
-      CMSGEMOS_DEBUG("HwOptoHybrid::getConnectedVFATs GEB slot: " << static_cast<uint32_t>(idx)
-                     << ", chipID: 0x" << std::hex << std::setw(8) << std::setfill('0') << chipID << std::dec);
-      chipIDs.push_back(std::make_pair(idx, chipID));
-      ++idx;
+        std::vector<std::pair<uint8_t, uint32_t> > chipIDs;
+
+        size_t idx = 0;
+        for (auto const& chip : loc_chipIDs) {
+            uint32_t chipID = chip;
+            CMSGEMOS_DEBUG("HwOptoHybrid::getConnectedVFATs GEB slot: " << static_cast<uint32_t>(idx)
+                           << ", chipID: 0x" << std::hex << std::setw(8) << std::setfill('0') << chipID << std::dec);
+            chipIDs.push_back(std::make_pair(idx, chipID));
+            ++idx;
+        }
+        m_chipIDs    = chipIDs;
+        b_is_initial = false;
     }
-    m_chipIDs    = chipIDs;
-    b_is_initial = false;
-  }
-  return m_chipIDs;
+    return m_chipIDs;
 }
-
 
 uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask(bool update)
 {
@@ -196,6 +195,15 @@ void gem::hw::optohybrid::HwOptoHybrid::setVFATsToDefaults()
 {
   CMSGEMOS_WARN("HwOptoHybrid::setVFATsToDefaults functionality is replaced with HwOptoHybrid::configureVFATs");
   configureVFATs();
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::configureOHCalDataFormat(uint32_t const mask)
+{
+    CMSGEMOS_DEBUG("HwOptoHybrid::configOHCalDataFormat mask"
+                   << std::hex << std::setw(8) << std::setfill('0') << mask << std::dec);
+    std::stringstream regName;
+    regName << "GEM_AMC.DAQ.CONTROL.CALIBRATION_MODE_CHAN" ;
+    return writeReg(regName.str(), mask&0x00ffffff);
 }
 
 

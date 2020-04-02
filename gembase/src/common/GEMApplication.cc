@@ -324,7 +324,6 @@ xoap::MessageReference gem::base::GEMApplication::calibParamRetrieve(xoap::Messa
     m_scanInfo.bag.scanMin = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"scanMin");;
     m_scanInfo.bag.scanMax = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"scanMax");
     m_scanInfo.bag.stepSize = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"stepSize");
-    if  (m_scanInfo.bag.stepSize.value_==(xdata::UnsignedInteger32) 0) m_scanInfo.bag.stepSize=(xdata::UnsignedInteger32)1;
     m_scanInfo.bag.nTriggers = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"nSamples");///TODO: change it everywhere?
     m_scanInfo.bag.trigType = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"trigType");          
     m_scanInfo.bag.l1aTime = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"l1aTime");          
@@ -334,7 +333,7 @@ xoap::MessageReference gem::base::GEMApplication::calibParamRetrieve(xoap::Messa
     m_scanInfo.bag.signalSourceType = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"signalSourceType");
     m_scanInfo.bag.pulseDelay = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"pulseDelay");
     m_scanInfo.bag.latency = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(msg,"latency");
-    m_scanInfo.bag.calMode = (xdata::Boolean)  true; // TODO: implement the selection in the calubration suite web interface
+    m_scanInfo.bag.calMode = (xdata::Boolean) false; // TODO: implement the selection in the calubration suite web interface
   
     return 
         gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "CalibrationParametersRetrieved");

@@ -424,6 +424,11 @@ namespace gem {
            */
           void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
 
+          /**
+           *@brief Set calibration data format on VFAT data
+           */
+          void configureAMCCalDataFormat(bool en);
+
 
           /**************************/
           /** TTC module information **/

@@ -82,6 +82,12 @@ gem::hw::amc::AMCManager::AMCManager(xdaq::ApplicationStub* stub) :
   CMSGEMOS_DEBUG("AMCManager::done");
 
   // set up the info hwCfgInfoSpace
+  xoap::bind<gem::base::GEMApplication>(this, &gem::base::GEMApplication::calibParamRetrieve, "calibParamRetrieve", XDAQ_NS_URI);
+
+  //xoap::bind(this, &gem::hw::amc::AMCManager::calibParamPrint, "calibParamPrint", XDAQ_NS_URI);
+  xoap::bind(this, &gem::hw::amc::AMCManager::setRunParamInterCalib, "setRunParamInterCalib",  XDAQ_NS_URI);
+  xoap::bind(this, &gem::hw::amc::AMCManager::updateRunParamCalib, "updateRunParamCalib",  XDAQ_NS_URI);
+  
   init();
 
   // getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/images/amc/AMCManager.png");
@@ -196,7 +202,41 @@ void gem::hw::amc::AMCManager::configureAction()
         amc->configureDAQModule(enableZS, doPhaseShift, runType, 0xfaac, m_relockPhase.value_, m_bc0LockPhaseShift.value_);
       } GEM_CATCH_RPC_ERROR("AMCManager::configureAction", gem::hw::devices::exception::ConfigurationProblem);
 
-      // FIXME everyting considering the scanning should be set by the gemcalibration module
+
+      if (m_scanInfo.bag.scanType.value_ == 2) {
+
+          amc->setDAQLinkRunType(0x2);
+          uint32_t runParams = ( (0x1 << 22) | (0x0 << 21) | (0x6 << 13) | ((m_scanInfo.bag.mspl.value_ & 0x7) << 10) | (m_scanInfo.bag.scanMin.value_ & 0x3ff) );
+          //                       isExtTrig; isCurrentPulse; CFG_CAL_DAC;   MSPL/\;              
+
+
+          CMSGEMOS_INFO("GLIBManager::configureAction AMC runParams :" << runParams );  //CG: TO be removed
+          amc->setDAQLinkRunParameters(runParams);
+          CMSGEMOS_INFO("GLIBManager::configureAction::  m_scanInfo.bag.calMode.value_ " << m_scanInfo.bag.calMode.value_);///CG remove 
+          //If calibration format mode invoked for data
+          
+          // setting caldata format here; and in OHmanager set the channels for the calmode
+          amc->configureAMCCalDataFormat(m_scanInfo.bag.calMode.value_);
+         
+          // taken from Brian's macro
+          amc->writeReg("GEM_AMC.TTC.GENERATOR.ENABLE", 0x0);
+          amc->writeReg("GEM_AMC.TTC.CTRL.CALIBRATION_MODE",0x0);
+          
+          CMSGEMOS_INFO("GLIBManager::configureAction:: exiting latency");
+          
+      } else if (m_scanInfo.bag.scanType.value_ == 3) {
+          uint32_t initialVT1 = m_scanInfo.bag.scanMin.value_;
+          uint32_t initialVT2 = 0;  // std::max(0,(uint32_t)m_scanInfo.bag.scanMax.value_);
+        CMSGEMOS_INFO("AMCManager::configureAction FIRST VT1 " << initialVT1 << " VT2 " << initialVT2);
+
+	amc->setDAQLinkRunType(0x3); 
+	// amc->setDAQLinkRunParameter(0x1,latency);  // set this at start so DQM has it?
+	amc->setDAQLinkRunParameter(0x2,initialVT1);
+	amc->setDAQLinkRunParameter(0x3,initialVT2);
+      } else {
+	amc->setDAQLinkRunType(0x1);          // FIXME duplicated in configureDAQModule call
+	amc->setDAQLinkRunParameters(0xfaac); // FIXME duplicated in configureDAQModule call
+      }
       // what else is required for configuring the AMC?
       // need to reset optical links?
       // reset counters?
@@ -217,6 +257,17 @@ void gem::hw::amc::AMCManager::configureAction()
 
 void gem::hw::amc::AMCManager::startAction()
 {
+
+  if (m_scanInfo.bag.scanType.value_ == 2) {
+    CMSGEMOS_INFO("AMCManager::startAction() " << std::endl << m_scanInfo.bag.toString());
+    m_lastLatency = m_scanInfo.bag.scanMin.value_;
+    m_lastVT1 = 0;
+  } else if (m_scanInfo.bag.scanType.value_ == 3) {
+    CMSGEMOS_INFO("AMCManager::startAction() " << std::endl << m_scanInfo.bag.toString());
+    m_lastLatency = 0;
+    m_lastVT1 = m_scanInfo.bag.scanMin.value_;
+  }
+
   CMSGEMOS_INFO("AMCManager::startAction begin");
   // what is required for starting the AMC?
   // FIXME make me more streamlined
@@ -270,6 +321,37 @@ void gem::hw::amc::AMCManager::pauseAction()
       //FIXME what should be done here? Disable triggers? wait for AMC to stop building events?
       CMSGEMOS_DEBUG("connected a card in slot " << (slot+1));
 
+      if (m_scanInfo.bag.scanType.value_ == 2) {
+          uint32_t updatedLatency = m_lastLatency + m_stepSize.value_;
+        CMSGEMOS_INFO("AMCManager::pauseAction LatencyScan AMC" << (slot+1) << " Latency " << (int)updatedLatency);
+
+        // wait for events to finish building
+        while (!amc->l1aFIFOIsEmpty()) {
+          CMSGEMOS_DEBUG("AMCManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
+          usleep(10);
+        }
+        CMSGEMOS_DEBUG("AMCManager::pauseAction AMC" << (slot+1) << " finished building events, updating run parameter "
+                       << (int)updatedLatency);
+        amc->setDAQLinkRunParameter(0x1,updatedLatency);
+      } else if (m_scanInfo.bag.scanType.value_ == 3) {
+        uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
+        uint8_t updatedVT2 = 0; //std::max(0,(int)m_scanInfo.bag.scanMax.value_);
+        CMSGEMOS_INFO("AMCManager::pauseAction ThresholdScan AMC" << (slot+1) << ""
+                      << " VT1 " << (int)updatedVT1
+                      << " VT2 " << (int)updatedVT2);
+
+        // wait for events to finish building
+        while (!amc->l1aFIFOIsEmpty()) {
+          CMSGEMOS_DEBUG("AMCManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
+          usleep(10);
+        }
+        CMSGEMOS_DEBUG("AMCManager::pauseAction finished AMC" << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
+                       << " and VT2 " << (int)updatedVT2);
+        amc->setDAQLinkRunParameter(0x2,updatedVT1);
+        amc->setDAQLinkRunParameter(0x3,updatedVT2);
+      }
+
+
     } else {
       std::stringstream msg;
       msg << "AMCManager::pauseAction AMC in slot " << (slot+1) << " is not connected";
@@ -278,6 +360,18 @@ void gem::hw::amc::AMCManager::pauseAction()
       XCEPT_RAISE(gem::hw::devices::exception::Exception, msg.str());
     }
   }
+
+  // Update the scan parameters
+  if (m_scanInfo.bag.scanType.value_ == 2) {
+    CMSGEMOS_INFO("AMCManager::pauseAction LatencyScan old Latency " << (int)m_lastLatency);
+    m_lastLatency += m_stepSize.value_;
+    CMSGEMOS_INFO("AMCManager::pauseAction LatencyScan new Latency " << (int)m_lastLatency);
+  } else if (m_scanInfo.bag.scanType.value_ == 3) {
+    CMSGEMOS_INFO("AMCManager::pauseAction ThresholdScan old VT1 " << (int)m_lastVT1);
+    m_lastVT1 += m_stepSize.value_;
+    CMSGEMOS_INFO("AMCManager::pauseAction ThresholdScan new VT1 " << (int)m_lastVT1);
+  }
+
   CMSGEMOS_INFO("AMCManager::pauseAction end");
 }
 
@@ -512,4 +606,140 @@ void gem::hw::amc::AMCManager::createAMCInfoSpaceItems(is_toolbox_ptr is_amc, am
       //                       amc->getLinkDAQCounters(oh, 1), NULL, GEMUpdateType::HW32);
     }
   }
+}
+
+xoap::MessageReference gem::hw::amc::AMCManager::setRunParamInterCalib(xoap::MessageReference msg)
+{
+    std::string commandName = "setRunParamInterCalib";
+    try {
+        // what is required for pausing the AMC?
+        // FIXME make me more streamlined
+        for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+            CMSGEMOS_DEBUG("AMCManager::looping over slots(" << (slot+1) << ") and finding infospace items");
+            AMCInfo& info = m_amcInfo[slot].bag;
+
+            if (!info.present)
+                continue;
+
+            amc_shared_ptr amc = m_amcs.at(slot);
+            if (amc->isHwConnected()) {
+                // ///should it wait for the event to finish building : CG?????
+                while (!amc->l1aFIFOIsEmpty()) {
+                    CMSGEMOS_DEBUG("AMCManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
+                    usleep(10);
+                }
+                if (m_scanInfo.bag.scanType.value_ == 2) {
+                    
+                    amc->setDAQLinkRunParameters(0x0faac);
+                    CMSGEMOS_INFO("AMCManager::setRunParamInterCalib RunParam set to 0x0faac");
+
+                } else {
+                    std::stringstream msg;
+                    msg << "AMCManager::setRunParamInterCalib AMC in slot " << (slot+1) << " is not connected";
+                    CMSGEMOS_ERROR(msg.str());
+                   
+                }
+            }
+        }
+
+    
+        CMSGEMOS_INFO("AMCManager::setRunParamInterCalib done");
+        return
+            gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Done");
+    } catch(xcept::Exception& err) {
+        std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+                                                commandName.c_str());
+        CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
+      
+    }
+   
+    return
+        gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "NotDone");
+   
+}
+
+                
+xoap::MessageReference gem::hw::amc::AMCManager::updateRunParamCalib(xoap::MessageReference msg) 
+{
+    std::string commandName = "updateRunParamCalib";
+    try {
+        for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+            CMSGEMOS_DEBUG("AMCManager::looping over slots(" << (slot+1) << ") and finding infospace items");
+            AMCInfo& info = m_amcInfo[slot].bag;
+            
+            if (!info.present)
+                continue;
+            
+            amc_shared_ptr amc = m_amcs.at(slot);
+            if (amc->isHwConnected()) {
+            CMSGEMOS_DEBUG("connected a card in slot " << (slot+1));
+            
+            if (m_scanInfo.bag.scanType.value_ == 2) {
+                // ///should it wait for the event to finish building : CG?????
+                while (!amc->l1aFIFOIsEmpty()) {
+                    CMSGEMOS_DEBUG("AMCManager::updateRunParamCalib waiting for AMC" << (slot+1) << " to finish building events");
+                    usleep(10); 
+                }
+                
+                uint32_t updatedLatency = m_lastLatency + m_scanInfo.bag.stepSize.value_;
+             
+                CMSGEMOS_DEBUG("AMCManager::updateRunParamCalib AMC" << (slot+1) << " finished building events, updating run parameter "
+                              << (int)updatedLatency);
+                //updating the runparam as descrbed here: https://github.com/cms-gem-daq-project/cmsgemos/pull/302
+                uint32_t runParams = ( (0x1 << 22) | (0x0 << 21) | (0x6 << 13) | ((m_scanInfo.bag.mspl.value_ & 0x7) << 10) | ( updatedLatency & 0x3ff) );
+                 
+                amc->setDAQLinkRunType(0x2);
+                amc->setDAQLinkRunParameters(runParams);
+                
+            } else if (m_scanInfo.bag.scanType.value_ == 3) {
+                uint8_t updatedVT1 = m_lastVT1 + m_scanInfo.bag.stepSize.value_;
+                uint8_t updatedVT2 = 0; //std::max(0,(int)m_scanInfo.bag.scanMax.value_);
+                CMSGEMOS_INFO("AMCManager::updateRunParamCalib ThresholdScan AMC" << (slot+1) << ""
+                              << " VT1 " << (int)updatedVT1
+                              << " VT2 " << (int)updatedVT2);
+
+                // wait for events to finish building
+                while (!amc->l1aFIFOIsEmpty()) {
+                    CMSGEMOS_DEBUG("AMCManager::updateRunParamCalib waiting for AMC" << (slot+1) << " to finish building events");
+                    usleep(10);
+                }
+                CMSGEMOS_DEBUG("AMCManager::updateRunParamCalib finished AMC" << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
+                               << " and VT2 " << (int)updatedVT2);
+                amc->setDAQLinkRunParameter(0x2,updatedVT1);
+                amc->setDAQLinkRunParameter(0x3,updatedVT2);
+            }
+        } else {
+            std::stringstream msg;
+            msg << "AMCManager::updateRunParamCalib AMC in slot " << (slot+1) << " is not connected";
+            CMSGEMOS_ERROR(msg.str());
+        }
+    }
+
+    // Update the scan parameters
+    if (m_scanInfo.bag.scanType.value_ == 2) {
+        CMSGEMOS_DEBUG("AMCManager::updateRunParamCalib LatencyScan old Latency " << (int)m_lastLatency);
+        m_lastLatency += m_scanInfo.bag.stepSize.value_;
+        CMSGEMOS_DEBUG("AMCManager::updateRunParamCalib LatencyScan new Latency " << (int)m_lastLatency);
+    } else if (m_scanInfo.bag.scanType.value_ == 3) {
+        CMSGEMOS_INFO("AMCManager::ScanValue ThresholdScan old VT1 " << (int)m_lastVT1);
+        m_lastVT1 += m_scanInfo.bag.stepSize.value_;
+        CMSGEMOS_DEBUG("AMCManager::updateRunParamCalib ThresholdScan new VT1 " << (int)m_lastVT1);
+    }
+
+
+    CMSGEMOS_INFO("AMCManager::updateRunParamCalib done");
+    return
+        gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Done");
+    } catch(xcept::Exception& err) {
+        std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+                                                commandName.c_str());
+        CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
+        XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
+                              top, toolbox::toString("%s.",msgBase.c_str()), err);
+        XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
+    }
+    
+     XCEPT_RAISE(xoap::exception::Exception,"command not found");
+    return
+        gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "NotDone");
 }
