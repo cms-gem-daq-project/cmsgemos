@@ -45,7 +45,6 @@ IncludeDirs =$(XDAQ_ROOT)/include
 IncludeDirs+=$(BUILD_HOME)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/gemhardware/utils/include
 IncludeDirs+=$(BUILD_HOME)/gemutils/include
-IncludeDirs+=$(uHALROOT)/include
 IncludeDirs+=$(XHAL_ROOT)/include
 IncludeDirs+=$(CTP7_ROOT)/include
 
@@ -56,11 +55,10 @@ DependentLibraryDirs+=$(XHAL_ROOT)/lib
 
 LibraryDirs+=$(BUILD_HOME)/gemhardware/utils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(BUILD_HOME)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-LibraryDirs+=$(uHALROOT)/lib
 LibraryDirs+=$(XHAL_ROOT)/lib
 
 #FIXME hacky linking of xhal-base
-DependentLibraries =cactus_uhal_uhal xhal-client xhal-base
+DependentLibraries =xhal-client xhal-base
 DependentLibraries+=gemutils gemhwutils
 
 include $(XDAQ_ROOT)/$(BUILD_SUPPORT)/Makefile.rules

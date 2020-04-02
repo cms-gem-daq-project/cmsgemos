@@ -207,7 +207,7 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
       if (!info.present)
         continue;
- 
+
       CMSGEMOS_DEBUG("OptoHybridManager::startAction::grabbing pointer to hardware device");
       auto&& optohybrid = m_optohybrids.at(slot).at(link);
 

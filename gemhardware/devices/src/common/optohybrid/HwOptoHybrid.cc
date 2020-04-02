@@ -5,7 +5,9 @@
 #include <functional>
 
 #include "gem/hw/devices/optohybrid/HwOptoHybrid.h"
-#include "gem/hw/devices/amc/HwGenericAMC.h"
+#include "ctp7_modules/common/gbt.h"
+#include "ctp7_modules/common/vfat3.h"
+#include "ctp7_modules/common/optohybrid.h"
 
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice),
