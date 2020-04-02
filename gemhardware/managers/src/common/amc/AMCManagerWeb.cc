@@ -58,3 +58,13 @@ void gem::hw::amc::AMCManagerWeb::registerDumpPage(xgi::Input* in, xgi::Output* 
   CMSGEMOS_DEBUG("AMCManagerWeb::registerDumpPage");
   // dump registers for a given AMC and display
 }
+
+void gem::hw::amc::AMCManagerWeb::monitorPage(xgi::Input* in, xgi::Output* out)
+{
+  CMSGEMOS_DEBUG("AMCManagerWeb::monitorPage");
+}
+
+void gem::hw::amc::AMCManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
+{
+  CMSGEMOS_DEBUG("AMCManagerWeb::jsonUpdate");
+}
