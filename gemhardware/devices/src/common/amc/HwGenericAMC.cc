@@ -1,4 +1,7 @@
 #include "gem/hw/devices/amc/HwGenericAMC.h"
+#include "ctp7_modules/common/amc.h"
+#include "ctp7_modules/common/amc/daq.h"
+#include "ctp7_modules/common/amc/ttc.h"
 
 #include <iomanip>
 

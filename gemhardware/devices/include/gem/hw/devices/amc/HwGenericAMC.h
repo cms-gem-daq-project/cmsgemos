@@ -4,9 +4,6 @@
 #define GEM_HW_HWGENERICAMC_H
 
 #include "gem/hw/devices/GEMHwDevice.h"
-#include "ctp7_modules/common/amc.h"
-#include "ctp7_modules/common/amc/daq.h"
-#include "ctp7_modules/common/amc/ttc.h"
 
 #include "gem/hw/devices/exception/Exception.h"
 #include "gem/hw/devices/amc/GenericAMCSettingsEnums.h"
@@ -38,37 +35,37 @@ namespace gem {
            * @brief Read the board ID register (should be reimplemented in derived HW, e.g., GLIB)
            * @returns the AMC board ID as a std::string
            */
-          virtual std::string getBoardIDString();
+          std::string getBoardIDString();
 
           /**
            * @brief Read the board ID register (should be reimplemented in derived HW, e.g., GLIB)
            * @returns the AMC board ID as 32 bit unsigned value
            */
-          virtual uint32_t getBoardID();
+          uint32_t getBoardID();
 
           /**
            * @brief Read the board type register (should be reimplemented in derived HW, e.g., GLIB)
            * @returns the AMC board type as a std::string
            */
-          virtual std::string getBoardTypeString();
+          std::string getBoardTypeString();
 
           /**
            * @brief Read the board type register (should be reimplemented in derived HW, e.g., GLIB)
            * @returns the AMC board type as 32 bit unsigned value
            */
-          virtual uint32_t getBoardType();
+          uint32_t getBoardType();
 
           /**
            * @brief Read the system ID register (should be reimplemented in derived HW, e.g., GLIB)
            * @returns the AMC system ID as a std::string
            */
-          virtual std::string getSystemIDString();
+          std::string getSystemIDString();
 
           /**
            * @brief Read the system ID register (should be reimplemented in derived HW, e.g., GLIB)
            * @returns the AMC system ID as 32 bit unsigned value
            */
-          virtual uint32_t getSystemID();
+          uint32_t getSystemID();
 
           /**
            * @brief Check how many OptoHybrids the AMC FW can support
@@ -87,28 +84,28 @@ namespace gem {
            * @param system determines whether to read the system (default) or user FW register
            * @returns a string corresponding to AMC FW version
            */
-          virtual std::string getFirmwareVerString(bool const& system=true);
+          std::string getFirmwareVerString(bool const& system=true);
 
           /**
            * Read the AMC FW register
            * @param system determines whether to read the system (default) or user FW register
            * @returns the AMC FW version as a 32 bit unsigned
            */
-          virtual uint32_t getFirmwareVer(bool const& system=true);
+          uint32_t getFirmwareVer(bool const& system=true);
 
           /**
            * Read the AMC FW register
            * @param system determines whether to read the system (default) or user FW register
            * @returns a string corresponding to the build date dd-mm-yyyy
            */
-          virtual std::string getFirmwareDateString(bool const& system=true);
+          std::string getFirmwareDateString(bool const& system=true);
 
           /**
            * Read the AMC FW register
            * @param system determines whether to read the system (default) or user FW register
            * @returns the build date as a 32 bit unsigned
            */
-          virtual uint32_t getFirmwareDate(bool const& system=true);
+          uint32_t getFirmwareDate(bool const& system=true);
 
           //user core functionality
           /**
@@ -116,14 +113,14 @@ namespace gem {
            * @returns the user FW build date as a 32-bit unsigned value
            * OBSOLETE in V2 AMC FW
            */
-          virtual uint32_t getUserFirmware();
+          uint32_t getUserFirmware();
 
           /**
            * Read the user AMC FW register
            * @returns the user FW build date as a std::string
            * OBSOLETE in V2 AMC FW
            */
-          virtual std::string getUserFirmwareDate();
+          std::string getUserFirmwareDate();
 
         private:
           /**
