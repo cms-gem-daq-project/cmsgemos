@@ -25,11 +25,13 @@ Documentation of the ``cmsgemos`` project
    changelog
 
 .. toctree::
-   :maxdepth: 2
-   :caption: API
+   :maxdepth: 1
+   :caption: API documentation
 
    exhale generated API <exhale-api/api>
-   doxyrest generated API<doxyrest-api/api>
+   doxyrest generated API <doxyrest-api/api>
+   autoapi/gempython/index
+   scripts
 
 .. toctree::
    :hidden:

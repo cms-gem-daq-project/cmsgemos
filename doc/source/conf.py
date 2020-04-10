@@ -18,8 +18,8 @@
 #
 import sys, os, re
 
-sys.path.insert(1, os.path.abspath("../../gempython/pkg"))
-sys.path.insert(1, os.path.abspath("../../gempython/pkg/gempython/scripts"))
+sys.path.insert(1, os.path.abspath("{}".format(os.getenv("PYTHONSOURCE"))))
+sys.path.insert(1, os.path.abspath("{}/gempython/scripts".format(os.getenv("PYTHONSOURCE"))))
 
 if os.getenv("USE_DOXYREST"):
     # path for doxyrest sphinx extensions
@@ -63,7 +63,6 @@ print("Release {}".format(release))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
@@ -74,33 +73,57 @@ extensions = [
     "sphinxcontrib.srclinks",
     "sphinx_rtd_theme",
     "m2r",
+    # "autoapi.extension", ## autoapi...
+    "autoapi.extension", ## sphinx-autoapi
+    # "sphinx.ext.autodoc",
+    # "sphinx.ext.inheritance_diagram",
 ]
 
 if os.getenv("USE_DOXYREST"):
     extensions += ["doxyrest", "cpplexer"]
-else:
-    extensions += ["breathe", "exhale"]
-    breathe_projects = {
-        "cmsgemos": "../exhalebuild/xml/",
-    }
 
-    breathe_default_project = "cmsgemos"
+extensions += ["breathe", "exhale"]
+breathe_projects = {
+    "cmsgemos": "../exhalebuild/xml/",
+}
 
-    # Setup the exhale extension
-    exhale_args = {
-        # These arguments are required
-        "containmentFolder": "./exhale-api",
-        "rootFileName": "api.rst",
-        "rootFileTitle": "``cmsgemos`` API documentation",
-        "doxygenStripFromPath": "..",
-        # Suggested optional arguments
-        "createTreeView": True,
-        # TIP: if using the sphinx-bootstrap-theme, you need
-        "treeViewIsBootstrap": True,
-        "exhaleExecutesDoxygen": True,
-        "exhaleDoxygenStdin": """
+breathe_default_project = "cmsgemos"
+
+# Setup the exhale extension
+exhale_args = {
+    # These arguments are required
+    "containmentFolder": "./exhale-api",
+    "rootFileName": "api.rst",
+    "rootFileTitle": "API documentation for cmsgemos",
+    "doxygenStripFromPath": "{}".format(os.path.abspath("../../")),
+    # Suggested optional arguments
+    "createTreeView": True,
+    # "afterTitleDescription": "",
+    # "fullApiSubSectionTitle": "",
+    # "afterBodySummary": "",
+    # "unabridgedOrphanKinds": [""],
+    "fullToctreeMaxDepth": 1,
+    # TIP: if using the sphinx-bootstrap-theme, you need
+    "treeViewIsBootstrap": False,
+    "exhaleExecutesDoxygen": True,
+    "exhaleDoxygenStdin": """
 PROJECT_NAME = cmsgemos
 PROJECT_NUMBER = {}
+REPEAT_BRIEF = YES
+INHERIT_DOCS = YES
+MARKDOWN_SUPPORT = YES
+AUTOLINK_SUPPORT = YES
+SUBGROUPING = YES
+EXTRACT_LOCAL_CLASSES = YES
+CASE_SENSE_NAMES = YES
+SHOW_INCLUDE_FILES = YES
+GENERATE_HTML = YES
+INLINE_INFO = YES
+SORT_MEMBER_DOCS = YES
+GENERATE_DEPRECATEDLIST= YES
+SHOW_USED_FILES = YES
+SHOW_FILES = YES
+SHOW_NAMESPACES = YES
 INPUT = ../../gembase/include \
         ../../gemutils/include \
         ../../gemhardware/include \
@@ -110,16 +133,31 @@ INPUT = ../../gembase/include \
         ../../gempython/include \
         ../../gemcalibration/include
 PREDEFINED+= DOXYGEN_IGNORE_THIS
-""".format(
-            release
-        ),
-    }
+""".format(release),
+}
 
-# Tell sphinx what the primary language being documented is.
-primary_domain = "cpp"
+# # Tell sphinx what the primary language being documented is.
+# primary_domain = "cpp"
 
-# Tell sphinx what the pygments highlight language should be.
-highlight_language = "cpp"
+# # Tell sphinx what the pygments highlight language should be.
+# highlight_language = "cpp"
+
+autoapi_type = "python"
+autoapi_python_use_implicit_namespaces = True  ## default False
+autoapi_dirs = ["{}".format(os.getenv("PYTHONSOURCE"))]
+autoapi_add_toctree_entry = False
+autoapi_keep_files = True  ## default False
+autoapi_options = [
+    "members",
+    "undoc-members",
+    "private-members",
+    "show-inheritance",
+    "special-members",
+    # "show-inheritance-diagram",
+    "show-module-summary",
+]
+## respects neither conf.py nor setup.py
+autoapi_ignore = ["*migrations*", "*conf.py", "*setup.py"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
