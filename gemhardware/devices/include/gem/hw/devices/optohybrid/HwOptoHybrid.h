@@ -428,8 +428,8 @@ namespace gem {
            * @brief Returns the slot number and chip IDs for connected VFATs
            * @returns a std::vector of pairs of uint8_t and uint32_t words, one response for each VFAT
            */
-          std::vector<std::pair<uint8_t, uint32_t> > getConnectedVFATs(bool update=false);
-
+          
+          std::vector<std::pair<uint8_t, uint32_t> > getConnectedVFATs(bool update=false, uint32_t mask=0x0);
           /**
            * @brief Uses a broadcast read to determine which slots are occupied and returns the
            *        corresponding broadcast mask
@@ -462,6 +462,13 @@ namespace gem {
            */
 
           void configureGBT(uint8_t const& gbtID, const gbt::config_t& gbtcfg);
+          
+          /**
+           * @brief Sets the VFAT calibration format data control mask
+           * @param mask is the mask to apply
+           */
+          void configureOHCalDataFormat(uint32_t const mask);
+          
 
           /**
            * @brief Sends a write request for all configuration registers on all GBTx chips

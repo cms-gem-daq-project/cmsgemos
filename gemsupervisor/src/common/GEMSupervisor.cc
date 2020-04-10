@@ -62,7 +62,7 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
                     this->getApplicationContext())
 {
 
-  xoap::bind(this, &gem::supervisor::GEMSupervisor::EndScanPoint, "EndScanPoint",  XDAQ_NS_URI);
+  xoap::bind(this, &gem::supervisor::GEMSupervisor::EndScanPointCalib, "EndScanPointCalib",  XDAQ_NS_URI);
   // xgi::framework::deferredbind(this, this, &GEMSupervisor::xgiDefault, "Default");
 
   CMSGEMOS_DEBUG("Creating the GEMSupervisorWeb interface");
@@ -178,11 +178,12 @@ void gem::supervisor::GEMSupervisor::init()
                    << "getApplicationGroup() " << p_appZone->getApplicationGroup(*i)->getName());
 
     xdaq::ApplicationGroup* ag = const_cast<xdaq::ApplicationGroup*>(p_appZone->getApplicationGroup(*i));
-#ifdef x86_64_centos7
+    //#ifdef x86_64_centos7
+    //std::set<const xdaq::ApplicationDescriptor*> allApps = ag->getApplicationDescriptors();
+    //#else
+    //std::set<xdaq::ApplicationDescriptor*> allApps = ag->getApplicationDescriptors();
+    //#endif
     std::set<const xdaq::ApplicationDescriptor*> allApps = ag->getApplicationDescriptors();
-#else
-    std::set<xdaq::ApplicationDescriptor*> allApps = ag->getApplicationDescriptors();
-#endif
     CMSGEMOS_DEBUG("GEMSupervisor::init::getApplicationDescriptors() " << allApps.size());
     for (auto j = allApps.begin(); j != allApps.end(); ++j) {
       std::string classname = (*j)->getClassName();
@@ -277,6 +278,11 @@ void gem::supervisor::GEMSupervisor::initializeAction()
                           << " in case it is not in 'Halted'");
             // need to ensure leases are properly respected
             gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt", p_appContext, p_appDescriptor, *j);
+          }
+          else if ( ((*j)->getClassName()).rfind("Calibration") != std::string::npos ) {
+              CMSGEMOS_INFO("GEMSupervisor::initializeAction Halting  " << (*j)->getClassName()
+                            << " in case it is not in 'Halted'");
+                     
           } else {
             CMSGEMOS_INFO("GEMSupervisor::initializeAction Initializing " << (*j)->getClassName());
             gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize", p_appContext, p_appDescriptor, *j);
@@ -950,8 +956,12 @@ bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classn
     if (m_otherClassesToSupport.count(classname) != 0)
     return true;  // include from list
   */
+  if (classname.find("gem::calib") != std::string::npos)
+      return false; // calibration suite has different threatment
+  
   if (classname.find("gem::") != std::string::npos)
     return true;  // handle all GEM applications
+  
   if (classname.find("PeerTransport") != std::string::npos)
     return false;  // ignore all peer transports
 
@@ -1069,82 +1079,188 @@ void gem::supervisor::GEMSupervisor::sendScanParameters(xdaq::ApplicationDescrip
 
 }
 
-xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::MessageReference msg)
+xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPointCalib(xoap::MessageReference msg)
 {
-  std::string commandName = "EndScanPoint";
+ 
 
-  uint32_t updatedParameter = m_scanParameter + m_stepSize.value_;
+    uint32_t updatedParameter = m_scanParameter + m_scanInfo.bag.stepSize.value_;
 
-  CMSGEMOS_INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName() << std::endl
-                << " GlobalStateMessage  = " << m_globalState.getStateName()  << std::endl
-                << " m_scanParameter  = " << m_scanParameter  << std::endl
-                << " updatedParameter = " << updatedParameter << std::endl
-                << " m_scanMax.value_ = " << m_scanMax.value_ << std::endl
-                << " m_scanInfo.bag.scanMax.value_ = " << m_scanInfo.bag.scanMax.value_ << std::endl
-                );
-  if (updatedParameter <= m_scanMax.value_) {
-    if (m_scanType.value_ == 2) {
-      CMSGEMOS_INFO("GEMSupervisor::EndScanPoint LatencyScan Latency " << updatedParameter);
-    } else if (m_scanType.value_ == 3) {
-      CMSGEMOS_INFO("GEMSupervisor::EndScanPoint ThresholdScan VT1 " << updatedParameter);
+    CMSGEMOS_INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName() << std::endl
+                  << " GlobalStateMessage  = " << m_globalState.getStateName()  << std::endl
+                  << " m_scanParameter  = " << m_scanParameter  << std::endl
+                  << " updatedParameter = " << updatedParameter << std::endl
+                  << " m_scanMax.value_ = " << m_scanMax.value_ << std::endl
+                  << " m_scanInfo.bag.scanMax.value_ = " << m_scanInfo.bag.scanMax.value_ << std::endl
+                  );
+    if (updatedParameter <= m_scanInfo.bag.scanMax.value_) {
+        if (m_scanInfo.bag.scanType.value_ == 2) {
+            CMSGEMOS_INFO("GEMSupervisor::EndScanPoint LatencyScan Latency " << updatedParameter);
+        } else if (m_scanInfo.bag.scanType.value_ == 3) {
+            CMSGEMOS_INFO("GEMSupervisor::EndScanPoint ThresholdScan VT1 " << updatedParameter);
+        }
+
+
+        //AMC13 sends the signal that the number of events is enough for a scan point(Endscanpoint):
+        //then on the amcManager the runparameter needs to be put to faac value
+        //then the m_scanParameter needs to be updated for the interested hardware managers (OH)
+        //OH manager configures the vfat
+        //AMC manager updates the run param to the new point of the scan  
+        //then the AMC13 will start counting again the number of events for the new point of the scan
+
+
+        ////AMC setting run param to faac while changing the scan value
+        std::string commandAMC = "setRunParamInterCalib";
+        try{
+            std::set<std::string> groups = p_appZone->getGroupNames();
+            for (auto i =groups.begin(); i != groups.end(); ++i) {
+                xdaq::ApplicationGroup* ag = const_cast<xdaq::ApplicationGroup*>(p_appZone->getApplicationGroup(*i));
+
+                std::set<const xdaq::ApplicationDescriptor*> allApps = ag->getApplicationDescriptors();
+       
+                for (auto j = allApps.begin(); j != allApps.end(); ++j) {
+                    std::string classname = (*j)->getClassName();
+                    if (((*j)->getClassName()).rfind("AMCManager") != std::string::npos) {
+                        xdaq::ApplicationDescriptor* app=(xdaq::ApplicationDescriptor*) *j;
+
+
+                        gem::utils::soap::GEMSOAPToolBox::sendCommand(commandAMC,
+                                                                      p_appContext,p_appDescriptor, app);  }}}
+
+                
+        } catch(xcept::Exception& err) {
+            std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+                                                    commandAMC.c_str());
+            CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
+            XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
+                                 top, toolbox::toString("%s.",msgBase.c_str()), err);
+            this->notifyQualified("error", top);
+
+            m_globalState.update();
+            XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
+        }
+    
+        //OH changing the scan value
+        std::string commandOH = "updateScanValueCalib";
+        try{
+
+            std::set<std::string> groups = p_appZone->getGroupNames();
+            for (auto i =groups.begin(); i != groups.end(); ++i) {
+                xdaq::ApplicationGroup* ag = const_cast<xdaq::ApplicationGroup*>(p_appZone->getApplicationGroup(*i));
+                std::set<const xdaq::ApplicationDescriptor*> allApps = ag->getApplicationDescriptors();
+                for (auto j = allApps.begin(); j != allApps.end(); ++j) {
+                    std::string classname = (*j)->getClassName();
+                    if (((*j)->getClassName()).rfind("OptoHybridManager") != std::string::npos) {
+                        xdaq::ApplicationDescriptor* app=(xdaq::ApplicationDescriptor*) *j;
+
+
+                        gem::utils::soap::GEMSOAPToolBox::sendCommand(commandOH,
+                                                                      p_appContext,p_appDescriptor, app);  }}}
+        
+ 
+
+        } catch(xcept::Exception& err) {
+            std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+                                                    commandOH.c_str());
+            CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
+            XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
+                                 top, toolbox::toString("%s.",msgBase.c_str()), err);
+            this->notifyQualified("error", top);
+
+            m_globalState.update();
+            XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
+        }
+
+        std::string commandAMC2 = "updateRunParamCalib";
+        try{
+
+       
+            std::set<std::string> groups = p_appZone->getGroupNames();
+            for (auto i =groups.begin(); i != groups.end(); ++i) {
+                xdaq::ApplicationGroup* ag = const_cast<xdaq::ApplicationGroup*>(p_appZone->getApplicationGroup(*i));
+                std::set<const xdaq::ApplicationDescriptor*> allApps = ag->getApplicationDescriptors();
+                for (auto j = allApps.begin(); j != allApps.end(); ++j) {
+                    std::string classname = (*j)->getClassName();
+                    if (((*j)->getClassName()).rfind("AMCManager") != std::string::npos) {
+                        xdaq::ApplicationDescriptor* app=(xdaq::ApplicationDescriptor*) *j;
+
+
+                        gem::utils::soap::GEMSOAPToolBox::sendCommand(commandAMC2,
+                                                                      p_appContext,p_appDescriptor, app);  }}}
+        } catch(xcept::Exception& err) {
+            std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+                                                    commandAMC2.c_str());
+            CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
+            XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
+                                 top, toolbox::toString("%s.",msgBase.c_str()), err);
+            this->notifyQualified("error", top);
+        
+            m_globalState.update();
+            XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
+        }
+
+
+        ///Restart counting triggers
+        m_scanParameter = updatedParameter;
+        CMSGEMOS_INFO("GEMSupervisor::EndScanPointCalib updated scanparam and about to call restartAMC13Counts");
+        std::string commandAMC13 = "restartAMC13Counts";
+        try{
+
+            std::set<std::string> groups = p_appZone->getGroupNames();
+            for (auto i =groups.begin(); i != groups.end(); ++i) {
+                xdaq::ApplicationGroup* ag = const_cast<xdaq::ApplicationGroup*>(p_appZone->getApplicationGroup(*i));
+                std::set<const xdaq::ApplicationDescriptor*> allApps = ag->getApplicationDescriptors();
+                for (auto j = allApps.begin(); j != allApps.end(); ++j) {
+                    std::string classname = (*j)->getClassName();
+                    if (((*j)->getClassName()).rfind("AMC13Manager") != std::string::npos) {
+                        xdaq::ApplicationDescriptor* app=(xdaq::ApplicationDescriptor*) *j;
+
+
+                        gem::utils::soap::GEMSOAPToolBox::sendCommand(commandAMC13,
+                                                                      p_appContext,p_appDescriptor, app);  }}}
+        
+        } catch(xcept::Exception& err) {
+            std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+                                                    commandAMC13.c_str());
+            CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
+            XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
+                                 top, toolbox::toString("%s.",msgBase.c_str()), err);
+            this->notifyQualified("error", top);
+            m_globalState.update();
+            XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
+        }
+
+    
+
+    } else {
+        CMSGEMOS_INFO("GEMSupervisor::EndScanPointCalib Scan Finished " << updatedParameter);
+        
+        // For calibration with calpulse stop when calibration ends
+        if (m_scanInfo.bag.signalSourceType.value_<1) {
+            CMSGEMOS_INFO("GEMSupervisor::EndScanPointCalib  with calpulse; Scan Finished " << updatedParameter << "; firing stop to FSM");
+            fireEvent("Stop");
+            CMSGEMOS_INFO("GEMSupervisor::EndScanPointCalib GlobalState = " << m_globalState.getStateName()
+                       << " FSM state " << getCurrentState()
+                         << " calling stopAction");    
+            usleep(1000); 
+        }
+    }
+    std::string commandName = "EndScanPointCalib";
+    try {
+        CMSGEMOS_INFO("GEMSupervisor::EndScanPointCalib " << commandName << " succeeded ");
+        return
+            gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
+    } catch(xcept::Exception& err) {
+        std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+                                                commandName.c_str());
+        CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
+        XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
+                             top, toolbox::toString("%s.",msgBase.c_str()), err);
+        this->notifyQualified("error", top);
+
+        m_globalState.update();
+        XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
     }
 
-    while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Running")) {
-      CMSGEMOS_TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
-                     << " FSM state " << getCurrentState());
-      usleep(10);
-      m_globalState.update();
-    }
-
-    CMSGEMOS_INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
-                  << " FSM state " << getCurrentState()
-                  << " calling pauseAction");
-    fireEvent("Pause");
-
-    while (!(m_globalState.getStateName() == "Paused" && getCurrentState() == "Paused")) {
-      CMSGEMOS_TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
-                     << " FSM state " << getCurrentState());
-      usleep(10);
-      m_globalState.update();
-    }
-
-    CMSGEMOS_INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
-                  << " FSM state " << getCurrentState()
-                  << " calling resumeAction");
-    fireEvent("Resume");
-
-    m_scanParameter = updatedParameter;
-    while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Running")) {
-      CMSGEMOS_TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
-                     << " FSM state " << getCurrentState());
-      usleep(10);
-      m_globalState.update();
-    }
-  } else {
-    CMSGEMOS_INFO("GEMSupervisor::EndScanPoint Scan Finished " << updatedParameter);
-    CMSGEMOS_INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
-                  << " FSM state " << getCurrentState()
-                  << " calling stopAction");
-
-    fireEvent("Stop");
-    usleep(100);
-  }
-
-  try {
-    CMSGEMOS_INFO("GEMSupervisor::EndScanPoint " << commandName << " succeeded ");
-    return
-      gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
-  } catch (xcept::Exception& e) {
-    const std::string errmsg = "Failed to create SOAP reply for command '" + commandName + "'";
-    CMSGEMOS_ERROR(errmsg << ": " << xcept::stdformat_exception_history(e));
-    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem, top, errmsg, e);
-    this->notifyQualified("error", top);
-
-    m_globalState.update();
-    XCEPT_RETHROW(xoap::exception::Exception, errmsg, e);
-  }
-  m_globalState.update();
-  XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }
 
 /////////////////////////////////////////
@@ -1176,7 +1292,7 @@ public:
     else if (classname == "tcds::ici::ICIController")               priority = 101; // must be second of TCDS!
     else if (classname == "tcds::pi::PIController")                 priority = 100; // must be first!?
     else if (classname == "gem::hw::amc13::AMC13Manager")           priority =  95; // after AMCManagers but not last
-    else if (classname == "gem::hw::glib::GLIBManager")             priority =  90; // before (or simultaneous with) OH manager and before AMC13
+    else if (classname == "gem::hw::amc::AMCManager")               priority =  90; // before (or simultaneous with) OH manager and before AMC13
     else if (classname == "gem::hw::ctp7::CTP7Manager")             priority =  90; // before (or simultaneous with) OH manager and before AMC13
     else if (classname == "gem::hw::amc::AMCManager")               priority =  90; // before (or simultaneous with) OH manager and before AMC13
     else if (classname == "gem::hw::optohybrid::OptoHybridManager") priority =  55; // before AMC managers and before  AMC13
@@ -1259,7 +1375,7 @@ public:
   {
     int priority = 50; // default
     if      (classname == "gem::hw::optohybrid::OptoHybridManager") priority = 105; // before AMC managers
-    else if (classname == "gem::hw::glib::GLIBManager")             priority = 100; // after OH manager and before  AMC13
+    else if (classname == "gem::hw::amc::AMCManager")             priority = 100; // after OH manager and before  AMC13
     else if (classname == "gem::hw::ctp7::CTP7Manager")             priority = 100; // after OH manager and before  AMC13
     else if (classname == "gem::hw::amc::AMCManager")               priority = 100; // after OH manager and before  AMC13
     else if (classname == "gem::hw::amc13::AMC13Readout")           priority =  90; // before AMC13Manager
@@ -1332,7 +1448,7 @@ public:
     else if (classname == "tcds::ici::ICIController")               priority = 101; // must be second of TCDS!
     else if (classname == "tcds::pi::PIController")                 priority = 100; // must be first!?
     else if (classname == "gem::hw::amc13::AMC13Manager")           priority =  95; // after AMCManagers but not last
-    else if (classname == "gem::hw::glib::GLIBManager")             priority =  70; // before (or simultaneous with) OH manager and before  AMC13
+    else if (classname == "gem::hw::amc::AMCManager")             priority =  70; // before (or simultaneous with) OH manager and before  AMC13
     else if (classname == "gem::hw::ctp7::CTP7Manager")             priority =  70; // before (or simultaneous with) OH manager and before  AMC13
     else if (classname == "gem::hw::amc::AMCManager")               priority =  70; // before (or simultaneous with) OH manager and before  AMC13
     else if (classname == "gem::hw::optohybrid::OptoHybridManager") priority =  65; // after (or simultaneous with) AMC managers and before  AMC13

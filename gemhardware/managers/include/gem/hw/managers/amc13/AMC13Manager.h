@@ -78,7 +78,8 @@ namespace gem {
           xoap::MessageReference sendTriggerBurst(xoap::MessageReference mns);
           xoap::MessageReference enableTriggers(xoap::MessageReference mns);
           xoap::MessageReference disableTriggers(xoap::MessageReference mns);
-
+          xoap::MessageReference restartAMC13Counts(xoap::MessageReference mns);
+        
 	  void endScanPoint();
 
 	  virtual void timeExpired(toolbox::task::TimerEvent& event);
@@ -237,8 +238,8 @@ namespace gem {
 
           xdata::Bag<AMC13Info>               m_amc13Params;
           xdata::Vector<xdata::Bag<BGOInfo> > m_bgoConfig;
-	  xdata::Bag<L1AInfo>                 m_localTriggerConfig;
-	  xdata::Bag<TTCInfo>                 m_amc13TTCConfig;
+          xdata::Bag<L1AInfo>                 m_localTriggerConfig;
+          xdata::Bag<TTCInfo>                 m_amc13TTCConfig;
 
 
           //seems that we've duplicated the members of the m_amc13Params as class variables themselves
@@ -251,14 +252,15 @@ namespace gem {
 	    m_bgoRepeat, m_bgoIsLong, m_enableLEMO;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset, m_bgoChannel;
-	  uint8_t m_bgoCMD;
-	  uint16_t m_bgoBX, m_bgoPrescale;
+          uint8_t m_bgoCMD;
+          uint16_t m_bgoBX, m_bgoPrescale;
           uint32_t m_ignoreAMCTTS, m_fedID, m_sfpMask, m_slotMask,
             m_internalPeriodicPeriod, m_L1Aburst;
           //uint64_t m_localL1AMask;
-	  uint64_t m_updatedL1ACount;
+          uint64_t m_updatedL1ACount;
           ////counters
-
+          uint32_t m_scanParameter;
+          
         protected:
 
         };  // class AMC13Manager

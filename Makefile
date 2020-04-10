@@ -12,7 +12,10 @@ SUBPACKAGES := \
         gemreadout \
         gemsupervisor \
         gemdaqmonitor \
-        gemonlinedb
+        gemonlinedb \
+        gemcalibration 
+
+
 
 # SUBPACKAGES.DOC      := $(patsubst %,%.doc,    ${SUBPACKAGES})
 # SUBPACKAGES.CHECK    := $(patsubst %,%.check,    ${SUBPACKAGES})
@@ -154,6 +157,8 @@ gemonlinedb: gemutils gembase
 gemreadout: gemutils gembase gemhardware/devices
 
 gemdaqmonitor: gembase gemhardware/devices gemhardware/utils
+
+gemcalibration: gemutils gembase 
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

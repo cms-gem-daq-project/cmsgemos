@@ -219,7 +219,6 @@ bool gem::utils::soap::GEMSOAPToolBox::sendParameter(std::vector<std::string> co
                                                      xdaq::ApplicationContext* appCxt,
                                                      xdaq::ApplicationDescriptor* srcDsc,
                                                      xdaq::ApplicationDescriptor* destDsc
-                                                     // log4cplus::Logger* logger
                                                      )
 {
   log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
@@ -392,8 +391,6 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameterBag(std::string c
             << elem->getElementName().getLocalName());
       CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag  URI: "
             << elem->getElementName().getURI());
-      // // CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag memory address: "
-      // //       << std::hex << elem << std::dec);
       CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag  has value: "
             << elem->getValue());
       CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag and has "
@@ -758,4 +755,104 @@ std::string gem::utils::soap::GEMSOAPToolBox::getXSDType(xdata::Serializable con
 
   else if (item.type() == "unsigned short")
     return "xsd:unsignedShort";
+}
+std::string gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterString(xoap::MessageReference const& msg,  std::string const& parameterName)
+{
+    log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
+    
+  xdata::soap::Serializer serializer;
+  xdata::String tmpVal;
+  xoap::SOAPElement element = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterElement(msg, parameterName);
+  try
+    {
+      serializer.import(&tmpVal, element.getDOM());
+    }
+  catch(xcept::Exception& err)
+    {
+      std::string const msg =
+        toolbox::toString("Failed to import SOAP command parameter 'xdaq:%s': '%s'.",
+                          parameterName.c_str(),
+                          err.message().c_str());
+      XCEPT_RAISE(gem::utils::exception::SOAPException, msg);
+      
+    }
+
+  return std::string(tmpVal);
+}
+
+
+int gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterInteger(xoap::MessageReference const& msg, std::string const& parameterName)
+{
+    log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
+    
+  xdata::soap::Serializer serializer;
+  xdata::Integer tmpVal;
+  xoap::SOAPElement element = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterElement(msg, parameterName);
+  try
+    {
+      serializer.import(&tmpVal, element.getDOM());
+    }
+  catch(xcept::Exception& err)
+    {
+      std::string const msg =
+        toolbox::toString("Failed to import SOAP command parameter 'xdaq:%s': '%s'.",
+                          parameterName.c_str(),
+                          err.message().c_str());
+     XCEPT_RAISE(gem::utils::exception::SOAPException, msg);
+      
+    }
+  return int(tmpVal);
+}
+
+bool gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterBoolean(xoap::MessageReference const& msg,  std::string const& parameterName)
+{
+    log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
+    
+  xdata::soap::Serializer serializer;
+  xdata::Boolean tmpVal;
+  xoap::SOAPElement element = gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterElement(msg, parameterName);
+  try
+    {
+      serializer.import(&tmpVal, element.getDOM());
+    }
+  catch(xcept::Exception& err)
+    {
+      std::string const msg =
+        toolbox::toString("Failed to import SOAP command parameter 'xdaq:%s': '%s'.",
+                          parameterName.c_str(),
+                          err.message().c_str());
+      
+      XCEPT_RAISE(gem::utils::exception::SOAPException, msg);
+   
+    }
+  return bool(tmpVal);
+}
+
+
+
+xoap::SOAPElement gem::utils::soap::GEMSOAPToolBox::extractSOAPCommandParameterElement(xoap::MessageReference const& msg, std::string const& parameterName )
+{
+    log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
+    
+    
+    for (auto li: msg->getSOAPPart().getEnvelope().getBody().getChildElements()) {
+        xoap::SOAPName name = (li).getElementName();
+        std::vector<xoap::SOAPElement> children = (li).getChildElements();
+        std::vector<xoap::SOAPElement>::iterator vi;
+       
+        for (vi = children.begin(); vi != children.end(); ++vi)
+            {
+                xoap::SOAPName childName = (*vi).getElementName();
+                
+                if (childName.getLocalName()==parameterName){
+                    CMSGEMOS_DEBUG("GEMSOAPToolBox::extractSOAPCommandParameterElementc loading parameter  : "<< childName.getLocalName());
+                    return *vi;
+                }   
+            }
+    }
+    std::string const msgError =
+        toolbox::toString("Failed to import SOAP command parameter with name 'xdaq:%s'.",
+                          parameterName.c_str());
+    XCEPT_RAISE(gem::utils::exception::SOAPException, msgError);
+    
 }

@@ -53,6 +53,7 @@
 #include "gem/base/exception/Exception.h"
 #include "gem/base/utils/exception/Exception.h"
 #include "gem/base/utils/GEMInfoSpaceToolBox.h"
+#include "gem/utils/soap/GEMSOAPToolBox.h"
 
 namespace xdaq {
   class ApplicationStub;
@@ -193,7 +194,16 @@ namespace gem {
           xdata::UnsignedInteger32 scanMax;
           xdata::UnsignedInteger32 stepSize;
           xdata::UnsignedInteger64 nTriggers;
-
+          xdata::Boolean calMode;
+          xdata::UnsignedInteger32 trigType;          
+          xdata::UnsignedInteger32 l1aTime;
+          xdata::UnsignedInteger32 mspl;
+          xdata::UnsignedInteger32 vfatChMin;
+          xdata::UnsignedInteger32 vfatChMax;
+          xdata::UnsignedInteger32 signalSourceType;
+          xdata::UnsignedInteger32 pulseDelay;
+          xdata::UnsignedInteger32 latency;
+          
           inline std::string toString() {
             std::stringstream os;
             os << "scanType:" << scanType.toString() << std::endl
@@ -201,6 +211,14 @@ namespace gem {
                << "scanMax:"  << scanMax.toString()  << std::endl
                << "stepSize:" << stepSize.toString() << std::endl
                << "nTrigger:" << nTriggers.value_    << std::endl
+               << "trigType:" << trigType.value_     << std::endl
+               << "l1aTime:"  << l1aTime.value_     << std::endl
+               << "mspl:"     << mspl.value_        << std::endl
+               << "vfatChMin:"<< vfatChMin.value_     << std::endl
+               << "vfatChMax:"<< vfatChMax.value_     << std::endl
+               << "signalSourceType:" << signalSourceType.value_     << std::endl
+               << "pulseDelay:" << pulseDelay.value_     << std::endl
+               << "latency:" << latency.value_     << std::endl
                << std::endl;
             return os.str();
           };
@@ -220,6 +238,8 @@ namespace gem {
 
         uint32_t m_instance;
 
+        xoap::MessageReference calibParamRetrieve(xoap::MessageReference mns);
+        
       protected:
         xdata::Integer64 m_runNumber;
         xdata::String    m_runType;
