@@ -58,7 +58,7 @@ condasetup.$(ENV_NAME).env:
 	conda config --append envs_dirs $(CONDA_DIR) && \
 	conda create -p $(CONDA_DIR)/$(ENV_NAME) python=$(CONDA_PY_VER) -y && \
 	$(CONDA_RUN) python -m pip install -r requirements.txt && \
-	$(CONDA_RUN) conda install -y doxyrest && \
+	$(CONDA_RUN) conda install -y doxygen doxyrest && \
 	touch $@
 
 .PHONY: doxygen doxyrest
@@ -105,7 +105,7 @@ cleanall: clean cleanapi cleandoxygen cleandoxyrest cleanexhale
 	@$(CONDA_EXE) $(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 ifdef USE_CONDA
-doxyrest help html: | condasetup.$(ENV_NAME).env
+doxygen doxyrest help html: | condasetup.$(ENV_NAME).env
 ## this doesn't work
 #%: condasetup.$(ENV_NAME).env
 ## this forces condasetup to run even in no-op mode, but it solves the other problem...
