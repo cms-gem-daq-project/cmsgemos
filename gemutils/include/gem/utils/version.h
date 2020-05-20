@@ -27,7 +27,7 @@ namespace gemutils {
   const std::string summary     = "Utilities for GEM online software";
   const std::string description = "";
   const std::string authors     = "GEM Online Systems Group";
-  const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
+  const std::string link        = "https://cmsgemdaq.web.cern.ch/cmsgemdaq/";
 
   config::PackageInfo getPackageInfo();
   void checkPackageDependencies() throw (config::PackageInfo::VersionException);
