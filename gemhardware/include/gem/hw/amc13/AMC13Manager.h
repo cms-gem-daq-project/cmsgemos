@@ -84,6 +84,12 @@ namespace gem {
           xoap::MessageReference disableTriggers(xoap::MessageReference mns);
 
 	  void endScanPoint();
+	  void stopLocalTriggers();
+	  void startLocalTriggers();
+	  void sendSingleBGO(uint32_t cmd, uint32_t bx=100);
+	  void enableLocalBGOs();
+	  void disableLocalBGOs();
+	  void configureLocalBGOs();
 
 	  virtual void timeExpired(toolbox::task::TimerEvent& event);
 
@@ -133,6 +139,7 @@ namespace gem {
 	    xdata::Boolean           sendl1ATriburst; // need to remove
 	    xdata::Boolean           startl1ATricont; // need to remove
 	    xdata::Boolean           enableLEMO;
+	    xdata::Boolean           startL1AGen;
 
             inline std::string toString() {
               std::stringstream os;
@@ -144,6 +151,7 @@ namespace gem {
                  << "sendl1ATriburst       : " <<  sendl1ATriburst.toString()        << std::endl
                  << "startl1ATricont       : " <<  startl1ATricont.toString()        << std::endl
                  << "enableLEMO            : " <<  enableLEMO.toString()             << std::endl
+                 << "startL1AGen           : " <<  startL1AGen.toString()            << std::endl
                  << std::endl;
               return os.str();
             };
@@ -234,7 +242,8 @@ namespace gem {
 
           amc13_ptr p_amc13;
 
-	  toolbox::task::Timer* p_timer;    // timer for general info space updates
+	  toolbox::task::Timer* p_timer;       ///< timer for general info space updates
+	  toolbox::task::Timer* resync_timer;  ///< timer for general info space updates
 
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
           xdata::Integer m_crateID, m_slot;
@@ -252,7 +261,7 @@ namespace gem {
           bool m_monBackPressEnable, m_megaMonitorScale;
           bool m_enableLocalTTC, m_skipPLLReset, m_enableLocalL1A,
             m_sendL1ATriburst, m_startL1ATricont, // need to remove
-	    m_bgoRepeat, m_bgoIsLong, m_enableLEMO;
+	    m_bgoRepeat, m_bgoIsLong, m_enableLEMO, m_startL1AGen;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset, m_bgoChannel;
 	  uint8_t m_bgoCMD;

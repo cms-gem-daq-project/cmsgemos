@@ -27,7 +27,7 @@ namespace gemsupervisor {
   const std::string summary     = "GEM Supervisor";
   const std::string description = "";
   const std::string authors     = "GEM Online Systems Group";
-  const std::string link        = "https://cmsgemdaq.web.cern.ch/cmsgemdaq//";
+  const std::string link        = "https://cmsgemdaq.web.cern.ch/cmsgemdaq/";
 
   config::PackageInfo getPackageInfo();
   void checkPackageDependencies() throw (config::PackageInfo::VersionException);

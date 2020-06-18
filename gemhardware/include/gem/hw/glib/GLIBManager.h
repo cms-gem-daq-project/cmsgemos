@@ -141,6 +141,7 @@ namespace gem {
           xdata::Boolean                       m_uhalPhaseShift;
           xdata::Boolean                       m_bc0LockPhaseShift;
           xdata::Boolean                       m_relockPhase;
+          xdata::Boolean                       m_enableZS;
 
 	  uint32_t m_lastLatency, m_lastVT1, m_lastVT2;
         };  // class GLIBManager
