@@ -1,0 +1,10 @@
+name: docs-env
+channels:
+  - conda-forge
+  - anaconda
+  - jpn
+dependencies:
+  - pip
+  - pip:
+      - -r requirements.docs.txt
+  - doxyrest
