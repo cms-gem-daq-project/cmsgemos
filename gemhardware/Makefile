@@ -9,9 +9,9 @@ LongPackage=gemhardware
 ShortPackage=hw
 PackageName=hw
 
-GEMHARDWARE_VER_MAJOR=1
-GEMHARDWARE_VER_MINOR=0
-GEMHARDWARE_VER_PATCH=0
+GEMHARDWARE_VER_MAJOR:=$(shell $(BUILD_HOME)/$(Project)/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[1];}' | awk '{split($$0,b,":"); print b[2];}')
+GEMHARDWARE_VER_MINOR:=$(shell $(BUILD_HOME)/$(Project)/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[2];}' | awk '{split($$0,b,":"); print b[2];}')
+GEMHARDWARE_VER_PATCH:=$(shell $(BUILD_HOME)/$(Project)/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[3];}' | awk '{split($$0,b,":"); print b[2];}')
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
